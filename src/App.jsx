@@ -1,14 +1,8 @@
-useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('nihongo-save') || '{}')
-    if (saved.xp)           setXp(saved.xp)
-    if (saved.hearts)       setHearts(saved.hearts)
-    if (saved.gems)         setGems(saved.gems)
-    if (saved.progress)     setProgress(saved.progress)
-    if (saved.totalQuizzes) setTotalQuizzes(saved.totalQuizzes)
-    if (saved.perfectScores) setPerfectScores(saved.perfectScores)
-    if (saved.lastScore)    setLastScore(saved.lastScore)
-    setTimeout(() => setLoading(false), 2000)
-  }, [])
+import { useState, useEffect } from 'react'
+import { hiragana } from './data.js'
+import Quiz from './screens/Quiz.jsx'
+import Result from './screens/Result.jsx'
+import Letters from './screens/Letters.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -19,7 +13,6 @@ const translations = {
     learn: 'تعلم', hearts: 'قلوب', profile: 'ملفي', shop: 'متجر',
     welcome: 'أهلاً! 🎌', level: 'المستوى N5 — مبتدئ',
     startQuiz: '🧠 ابدأ اختبار', learnChart: '🎌 جدول الهيراغانا',
-    vocab: '📚 المفردات', days: 'أيام', chars: 'حرف', lastScore: 'آخر نتيجة',
     path: 'مسار التعلم', done: 'مكتمل', inProgress: 'جارٍ', locked: 'مقفل',
     noHearts: 'انتهت قلوبك!', wait: 'انتظر 5 ساعات أو اشتري من المتجر',
   },
@@ -27,19 +20,18 @@ const translations = {
     learn: 'Learn', hearts: 'Hearts', profile: 'Profile', shop: 'Shop',
     welcome: 'Welcome! 🎌', level: 'Level N5 — Beginner',
     startQuiz: '🧠 Start Quiz', learnChart: '🎌 Hiragana Chart',
-    vocab: '📚 Vocabulary', days: 'days', chars: 'chars', lastScore: 'last score',
     path: 'Learning Path', done: 'Done', inProgress: 'In Progress', locked: 'Locked',
     noHearts: 'No hearts left!', wait: 'Wait 5 hours or buy from shop',
   }
 }
 
 const ACHIEVEMENTS = [
-  { id: 'first',    icon: '⚡', label: 'First Quiz',    condition: (s) => s.totalQuizzes >= 1 },
-  { id: 'streak7',  icon: '🔥', label: '7 Day Streak',  condition: (s) => s.streak >= 7 },
-  { id: 'perfect',  icon: '🏆', label: 'Perfect Score',  condition: (s) => s.perfectScores >= 1 },
-  { id: 'master10', icon: '🎌', label: '10 Mastered',    condition: (s) => Object.values(s.progress).filter(v => v >= 10).length >= 10 },
-  { id: 'xp500',    icon: '💎', label: '500 XP',         condition: (s) => s.xp >= 500 },
-  { id: 'quiz10',   icon: '🌟', label: '10 Quizzes',     condition: (s) => s.totalQuizzes >= 10 },
+  { id: 'first',    icon: '⚡', label: 'First Quiz',   condition: (s) => s.totalQuizzes >= 1 },
+  { id: 'streak7',  icon: '🔥', label: '7 Day Streak', condition: (s) => s.streak >= 7 },
+  { id: 'perfect',  icon: '🏆', label: 'Perfect Score', condition: (s) => s.perfectScores >= 1 },
+  { id: 'master10', icon: '🎌', label: '10 Mastered',  condition: (s) => Object.values(s.progress).filter(v => v >= 10).length >= 10 },
+  { id: 'xp500',    icon: '💎', label: '500 XP',        condition: (s) => s.xp >= 500 },
+  { id: 'quiz10',   icon: '🌟', label: '10 Quizzes',   condition: (s) => s.totalQuizzes >= 10 },
 ]
 
 export default function App() {
@@ -60,26 +52,25 @@ export default function App() {
   const [perfectScores, setPerfectScores] = useState(0)
   const [gems, setGems] = useState(500)
 
-  // Load saved data
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('nihongo-save') || '{}')
-    if (saved.xp)          setXp(saved.xp)
-    if (saved.hearts)      setHearts(saved.hearts)
-    if (saved.gems)        setGems(saved.gems)
-    if (saved.progress)    setProgress(saved.progress)
-    if (saved.totalQuizzes) setTotalQuizzes(saved.totalQuizzes)
+    if (saved.xp)            setXp(saved.xp)
+    if (saved.hearts)        setHearts(saved.hearts)
+    if (saved.gems)          setGems(saved.gems)
+    if (saved.progress)      setProgress(saved.progress)
+    if (saved.totalQuizzes)  setTotalQuizzes(saved.totalQuizzes)
     if (saved.perfectScores) setPerfectScores(saved.perfectScores)
-    if (saved.lastScore)   setLastScore(saved.lastScore)
+    if (saved.lastScore)     setLastScore(saved.lastScore)
+    setTimeout(() => setLoading(false), 2000)
   }, [])
 
-  // Save data on every change
   useEffect(() => {
     localStorage.setItem('nihongo-save', JSON.stringify({
       xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore
     }))
   }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore])
-  const t = translations[lang]
 
+  const t = translations[lang]
   const stats = { xp, streak, progress, totalQuizzes, perfectScores }
 
   const startQuiz = () => {
@@ -133,20 +124,18 @@ export default function App() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
-      <div style={{ fontSize: '80px', marginBottom: '16px', animation: 'pulse 1s infinite' }}>🎌</div>
+      <div style={{ fontSize: '80px', marginBottom: '16px' }}>🎌</div>
       <h1 style={{ color: 'white', fontSize: '28px', margin: '0 0 8px' }}>
         にほんご<span style={{ color: '#e84393' }}>GO</span>
       </h1>
       <p style={{ color: '#aaa', fontSize: '14px', marginBottom: '40px' }}>تعلم اليابانية بطريقة ممتعة</p>
-      <div style={{ width: '200px', height: '4px', background: '#16213e', borderRadius: '4px', overflow: 'hidden' }}>
+      <div style={{ width: '200px', height: '4px', background: '#0f3460', borderRadius: '4px', overflow: 'hidden' }}>
         <div style={{ height: '100%', background: 'linear-gradient(90deg,#e84393,#a855f7)', borderRadius: '4px', animation: 'load 2s ease forwards' }} />
       </div>
-      <style>{`
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-        @keyframes load { from{width:0%} to{width:100%} }
-      `}</style>
+      <style>{`@keyframes load { from{width:0%} to{width:100%} }`}</style>
     </div>
   )
+
   if (screen === 'quiz') return (
     <>
       <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('home')} />
@@ -170,7 +159,6 @@ export default function App() {
 
   const xpPercent = Math.min((xp / 1000) * 100, 100)
 
-  // LEARN TAB
   const LearnTab = () => (
     <div style={{ paddingBottom: '80px' }}>
       <div style={{ background: '#16213e', padding: '18px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -182,7 +170,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* No hearts warning */}
       {hearts === 0 && (
         <div style={{ margin: '16px', background: '#7a1f1f', borderRadius: '12px', padding: '14px 16px', textAlign: 'center' }}>
           <p style={{ margin: '0 0 4px', fontWeight: '500' }}>{t.noHearts}</p>
@@ -190,7 +177,6 @@ export default function App() {
         </div>
       )}
 
-      {/* XP Card */}
       <div style={{ margin: '16px', background: '#16213e', borderRadius: '16px', padding: '20px' }}>
         <p style={{ color: '#aaa', margin: '0 0 4px', fontSize: '13px' }}>{t.welcome}</p>
         <h2 style={{ margin: '0 0 4px', fontSize: '18px' }}>{t.level}</h2>
@@ -203,7 +189,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Buttons */}
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
         <button onClick={startQuiz} disabled={hearts === 0}
           style={{ width: '100%', padding: '15px', background: hearts === 0 ? '#333' : 'linear-gradient(90deg,#e84393,#a855f7)', border: 'none', borderRadius: '12px', color: hearts === 0 ? '#666' : 'white', fontSize: '16px', fontWeight: '500', cursor: hearts === 0 ? 'not-allowed' : 'pointer' }}>
@@ -215,7 +200,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* Learning Path */}
       <div style={{ padding: '0 16px' }}>
         <p style={{ color: '#aaa', fontSize: '13px', marginBottom: '12px' }}>{t.path}</p>
         {[
@@ -237,7 +221,6 @@ export default function App() {
     </div>
   )
 
-  // HEARTS TAB
   const HeartsTab = () => (
     <div style={{ padding: '24px 16px 80px', textAlign: 'center' }}>
       <h2 style={{ fontSize: '20px', marginBottom: '24px' }}>❤️ {t.hearts}</h2>
@@ -249,16 +232,6 @@ export default function App() {
       <p style={{ color: '#aaa', fontSize: '14px', marginBottom: '32px' }}>
         {hearts === 5 ? (lang === 'ar' ? 'قلوبك مكتملة!' : 'Full hearts!') : `${hearts}/5 ${lang === 'ar' ? 'قلوب متبقية' : 'hearts remaining'}`}
       </p>
-      <div style={{ background: '#16213e', borderRadius: '16px', padding: '20px', marginBottom: '16px', textAlign: 'right' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', color: '#aaa' }}>+1 {lang === 'ar' ? 'قلب' : 'heart'}</span>
-          <div>
-            <p style={{ margin: '0', fontWeight: '500' }}>{lang === 'ar' ? 'تمرين' : 'Practice'}</p>
-            <p style={{ margin: '0', fontSize: '12px', color: '#aaa' }}>{lang === 'ar' ? 'اجب صح لتكسب قلب' : 'Answer correctly to earn'}</p>
-          </div>
-          <span style={{ fontSize: '28px' }}>📝</span>
-        </div>
-      </div>
       <button onClick={() => { if (gems >= 350 && hearts < 5) { setGems(g => g - 350); setHearts(5) } }}
         disabled={gems < 350 || hearts === 5}
         style={{ width: '100%', padding: '15px', background: gems >= 350 && hearts < 5 ? 'linear-gradient(90deg,#e84393,#a855f7)' : '#333', border: 'none', borderRadius: '12px', color: gems >= 350 && hearts < 5 ? 'white' : '#666', fontSize: '16px', cursor: gems >= 350 && hearts < 5 ? 'pointer' : 'not-allowed' }}>
@@ -267,7 +240,6 @@ export default function App() {
     </div>
   )
 
-  // PROFILE TAB
   const ProfileTab = () => (
     <div style={{ padding: '24px 16px 80px' }}>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -275,8 +247,6 @@ export default function App() {
         <h2 style={{ margin: '0 0 4px', fontSize: '20px' }}>Abdalla</h2>
         <p style={{ color: '#aaa', fontSize: '13px', margin: 0 }}>@thatsabod</p>
       </div>
-
-      {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '24px' }}>
         {[['⚡', xp, 'XP'], ['🔥', streak, lang === 'ar' ? 'أيام' : 'Days'], ['🏆', totalQuizzes, lang === 'ar' ? 'اختبار' : 'Quizzes']].map(([icon, val, label], i) => (
           <div key={i} style={{ background: '#16213e', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
@@ -286,8 +256,6 @@ export default function App() {
           </div>
         ))}
       </div>
-
-      {/* Achievements */}
       <h3 style={{ fontSize: '16px', marginBottom: '12px', color: '#aaa' }}>{lang === 'ar' ? 'الإنجازات' : 'Achievements'}</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
         {ACHIEVEMENTS.map((a) => {
@@ -303,16 +271,12 @@ export default function App() {
     </div>
   )
 
-  // SHOP TAB
   const ShopTab = () => (
     <div style={{ padding: '24px 16px 80px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2 style={{ margin: 0, fontSize: '20px' }}>{lang === 'ar' ? 'المتجر' : 'Shop'}</h2>
         <span style={{ background: '#16213e', padding: '6px 14px', borderRadius: '20px', fontSize: '14px' }}>💎 {gems}</span>
       </div>
-
-      <p style={{ color: '#aaa', fontSize: '13px', marginBottom: '16px' }}>{lang === 'ar' ? 'تعزيزات القوة' : 'Power-Ups'}</p>
-
       {[
         { icon: '❤️', name: lang === 'ar' ? 'إعادة تعبئة القلوب' : 'Heart Refill', desc: lang === 'ar' ? 'استعد قلوبك كاملة' : 'Regain full hearts', cost: 350, action: () => { if (gems >= 350) { setGems(g => g - 350); setHearts(5) } } },
         { icon: '🛡️', name: lang === 'ar' ? 'درع القلب' : 'Heart Shield', desc: lang === 'ar' ? '30 دقيقة بدون خسارة قلوب' : '30 min no heart loss', cost: 200, action: () => { if (gems >= 200) setGems(g => g - 200) } },
@@ -342,8 +306,6 @@ export default function App() {
         {tab === 'profile' && <ProfileTab />}
         {tab === 'shop'    && <ShopTab />}
       </div>
-
-      {/* Bottom Nav */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#16213e', borderTop: '0.5px solid #333', display: 'flex', zIndex: 100 }}>
         {[
           { id: 'learn',   icon: '📚', label: t.learn },
@@ -358,7 +320,6 @@ export default function App() {
           </button>
         ))}
       </div>
-
       <LangBtn />
     </>
   )
