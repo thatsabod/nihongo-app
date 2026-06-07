@@ -11,17 +11,25 @@ function shuffle(arr) {
 const translations = {
   ar: {
     learn: 'تعلم', hearts: 'قلوب', profile: 'ملفي', shop: 'متجر',
-    welcome: 'أهلاً! 🎌', level: 'المستوى N5 — مبتدئ',
     startQuiz: '🧠 ابدأ اختبار', learnChart: '🎌 جدول الهيراغانا',
+    welcome: 'أهلاً! 🎌', level: 'المستوى N5 — مبتدئ',
     path: 'مسار التعلم', done: 'مكتمل', inProgress: 'جارٍ', locked: 'مقفل',
     noHearts: 'انتهت قلوبك!', wait: 'انتظر 5 ساعات أو اشتري من المتجر',
+    heroTitle: 'تعلّم اليابانية في 5 دقائق يومياً',
+    heroSub: 'تعلم الحروف والمفردات بطريقة ممتعة وتفاعلية مجاناً',
+    getStarted: 'ابدأ مجاناً', haveAccount: 'لدي تقدم بالفعل',
+    startNow: 'ابدأ رحلتك الآن',
   },
   en: {
     learn: 'Learn', hearts: 'Hearts', profile: 'Profile', shop: 'Shop',
-    welcome: 'Welcome! 🎌', level: 'Level N5 — Beginner',
     startQuiz: '🧠 Start Quiz', learnChart: '🎌 Hiragana Chart',
+    welcome: 'Welcome! 🎌', level: 'Level N5 — Beginner',
     path: 'Learning Path', done: 'Done', inProgress: 'In Progress', locked: 'Locked',
     noHearts: 'No hearts left!', wait: 'Wait 5 hours or buy from shop',
+    heroTitle: 'Learn Japanese in 5 minutes a day',
+    heroSub: 'Learn characters and vocabulary in a fun, interactive way. For free.',
+    getStarted: 'Get Started — Free', haveAccount: 'I already have progress',
+    startNow: 'Start your journey now',
   }
 }
 
@@ -36,6 +44,7 @@ const ACHIEVEMENTS = [
 
 export default function App() {
   const [loading, setLoading] = useState(true)
+  const [landingDone, setLandingDone] = useState(false)
   const [tab, setTab] = useState('learn')
   const [screen, setScreen] = useState('home')
   const [lang, setLang] = useState('ar')
@@ -52,6 +61,8 @@ export default function App() {
   const [perfectScores, setPerfectScores] = useState(0)
   const [gems, setGems] = useState(500)
 
+  const isDesktop = window.innerWidth > 768
+
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('nihongo-save') || '{}')
     if (saved.xp)            setXp(saved.xp)
@@ -61,14 +72,15 @@ export default function App() {
     if (saved.totalQuizzes)  setTotalQuizzes(saved.totalQuizzes)
     if (saved.perfectScores) setPerfectScores(saved.perfectScores)
     if (saved.lastScore)     setLastScore(saved.lastScore)
+    if (saved.landingDone)   setLandingDone(saved.landingDone)
     setTimeout(() => setLoading(false), 2000)
   }, [])
 
   useEffect(() => {
     localStorage.setItem('nihongo-save', JSON.stringify({
-      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore
+      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, landingDone
     }))
-  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore])
+  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, landingDone])
 
   const t = translations[lang]
   const stats = { xp, streak, progress, totalQuizzes, perfectScores }
@@ -117,11 +129,12 @@ export default function App() {
 
   const LangBtn = () => (
     <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
-      style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 999, background: '#16213e', border: '1px solid #e84393', borderRadius: '20px', padding: '4px 12px', color: 'white', fontSize: '13px', cursor: 'pointer' }}>
+      style={{ background: 'none', border: '1px solid #e84393', borderRadius: '20px', padding: '6px 16px', color: 'white', fontSize: '14px', cursor: 'pointer' }}>
       {lang === 'ar' ? 'EN' : 'ع'}
     </button>
   )
 
+  // SPLASH SCREEN
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
       <div style={{ fontSize: '80px', marginBottom: '16px' }}>🎌</div>
@@ -136,25 +149,78 @@ export default function App() {
     </div>
   )
 
+  // LANDING PAGE — desktop only, first visit
+  if (isDesktop && !landingDone) return (
+    <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', fontFamily: 'sans-serif', color: 'white' }}>
+      {/* Nav */}
+      <div style={{ padding: '20px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '0.5px solid #ffffff15' }}>
+        <h1 style={{ fontSize: '24px', margin: 0 }}>にほんご<span style={{ color: '#e84393' }}>GO</span></h1>
+        <LangBtn />
+      </div>
+
+      {/* Hero */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px', gap: '80px', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
+        <div style={{ flex: 1 }}>
+          <h2 style={{ fontSize: '48px', fontWeight: '700', lineHeight: 1.2, marginBottom: '24px' }}>
+            {t.heroTitle}
+          </h2>
+          <p style={{ color: '#aaa', fontSize: '18px', marginBottom: '36px', lineHeight: 1.6 }}>
+            {t.heroSub}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '340px' }}>
+            <button onClick={() => { setLandingDone(true) }}
+              style={{ padding: '16px', background: 'linear-gradient(90deg,#e84393,#a855f7)', border: 'none', borderRadius: '12px', color: 'white', fontSize: '18px', fontWeight: '600', cursor: 'pointer' }}>
+              {t.getStarted}
+            </button>
+            <button onClick={() => { setLandingDone(true) }}
+              style={{ padding: '16px', background: 'none', border: '1px solid #555', borderRadius: '12px', color: '#aaa', fontSize: '16px', cursor: 'pointer' }}>
+              {t.haveAccount}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+          <div style={{ fontSize: '100px', lineHeight: 1 }}>🎌</div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く'].map((k, i) => (
+              <div key={i} style={{ background: '#16213e', border: '0.5px solid #333', borderRadius: '12px', padding: '16px 20px', fontSize: '28px' }}>
+                {k}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats bar */}
+      <div style={{ background: '#16213e', padding: '24px 48px', display: 'flex', justifyContent: 'center', gap: '64px', borderTop: '0.5px solid #ffffff15' }}>
+        {[
+          ['46', lang === 'ar' ? 'حرف هيراغانا' : 'Hiragana chars'],
+          ['🔥', lang === 'ar' ? 'تعلم يومي' : 'Daily practice'],
+          ['🎯', lang === 'ar' ? 'اختبارات تفاعلية' : 'Interactive quizzes'],
+          ['🏆', lang === 'ar' ? 'إنجازات وجوائز' : 'Achievements'],
+        ].map(([val, label], i) => (
+          <div key={i} style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: '700', marginBottom: '4px' }}>{val}</div>
+            <div style={{ fontSize: '14px', color: '#aaa' }}>{label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  // QUIZ
   if (screen === 'quiz') return (
-    <>
-      <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('home')} />
-      <LangBtn />
-    </>
+    <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('home')} />
   )
 
+  // RESULT
   if (screen === 'result') return (
-    <>
-      <Result score={lastScore} total={questions.length} xpEarned={lastScore * 10} lang={lang} onHome={() => { setScreen('home'); setTab('learn') }} onRetry={startQuiz} />
-      <LangBtn />
-    </>
+    <Result score={lastScore} total={questions.length} xpEarned={lastScore * 10} lang={lang} onHome={() => { setScreen('home'); setTab('learn') }} onRetry={startQuiz} />
   )
 
+  // LETTERS
   if (screen === 'letters') return (
-    <>
-      <Letters progress={progress} lang={lang} onBack={() => setScreen('home')} />
-      <LangBtn />
-    </>
+    <Letters progress={progress} lang={lang} onBack={() => setScreen('home')} />
   )
 
   const xpPercent = Math.min((xp / 1000) * 100, 100)
@@ -224,7 +290,7 @@ export default function App() {
   const HeartsTab = () => (
     <div style={{ padding: '24px 16px 80px', textAlign: 'center' }}>
       <h2 style={{ fontSize: '20px', marginBottom: '24px' }}>❤️ {t.hearts}</h2>
-      <div style={{ fontSize: '80px', marginBottom: '16px' }}>
+      <div style={{ fontSize: '60px', marginBottom: '16px' }}>
         {Array.from({ length: 5 }).map((_, i) => (
           <span key={i} style={{ opacity: i < hearts ? 1 : 0.2 }}>❤️</span>
         ))}
@@ -320,7 +386,10 @@ export default function App() {
           </button>
         ))}
       </div>
-      <LangBtn />
+      <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
+        style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 999, background: '#16213e', border: '1px solid #e84393', borderRadius: '20px', padding: '4px 12px', color: 'white', fontSize: '13px', cursor: 'pointer' }}>
+        {lang === 'ar' ? 'EN' : 'ع'}
+      </button>
     </>
   )
 }

@@ -1,16 +1,28 @@
-# React + Vite
+# にほんごGO
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Japanese language learning app built with React + Vite. Learn Hiragana characters through interactive quizzes, track your progress, and earn XP — Duolingo-style.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Hiragana quiz** — randomized 10-question quizzes with instant feedback
+- **Character chart** — full Hiragana reference table with mastery tracking
+- **Hearts system** — lose a heart on a wrong answer; refill with gems
+- **XP & achievements** — earn XP per correct answer, unlock badges
+- **Learning path** — staged lessons from Hiragana → Katakana → Kanji
+- **Bilingual UI** — Arabic / English toggle
+- **Offline-ready** — progress saved to `localStorage`
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Stack
+
+- React 19
+- Vite 8
+- Pure CSS-in-JS (no external UI library)
