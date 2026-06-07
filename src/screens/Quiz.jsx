@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 
-export default function Quiz({ questions, qIndex, selected, score, xp, onAnswer, onBack }) {
+export default function Quiz({ questions, qIndex, selected, score, xp, hearts, lang, onAnswer, onBack }) {
   const q = questions[qIndex]
 
   useEffect(() => {
@@ -17,54 +17,119 @@ export default function Quiz({ questions, qIndex, selected, score, xp, onAnswer,
     onAnswer(opt)
   }
 
+  const isCorrect = selected === q.answer
+  const isWrong = selected && !isCorrect
+
   return (
-    <div style={{ minHeight: '100vh', background: '#1a1a2e', fontFamily: 'sans-serif', color: 'white', padding: '24px 16px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '14px', cursor: 'pointer', padding: 0 }}>← Back</button>
-        <span style={{ color: '#aaa', fontSize: '13px' }}>{qIndex + 1} / {questions.length}</span>
-        <span style={{ color: '#e84393', fontSize: '13px' }}>✓ {score} | ⚡{xp}</span>
+    <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+
+      {/* Header */}
+      <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#12121f', borderBottom: '0.5px solid #1e1e30' }}>
+        <button onClick={onBack}
+          style={{ background: 'none', border: 'none', color: '#555', fontSize: '20px', cursor: 'pointer', padding: 0 }}>
+          ✕
+        </button>
+        {/* Hearts */}
+        <div style={{ display: 'flex', gap: '4px' }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span key={i} style={{ fontSize: '16px', opacity: i < hearts ? 1 : 0.2 }}>❤️</span>
+          ))}
+        </div>
+        <span style={{ color: '#ff6b9d', fontSize: '13px', fontWeight: '600' }}>⚡ {xp} XP</span>
       </div>
 
       {/* Progress bar */}
-      <div style={{ background: '#0f3460', borderRadius: '8px', height: '6px', marginBottom: '24px' }}>
-        <div style={{ background: 'linear-gradient(90deg,#e84393,#a855f7)', width: `${((qIndex + 1) / questions.length) * 100}%`, height: '100%', borderRadius: '8px', transition: 'width 0.4s' }} />
+      <div style={{ height: '4px', background: '#1e1e30' }}>
+        <div style={{
+          height: '100%',
+          background: 'linear-gradient(90deg,#ff6b9d,#c44dff)',
+          width: `${((qIndex + 1) / questions.length) * 100}%`,
+          transition: 'width 0.4s'
+        }} />
       </div>
 
-      <p style={{ color: '#aaa', fontSize: '13px', textAlign: 'center', marginBottom: '8px' }}>What is the reading of this character?</p>
+      <div style={{ padding: '24px 20px' }}>
+        {/* Question number */}
+        <p style={{ color: '#555', fontSize: '12px', textAlign: 'center', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          {lang === 'ar' ? `السؤال ${qIndex + 1} من ${questions.length}` : `Question ${qIndex + 1} of ${questions.length}`}
+        </p>
 
-      {/* Kana display */}
-      <div style={{ background: '#16213e', borderRadius: '16px', padding: '40px', textAlign: 'center', marginBottom: '24px', cursor: 'pointer' }}
-        onClick={() => speakJapanese(q.kana)}>
-        <div style={{ fontSize: '90px', lineHeight: 1 }}>{q.kana}</div>
-        <div style={{ fontSize: '12px', color: '#555', marginTop: '8px' }}>🔊 tap to hear</div>
-      </div>
-
-      {/* Options */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
-        {q.options.map((opt) => {
-          let bg = '#16213e'
-          let border = '0.5px solid #333'
-          if (selected === opt) { bg = opt === q.answer ? '#0f6e56' : '#7a1f1f'; border = 'none' }
-          if (selected && opt === q.answer) { bg = '#0f6e56'; border = 'none' }
-          return (
-            <button key={opt} onClick={() => handleAnswer(opt)}
-              style={{ padding: '16px', background: bg, border, borderRadius: '12px', color: 'white', fontSize: '18px', cursor: selected ? 'default' : 'pointer', transition: 'background 0.2s' }}>
-              {opt}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Feedback */}
-      {selected && (
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '18px', fontWeight: '500', color: selected === q.answer ? '#1d9e75' : '#e24b4a', marginBottom: '4px' }}>
-            {selected === q.answer ? '✓ Correct! 🌟' : `✗ Answer: ${q.answer}`}
-          </p>
-          {selected === q.answer && <p style={{ color: '#e84393', fontSize: '13px' }}>+10 XP ⚡</p>}
-          <p style={{ color: '#555', fontSize: '12px', marginTop: '4px' }}>Moving on automatically...</p>
+        {/* Kana card */}
+        <div
+          onClick={() => speakJapanese(q.kana)}
+          style={{
+            background: selected
+              ? isCorrect ? 'linear-gradient(135deg,#0d2d1e,#0a1f15)' : 'linear-gradient(135deg,#2d0d0d,#1f0a0a)'
+              : 'linear-gradient(135deg,#1a1a2e,#12121f)',
+            border: selected
+              ? isCorrect ? '1px solid #4ade8066' : '1px solid #ff4d4d66'
+              : '0.5px solid #1e1e30',
+            borderRadius: '24px',
+            padding: '40px 24px',
+            textAlign: 'center',
+            marginBottom: '32px',
+            cursor: 'pointer',
+            transition: 'all 0.3s'
+          }}>
+          <div style={{ fontSize: '90px', lineHeight: 1, marginBottom: '12px' }}>{q.kana}</div>
+          <div style={{ fontSize: '12px', color: '#555' }}>
+            🔊 {lang === 'ar' ? 'اضغط للسماع' : 'tap to hear'}
+          </div>
+          {selected && (
+            <div style={{ marginTop: '12px', fontSize: '20px', fontWeight: '700', color: isCorrect ? '#4ade80' : '#ff4d4d' }}>
+              {isCorrect ? (lang === 'ar' ? '✓ ممتاز!' : '✓ Correct!') : `✗ ${q.answer}`}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Question label */}
+        <p style={{ color: '#666', fontSize: '14px', textAlign: 'center', marginBottom: '16px' }}>
+          {lang === 'ar' ? 'ما نطق هذا الحرف؟' : 'What is the reading?'}
+        </p>
+
+        {/* Options */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          {q.options.map((opt) => {
+            let bg = '#12121f'
+            let border = '0.5px solid #1e1e30'
+            let color = 'white'
+
+            if (selected) {
+              if (opt === q.answer) {
+                bg = '#0d2d1e'
+                border = '1px solid #4ade80'
+                color = '#4ade80'
+              } else if (opt === selected) {
+                bg = '#2d0d0d'
+                border = '1px solid #ff4d4d'
+                color = '#ff4d4d'
+              } else {
+                color = '#333'
+              }
+            }
+
+            return (
+              <button key={opt} onClick={() => handleAnswer(opt)}
+                style={{
+                  padding: '18px', background: bg, border, borderRadius: '14px',
+                  color, fontSize: '18px', fontWeight: '600',
+                  cursor: selected ? 'default' : 'pointer',
+                  transition: 'all 0.2s',
+                  direction: 'ltr'
+                }}>
+                {opt}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Auto advance message */}
+        {selected && (
+          <p style={{ textAlign: 'center', color: '#444', fontSize: '12px', marginTop: '20px' }}>
+            {lang === 'ar' ? 'ينتقل تلقائياً...' : 'Moving on...'}
+          </p>
+        )}
+      </div>
     </div>
   )
 }

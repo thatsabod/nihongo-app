@@ -65,3 +65,16 @@ export const vocab = [
   { jp: 'いいえ', reading: 'iie',    meaning: 'لا' },
   { jp: '先生',   reading: 'sensei', meaning: 'أستاذ' },
 ]
+
+export const katakana = [
+  { kana: 'ア', answer: 'a',   options: ['a', 'i', 'ka', 'sa'] },
+  { kana: 'イ', answer: 'i',   options: ['a', 'i', 'u', 'ki'] },
+  { kana: 'ウ', answer: 'u',   options: ['u', 'e', 'o', 'ku'] },
+  { kana: 'エ', answer: 'e',   options: ['i', 'e', 'u', 'ke'] },
+  { kana: 'オ', answer: 'o',   options: ['o', 'a', 'ko', 'so'] },
+  { kana: 'カ', answer: 'ka',  options: ['ka', 'ki', 'sa', 'ta'] },
+  { kana: 'キ', answer: 'ki',  options: ['ka', 'ki', 'ku', 'shi'] },
+  { kana: 'ク', answer: 'ku',  options: ['ku', 'ka', 'su', 'tu'] },
+  { kana: 'ケ', answer: 'ke',  options: ['ke', 'ka', 'se', 'te'] },
+  { kana: 'コ', answer: 'ko',  options: ['ko', 'ku', 'so', 'to'] },
+]

@@ -4,6 +4,9 @@ import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
 import Letters from './screens/Letters.jsx'
 import Login from './screens/Login.jsx'
+import { auth, db } from './firebase.js'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -35,19 +38,16 @@ const ACHIEVEMENTS = [
   { id: 'quiz10',   icon: '🌟', label: '10 Quizzes',   condition: (s) => s.totalQuizzes >= 10 },
 ]
 
-function WelcomeScreen({ onStart, onTest, onRegister, onLogin, lang, setLang }) {
+function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
   return (
     <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '22px' }}>
-          にほんご<span style={{ color: '#ff6b9d' }}>GO</span>
-        </h1>
+        <h1 style={{ margin: 0, fontSize: '22px' }}>にほんご<span style={{ color: '#ff6b9d' }}>GO</span></h1>
         <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
           style={{ background: 'none', border: '1px solid #333', borderRadius: '20px', padding: '6px 14px', color: '#aaa', fontSize: '13px', cursor: 'pointer' }}>
           {lang === 'ar' ? 'EN' : 'ع'}
         </button>
       </div>
-
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center' }}>
         <div style={{ fontSize: '80px', marginBottom: '8px' }}>🎌</div>
         <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px', lineHeight: 1.2 }}>
@@ -56,7 +56,6 @@ function WelcomeScreen({ onStart, onTest, onRegister, onLogin, lang, setLang }) 
         <p style={{ color: '#888', fontSize: '15px', marginBottom: '48px', maxWidth: '280px', lineHeight: 1.6 }}>
           {lang === 'ar' ? 'تعلم الحروف والمفردات بطريقة ممتعة' : 'Learn characters and vocabulary in a fun way'}
         </p>
-
         <div style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <button onClick={onStart}
             style={{ width: '100%', padding: '18px', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '600', cursor: 'pointer' }}>
@@ -66,7 +65,7 @@ function WelcomeScreen({ onStart, onTest, onRegister, onLogin, lang, setLang }) 
             style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #ff6b9d', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
             {lang === 'ar' ? '🧠 اختبر معلوماتك' : '🧠 Test your knowledge'}
           </button>
-          <button onClick={onRegister}
+          <button onClick={onLogin}
             style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #333', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
             {lang === 'ar' ? '✨ أنشئ حساب' : '✨ Create account'}
           </button>
@@ -76,7 +75,6 @@ function WelcomeScreen({ onStart, onTest, onRegister, onLogin, lang, setLang }) 
           </button>
         </div>
       </div>
-
       <div style={{ padding: '24px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
         {[1,2,3].map(i => (
           <div key={i} style={{ width: i === 1 ? '24px' : '8px', height: '8px', borderRadius: '4px', background: i === 1 ? '#ff6b9d' : '#333' }} />
@@ -88,11 +86,16 @@ function WelcomeScreen({ onStart, onTest, onRegister, onLogin, lang, setLang }) 
 
 export default function App() {
   const [screen, setScreen] = useState('welcome')
-  const [loginMode, setLoginMode] = useState('login')
   const [tab, setTab] = useState('home')
   const [lettersTab, setLettersTab] = useState('hiragana')
+  const [profileScreen, setProfileScreen] = useState('main') // 'main' | 'settings' | 'edit'
   const [lang, setLang] = useState('ar')
   const [userName, setUserName] = useState('')
+  const [userBio, setUserBio] = useState('')
+  const [userPhone, setUserPhone] = useState('')
+  const [userBirthday, setUserBirthday] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [userId, setUserId] = useState(null)
   const [questions, setQuestions] = useState([])
   const [qIndex, setQIndex] = useState(0)
   const [selected, setSelected] = useState(null)
@@ -105,25 +108,41 @@ export default function App() {
   const [totalQuizzes, setTotalQuizzes] = useState(0)
   const [perfectScores, setPerfectScores] = useState(0)
   const [gems, setGems] = useState(500)
+  const [daysUsed] = useState(12)
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('nihongo-save') || '{}')
-    if (saved.xp !== undefined)  setXp(saved.xp)
-    if (saved.hearts)            setHearts(saved.hearts)
-    if (saved.gems)              setGems(saved.gems)
-    if (saved.progress)          setProgress(saved.progress)
-    if (saved.totalQuizzes)      setTotalQuizzes(saved.totalQuizzes)
-    if (saved.perfectScores)     setPerfectScores(saved.perfectScores)
-    if (saved.lastScore)         setLastScore(saved.lastScore)
-    if (saved.userName)          setUserName(saved.userName)
-    if (saved.screen && saved.screen !== 'welcome') setScreen('main')
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserId(user.uid)
+        setUserName(user.displayName || '')
+        setUserEmail(user.email || '')
+        const docRef = doc(db, 'users', user.uid)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          const d = docSnap.data()
+          if (d.xp !== undefined)    setXp(d.xp)
+          if (d.hearts)              setHearts(d.hearts)
+          if (d.gems)                setGems(d.gems)
+          if (d.progress)            setProgress(d.progress)
+          if (d.totalQuizzes)        setTotalQuizzes(d.totalQuizzes)
+          if (d.perfectScores)       setPerfectScores(d.perfectScores)
+          if (d.lastScore)           setLastScore(d.lastScore)
+          if (d.userBio)             setUserBio(d.userBio)
+          if (d.userPhone)           setUserPhone(d.userPhone)
+          if (d.userBirthday)        setUserBirthday(d.userBirthday)
+        }
+        setScreen('main')
+      }
+    })
+    return () => unsub()
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('nihongo-save', JSON.stringify({
-      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, screen
-    }))
-  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, screen])
+    if (!userId) return
+    setDoc(doc(db, 'users', userId), {
+      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday
+    })
+  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday])
 
   const t = translations[lang]
   const stats = { xp, streak, progress, totalQuizzes, perfectScores }
@@ -170,26 +189,24 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [selected])
 
+  const handleSignOut = async () => {
+    await signOut(auth)
+    setUserId(null)
+    setUserName('')
+    setScreen('welcome')
+  }
+
   if (screen === 'welcome') return (
-    <WelcomeScreen
-      lang={lang}
-      setLang={setLang}
+    <WelcomeScreen lang={lang} setLang={setLang}
       onStart={() => setScreen('main')}
       onTest={() => { setScreen('main'); setTimeout(startQuiz, 100) }}
-      onRegister={() => { setLoginMode('register'); setScreen('login') }}
-      onLogin={() => { setLoginMode('login'); setScreen('login') }}
+      onLogin={() => setScreen('login')}
     />
   )
 
   if (screen === 'login') return (
-    <Login
-      lang={lang}
-      initialMode={loginMode}
-      onBack={() => setScreen('welcome')}
-      onLogin={(name) => {
-        setUserName(name)
-        setScreen('main')
-      }}
+    <Login lang={lang} onBack={() => setScreen('welcome')}
+      onLogin={(name) => { setUserName(name); setScreen('main') }}
     />
   )
 
@@ -206,6 +223,197 @@ export default function App() {
   )
 
   const xpPercent = Math.min((xp / 1000) * 100, 100)
+  const masteredCount = Object.values(progress).filter(v => v >= 10).length
+  const n5Progress = Math.round((masteredCount / 46) * 100)
+
+  // PROFILE SCREENS
+  const EditProfileScreen = () => {
+    const [editName, setEditName] = useState(userName)
+    const [editBio, setEditBio] = useState(userBio)
+    const [editPhone, setEditPhone] = useState(userPhone)
+    const [editBirthday, setEditBirthday] = useState(userBirthday)
+
+    const save = () => {
+      setUserName(editName)
+      setUserBio(editBio)
+      setUserPhone(editPhone)
+      setUserBirthday(editBirthday)
+      setProfileScreen('settings')
+    }
+
+    const inputStyle = { width: '100%', padding: '12px 14px', background: '#1a1a2e', border: '0.5px solid #1e1e30', borderRadius: '10px', color: 'white', fontSize: '14px', outline: 'none', direction: 'ltr', fontFamily: 'sans-serif', marginTop: '6px' }
+    const labelStyle = { fontSize: '12px', color: '#666', display: 'block' }
+
+    return (
+      <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+        <div style={{ background: '#12121f', padding: '18px 20px', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '0.5px solid #1e1e30' }}>
+          <button onClick={() => setProfileScreen('settings')} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '20px', cursor: 'pointer' }}>←</button>
+          <h2 style={{ margin: 0, fontSize: '17px' }}>{lang === 'ar' ? 'تعديل الملف الشخصي' : 'Edit Profile'}</h2>
+        </div>
+        <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Avatar */}
+          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 8px', cursor: 'pointer' }}>🧑</div>
+            <button style={{ background: 'none', border: 'none', color: '#ff6b9d', fontSize: '13px', cursor: 'pointer' }}>{lang === 'ar' ? 'تغيير الصورة' : 'Change photo'}</button>
+          </div>
+
+          <div><label style={labelStyle}>{lang === 'ar' ? 'الاسم' : 'Name'}</label><input value={editName} onChange={e => setEditName(e.target.value)} style={inputStyle} /></div>
+          <div><label style={labelStyle}>{lang === 'ar' ? 'نبذة عني' : 'Bio'}</label><input value={editBio} onChange={e => setEditBio(e.target.value)} placeholder={lang === 'ar' ? 'اكتب نبذة قصيرة...' : 'Write a short bio...'} style={inputStyle} /></div>
+          <div><label style={labelStyle}>{lang === 'ar' ? 'رقم الهاتف' : 'Phone'}</label><input value={editPhone} onChange={e => setEditPhone(e.target.value)} style={inputStyle} /></div>
+          <div><label style={labelStyle}>{lang === 'ar' ? 'تاريخ الميلاد' : 'Birthday'}</label><input type="date" value={editBirthday} onChange={e => setEditBirthday(e.target.value)} style={inputStyle} /></div>
+          <div>
+            <label style={labelStyle}>{lang === 'ar' ? 'البريد الإلكتروني' : 'Email'}</label>
+            <input value={userEmail} disabled style={{ ...inputStyle, color: '#555', cursor: 'not-allowed' }} />
+            <p style={{ fontSize: '11px', color: '#444', marginTop: '4px' }}>{lang === 'ar' ? 'غير قابل للتعديل' : 'Cannot be changed'}</p>
+          </div>
+
+          <button onClick={save}
+            style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '12px', color: 'white', fontSize: '15px', fontWeight: '600', cursor: 'pointer', marginTop: '8px' }}>
+            {lang === 'ar' ? 'حفظ التعديلات' : 'Save Changes'}
+          </button>
+          <button onClick={() => setProfileScreen('settings')}
+            style={{ width: '100%', padding: '14px', background: 'none', border: '0.5px solid #1e1e30', borderRadius: '12px', color: '#aaa', fontSize: '14px', cursor: 'pointer' }}>
+            {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const SettingsScreen = () => {
+    const settingsItems = [
+      { icon: '👤', label: lang === 'ar' ? 'تعديل الملف الشخصي' : 'Edit Profile', action: () => setProfileScreen('edit') },
+      { icon: '💎', label: lang === 'ar' ? 'نوع الاشتراك' : 'Subscription', action: () => {} },
+      { icon: '🔔', label: lang === 'ar' ? 'الإشعارات' : 'Notifications', action: () => {} },
+      { icon: '🎯', label: lang === 'ar' ? 'مستوى اللغة' : 'Language Level', action: () => {} },
+      { icon: '⚙️', label: lang === 'ar' ? 'التفضيلات' : 'Preferences', action: () => {} },
+      { icon: '🛡️', label: lang === 'ar' ? 'سياسة التطبيق' : 'Privacy Policy', action: () => {} },
+      { icon: '💬', label: lang === 'ar' ? 'الدعم المباشر' : 'Support', action: () => {} },
+    ]
+
+    return (
+      <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+        <div style={{ background: '#12121f', padding: '18px 20px', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '0.5px solid #1e1e30' }}>
+          <button onClick={() => setProfileScreen('main')} style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '20px', cursor: 'pointer' }}>←</button>
+          <h2 style={{ margin: 0, fontSize: '17px' }}>{lang === 'ar' ? 'الإعدادات' : 'Settings'}</h2>
+        </div>
+        <div style={{ padding: '16px' }}>
+          {settingsItems.map((item, i) => (
+            <button key={i} onClick={item.action}
+              style={{ width: '100%', padding: '16px', background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', color: 'white', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px', textAlign: lang === 'ar' ? 'right' : 'left' }}>
+              <span style={{ fontSize: '22px' }}>{item.icon}</span>
+              <span style={{ flex: 1 }}>{item.label}</span>
+              <span style={{ color: '#555', fontSize: '18px' }}>›</span>
+            </button>
+          ))}
+
+          <button onClick={handleSignOut}
+            style={{ width: '100%', padding: '16px', background: '#1a0a0a', border: '0.5px solid #ff4d4d33', borderRadius: '14px', color: '#ff4d4d', fontSize: '15px', cursor: 'pointer', marginTop: '8px' }}>
+            {lang === 'ar' ? '← تسجيل الخروج' : '← Sign Out'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const ProfileTab = () => {
+    if (profileScreen === 'settings') return <SettingsScreen />
+    if (profileScreen === 'edit') return <EditProfileScreen />
+
+    const isComplete = userName && userBio && userPhone && userBirthday
+
+    return (
+      <div style={{ paddingBottom: '90px', background: '#0f0e17', minHeight: '100vh' }}>
+        {/* Header */}
+        <div style={{ background: '#12121f', padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '0.5px solid #1e1e30' }}>
+          <h2 style={{ margin: 0, fontSize: '18px' }}>{lang === 'ar' ? 'حسابي' : 'My Profile'}</h2>
+          <button onClick={() => setProfileScreen('settings')}
+            style={{ background: 'none', border: 'none', color: '#aaa', fontSize: '22px', cursor: 'pointer' }}>
+            ⚙️
+          </button>
+        </div>
+
+        <div style={{ padding: '24px 20px' }}>
+          {/* Avatar + Name */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', margin: '0 auto 12px', border: '3px solid #ff6b9d33' }}>🧑</div>
+            <h2 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: '700' }}>{userName || (lang === 'ar' ? 'متعلم' : 'Learner')}</h2>
+            {userBio && <p style={{ color: '#666', fontSize: '13px', margin: '0 0 8px' }}>{userBio}</p>}
+            <p style={{ color: '#555', fontSize: '13px', margin: 0 }}>🎌 {lang === 'ar' ? 'متعلم ياباني' : 'Japanese Learner'}</p>
+          </div>
+
+          {/* Complete profile banner */}
+          {!isComplete && (
+            <button onClick={() => setProfileScreen('edit')}
+              style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#1a1a2e,#12121f)', border: '1px solid #ff6b9d44', borderRadius: '14px', color: 'white', fontSize: '14px', cursor: 'pointer', marginBottom: '20px', textAlign: 'center' }}>
+              <span style={{ color: '#ff6b9d' }}>✦</span> {lang === 'ar' ? 'أكمل ملفك الشخصي لتجربة أفضل ←' : 'Complete your profile for a better experience ←'}
+            </button>
+          )}
+
+          {/* Following/Followers */}
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            <div style={{ flex: 1, background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: '700' }}>0</div>
+              <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>{lang === 'ar' ? 'متابَعون' : 'Following'}</div>
+            </div>
+            <div style={{ flex: 1, background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: '700' }}>0</div>
+              <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>{lang === 'ar' ? 'متابِعون' : 'Followers'}</div>
+            </div>
+            <div style={{ flex: 1, background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+              <div style={{ fontSize: '22px', fontWeight: '700' }}>{totalQuizzes}</div>
+              <div style={{ fontSize: '12px', color: '#555', marginTop: '2px' }}>{lang === 'ar' ? 'اختبار' : 'Quizzes'}</div>
+            </div>
+          </div>
+
+          {/* N5 Progress */}
+          <div style={{ background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '16px', padding: '18px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <div>
+                <p style={{ margin: '0 0 2px', fontSize: '14px', fontWeight: '600' }}>{lang === 'ar' ? 'تقدمك في N5' : 'N5 Progress'}</p>
+                <p style={{ margin: 0, fontSize: '12px', color: '#555' }}>{masteredCount}/46 {lang === 'ar' ? 'حرف محفوظ' : 'chars mastered'}</p>
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#ff6b9d' }}>{n5Progress}%</div>
+            </div>
+            <div style={{ background: '#1e1e30', borderRadius: '8px', height: '8px' }}>
+              <div style={{ background: 'linear-gradient(90deg,#ff6b9d,#c44dff)', width: `${n5Progress}%`, height: '100%', borderRadius: '8px', transition: 'width 0.5s' }} />
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+            {[
+              ['⚡', xp, 'XP'],
+              ['🔥', streak, lang === 'ar' ? 'ستريك' : 'Streak'],
+              ['📅', daysUsed, lang === 'ar' ? 'أيام' : 'Days'],
+            ].map(([icon, val, label], i) => (
+              <div key={i} style={{ background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+                <div style={{ fontSize: '20px' }}>{icon}</div>
+                <div style={{ fontSize: '22px', fontWeight: '700', margin: '4px 0 2px' }}>{val}</div>
+                <div style={{ fontSize: '11px', color: '#555' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Achievements */}
+          <p style={{ color: '#555', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            {lang === 'ar' ? 'الإنجازات' : 'Achievements'}
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+            {ACHIEVEMENTS.map((a) => {
+              const unlocked = a.condition(stats)
+              return (
+                <div key={a.id} style={{ background: '#12121f', border: unlocked ? '1px solid #ff6b9d33' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '16px', textAlign: 'center', opacity: unlocked ? 1 : 0.3 }}>
+                  <div style={{ fontSize: '28px', marginBottom: '6px' }}>{a.icon}</div>
+                  <div style={{ fontSize: '11px', color: unlocked ? '#ff6b9d' : '#555' }}>{a.label}</div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const HomeTab = () => (
     <div style={{ paddingBottom: '90px' }}>
@@ -306,36 +514,27 @@ export default function App() {
         { label: 'طبيعة', chars: [{ k: '日', r: 'nichi' }, { k: '月', r: 'tsuki' }, { k: '火', r: 'hi' }, { k: '水', r: 'mizu' }, { k: '木', r: 'ki' }] },
       ]
     }
-
     const tabs = [
       { id: 'hiragana', label: 'Hiragana' },
       { id: 'katakana', label: 'Katakana' },
       { id: 'kanji', label: 'Kanji', locked: true },
     ]
-
+    const currentGroups = groups[lettersTab] || []
     return (
       <div style={{ paddingBottom: '90px' }}>
         <div style={{ background: '#12121f', padding: '18px 20px', borderBottom: '0.5px solid #1e1e30' }}>
           <h2 style={{ margin: '0 0 14px', fontSize: '18px' }}>{lang === 'ar' ? 'الأحرف' : 'Characters'}</h2>
           <div style={{ display: 'flex', gap: '8px' }}>
             {tabs.map(tb => (
-              <button key={tb.id}
-                onClick={() => !tb.locked && setLettersTab(tb.id)}
-                style={{
-                  padding: '8px 16px', borderRadius: '20px', border: 'none', fontSize: '13px', fontWeight: '500',
-                  cursor: tb.locked ? 'not-allowed' : 'pointer',
-                  background: lettersTab === tb.id ? 'linear-gradient(135deg,#ff6b9d,#c44dff)' : '#1e1e30',
-                  color: tb.locked ? '#444' : lettersTab === tb.id ? 'white' : '#aaa',
-                  opacity: tb.locked ? 0.5 : 1
-                }}>
+              <button key={tb.id} onClick={() => !tb.locked && setLettersTab(tb.id)}
+                style={{ padding: '8px 16px', borderRadius: '20px', border: 'none', fontSize: '13px', fontWeight: '500', cursor: tb.locked ? 'not-allowed' : 'pointer', background: lettersTab === tb.id ? 'linear-gradient(135deg,#ff6b9d,#c44dff)' : '#1e1e30', color: tb.locked ? '#444' : lettersTab === tb.id ? 'white' : '#aaa', opacity: tb.locked ? 0.5 : 1 }}>
                 {tb.label} {tb.locked ? '🔒' : ''}
               </button>
             ))}
           </div>
         </div>
-
         <div style={{ padding: '16px' }}>
-          {(groups[lettersTab] || []).map((group, gi) => (
+          {currentGroups.map((group, gi) => (
             <div key={gi} style={{ marginBottom: '20px' }}>
               <p style={{ color: '#ff6b9d', fontSize: '12px', marginBottom: '10px', fontWeight: '600', letterSpacing: '1px' }}>{group.label}</p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -344,9 +543,8 @@ export default function App() {
                   const percent = Math.min((practiced / 10) * 100, 100)
                   const done = practiced >= 10
                   return (
-                    <div key={ci}
-                      onClick={() => { const u = new SpeechSynthesisUtterance(ch.k); u.lang = 'ja-JP'; window.speechSynthesis.speak(u) }}
-                      style={{ background: done ? '#0d2d1e' : '#12121f', border: done ? '1px solid #4ade8066' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '12px', textAlign: 'center', cursor: 'pointer', minWidth: '64px' }}>
+                    <div key={ci} onClick={() => { const u = new SpeechSynthesisUtterance(ch.k); u.lang = 'ja-JP'; window.speechSynthesis.speak(u) }}
+                      style={{ background: done ? '#0d2d1e' : '#12121f', border: done ? '1px solid #4ade8066' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '12px', textAlign: 'center', cursor: 'pointer', minWidth: '64px', transition: 'all 0.2s' }}>
                       <div style={{ fontSize: '26px', marginBottom: '2px' }}>{ch.k}</div>
                       <div style={{ fontSize: '11px', color: '#ff6b9d', marginBottom: '6px' }}>{ch.r}</div>
                       <div style={{ background: '#1e1e30', borderRadius: '4px', height: '3px', overflow: 'hidden' }}>
@@ -363,54 +561,6 @@ export default function App() {
     )
   }
 
-  const ProfileTab = () => (
-    <div style={{ paddingBottom: '90px' }}>
-      <div style={{ background: '#12121f', padding: '18px 20px', borderBottom: '0.5px solid #1e1e30', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0, fontSize: '18px' }}>{lang === 'ar' ? 'حسابي' : 'My Profile'}</h2>
-        <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
-          style={{ background: 'none', border: '1px solid #1e1e30', borderRadius: '20px', padding: '5px 12px', color: '#aaa', fontSize: '12px', cursor: 'pointer' }}>
-          {lang === 'ar' ? 'EN' : 'ع'}
-        </button>
-      </div>
-
-      <div style={{ padding: '24px 16px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 12px' }}>🧑</div>
-          <h2 style={{ margin: '0 0 4px', fontSize: '20px' }}>{userName || (lang === 'ar' ? 'متعلم' : 'Learner')}</h2>
-          <p style={{ color: '#555', fontSize: '13px', margin: 0 }}>🎌 {lang === 'ar' ? 'متعلم ياباني' : 'Japanese Learner'}</p>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '28px' }}>
-          {[['⚡', xp, 'XP'], ['🔥', streak, lang === 'ar' ? 'أيام' : 'Days'], ['🏆', totalQuizzes, lang === 'ar' ? 'اختبار' : 'Quizzes']].map(([icon, val, label], i) => (
-            <div key={i} style={{ background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
-              <div style={{ fontSize: '20px' }}>{icon}</div>
-              <div style={{ fontSize: '22px', fontWeight: '700', margin: '4px 0 2px' }}>{val}</div>
-              <div style={{ fontSize: '11px', color: '#555' }}>{label}</div>
-            </div>
-          ))}
-        </div>
-
-        <p style={{ color: '#555', fontSize: '12px', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>{lang === 'ar' ? 'الإنجازات' : 'Achievements'}</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '24px' }}>
-          {ACHIEVEMENTS.map((a) => {
-            const unlocked = a.condition(stats)
-            return (
-              <div key={a.id} style={{ background: '#12121f', border: unlocked ? '1px solid #ff6b9d33' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '16px', textAlign: 'center', opacity: unlocked ? 1 : 0.3 }}>
-                <div style={{ fontSize: '28px', marginBottom: '6px' }}>{a.icon}</div>
-                <div style={{ fontSize: '11px', color: unlocked ? '#ff6b9d' : '#555' }}>{a.label}</div>
-              </div>
-            )
-          })}
-        </div>
-
-        <button onClick={() => { setScreen('welcome'); setUserName(''); localStorage.removeItem('nihongo-save') }}
-          style={{ width: '100%', padding: '14px', background: '#12121f', border: '1px solid #ff6b9d33', borderRadius: '14px', color: '#ff6b9d', fontSize: '14px', cursor: 'pointer' }}>
-          {lang === 'ar' ? '← تسجيل الخروج' : '← Sign Out'}
-        </button>
-      </div>
-    </div>
-  )
-
   return (
     <>
       <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
@@ -418,14 +568,13 @@ export default function App() {
         {tab === 'letters' && <LettersTab />}
         {tab === 'profile' && <ProfileTab />}
       </div>
-
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#12121f', borderTop: '0.5px solid #1e1e30', display: 'flex', zIndex: 100 }}>
         {[
           { id: 'home',    icon: '🏠', label: lang === 'ar' ? 'الرئيسية' : 'Home' },
           { id: 'letters', icon: '文', label: lang === 'ar' ? 'الأحرف' : 'Letters' },
           { id: 'profile', icon: '👤', label: lang === 'ar' ? 'حسابي' : 'Profile' },
         ].map((item) => (
-          <button key={item.id} onClick={() => setTab(item.id)}
+          <button key={item.id} onClick={() => { setTab(item.id); if (item.id === 'profile') setProfileScreen('main') }}
             style={{ flex: 1, padding: '12px 4px', background: 'none', border: 'none', color: tab === item.id ? '#ff6b9d' : '#444', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', borderTop: tab === item.id ? '2px solid #ff6b9d' : '2px solid transparent', transition: 'all 0.15s' }}>
             <span style={{ fontSize: '22px' }}>{item.icon}</span>
             <span style={{ fontSize: '11px', fontWeight: tab === item.id ? '600' : '400' }}>{item.label}</span>
