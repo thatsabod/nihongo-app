@@ -10,26 +10,18 @@ function shuffle(arr) {
 
 const translations = {
   ar: {
-    learn: 'تعلم', hearts: 'قلوب', profile: 'ملفي', shop: 'متجر',
-    startQuiz: '🧠 ابدأ اختبار', learnChart: '🎌 جدول الهيراغانا',
+    learn: 'تعلم', letters: 'أحرف', profile: 'حسابي',
+    startQuiz: 'اختبر معلوماتك', learnChart: 'تعلم الأحرف',
     welcome: 'أهلاً! 🎌', level: 'المستوى N5 — مبتدئ',
     path: 'مسار التعلم', done: 'مكتمل', inProgress: 'جارٍ', locked: 'مقفل',
-    noHearts: 'انتهت قلوبك!', wait: 'انتظر 5 ساعات أو اشتري من المتجر',
-    heroTitle: 'تعلّم اليابانية في 5 دقائق يومياً',
-    heroSub: 'تعلم الحروف والمفردات بطريقة ممتعة وتفاعلية مجاناً',
-    getStarted: 'ابدأ مجاناً', haveAccount: 'لدي تقدم بالفعل',
-    startNow: 'ابدأ رحلتك الآن',
+    noHearts: 'انتهت قلوبك!', wait: 'اشتري قلوب من المتجر',
   },
   en: {
-    learn: 'Learn', hearts: 'Hearts', profile: 'Profile', shop: 'Shop',
-    startQuiz: '🧠 Start Quiz', learnChart: '🎌 Hiragana Chart',
+    learn: 'Home', letters: 'Letters', profile: 'Profile',
+    startQuiz: 'Test your knowledge', learnChart: 'Learn Characters',
     welcome: 'Welcome! 🎌', level: 'Level N5 — Beginner',
     path: 'Learning Path', done: 'Done', inProgress: 'In Progress', locked: 'Locked',
-    noHearts: 'No hearts left!', wait: 'Wait 5 hours or buy from shop',
-    heroTitle: 'Learn Japanese in 5 minutes a day',
-    heroSub: 'Learn characters and vocabulary in a fun, interactive way. For free.',
-    getStarted: 'Get Started — Free', haveAccount: 'I already have progress',
-    startNow: 'Start your journey now',
+    noHearts: 'No hearts left!', wait: 'Buy hearts from shop',
   }
 }
 
@@ -42,18 +34,73 @@ const ACHIEVEMENTS = [
   { id: 'quiz10',   icon: '🌟', label: '10 Quizzes',   condition: (s) => s.totalQuizzes >= 10 },
 ]
 
+// Welcome screen component
+function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
+  return (
+    <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', display: 'flex', flexDirection: 'column' }}>
+      {/* Top bar */}
+      <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 style={{ margin: 0, fontSize: '22px', letterSpacing: '1px' }}>
+          にほんご<span style={{ color: '#ff6b9d' }}>GO</span>
+        </h1>
+        <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
+          style={{ background: 'none', border: '1px solid #333', borderRadius: '20px', padding: '6px 14px', color: '#aaa', fontSize: '13px', cursor: 'pointer' }}>
+          {lang === 'ar' ? 'EN' : 'ع'}
+        </button>
+      </div>
+
+      {/* Hero */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center' }}>
+        <div style={{ fontSize: '80px', marginBottom: '8px' }}>🎌</div>
+        <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px', lineHeight: 1.2 }}>
+          {lang === 'ar' ? 'تعلّم اليابانية' : 'Learn Japanese'}
+        </h2>
+        <p style={{ color: '#888', fontSize: '15px', marginBottom: '48px', maxWidth: '280px', lineHeight: 1.6 }}>
+          {lang === 'ar' ? 'تعلم الحروف والمفردات بطريقة ممتعة' : 'Learn characters and vocabulary in a fun way'}
+        </p>
+
+        {/* Main buttons */}
+        <div style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <button onClick={onStart}
+            style={{ width: '100%', padding: '18px', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '600', cursor: 'pointer', letterSpacing: '0.3px' }}>
+            {lang === 'ar' ? '🚀 ابدأ التعلم من الصفر' : '🚀 Start from scratch'}
+          </button>
+          <button onClick={onTest}
+            style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #ff6b9d', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
+            {lang === 'ar' ? '🧠 اختبر معلوماتك' : '🧠 Test your knowledge'}
+          </button>
+          <button onClick={onLogin}
+            style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #333', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
+            {lang === 'ar' ? '✨ أنشئ حساب' : '✨ Create account'}
+          </button>
+          <button onClick={onLogin}
+            style={{ width: '100%', padding: '10px', background: 'none', border: 'none', color: '#666', fontSize: '14px', cursor: 'pointer', textDecoration: 'underline' }}>
+            {lang === 'ar' ? 'لدي حساب بالفعل' : 'I already have an account'}
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom dots */}
+      <div style={{ padding: '24px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+        {[1,2,3].map(i => (
+          <div key={i} style={{ width: i === 1 ? '24px' : '8px', height: '8px', borderRadius: '4px', background: i === 1 ? '#ff6b9d' : '#333' }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
-  const [loading, setLoading] = useState(true)
-  const [landingDone, setLandingDone] = useState(false)
-  const [tab, setTab] = useState('learn')
-  const [screen, setScreen] = useState('home')
+  const [screen, setScreen] = useState('welcome')
+  const [tab, setTab] = useState('home')
+  const [lettersTab, setLettersTab] = useState('hiragana')
   const [lang, setLang] = useState('ar')
   const [questions, setQuestions] = useState([])
   const [qIndex, setQIndex] = useState(0)
   const [selected, setSelected] = useState(null)
   const [score, setScore] = useState(0)
   const [lastScore, setLastScore] = useState(0)
-  const [xp, setXp] = useState(420)
+  const [xp, setXp] = useState(0)
   const [streak] = useState(7)
   const [hearts, setHearts] = useState(5)
   const [progress, setProgress] = useState({})
@@ -61,26 +108,23 @@ export default function App() {
   const [perfectScores, setPerfectScores] = useState(0)
   const [gems, setGems] = useState(500)
 
-  const isDesktop = window.innerWidth > 768
-
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('nihongo-save') || '{}')
-    if (saved.xp)            setXp(saved.xp)
-    if (saved.hearts)        setHearts(saved.hearts)
-    if (saved.gems)          setGems(saved.gems)
-    if (saved.progress)      setProgress(saved.progress)
-    if (saved.totalQuizzes)  setTotalQuizzes(saved.totalQuizzes)
-    if (saved.perfectScores) setPerfectScores(saved.perfectScores)
-    if (saved.lastScore)     setLastScore(saved.lastScore)
-    if (saved.landingDone)   setLandingDone(saved.landingDone)
-    setTimeout(() => setLoading(false), 2000)
+    if (saved.xp !== undefined)      setXp(saved.xp)
+    if (saved.hearts)                setHearts(saved.hearts)
+    if (saved.gems)                  setGems(saved.gems)
+    if (saved.progress)              setProgress(saved.progress)
+    if (saved.totalQuizzes)          setTotalQuizzes(saved.totalQuizzes)
+    if (saved.perfectScores)         setPerfectScores(saved.perfectScores)
+    if (saved.lastScore)             setLastScore(saved.lastScore)
+    if (saved.screen)                setScreen(saved.screen)
   }, [])
 
   useEffect(() => {
     localStorage.setItem('nihongo-save', JSON.stringify({
-      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, landingDone
+      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, screen
     }))
-  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, landingDone])
+  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, screen])
 
   const t = translations[lang]
   const stats = { xp, streak, progress, totalQuizzes, perfectScores }
@@ -127,269 +171,271 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [selected])
 
-  const LangBtn = () => (
-    <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
-      style={{ background: 'none', border: '1px solid #e84393', borderRadius: '20px', padding: '6px 16px', color: 'white', fontSize: '14px', cursor: 'pointer' }}>
-      {lang === 'ar' ? 'EN' : 'ع'}
-    </button>
-  )
-
-  // SPLASH SCREEN
-  if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
-      <div style={{ fontSize: '80px', marginBottom: '16px' }}>🎌</div>
-      <h1 style={{ color: 'white', fontSize: '28px', margin: '0 0 8px' }}>
-        にほんご<span style={{ color: '#e84393' }}>GO</span>
-      </h1>
-      <p style={{ color: '#aaa', fontSize: '14px', marginBottom: '40px' }}>تعلم اليابانية بطريقة ممتعة</p>
-      <div style={{ width: '200px', height: '4px', background: '#0f3460', borderRadius: '4px', overflow: 'hidden' }}>
-        <div style={{ height: '100%', background: 'linear-gradient(90deg,#e84393,#a855f7)', borderRadius: '4px', animation: 'load 2s ease forwards' }} />
-      </div>
-      <style>{`@keyframes load { from{width:0%} to{width:100%} }`}</style>
-    </div>
-  )
-
-  // LANDING PAGE — desktop only, first visit
-  if (isDesktop && !landingDone) return (
-    <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', fontFamily: 'sans-serif', color: 'white' }}>
-      {/* Nav */}
-      <div style={{ padding: '20px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '0.5px solid #ffffff15' }}>
-        <h1 style={{ fontSize: '24px', margin: 0 }}>にほんご<span style={{ color: '#e84393' }}>GO</span></h1>
-        <LangBtn />
-      </div>
-
-      {/* Hero */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px', gap: '80px', maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '48px', fontWeight: '700', lineHeight: 1.2, marginBottom: '24px' }}>
-            {t.heroTitle}
-          </h2>
-          <p style={{ color: '#aaa', fontSize: '18px', marginBottom: '36px', lineHeight: 1.6 }}>
-            {t.heroSub}
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '340px' }}>
-            <button onClick={() => { setLandingDone(true) }}
-              style={{ padding: '16px', background: 'linear-gradient(90deg,#e84393,#a855f7)', border: 'none', borderRadius: '12px', color: 'white', fontSize: '18px', fontWeight: '600', cursor: 'pointer' }}>
-              {t.getStarted}
-            </button>
-            <button onClick={() => { setLandingDone(true) }}
-              style={{ padding: '16px', background: 'none', border: '1px solid #555', borderRadius: '12px', color: '#aaa', fontSize: '16px', cursor: 'pointer' }}>
-              {t.haveAccount}
-            </button>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
-          <div style={{ fontSize: '100px', lineHeight: 1 }}>🎌</div>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く'].map((k, i) => (
-              <div key={i} style={{ background: '#16213e', border: '0.5px solid #333', borderRadius: '12px', padding: '16px 20px', fontSize: '28px' }}>
-                {k}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Stats bar */}
-      <div style={{ background: '#16213e', padding: '24px 48px', display: 'flex', justifyContent: 'center', gap: '64px', borderTop: '0.5px solid #ffffff15' }}>
-        {[
-          ['46', lang === 'ar' ? 'حرف هيراغانا' : 'Hiragana chars'],
-          ['🔥', lang === 'ar' ? 'تعلم يومي' : 'Daily practice'],
-          ['🎯', lang === 'ar' ? 'اختبارات تفاعلية' : 'Interactive quizzes'],
-          ['🏆', lang === 'ar' ? 'إنجازات وجوائز' : 'Achievements'],
-        ].map(([val, label], i) => (
-          <div key={i} style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: '700', marginBottom: '4px' }}>{val}</div>
-            <div style={{ fontSize: '14px', color: '#aaa' }}>{label}</div>
-          </div>
-        ))}
-      </div>
-    </div>
+  // WELCOME
+  if (screen === 'welcome') return (
+    <WelcomeScreen
+      lang={lang}
+      setLang={setLang}
+      onStart={() => setScreen('main')}
+      onTest={() => { setScreen('main'); startQuiz() }}
+      onLogin={() => setScreen('main')}
+    />
   )
 
   // QUIZ
   if (screen === 'quiz') return (
-    <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('home')} />
+    <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('main')} />
   )
 
   // RESULT
   if (screen === 'result') return (
-    <Result score={lastScore} total={questions.length} xpEarned={lastScore * 10} lang={lang} onHome={() => { setScreen('home'); setTab('learn') }} onRetry={startQuiz} />
+    <Result score={lastScore} total={questions.length} xpEarned={lastScore * 10} lang={lang} onHome={() => { setScreen('main'); setTab('home') }} onRetry={startQuiz} />
   )
 
-  // LETTERS
-  if (screen === 'letters') return (
-    <Letters progress={progress} lang={lang} onBack={() => setScreen('home')} />
+  if (screen === 'letters-detail') return (
+    <Letters progress={progress} lang={lang} onBack={() => setScreen('main')} />
   )
 
   const xpPercent = Math.min((xp / 1000) * 100, 100)
 
-  const LearnTab = () => (
-    <div style={{ paddingBottom: '80px' }}>
-      <div style={{ background: '#16213e', padding: '18px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '22px' }}>にほんご<span style={{ color: '#e84393' }}>GO</span></h1>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <span style={{ fontSize: '14px' }}>❤️ {hearts}/5</span>
-          <span style={{ fontSize: '14px' }}>💎 {gems}</span>
-          <span style={{ background: '#0f3460', padding: '4px 10px', borderRadius: '20px', fontSize: '13px' }}>🔥 {streak}</span>
+  // HOME TAB
+  const HomeTab = () => (
+    <div style={{ paddingBottom: '90px' }}>
+      {/* Header */}
+      <div style={{ background: '#12121f', padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '0.5px solid #1e1e30' }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: '20px', letterSpacing: '0.5px' }}>にほんご<span style={{ color: '#ff6b9d' }}>GO</span></h1>
+        </div>
+        <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+          <span style={{ fontSize: '13px', background: '#1e1e30', padding: '5px 10px', borderRadius: '20px' }}>❤️ {hearts}/5</span>
+          <span style={{ fontSize: '13px', background: '#1e1e30', padding: '5px 10px', borderRadius: '20px' }}>💎 {gems}</span>
+          <span style={{ fontSize: '13px', background: '#1e1e30', padding: '5px 10px', borderRadius: '20px' }}>🔥 {streak}</span>
         </div>
       </div>
 
-      {hearts === 0 && (
-        <div style={{ margin: '16px', background: '#7a1f1f', borderRadius: '12px', padding: '14px 16px', textAlign: 'center' }}>
-          <p style={{ margin: '0 0 4px', fontWeight: '500' }}>{t.noHearts}</p>
-          <p style={{ margin: 0, fontSize: '13px', color: '#ffaaaa' }}>{t.wait}</p>
+      {/* XP Card */}
+      <div style={{ margin: '16px', background: 'linear-gradient(135deg,#1a1a2e,#12121f)', borderRadius: '20px', padding: '20px', border: '0.5px solid #1e1e30' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+          <div>
+            <p style={{ color: '#666', margin: '0 0 4px', fontSize: '12px' }}>{t.welcome}</p>
+            <h2 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: '600' }}>{t.level}</h2>
+            <p style={{ color: '#ff6b9d', fontSize: '13px', margin: 0 }}>⚡ {xp} XP</p>
+          </div>
+          <div style={{ fontSize: '40px' }}>🎌</div>
         </div>
-      )}
-
-      <div style={{ margin: '16px', background: '#16213e', borderRadius: '16px', padding: '20px' }}>
-        <p style={{ color: '#aaa', margin: '0 0 4px', fontSize: '13px' }}>{t.welcome}</p>
-        <h2 style={{ margin: '0 0 4px', fontSize: '18px' }}>{t.level}</h2>
-        <p style={{ color: '#e84393', fontSize: '13px', margin: '0 0 12px' }}>⚡ {xp} XP</p>
-        <div style={{ background: '#0f3460', borderRadius: '8px', height: '8px' }}>
-          <div style={{ background: 'linear-gradient(90deg,#e84393,#a855f7)', width: `${xpPercent}%`, height: '100%', borderRadius: '8px', transition: 'width 0.5s' }} />
+        <div style={{ background: '#1e1e30', borderRadius: '8px', height: '6px' }}>
+          <div style={{ background: 'linear-gradient(90deg,#ff6b9d,#c44dff)', width: `${xpPercent}%`, height: '100%', borderRadius: '8px', transition: 'width 0.5s' }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#aaa', marginTop: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#555', marginTop: '4px' }}>
           <span>{xp} XP</span><span>1000 XP</span>
         </div>
       </div>
 
-      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+      {/* Action buttons */}
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
         <button onClick={startQuiz} disabled={hearts === 0}
-          style={{ width: '100%', padding: '15px', background: hearts === 0 ? '#333' : 'linear-gradient(90deg,#e84393,#a855f7)', border: 'none', borderRadius: '12px', color: hearts === 0 ? '#666' : 'white', fontSize: '16px', fontWeight: '500', cursor: hearts === 0 ? 'not-allowed' : 'pointer' }}>
-          {t.startQuiz} {hearts === 0 ? '🚫' : ''}
+          style={{ width: '100%', padding: '16px', background: hearts === 0 ? '#1e1e30' : 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '14px', color: hearts === 0 ? '#444' : 'white', fontSize: '16px', fontWeight: '600', cursor: hearts === 0 ? 'not-allowed' : 'pointer' }}>
+          🧠 {t.startQuiz}
         </button>
-        <button onClick={() => setScreen('letters')}
-          style={{ width: '100%', padding: '15px', background: '#16213e', border: '1px solid #a855f7', borderRadius: '12px', color: 'white', fontSize: '16px', cursor: 'pointer' }}>
-          {t.learnChart}
+        <button onClick={() => setTab('letters')}
+          style={{ width: '100%', padding: '16px', background: '#12121f', border: '1px solid #1e1e30', borderRadius: '14px', color: 'white', fontSize: '15px', cursor: 'pointer' }}>
+          📖 {t.learnChart}
         </button>
       </div>
 
-      <div style={{ padding: '0 16px' }}>
-        <p style={{ color: '#aaa', fontSize: '13px', marginBottom: '12px' }}>{t.path}</p>
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '0 16px', marginBottom: '20px' }}>
         {[
-          { icon: '✅', bg: '#e1f5ee', title: 'Hiragana — Part 1', sub: 'あ い う え お', badge: t.done, badgeBg: '#e1f5ee', badgeColor: '#0f6e56', border: 'none', opacity: 1 },
-          { icon: '▶️', bg: '#fbeaf0', title: 'Hiragana — Part 2', sub: 'か き く け こ', badge: t.inProgress, badgeBg: '#fbeaf0', badgeColor: '#993556', border: '1px solid #e84393', opacity: 1 },
-          { icon: '🔒', bg: '#333', title: 'Katakana', sub: 'ア イ ウ エ オ', badge: t.locked, badgeBg: '#333', badgeColor: '#aaa', border: 'none', opacity: 0.4 },
-          { icon: '🔒', bg: '#333', title: 'Kanji — Level 1', sub: '日 月 火 水 木', badge: t.locked, badgeBg: '#333', badgeColor: '#aaa', border: 'none', opacity: 0.4 },
+          ['46', lang === 'ar' ? 'حرف' : 'chars'],
+          [streak + '🔥', lang === 'ar' ? 'أيام' : 'days'],
+          [lastScore > 0 ? lastScore : '—', lang === 'ar' ? 'آخر نتيجة' : 'last score']
+        ].map(([val, label], i) => (
+          <div key={i} style={{ background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+            <div style={{ fontSize: '20px', fontWeight: '700' }}>{val}</div>
+            <div style={{ fontSize: '11px', color: '#555', marginTop: '3px' }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Learning Path */}
+      <div style={{ padding: '0 16px' }}>
+        <p style={{ color: '#555', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>{t.path}</p>
+        {[
+          { icon: '✅', title: 'Hiragana — Part 1', sub: 'あ い う え お', badge: t.done, badgeBg: '#0d2d1e', badgeColor: '#4ade80', border: 'none', opacity: 1 },
+          { icon: '▶️', title: 'Hiragana — Part 2', sub: 'か き く け こ', badge: t.inProgress, badgeBg: '#2d0d1e', badgeColor: '#ff6b9d', border: '1px solid #ff6b9d33', opacity: 1 },
+          { icon: '🔒', title: 'Katakana', sub: 'ア イ ウ エ オ', badge: t.locked, badgeBg: '#1e1e30', badgeColor: '#444', border: 'none', opacity: 0.4 },
+          { icon: '🔒', title: 'Kanji — Level 1', sub: '日 月 火 水 木', badge: t.locked, badgeBg: '#1e1e30', badgeColor: '#444', border: 'none', opacity: 0.4 },
         ].map((item, i) => (
-          <div key={i} style={{ background: '#16213e', borderRadius: '12px', padding: '14px 16px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px', border: item.border, opacity: item.opacity }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{item.icon}</div>
+          <div key={i} style={{ background: '#12121f', borderRadius: '14px', padding: '14px 16px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px', border: item.border || '0.5px solid #1e1e30', opacity: item.opacity }}>
+            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#1e1e30', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{item.icon}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: '500', fontSize: '14px' }}>{item.title}</div>
-              <div style={{ color: '#aaa', fontSize: '12px', marginTop: '2px' }}>{item.sub}</div>
+              <div style={{ color: '#555', fontSize: '12px', marginTop: '2px' }}>{item.sub}</div>
             </div>
-            <span style={{ background: item.badgeBg, color: item.badgeColor, fontSize: '11px', padding: '2px 8px', borderRadius: '20px', whiteSpace: 'nowrap' }}>{item.badge}</span>
+            <span style={{ background: item.badgeBg, color: item.badgeColor, fontSize: '11px', padding: '3px 10px', borderRadius: '20px', whiteSpace: 'nowrap' }}>{item.badge}</span>
           </div>
         ))}
       </div>
     </div>
   )
 
-  const HeartsTab = () => (
-    <div style={{ padding: '24px 16px 80px', textAlign: 'center' }}>
-      <h2 style={{ fontSize: '20px', marginBottom: '24px' }}>❤️ {t.hearts}</h2>
-      <div style={{ fontSize: '60px', marginBottom: '16px' }}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} style={{ opacity: i < hearts ? 1 : 0.2 }}>❤️</span>
-        ))}
-      </div>
-      <p style={{ color: '#aaa', fontSize: '14px', marginBottom: '32px' }}>
-        {hearts === 5 ? (lang === 'ar' ? 'قلوبك مكتملة!' : 'Full hearts!') : `${hearts}/5 ${lang === 'ar' ? 'قلوب متبقية' : 'hearts remaining'}`}
-      </p>
-      <button onClick={() => { if (gems >= 350 && hearts < 5) { setGems(g => g - 350); setHearts(5) } }}
-        disabled={gems < 350 || hearts === 5}
-        style={{ width: '100%', padding: '15px', background: gems >= 350 && hearts < 5 ? 'linear-gradient(90deg,#e84393,#a855f7)' : '#333', border: 'none', borderRadius: '12px', color: gems >= 350 && hearts < 5 ? 'white' : '#666', fontSize: '16px', cursor: gems >= 350 && hearts < 5 ? 'pointer' : 'not-allowed' }}>
-        💎 350 — {lang === 'ar' ? 'أعد تعبئة القلوب' : 'Refill Hearts'}
-      </button>
-    </div>
-  )
+  // LETTERS TAB
+  const LettersTab = () => {
+    const groups = {
+      hiragana: [
+        { label: 'あ行', chars: [{ k: 'あ', r: 'a' }, { k: 'い', r: 'i' }, { k: 'う', r: 'u' }, { k: 'え', r: 'e' }, { k: 'お', r: 'o' }] },
+        { label: 'か行', chars: [{ k: 'か', r: 'ka' }, { k: 'き', r: 'ki' }, { k: 'く', r: 'ku' }, { k: 'け', r: 'ke' }, { k: 'こ', r: 'ko' }] },
+        { label: 'さ行', chars: [{ k: 'さ', r: 'sa' }, { k: 'し', r: 'shi' }, { k: 'す', r: 'su' }, { k: 'せ', r: 'se' }, { k: 'そ', r: 'so' }] },
+        { label: 'た行', chars: [{ k: 'た', r: 'ta' }, { k: 'ち', r: 'chi' }, { k: 'つ', r: 'tsu' }, { k: 'て', r: 'te' }, { k: 'と', r: 'to' }] },
+        { label: 'な行', chars: [{ k: 'な', r: 'na' }, { k: 'に', r: 'ni' }, { k: 'ぬ', r: 'nu' }, { k: 'ね', r: 'ne' }, { k: 'の', r: 'no' }] },
+        { label: 'は行', chars: [{ k: 'は', r: 'ha' }, { k: 'ひ', r: 'hi' }, { k: 'ふ', r: 'fu' }, { k: 'へ', r: 'he' }, { k: 'ほ', r: 'ho' }] },
+        { label: 'ま行', chars: [{ k: 'ま', r: 'ma' }, { k: 'み', r: 'mi' }, { k: 'む', r: 'mu' }, { k: 'め', r: 'me' }, { k: 'も', r: 'mo' }] },
+        { label: 'や行', chars: [{ k: 'や', r: 'ya' }, { k: 'ゆ', r: 'yu' }, { k: 'よ', r: 'yo' }] },
+        { label: 'ら行', chars: [{ k: 'ら', r: 'ra' }, { k: 'り', r: 'ri' }, { k: 'る', r: 'ru' }, { k: 'れ', r: 're' }, { k: 'ろ', r: 'ro' }] },
+        { label: 'わ行', chars: [{ k: 'わ', r: 'wa' }, { k: 'を', r: 'wo' }, { k: 'ん', r: 'n' }] },
+      ],
+      katakana: [
+        { label: 'ア行', chars: [{ k: 'ア', r: 'a' }, { k: 'イ', r: 'i' }, { k: 'ウ', r: 'u' }, { k: 'エ', r: 'e' }, { k: 'オ', r: 'o' }] },
+        { label: 'カ行', chars: [{ k: 'カ', r: 'ka' }, { k: 'キ', r: 'ki' }, { k: 'ク', r: 'ku' }, { k: 'ケ', r: 'ke' }, { k: 'コ', r: 'ko' }] },
+        { label: 'サ行', chars: [{ k: 'サ', r: 'sa' }, { k: 'シ', r: 'shi' }, { k: 'ス', r: 'su' }, { k: 'セ', r: 'se' }, { k: 'ソ', r: 'so' }] },
+      ],
+      kanji: [
+        { label: 'أرقام', chars: [{ k: '一', r: 'ichi' }, { k: '二', r: 'ni' }, { k: '三', r: 'san' }, { k: '四', r: 'shi' }, { k: '五', r: 'go' }] },
+        { label: 'طبيعة', chars: [{ k: '日', r: 'nichi' }, { k: '月', r: 'tsuki' }, { k: '火', r: 'hi' }, { k: '水', r: 'mizu' }, { k: '木', r: 'ki' }] },
+      ]
+    }
 
-  const ProfileTab = () => (
-    <div style={{ padding: '24px 16px 80px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg,#e84393,#a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 12px' }}>🧑</div>
-        <h2 style={{ margin: '0 0 4px', fontSize: '20px' }}>Abdalla</h2>
-        <p style={{ color: '#aaa', fontSize: '13px', margin: 0 }}>@thatsabod</p>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '24px' }}>
-        {[['⚡', xp, 'XP'], ['🔥', streak, lang === 'ar' ? 'أيام' : 'Days'], ['🏆', totalQuizzes, lang === 'ar' ? 'اختبار' : 'Quizzes']].map(([icon, val, label], i) => (
-          <div key={i} style={{ background: '#16213e', borderRadius: '12px', padding: '14px', textAlign: 'center' }}>
-            <div style={{ fontSize: '20px' }}>{icon}</div>
-            <div style={{ fontSize: '22px', fontWeight: '600', margin: '4px 0 2px' }}>{val}</div>
-            <div style={{ fontSize: '11px', color: '#aaa' }}>{label}</div>
-          </div>
-        ))}
-      </div>
-      <h3 style={{ fontSize: '16px', marginBottom: '12px', color: '#aaa' }}>{lang === 'ar' ? 'الإنجازات' : 'Achievements'}</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-        {ACHIEVEMENTS.map((a) => {
-          const unlocked = a.condition(stats)
-          return (
-            <div key={a.id} style={{ background: '#16213e', borderRadius: '12px', padding: '14px', textAlign: 'center', opacity: unlocked ? 1 : 0.35, border: unlocked ? '1px solid #e84393' : '0.5px solid #333' }}>
-              <div style={{ fontSize: '28px', marginBottom: '4px' }}>{a.icon}</div>
-              <div style={{ fontSize: '11px', color: unlocked ? '#e84393' : '#aaa' }}>{a.label}</div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
+    const tabs = [
+      { id: 'hiragana', label: 'Hiragana' },
+      { id: 'katakana', label: 'Katakana' },
+      { id: 'kanji', label: 'Kanji', locked: true },
+    ]
 
-  const ShopTab = () => (
-    <div style={{ padding: '24px 16px 80px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ margin: 0, fontSize: '20px' }}>{lang === 'ar' ? 'المتجر' : 'Shop'}</h2>
-        <span style={{ background: '#16213e', padding: '6px 14px', borderRadius: '20px', fontSize: '14px' }}>💎 {gems}</span>
-      </div>
-      {[
-        { icon: '❤️', name: lang === 'ar' ? 'إعادة تعبئة القلوب' : 'Heart Refill', desc: lang === 'ar' ? 'استعد قلوبك كاملة' : 'Regain full hearts', cost: 350, action: () => { if (gems >= 350) { setGems(g => g - 350); setHearts(5) } } },
-        { icon: '🛡️', name: lang === 'ar' ? 'درع القلب' : 'Heart Shield', desc: lang === 'ar' ? '30 دقيقة بدون خسارة قلوب' : '30 min no heart loss', cost: 200, action: () => { if (gems >= 200) setGems(g => g - 200) } },
-        { icon: '⚡', name: lang === 'ar' ? 'XP مضاعف' : 'XP Boost', desc: lang === 'ar' ? 'ضاعف XP لمدة ساعة' : 'Double XP for 1 hour', cost: 150, action: () => { if (gems >= 150) setGems(g => g - 150) } },
-        { icon: '🎯', name: lang === 'ar' ? 'تجميد السلسلة' : 'Streak Freeze', desc: lang === 'ar' ? 'احتفظ بسلسلتك ليوم' : 'Keep streak for 1 day', cost: 200, action: () => { if (gems >= 200) setGems(g => g - 200) } },
-      ].map((item, i) => (
-        <div key={i} style={{ background: '#16213e', borderRadius: '12px', padding: '16px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ fontSize: '32px', flexShrink: 0 }}>{item.icon}</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: '500', fontSize: '14px' }}>{item.name}</div>
-            <div style={{ fontSize: '12px', color: '#aaa', marginTop: '2px' }}>{item.desc}</div>
+    const currentGroups = groups[lettersTab] || []
+
+    return (
+      <div style={{ paddingBottom: '90px' }}>
+        {/* Header */}
+        <div style={{ background: '#12121f', padding: '18px 20px', borderBottom: '0.5px solid #1e1e30' }}>
+          <h2 style={{ margin: '0 0 14px', fontSize: '18px' }}>{lang === 'ar' ? 'الأحرف' : 'Characters'}</h2>
+          {/* Sub tabs */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {tabs.map(tb => (
+              <button key={tb.id}
+                onClick={() => !tb.locked && setLettersTab(tb.id)}
+                style={{
+                  padding: '8px 16px', borderRadius: '20px', border: 'none', fontSize: '13px', fontWeight: '500', cursor: tb.locked ? 'not-allowed' : 'pointer',
+                  background: lettersTab === tb.id ? 'linear-gradient(135deg,#ff6b9d,#c44dff)' : '#1e1e30',
+                  color: tb.locked ? '#444' : lettersTab === tb.id ? 'white' : '#aaa',
+                  opacity: tb.locked ? 0.5 : 1
+                }}>
+                {tb.label} {tb.locked ? '🔒' : ''}
+              </button>
+            ))}
           </div>
-          <button onClick={item.action} disabled={gems < item.cost}
-            style={{ padding: '8px 14px', background: gems >= item.cost ? 'linear-gradient(90deg,#e84393,#a855f7)' : '#333', border: 'none', borderRadius: '20px', color: gems >= item.cost ? 'white' : '#666', fontSize: '13px', cursor: gems >= item.cost ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}>
-            💎 {item.cost}
-          </button>
         </div>
-      ))}
+
+        {/* Groups */}
+        <div style={{ padding: '16px' }}>
+          {currentGroups.map((group, gi) => (
+            <div key={gi} style={{ marginBottom: '20px' }}>
+              <p style={{ color: '#ff6b9d', fontSize: '12px', marginBottom: '10px', fontWeight: '600', letterSpacing: '1px' }}>{group.label}</p>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {group.chars.map((ch, ci) => {
+                  const practiced = progress[ch.k] || 0
+                  const percent = Math.min((practiced / 10) * 100, 100)
+                  const done = practiced >= 10
+                  return (
+                    <div key={ci}
+                      onClick={() => { const u = new SpeechSynthesisUtterance(ch.k); u.lang = 'ja-JP'; window.speechSynthesis.speak(u) }}
+                      style={{ background: done ? '#0d2d1e' : '#12121f', border: done ? '1px solid #4ade8066' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '12px', textAlign: 'center', cursor: 'pointer', minWidth: '64px', transition: 'all 0.2s' }}>
+                      <div style={{ fontSize: '26px', marginBottom: '2px' }}>{ch.k}</div>
+                      <div style={{ fontSize: '11px', color: '#ff6b9d', marginBottom: '6px' }}>{ch.r}</div>
+                      <div style={{ background: '#1e1e30', borderRadius: '4px', height: '3px', overflow: 'hidden' }}>
+                        <div style={{ background: done ? '#4ade80' : 'linear-gradient(90deg,#ff6b9d,#c44dff)', width: `${percent}%`, height: '100%', borderRadius: '4px' }} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // PROFILE TAB
+  const ProfileTab = () => (
+    <div style={{ paddingBottom: '90px' }}>
+      <div style={{ background: '#12121f', padding: '18px 20px', borderBottom: '0.5px solid #1e1e30', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ margin: 0, fontSize: '18px' }}>{lang === 'ar' ? 'حسابي' : 'My Profile'}</h2>
+        <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
+          style={{ background: 'none', border: '1px solid #1e1e30', borderRadius: '20px', padding: '5px 12px', color: '#aaa', fontSize: '12px', cursor: 'pointer' }}>
+          {lang === 'ar' ? 'EN' : 'ع'}
+        </button>
+      </div>
+
+      <div style={{ padding: '24px 16px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 12px' }}>🧑</div>
+          <h2 style={{ margin: '0 0 4px', fontSize: '20px' }}>Abdalla</h2>
+          <p style={{ color: '#555', fontSize: '13px', margin: 0 }}>@thatsabod</p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '28px' }}>
+          {[['⚡', xp, 'XP'], ['🔥', streak, lang === 'ar' ? 'أيام' : 'Days'], ['🏆', totalQuizzes, lang === 'ar' ? 'اختبار' : 'Quizzes']].map(([icon, val, label], i) => (
+            <div key={i} style={{ background: '#12121f', border: '0.5px solid #1e1e30', borderRadius: '14px', padding: '14px', textAlign: 'center' }}>
+              <div style={{ fontSize: '20px' }}>{icon}</div>
+              <div style={{ fontSize: '22px', fontWeight: '700', margin: '4px 0 2px' }}>{val}</div>
+              <div style={{ fontSize: '11px', color: '#555' }}>{label}</div>
+            </div>
+          ))}
+        </div>
+
+        <p style={{ color: '#555', fontSize: '12px', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>{lang === 'ar' ? 'الإنجازات' : 'Achievements'}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+          {ACHIEVEMENTS.map((a) => {
+            const unlocked = a.condition(stats)
+            return (
+              <div key={a.id} style={{ background: '#12121f', border: unlocked ? '1px solid #ff6b9d33' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '16px', textAlign: 'center', opacity: unlocked ? 1 : 0.3 }}>
+                <div style={{ fontSize: '28px', marginBottom: '6px' }}>{a.icon}</div>
+                <div style={{ fontSize: '11px', color: unlocked ? '#ff6b9d' : '#555' }}>{a.label}</div>
+              </div>
+            )
+          })}
+        </div>
+
+        <button onClick={() => setScreen('welcome')}
+          style={{ width: '100%', marginTop: '24px', padding: '14px', background: '#12121f', border: '1px solid #1e1e30', borderRadius: '14px', color: '#ff6b9d', fontSize: '14px', cursor: 'pointer' }}>
+          {lang === 'ar' ? '← رجوع للواجهة الرئيسية' : '← Back to welcome screen'}
+        </button>
+      </div>
     </div>
   )
 
   return (
     <>
-      <div style={{ minHeight: '100vh', background: '#1a1a2e', fontFamily: 'sans-serif', color: 'white', direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
-        {tab === 'learn'   && <LearnTab />}
-        {tab === 'hearts'  && <HeartsTab />}
+      <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', direction: lang === 'ar' ? 'rtl' : 'ltr' }}>
+        {tab === 'home'    && <HomeTab />}
+        {tab === 'letters' && <LettersTab />}
         {tab === 'profile' && <ProfileTab />}
-        {tab === 'shop'    && <ShopTab />}
       </div>
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#16213e', borderTop: '0.5px solid #333', display: 'flex', zIndex: 100 }}>
+
+      {/* Bottom Nav */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#12121f', borderTop: '0.5px solid #1e1e30', display: 'flex', zIndex: 100, paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {[
-          { id: 'learn',   icon: '📚', label: t.learn },
-          { id: 'hearts',  icon: '❤️', label: t.hearts },
-          { id: 'profile', icon: '👤', label: t.profile },
-          { id: 'shop',    icon: '🛒', label: t.shop },
+          { id: 'home',    icon: '🏠', label: lang === 'ar' ? 'الرئيسية' : 'Home' },
+          { id: 'letters', icon: '文', label: lang === 'ar' ? 'الأحرف' : 'Letters' },
+          { id: 'profile', icon: '👤', label: lang === 'ar' ? 'حسابي' : 'Profile' },
         ].map((item) => (
           <button key={item.id} onClick={() => setTab(item.id)}
-            style={{ flex: 1, padding: '12px 4px', background: 'none', border: 'none', color: tab === item.id ? '#e84393' : '#555', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', borderTop: tab === item.id ? '2px solid #e84393' : '2px solid transparent', transition: 'all 0.15s' }}>
-            <span style={{ fontSize: '20px' }}>{item.icon}</span>
-            <span style={{ fontSize: '11px', fontWeight: tab === item.id ? '500' : '400' }}>{item.label}</span>
+            style={{ flex: 1, padding: '12px 4px', background: 'none', border: 'none', color: tab === item.id ? '#ff6b9d' : '#444', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', borderTop: tab === item.id ? '2px solid #ff6b9d' : '2px solid transparent', transition: 'all 0.15s' }}>
+            <span style={{ fontSize: '22px' }}>{item.icon}</span>
+            <span style={{ fontSize: '11px', fontWeight: tab === item.id ? '600' : '400' }}>{item.label}</span>
           </button>
         ))}
       </div>
-      <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
-        style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 999, background: '#16213e', border: '1px solid #e84393', borderRadius: '20px', padding: '4px 12px', color: 'white', fontSize: '13px', cursor: 'pointer' }}>
-        {lang === 'ar' ? 'EN' : 'ع'}
-      </button>
     </>
   )
 }
