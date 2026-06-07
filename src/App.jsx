@@ -39,7 +39,7 @@ const ACHIEVEMENTS = [
   { id: 'quiz10',   icon: '🌟', label: '10 Quizzes',   condition: (s) => s.totalQuizzes >= 10 },
 ]
 
-function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
+function WelcomeScreen({ onStart, onTest, onLogin, onRegister, lang, setLang }) {
   return (
     <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -66,7 +66,7 @@ function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
             style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #ff6b9d', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
             {lang === 'ar' ? '🧠 اختبر معلوماتك' : '🧠 Test your knowledge'}
           </button>
-          <button onClick={onLogin}
+          <button onClick={onRegister}
             style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #333', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
             {lang === 'ar' ? '✨ أنشئ حساب' : '✨ Create account'}
           </button>
@@ -97,6 +97,7 @@ export default function App() {
   const [userBirthday, setUserBirthday] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState(null)
+  const [loginMode, setLoginMode] = useState('login')
   const [dataReady, setDataReady] = useState(false)
   const [questions, setQuestions] = useState([])
   const [qIndex, setQIndex] = useState(0)
@@ -214,18 +215,24 @@ setDataReady(true)
 }
 
   if (screen === 'welcome') return (
-    <WelcomeScreen lang={lang} setLang={setLang}
-      onStart={() => setScreen('main')}
-      onTest={() => { setScreen('main'); setTimeout(startQuiz, 100) }}
-      onLogin={() => setScreen('login')}
-    />
-  )
+  <WelcomeScreen
+    lang={lang}
+    setLang={setLang}
+    onStart={() => setScreen('main')}
+    onTest={() => { setScreen('main'); setTab('home'); setTimeout(startQuiz, 200) }}
+    onLogin={() => { setLoginMode('login'); setScreen('login') }}
+    onRegister={() => { setLoginMode('register'); setScreen('login') }}
+  />
+)
 
   if (screen === 'login') return (
-    <Login lang={lang} onBack={() => setScreen('welcome')}
-      onLogin={(name) => { setUserName(name); setScreen('main') }}
-    />
-  )
+  <Login
+    lang={lang}
+    initialMode={loginMode}
+    onBack={() => setScreen('welcome')}
+    onLogin={(name) => { setUserName(name); setScreen('main') }}
+  />
+)
 
   if (screen === 'quiz') return (
     <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('main')} />

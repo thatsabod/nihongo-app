@@ -17,8 +17,8 @@ const countries = [
   { code: 'OTHER', name: 'دولة أخرى', cities: ['أخرى'] },
 ]
 
-export default function Login({ lang, onBack, onLogin }) {
-  const [mode, setMode] = useState('login')
+export default function Login({ lang, onBack, onLogin, initialMode }) {
+  const [mode, setMode] = useState(initialMode || 'login')
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
