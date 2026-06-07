@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react'
-import { hiragana } from './data.js'
-import Quiz from './screens/Quiz.jsx'
-import Result from './screens/Result.jsx'
-import Letters from './screens/Letters.jsx'
+useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('nihongo-save') || '{}')
+    if (saved.xp)           setXp(saved.xp)
+    if (saved.hearts)       setHearts(saved.hearts)
+    if (saved.gems)         setGems(saved.gems)
+    if (saved.progress)     setProgress(saved.progress)
+    if (saved.totalQuizzes) setTotalQuizzes(saved.totalQuizzes)
+    if (saved.perfectScores) setPerfectScores(saved.perfectScores)
+    if (saved.lastScore)    setLastScore(saved.lastScore)
+    setTimeout(() => setLoading(false), 2000)
+  }, [])
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -37,6 +43,7 @@ const ACHIEVEMENTS = [
 ]
 
 export default function App() {
+  const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState('learn')
   const [screen, setScreen] = useState('home')
   const [lang, setLang] = useState('ar')
@@ -124,6 +131,22 @@ export default function App() {
     </button>
   )
 
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
+      <div style={{ fontSize: '80px', marginBottom: '16px', animation: 'pulse 1s infinite' }}>🎌</div>
+      <h1 style={{ color: 'white', fontSize: '28px', margin: '0 0 8px' }}>
+        にほんご<span style={{ color: '#e84393' }}>GO</span>
+      </h1>
+      <p style={{ color: '#aaa', fontSize: '14px', marginBottom: '40px' }}>تعلم اليابانية بطريقة ممتعة</p>
+      <div style={{ width: '200px', height: '4px', background: '#16213e', borderRadius: '4px', overflow: 'hidden' }}>
+        <div style={{ height: '100%', background: 'linear-gradient(90deg,#e84393,#a855f7)', borderRadius: '4px', animation: 'load 2s ease forwards' }} />
+      </div>
+      <style>{`
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        @keyframes load { from{width:0%} to{width:100%} }
+      `}</style>
+    </div>
+  )
   if (screen === 'quiz') return (
     <>
       <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('home')} />
