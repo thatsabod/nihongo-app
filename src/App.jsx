@@ -3,6 +3,7 @@ import { hiragana } from './data.js'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
 import Letters from './screens/Letters.jsx'
+import Login from './screens/Login.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -34,13 +35,11 @@ const ACHIEVEMENTS = [
   { id: 'quiz10',   icon: '🌟', label: '10 Quizzes',   condition: (s) => s.totalQuizzes >= 10 },
 ]
 
-// Welcome screen component
-function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
+function WelcomeScreen({ onStart, onTest, onRegister, onLogin, lang, setLang }) {
   return (
     <div style={{ minHeight: '100vh', background: '#0f0e17', fontFamily: 'sans-serif', color: 'white', display: 'flex', flexDirection: 'column' }}>
-      {/* Top bar */}
       <div style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '22px', letterSpacing: '1px' }}>
+        <h1 style={{ margin: 0, fontSize: '22px' }}>
           にほんご<span style={{ color: '#ff6b9d' }}>GO</span>
         </h1>
         <button onClick={() => setLang(l => l === 'ar' ? 'en' : 'ar')}
@@ -49,7 +48,6 @@ function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
         </button>
       </div>
 
-      {/* Hero */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center' }}>
         <div style={{ fontSize: '80px', marginBottom: '8px' }}>🎌</div>
         <h2 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '12px', lineHeight: 1.2 }}>
@@ -59,17 +57,16 @@ function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
           {lang === 'ar' ? 'تعلم الحروف والمفردات بطريقة ممتعة' : 'Learn characters and vocabulary in a fun way'}
         </p>
 
-        {/* Main buttons */}
         <div style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <button onClick={onStart}
-            style={{ width: '100%', padding: '18px', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '600', cursor: 'pointer', letterSpacing: '0.3px' }}>
+            style={{ width: '100%', padding: '18px', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '600', cursor: 'pointer' }}>
             {lang === 'ar' ? '🚀 ابدأ التعلم من الصفر' : '🚀 Start from scratch'}
           </button>
           <button onClick={onTest}
             style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #ff6b9d', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
             {lang === 'ar' ? '🧠 اختبر معلوماتك' : '🧠 Test your knowledge'}
           </button>
-          <button onClick={onLogin}
+          <button onClick={onRegister}
             style={{ width: '100%', padding: '18px', background: '#1a1a2e', border: '1.5px solid #333', borderRadius: '16px', color: 'white', fontSize: '17px', fontWeight: '500', cursor: 'pointer' }}>
             {lang === 'ar' ? '✨ أنشئ حساب' : '✨ Create account'}
           </button>
@@ -80,7 +77,6 @@ function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
         </div>
       </div>
 
-      {/* Bottom dots */}
       <div style={{ padding: '24px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
         {[1,2,3].map(i => (
           <div key={i} style={{ width: i === 1 ? '24px' : '8px', height: '8px', borderRadius: '4px', background: i === 1 ? '#ff6b9d' : '#333' }} />
@@ -92,9 +88,11 @@ function WelcomeScreen({ onStart, onTest, onLogin, lang, setLang }) {
 
 export default function App() {
   const [screen, setScreen] = useState('welcome')
+  const [loginMode, setLoginMode] = useState('login')
   const [tab, setTab] = useState('home')
   const [lettersTab, setLettersTab] = useState('hiragana')
   const [lang, setLang] = useState('ar')
+  const [userName, setUserName] = useState('')
   const [questions, setQuestions] = useState([])
   const [qIndex, setQIndex] = useState(0)
   const [selected, setSelected] = useState(null)
@@ -110,21 +108,22 @@ export default function App() {
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('nihongo-save') || '{}')
-    if (saved.xp !== undefined)      setXp(saved.xp)
-    if (saved.hearts)                setHearts(saved.hearts)
-    if (saved.gems)                  setGems(saved.gems)
-    if (saved.progress)              setProgress(saved.progress)
-    if (saved.totalQuizzes)          setTotalQuizzes(saved.totalQuizzes)
-    if (saved.perfectScores)         setPerfectScores(saved.perfectScores)
-    if (saved.lastScore)             setLastScore(saved.lastScore)
-    if (saved.screen)                setScreen(saved.screen)
+    if (saved.xp !== undefined)  setXp(saved.xp)
+    if (saved.hearts)            setHearts(saved.hearts)
+    if (saved.gems)              setGems(saved.gems)
+    if (saved.progress)          setProgress(saved.progress)
+    if (saved.totalQuizzes)      setTotalQuizzes(saved.totalQuizzes)
+    if (saved.perfectScores)     setPerfectScores(saved.perfectScores)
+    if (saved.lastScore)         setLastScore(saved.lastScore)
+    if (saved.userName)          setUserName(saved.userName)
+    if (saved.screen && saved.screen !== 'welcome') setScreen('main')
   }, [])
 
   useEffect(() => {
     localStorage.setItem('nihongo-save', JSON.stringify({
-      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, screen
+      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, screen
     }))
-  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, screen])
+  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, screen])
 
   const t = translations[lang]
   const stats = { xp, streak, progress, totalQuizzes, perfectScores }
@@ -171,23 +170,33 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [selected])
 
-  // WELCOME
   if (screen === 'welcome') return (
     <WelcomeScreen
       lang={lang}
       setLang={setLang}
       onStart={() => setScreen('main')}
-      onTest={() => { setScreen('main'); startQuiz() }}
-      onLogin={() => setScreen('main')}
+      onTest={() => { setScreen('main'); setTimeout(startQuiz, 100) }}
+      onRegister={() => { setLoginMode('register'); setScreen('login') }}
+      onLogin={() => { setLoginMode('login'); setScreen('login') }}
     />
   )
 
-  // QUIZ
+  if (screen === 'login') return (
+    <Login
+      lang={lang}
+      initialMode={loginMode}
+      onBack={() => setScreen('welcome')}
+      onLogin={(name) => {
+        setUserName(name)
+        setScreen('main')
+      }}
+    />
+  )
+
   if (screen === 'quiz') return (
     <Quiz questions={questions} qIndex={qIndex} selected={selected} score={score} xp={xp} hearts={hearts} lang={lang} onAnswer={handleAnswer} onBack={() => setScreen('main')} />
   )
 
-  // RESULT
   if (screen === 'result') return (
     <Result score={lastScore} total={questions.length} xpEarned={lastScore * 10} lang={lang} onHome={() => { setScreen('main'); setTab('home') }} onRetry={startQuiz} />
   )
@@ -198,26 +207,23 @@ export default function App() {
 
   const xpPercent = Math.min((xp / 1000) * 100, 100)
 
-  // HOME TAB
   const HomeTab = () => (
     <div style={{ paddingBottom: '90px' }}>
-      {/* Header */}
       <div style={{ background: '#12121f', padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '0.5px solid #1e1e30' }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: '20px', letterSpacing: '0.5px' }}>にほんご<span style={{ color: '#ff6b9d' }}>GO</span></h1>
-        </div>
-        <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+        <h1 style={{ margin: 0, fontSize: '20px' }}>にほんご<span style={{ color: '#ff6b9d' }}>GO</span></h1>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <span style={{ fontSize: '13px', background: '#1e1e30', padding: '5px 10px', borderRadius: '20px' }}>❤️ {hearts}/5</span>
           <span style={{ fontSize: '13px', background: '#1e1e30', padding: '5px 10px', borderRadius: '20px' }}>💎 {gems}</span>
           <span style={{ fontSize: '13px', background: '#1e1e30', padding: '5px 10px', borderRadius: '20px' }}>🔥 {streak}</span>
         </div>
       </div>
 
-      {/* XP Card */}
       <div style={{ margin: '16px', background: 'linear-gradient(135deg,#1a1a2e,#12121f)', borderRadius: '20px', padding: '20px', border: '0.5px solid #1e1e30' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
           <div>
-            <p style={{ color: '#666', margin: '0 0 4px', fontSize: '12px' }}>{t.welcome}</p>
+            <p style={{ color: '#666', margin: '0 0 4px', fontSize: '12px' }}>
+              {lang === 'ar' ? `أهلاً، ${userName || 'متعلم'}! 🎌` : `Welcome, ${userName || 'Learner'}! 🎌`}
+            </p>
             <h2 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: '600' }}>{t.level}</h2>
             <p style={{ color: '#ff6b9d', fontSize: '13px', margin: 0 }}>⚡ {xp} XP</p>
           </div>
@@ -231,7 +237,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Action buttons */}
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
         <button onClick={startQuiz} disabled={hearts === 0}
           style={{ width: '100%', padding: '16px', background: hearts === 0 ? '#1e1e30' : 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '14px', color: hearts === 0 ? '#444' : 'white', fontSize: '16px', fontWeight: '600', cursor: hearts === 0 ? 'not-allowed' : 'pointer' }}>
@@ -243,7 +248,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* Stats row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', padding: '0 16px', marginBottom: '20px' }}>
         {[
           ['46', lang === 'ar' ? 'حرف' : 'chars'],
@@ -257,16 +261,15 @@ export default function App() {
         ))}
       </div>
 
-      {/* Learning Path */}
       <div style={{ padding: '0 16px' }}>
         <p style={{ color: '#555', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>{t.path}</p>
         {[
-          { icon: '✅', title: 'Hiragana — Part 1', sub: 'あ い う え お', badge: t.done, badgeBg: '#0d2d1e', badgeColor: '#4ade80', border: 'none', opacity: 1 },
+          { icon: '✅', title: 'Hiragana — Part 1', sub: 'あ い う え お', badge: t.done, badgeBg: '#0d2d1e', badgeColor: '#4ade80', border: '0.5px solid #1e1e30', opacity: 1 },
           { icon: '▶️', title: 'Hiragana — Part 2', sub: 'か き く け こ', badge: t.inProgress, badgeBg: '#2d0d1e', badgeColor: '#ff6b9d', border: '1px solid #ff6b9d33', opacity: 1 },
-          { icon: '🔒', title: 'Katakana', sub: 'ア イ ウ エ オ', badge: t.locked, badgeBg: '#1e1e30', badgeColor: '#444', border: 'none', opacity: 0.4 },
-          { icon: '🔒', title: 'Kanji — Level 1', sub: '日 月 火 水 木', badge: t.locked, badgeBg: '#1e1e30', badgeColor: '#444', border: 'none', opacity: 0.4 },
+          { icon: '🔒', title: 'Katakana', sub: 'ア イ ウ エ オ', badge: t.locked, badgeBg: '#1e1e30', badgeColor: '#444', border: '0.5px solid #1e1e30', opacity: 0.4 },
+          { icon: '🔒', title: 'Kanji — Level 1', sub: '日 月 火 水 木', badge: t.locked, badgeBg: '#1e1e30', badgeColor: '#444', border: '0.5px solid #1e1e30', opacity: 0.4 },
         ].map((item, i) => (
-          <div key={i} style={{ background: '#12121f', borderRadius: '14px', padding: '14px 16px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px', border: item.border || '0.5px solid #1e1e30', opacity: item.opacity }}>
+          <div key={i} style={{ background: '#12121f', borderRadius: '14px', padding: '14px 16px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px', border: item.border, opacity: item.opacity }}>
             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#1e1e30', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{item.icon}</div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: '500', fontSize: '14px' }}>{item.title}</div>
@@ -279,7 +282,6 @@ export default function App() {
     </div>
   )
 
-  // LETTERS TAB
   const LettersTab = () => {
     const groups = {
       hiragana: [
@@ -311,20 +313,17 @@ export default function App() {
       { id: 'kanji', label: 'Kanji', locked: true },
     ]
 
-    const currentGroups = groups[lettersTab] || []
-
     return (
       <div style={{ paddingBottom: '90px' }}>
-        {/* Header */}
         <div style={{ background: '#12121f', padding: '18px 20px', borderBottom: '0.5px solid #1e1e30' }}>
           <h2 style={{ margin: '0 0 14px', fontSize: '18px' }}>{lang === 'ar' ? 'الأحرف' : 'Characters'}</h2>
-          {/* Sub tabs */}
           <div style={{ display: 'flex', gap: '8px' }}>
             {tabs.map(tb => (
               <button key={tb.id}
                 onClick={() => !tb.locked && setLettersTab(tb.id)}
                 style={{
-                  padding: '8px 16px', borderRadius: '20px', border: 'none', fontSize: '13px', fontWeight: '500', cursor: tb.locked ? 'not-allowed' : 'pointer',
+                  padding: '8px 16px', borderRadius: '20px', border: 'none', fontSize: '13px', fontWeight: '500',
+                  cursor: tb.locked ? 'not-allowed' : 'pointer',
                   background: lettersTab === tb.id ? 'linear-gradient(135deg,#ff6b9d,#c44dff)' : '#1e1e30',
                   color: tb.locked ? '#444' : lettersTab === tb.id ? 'white' : '#aaa',
                   opacity: tb.locked ? 0.5 : 1
@@ -335,9 +334,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Groups */}
         <div style={{ padding: '16px' }}>
-          {currentGroups.map((group, gi) => (
+          {(groups[lettersTab] || []).map((group, gi) => (
             <div key={gi} style={{ marginBottom: '20px' }}>
               <p style={{ color: '#ff6b9d', fontSize: '12px', marginBottom: '10px', fontWeight: '600', letterSpacing: '1px' }}>{group.label}</p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -348,7 +346,7 @@ export default function App() {
                   return (
                     <div key={ci}
                       onClick={() => { const u = new SpeechSynthesisUtterance(ch.k); u.lang = 'ja-JP'; window.speechSynthesis.speak(u) }}
-                      style={{ background: done ? '#0d2d1e' : '#12121f', border: done ? '1px solid #4ade8066' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '12px', textAlign: 'center', cursor: 'pointer', minWidth: '64px', transition: 'all 0.2s' }}>
+                      style={{ background: done ? '#0d2d1e' : '#12121f', border: done ? '1px solid #4ade8066' : '0.5px solid #1e1e30', borderRadius: '14px', padding: '12px', textAlign: 'center', cursor: 'pointer', minWidth: '64px' }}>
                       <div style={{ fontSize: '26px', marginBottom: '2px' }}>{ch.k}</div>
                       <div style={{ fontSize: '11px', color: '#ff6b9d', marginBottom: '6px' }}>{ch.r}</div>
                       <div style={{ background: '#1e1e30', borderRadius: '4px', height: '3px', overflow: 'hidden' }}>
@@ -365,7 +363,6 @@ export default function App() {
     )
   }
 
-  // PROFILE TAB
   const ProfileTab = () => (
     <div style={{ paddingBottom: '90px' }}>
       <div style={{ background: '#12121f', padding: '18px 20px', borderBottom: '0.5px solid #1e1e30', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -379,8 +376,8 @@ export default function App() {
       <div style={{ padding: '24px 16px' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', margin: '0 auto 12px' }}>🧑</div>
-          <h2 style={{ margin: '0 0 4px', fontSize: '20px' }}>Abdalla</h2>
-          <p style={{ color: '#555', fontSize: '13px', margin: 0 }}>@thatsabod</p>
+          <h2 style={{ margin: '0 0 4px', fontSize: '20px' }}>{userName || (lang === 'ar' ? 'متعلم' : 'Learner')}</h2>
+          <p style={{ color: '#555', fontSize: '13px', margin: 0 }}>🎌 {lang === 'ar' ? 'متعلم ياباني' : 'Japanese Learner'}</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '28px' }}>
@@ -394,7 +391,7 @@ export default function App() {
         </div>
 
         <p style={{ color: '#555', fontSize: '12px', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>{lang === 'ar' ? 'الإنجازات' : 'Achievements'}</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '24px' }}>
           {ACHIEVEMENTS.map((a) => {
             const unlocked = a.condition(stats)
             return (
@@ -406,9 +403,9 @@ export default function App() {
           })}
         </div>
 
-        <button onClick={() => setScreen('welcome')}
-          style={{ width: '100%', marginTop: '24px', padding: '14px', background: '#12121f', border: '1px solid #1e1e30', borderRadius: '14px', color: '#ff6b9d', fontSize: '14px', cursor: 'pointer' }}>
-          {lang === 'ar' ? '← رجوع للواجهة الرئيسية' : '← Back to welcome screen'}
+        <button onClick={() => { setScreen('welcome'); setUserName(''); localStorage.removeItem('nihongo-save') }}
+          style={{ width: '100%', padding: '14px', background: '#12121f', border: '1px solid #ff6b9d33', borderRadius: '14px', color: '#ff6b9d', fontSize: '14px', cursor: 'pointer' }}>
+          {lang === 'ar' ? '← تسجيل الخروج' : '← Sign Out'}
         </button>
       </div>
     </div>
@@ -422,8 +419,7 @@ export default function App() {
         {tab === 'profile' && <ProfileTab />}
       </div>
 
-      {/* Bottom Nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#12121f', borderTop: '0.5px solid #1e1e30', display: 'flex', zIndex: 100, paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#12121f', borderTop: '0.5px solid #1e1e30', display: 'flex', zIndex: 100 }}>
         {[
           { id: 'home',    icon: '🏠', label: lang === 'ar' ? 'الرئيسية' : 'Home' },
           { id: 'letters', icon: '文', label: lang === 'ar' ? 'الأحرف' : 'Letters' },
