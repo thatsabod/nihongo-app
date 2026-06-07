@@ -8,6 +8,7 @@ import { auth, db } from './firebase.js'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 
+
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
@@ -96,6 +97,7 @@ export default function App() {
   const [userBirthday, setUserBirthday] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState(null)
+  const [dataReady, setDataReady] = useState(false)
   const [questions, setQuestions] = useState([])
   const [qIndex, setQIndex] = useState(0)
   const [selected, setSelected] = useState(null)
@@ -119,30 +121,33 @@ export default function App() {
         const docRef = doc(db, 'users', user.uid)
         const docSnap = await getDoc(docRef)
         if (docSnap.exists()) {
-          const d = docSnap.data()
-          if (d.xp !== undefined)    setXp(d.xp)
-          if (d.hearts)              setHearts(d.hearts)
-          if (d.gems)                setGems(d.gems)
-          if (d.progress)            setProgress(d.progress)
-          if (d.totalQuizzes)        setTotalQuizzes(d.totalQuizzes)
-          if (d.perfectScores)       setPerfectScores(d.perfectScores)
-          if (d.lastScore)           setLastScore(d.lastScore)
-          if (d.userBio)             setUserBio(d.userBio)
-          if (d.userPhone)           setUserPhone(d.userPhone)
-          if (d.userBirthday)        setUserBirthday(d.userBirthday)
-        }
-        setScreen('main')
+  const d = docSnap.data()
+  setXp(d.xp ?? 0)
+  setHearts(d.hearts ?? 5)
+  setGems(d.gems ?? 500)
+  setProgress(d.progress ?? {})
+  setTotalQuizzes(d.totalQuizzes ?? 0)
+  setPerfectScores(d.perfectScores ?? 0)
+  setLastScore(d.lastScore ?? 0)
+  setUserBio(d.userBio ?? '')
+  setUserPhone(d.userPhone ?? '')
+  setUserBirthday(d.userBirthday ?? '')
+  if (d.userName) setUserName(d.userName)
+}
+setScreen('main')
+setDataReady(true)
       }
     })
     return () => unsub()
   }, [])
 
   useEffect(() => {
-    if (!userId) return
-    setDoc(doc(db, 'users', userId), {
-      xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday
-    })
-  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday])
+  if (!userId || !dataReady) return
+  setDoc(doc(db, 'users', userId), {
+    xp, hearts, gems, progress, totalQuizzes, perfectScores,
+    lastScore, userName, userBio, userPhone, userBirthday
+  })
+}, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday])
 
   const t = translations[lang]
   const stats = { xp, streak, progress, totalQuizzes, perfectScores }
@@ -190,11 +195,23 @@ export default function App() {
   }, [selected])
 
   const handleSignOut = async () => {
-    await signOut(auth)
-    setUserId(null)
-    setUserName('')
-    setScreen('welcome')
-  }
+  await signOut(auth)
+  setUserId(null)
+  setUserName('')
+  setUserEmail('')
+  setUserBio('')
+  setUserPhone('')
+  setUserBirthday('')
+  setXp(0)
+  setHearts(5)
+  setGems(500)
+  setProgress({})
+  setTotalQuizzes(0)
+  setPerfectScores(0)
+  setLastScore(0)
+  setDataReady(false)
+  setScreen('welcome')
+}
 
   if (screen === 'welcome') return (
     <WelcomeScreen lang={lang} setLang={setLang}
@@ -282,7 +299,7 @@ export default function App() {
 
   const SettingsScreen = () => {
     const settingsItems = [
-      { icon: '👤', label: lang === 'ar' ? 'تعديل الملف الشخصي' : 'Edit Profile', action: () => setProfileScreen('edit') },
+      { icon: '👤', label: userId ? (lang === 'ar' ? 'تعديل الملف الشخصي' : 'Edit Profile') : (lang === 'ar' ? 'إنشاء ملف شخصي' : 'Create Profile'), action: () => userId ? setProfileScreen('edit') : setScreen('login') },,
       { icon: '💎', label: lang === 'ar' ? 'نوع الاشتراك' : 'Subscription', action: () => {} },
       { icon: '🔔', label: lang === 'ar' ? 'الإشعارات' : 'Notifications', action: () => {} },
       { icon: '🎯', label: lang === 'ar' ? 'مستوى اللغة' : 'Language Level', action: () => {} },
@@ -307,10 +324,17 @@ export default function App() {
             </button>
           ))}
 
-          <button onClick={handleSignOut}
-            style={{ width: '100%', padding: '16px', background: '#1a0a0a', border: '0.5px solid #ff4d4d33', borderRadius: '14px', color: '#ff4d4d', fontSize: '15px', cursor: 'pointer', marginTop: '8px' }}>
-            {lang === 'ar' ? '← تسجيل الخروج' : '← Sign Out'}
-          </button>
+          {userId ? (
+  <button onClick={handleSignOut}
+    style={{ width: '100%', padding: '16px', background: '#1a0a0a', border: '0.5px solid #ff4d4d33', borderRadius: '14px', color: '#ff4d4d', fontSize: '15px', cursor: 'pointer', marginTop: '8px' }}>
+    {lang === 'ar' ? '← تسجيل الخروج' : '← Sign Out'}
+  </button>
+) : (
+  <button onClick={() => { setProfileScreen('main'); setScreen('login') }}
+    style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '14px', color: 'white', fontSize: '15px', cursor: 'pointer', marginTop: '8px' }}>
+    ✨ {lang === 'ar' ? 'أنشئ حساب' : 'Create Account'}
+  </button>
+)}
         </div>
       </div>
     )
@@ -343,12 +367,17 @@ export default function App() {
           </div>
 
           {/* Complete profile banner */}
-          {!isComplete && (
-            <button onClick={() => setProfileScreen('edit')}
-              style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#1a1a2e,#12121f)', border: '1px solid #ff6b9d44', borderRadius: '14px', color: 'white', fontSize: '14px', cursor: 'pointer', marginBottom: '20px', textAlign: 'center' }}>
-              <span style={{ color: '#ff6b9d' }}>✦</span> {lang === 'ar' ? 'أكمل ملفك الشخصي لتجربة أفضل ←' : 'Complete your profile for a better experience ←'}
-            </button>
-          )}
+          {!userId ? (
+  <button onClick={() => setScreen('login')}
+    style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#ff6b9d,#c44dff)', border: 'none', borderRadius: '14px', color: 'white', fontSize: '14px', cursor: 'pointer', marginBottom: '20px' }}>
+    ✨ {lang === 'ar' ? 'أنشئ حساب لحفظ تقدمك' : 'Create account to save progress'}
+  </button>
+) : !isComplete ? (
+  <button onClick={() => setProfileScreen('edit')}
+    style={{ width: '100%', padding: '14px', background: 'linear-gradient(135deg,#1a1a2e,#12121f)', border: '1px solid #ff6b9d44', borderRadius: '14px', color: 'white', fontSize: '14px', cursor: 'pointer', marginBottom: '20px', textAlign: 'center' }}>
+    <span style={{ color: '#ff6b9d' }}>✦</span> {lang === 'ar' ? 'أكمل ملفك الشخصي ←' : 'Complete your profile ←'}
+  </button>
+) : null}
 
           {/* Following/Followers */}
           <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
