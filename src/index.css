@@ -1223,6 +1223,28 @@ input[type='checkbox'] {
   line-height: 1.6;
 }
 
+.verify-panel {
+  display: grid;
+  gap: 14px;
+  margin: 14px 0;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--panel));
+}
+
+.verify-panel > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.verify-panel span {
+  color: var(--muted);
+  font-size: 0.92rem;
+  direction: ltr;
+  text-align: start;
+}
+
 .shop-panel {
   grid-template-columns: 1fr auto;
   align-items: center;
@@ -1495,6 +1517,16 @@ select:focus {
   padding: 10px 12px;
   background: color-mix(in srgb, var(--red) 14%, var(--panel));
   color: var(--red);
+  font-size: 13px;
+}
+
+.form-success {
+  margin: 0;
+  border: 1px solid color-mix(in srgb, var(--green) 45%, var(--border));
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--green) 13%, var(--panel));
+  color: var(--green);
   font-size: 13px;
 }
 

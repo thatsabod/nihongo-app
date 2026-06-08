@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/auth'
+import { doc, getDoc, runTransaction, setDoc } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons } from './data.js'
 import { speakJapanese } from './sounds.js'
@@ -14,6 +14,7 @@ const sectionCount = 3
 const STARTING_GEMS = 2000
 const HEART_REFILL_MS = 90 * 1000
 const GUEST_KEY = 'nihongo-guest-state'
+const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
 
 const copy = {
   ar: {
@@ -58,6 +59,13 @@ const copy = {
     refillAll: 'تعبئة 5 قلوب',
     refillCost: '250 جوهرة',
     notEnoughGems: 'الجواهر غير كافية.',
+    usernameInvalid: 'Username لازم يبدأ بحرف إنكليزي ويحتوي حروف إنكليزية أو أرقام أو _ فقط، من 3 إلى 24 حرف.',
+    usernameTaken: 'هذا الـ username مأخوذ، جرّب واحد ثاني.',
+    emailUnverified: 'بريدك غير مؤكد بعد. أكد البريد حتى يبقى حسابك آمن وتقدر تسترجعه لاحقا.',
+    resendEmail: 'إرسال رابط التأكيد',
+    refreshEmail: 'تحديث الحالة',
+    verificationSent: 'تم إرسال رابط التأكيد إلى بريدك.',
+    emailVerified: 'البريد مؤكد',
     heartsFull: 'قلوبك ممتلئة.',
     editProfile: 'تعديل الملف الشخصي',
     name: 'الاسم',
@@ -134,6 +142,13 @@ const copy = {
     refillAll: 'Refill 5 hearts',
     refillCost: '250 gems',
     notEnoughGems: 'Not enough gems.',
+    usernameInvalid: 'Username must start with an English letter and use only English letters, numbers, or _, 3-24 characters.',
+    usernameTaken: 'This username is already taken.',
+    emailUnverified: 'Your email is not verified yet. Verify it to keep the account secure and recoverable.',
+    resendEmail: 'Send verification link',
+    refreshEmail: 'Refresh status',
+    verificationSent: 'Verification link sent to your email.',
+    emailVerified: 'Email verified',
     heartsFull: 'Your hearts are full.',
     editProfile: 'Edit profile',
     name: 'Name',
@@ -250,6 +265,7 @@ function defaultState() {
     lastScore: 0,
     userName: '',
     userUsername: '',
+    emailVerified: false,
     userBio: '',
     userPhone: '',
     userBirthday: '',
@@ -264,10 +280,11 @@ function defaultState() {
 
 function normalizeUsername(value, fallback = 'nihongo') {
   const clean = String(value || '')
+    .toLowerCase()
     .trim()
     .replace(/^@+/, '')
     .replace(/\s+/g, '_')
-    .replace(/[^\p{L}\p{N}_]+/gu, '')
+    .replace(/[^a-z0-9_]+/g, '')
     .slice(0, 24)
   return clean || fallback
 }
@@ -566,6 +583,7 @@ export default function App() {
   const [userName, setUserName] = useState('')
   const [userUsername, setUserUsername] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [emailVerified, setEmailVerified] = useState(false)
   const [userBio, setUserBio] = useState('')
   const [userPhone, setUserPhone] = useState('')
   const [userBirthday, setUserBirthday] = useState('')
@@ -622,6 +640,7 @@ export default function App() {
     setLastScore(state.lastScore ?? 0)
     setUserName(state.userName || state.name || '')
     setUserUsername(state.userUsername || state.username || '')
+    setEmailVerified(state.emailVerified ?? false)
     setUserBio(state.userBio ?? '')
     setUserPhone(state.userPhone || state.phone || '')
     setUserBirthday(state.userBirthday || state.birthDate || '')
@@ -649,6 +668,7 @@ export default function App() {
     lastScore,
     userName,
     userUsername,
+    emailVerified,
     userBio,
     userPhone,
     userBirthday,
@@ -660,7 +680,7 @@ export default function App() {
     theme,
     lang,
     startingGemsGranted,
-  }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang, startingGemsGranted])
+  }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, emailVerified, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang, startingGemsGranted])
 
   const saveUserDataNow = async (id = userId, extra = {}) => {
     if (!id || isGuest || !dataReady) return
@@ -674,6 +694,35 @@ export default function App() {
     await setDoc(doc(db, 'users', id), payload, { merge: true })
   }
 
+  const reserveUsername = async (nextUsername) => {
+    if (!userId || isGuest) return
+    const previousUsername = normalizeUsername(userUsername || '')
+    if (previousUsername === nextUsername) return
+
+    await runTransaction(db, async (transaction) => {
+      const nextRef = doc(db, 'usernames', nextUsername)
+      const nextSnap = await transaction.get(nextRef)
+      if (nextSnap.exists() && nextSnap.data()?.uid !== userId) {
+        throw new Error('username-taken')
+      }
+
+      const previousRef = previousUsername && previousUsername !== nextUsername
+        ? doc(db, 'usernames', previousUsername)
+        : null
+      const previousSnap = previousRef ? await transaction.get(previousRef) : null
+
+      transaction.set(nextRef, {
+        uid: userId,
+        username: nextUsername,
+        updatedAt: new Date().toISOString(),
+      })
+
+      if (previousRef && previousSnap?.exists() && previousSnap.data()?.uid === userId) {
+        transaction.delete(previousRef)
+      }
+    })
+  }
+
   const startGuest = () => {
     const saved = readGuestState()
     const activity = nextStreakValue(saved.lastActiveDate, saved.streak)
@@ -681,6 +730,7 @@ export default function App() {
     setUserId(null)
     setUserEmail('')
     setIsGuest(true)
+    setEmailVerified(false)
     setDataReady(true)
     setScreen('main')
   }
@@ -700,6 +750,7 @@ export default function App() {
       if (!user) {
         setUserId(null)
         setIsGuest(false)
+        setEmailVerified(false)
         lastSavedCloudJsonRef.current = ''
         setDataReady(true)
         setScreen('welcome')
@@ -708,6 +759,7 @@ export default function App() {
 
       setIsGuest(false)
       setUserEmail(user.email || '')
+      setEmailVerified(Boolean(user.emailVerified))
 
       const snap = await getDoc(doc(db, 'users', user.uid))
       if (auth.currentUser?.uid !== user.uid) return
@@ -719,6 +771,7 @@ export default function App() {
           ...activity,
           userName: d.userName || d.name || user.displayName || '',
           userUsername: d.userUsername || d.username || normalizeUsername(d.userName || d.name || user.displayName || user.email?.split('@')[0] || 'nihongo'),
+          emailVerified: Boolean(user.emailVerified),
           gems: d.gems ?? STARTING_GEMS,
           hearts: d.hearts ?? 5,
         })
@@ -731,6 +784,7 @@ export default function App() {
           userName: user.displayName || '',
           userUsername,
           email: user.email || '',
+          emailVerified: Boolean(user.emailVerified),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }, { merge: true })
@@ -877,6 +931,71 @@ export default function App() {
     setLastHeartRefillAt(Date.now())
   }
 
+  const resendVerificationEmail = async () => {
+    if (!auth.currentUser || auth.currentUser.emailVerified) return
+    try {
+      await sendEmailVerification(auth.currentUser, {
+        url: window.location.origin,
+        handleCodeInApp: false,
+      })
+      setNotice(t.verificationSent)
+    } catch (error) {
+      setNotice(`تعذر إرسال رابط التأكيد حاليا: ${error.code || error.message}`)
+    }
+  }
+
+  const refreshEmailVerification = async () => {
+    if (!auth.currentUser) return
+    try {
+      await auth.currentUser.reload()
+      const verified = Boolean(auth.currentUser.emailVerified)
+      setEmailVerified(verified)
+      await saveUserDataNow(userId, { emailVerified: verified })
+      if (verified) setNotice(t.emailVerified)
+    } catch (error) {
+      setNotice(`تعذر تحديث حالة البريد حاليا: ${error.code || error.message}`)
+    }
+  }
+
+  useEffect(() => {
+    if (!userId || isGuest || !dataReady || emailVerified) return
+
+    let cancelled = false
+    const checkEmailVerification = async (showNotice = false) => {
+      if (!auth.currentUser) return
+      try {
+        await auth.currentUser.reload()
+        const verified = Boolean(auth.currentUser.emailVerified)
+        if (!verified || cancelled) return
+        setEmailVerified(true)
+        await setDoc(doc(db, 'users', userId), {
+          emailVerified: true,
+          updatedAt: new Date().toISOString(),
+        }, { merge: true })
+        if (showNotice) setNotice(copy[lang].emailVerified)
+      } catch (error) {
+        console.warn('Failed to refresh email verification', error)
+      }
+    }
+
+    const onFocus = () => checkEmailVerification(true)
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') checkEmailVerification(true)
+    }
+
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    const timer = window.setInterval(() => checkEmailVerification(false), 30000)
+    checkEmailVerification(false)
+
+    return () => {
+      cancelled = true
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.clearInterval(timer)
+    }
+  }, [userId, isGuest, dataReady, emailVerified, lang])
+
   const achievements = useMemo(() => [
     { label: 'First Quiz', active: totalQuizzes >= 1 },
     { label: '7 Day Streak', active: streak >= 7 },
@@ -894,6 +1013,7 @@ export default function App() {
     setUserName('')
     setUserUsername('')
     setUserEmail('')
+    setEmailVerified(false)
     setIsGuest(false)
     setScreen('welcome')
   }
@@ -996,6 +1116,20 @@ export default function App() {
         onCancel={() => setScreen('main')}
         onSave={async (draft) => {
           const nextUsername = normalizeUsername(draft.userUsername || draft.userName || userEmail?.split('@')[0] || 'nihongo')
+          if (!USERNAME_RE.test(nextUsername)) {
+            setNotice(t.usernameInvalid)
+            setScreen('main')
+            setTab('profile')
+            return
+          }
+          try {
+            await reserveUsername(nextUsername)
+          } catch (error) {
+            setNotice(error.message === 'username-taken' ? t.usernameTaken : 'تعذر حفظ الـ username حاليا.')
+            setScreen('main')
+            setTab('profile')
+            return
+          }
           setUserName(draft.userName)
           setUserUsername(nextUsername)
           setUserBio(draft.userBio)
@@ -1192,6 +1326,19 @@ export default function App() {
               <p>{isGuest ? t.guestHint : 'にほんごGO learner'}</p>
               {userBio && <p>{userBio}</p>}
             </div>
+
+            {!isGuest && userEmail && !emailVerified && (
+              <div className="verify-panel">
+                <div>
+                  <strong>{t.emailUnverified}</strong>
+                  <span>{userEmail}</span>
+                </div>
+                <div className="split-actions">
+                  <Button variant="small" onClick={resendVerificationEmail}>{t.resendEmail}</Button>
+                  <Button variant="secondary" onClick={refreshEmailVerification}>{t.refreshEmail}</Button>
+                </div>
+              </div>
+            )}
 
             {isGuest && (
               <div className="guest-panel">
