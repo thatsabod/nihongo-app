@@ -1,13 +1,13 @@
 :root {
   color-scheme: light;
   --font-scale: 1;
-  --bg: #fbf8f1;
-  --panel: #fffdf8;
-  --panel-2: #f0eadf;
+  --bg: #f3eee4;
+  --panel: #fbf5ea;
+  --panel-2: #e9dfcf;
   --text: #211f2a;
   --muted: #716b7d;
   --faint: #aaa0b7;
-  --border: #e5dccd;
+  --border: #ddd1bd;
   --primary: #7c3aed;
   --primary-2: #a855f7;
   --green: #229a62;
@@ -85,8 +85,8 @@ button {
 .screen {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 85% 8%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 28%),
-    linear-gradient(180deg, var(--panel-2), var(--bg) 34%);
+    radial-gradient(circle at 85% 8%, color-mix(in srgb, var(--primary) 10%, transparent), transparent 28%),
+    linear-gradient(180deg, color-mix(in srgb, var(--panel-2) 72%, var(--bg)), var(--bg) 34%);
 }
 
 .app-shell,
@@ -185,6 +185,45 @@ button {
   color: var(--muted);
   font-size: 13px;
   cursor: pointer;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-chip i {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  color: white;
+  font-style: normal;
+  box-shadow: inset 0 -3px rgba(0, 0, 0, 0.12);
+}
+
+.stat-chip.hearts i {
+  background: linear-gradient(135deg, #ff78b6, #ec4899);
+}
+
+.stat-chip.gems i {
+  background: linear-gradient(135deg, #38bdf8, #7c3aed);
+}
+
+.stat-chip.xp i {
+  width: 34px;
+  background: linear-gradient(135deg, #f59e0b, #a855f7);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.stat-chip.streak i {
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
 }
 
 .hero-panel {
@@ -411,9 +450,105 @@ button {
   font-size: 13px;
 }
 
+.letters-progress-card {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.letters-progress-card > div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.letters-progress-card span {
+  color: var(--primary);
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.letters-progress-card strong {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.letters-progress-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .lesson-path {
   display: grid;
   gap: 10px;
+}
+
+.unit-card {
+  display: grid;
+  grid-template-columns: 1fr 78px;
+  align-items: stretch;
+  margin: 24px 0 28px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+  border-radius: 24px;
+  background: linear-gradient(135deg, #36bdf7, #7c3aed);
+  color: white;
+  box-shadow: 0 10px 0 color-mix(in srgb, var(--primary) 35%, #1d1728);
+}
+
+.unit-card div {
+  padding: 20px;
+}
+
+.unit-card p,
+.unit-card h2 {
+  margin: 0;
+}
+
+.unit-card p {
+  opacity: 0.72;
+  font-weight: 900;
+}
+
+.unit-card h2 {
+  margin-top: 8px;
+  font-size: 24px;
+}
+
+.unit-card > span {
+  display: grid;
+  place-items: center;
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 34px;
+}
+
+.path-caption {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin: 0 8px 24px;
+  color: var(--muted);
+}
+
+.path-caption span {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border);
+}
+
+.map-path {
+  position: relative;
+  min-height: 620px;
+  gap: 26px;
+  padding: 8px 0 28px;
 }
 
 .lesson-node {
@@ -428,6 +563,44 @@ button {
   background: var(--panel);
   text-align: start;
   cursor: pointer;
+}
+
+.map-node {
+  width: min(72%, 420px);
+  min-height: 86px;
+  grid-template-columns: 64px 1fr;
+  border-radius: 999px;
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--border) 80%, #000);
+}
+
+.map-node.left {
+  justify-self: start;
+}
+
+.map-node.right {
+  justify-self: end;
+}
+
+.map-node > .lesson-number {
+  width: 58px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 18%, var(--panel-2));
+  font-size: 18px;
+}
+
+.map-node.current > .lesson-number {
+  background: linear-gradient(135deg, #ec4899, var(--primary));
+  color: white;
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--primary) 17%, transparent);
+}
+
+.map-node.done > .lesson-number {
+  background: linear-gradient(135deg, #22c55e, #a3e635);
+  color: white;
+}
+
+.map-node meter {
+  grid-column: 1 / -1;
 }
 
 .lesson-node > span {
@@ -567,10 +740,22 @@ meter {
   display: grid;
   place-items: center;
   min-width: 34px;
-  height: 34px;
+  min-height: 44px;
   border-radius: 10px;
   background: var(--panel-2);
   font-size: 20px;
+  padding: 5px 5px 4px;
+}
+
+.group-preview b {
+  font-weight: 700;
+  line-height: 1;
+}
+
+.group-preview meter {
+  width: 28px;
+  height: 5px;
+  margin-top: 4px;
 }
 
 .group-character-grid {
@@ -613,6 +798,11 @@ meter {
   margin-top: 5px;
   color: var(--muted);
   font-size: 10px;
+}
+
+.group-character-grid meter {
+  width: calc(100% - 14px);
+  margin: 7px auto 0;
 }
 
 .drawing-section {
@@ -830,6 +1020,12 @@ meter {
   text-align: center;
 }
 
+.user-handle {
+  color: var(--primary) !important;
+  font-weight: 800;
+  direction: ltr;
+}
+
 .avatar {
   width: 72px;
   height: 72px;
@@ -848,6 +1044,14 @@ meter {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.profile-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
 }
 
 .settings-grid {

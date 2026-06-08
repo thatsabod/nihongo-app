@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
@@ -68,7 +68,7 @@ const copy = {
     cancel: 'إلغاء',
     groups: 'مجموعات الحروف',
     group: 'مجموعة',
-    groupQuiz: 'كويز المجموعة',
+    groupQuiz: 'ابدأ بالتدرب الآن',
     drawPractice: 'تدريب الرسم',
     chooseCharacter: 'اختر حرفا للتدرب على رسمه',
     listen: 'استماع',
@@ -144,7 +144,7 @@ const copy = {
     cancel: 'Cancel',
     groups: 'Character groups',
     group: 'Group',
-    groupQuiz: 'Group quiz',
+    groupQuiz: 'Start practice now',
     drawPractice: 'Drawing practice',
     chooseCharacter: 'Choose a character to practice drawing',
     listen: 'Listen',
@@ -189,7 +189,7 @@ function chunk(items, size = 5) {
 }
 
 function makeOptionPool(items, key) {
-  return items.map((item) => item[key])
+  return [...new Set(items.map((item) => item[key]))]
 }
 
 function makeGroupQuiz(items) {
@@ -201,14 +201,14 @@ function makeGroupQuiz(items) {
       type: 'reading',
       kana: item.kana,
       answer: item.answer,
-      options: shuffle([item.answer, ...readingPool.filter((value) => value !== item.answer)]).slice(0, 4),
+      options: [...new Set(shuffle([item.answer, ...readingPool.filter((value) => value !== item.answer)]))].slice(0, 4),
     },
     {
       type: 'reverse',
       kana: item.kana,
       answer: item.kana,
       answerLabel: item.answer,
-      options: shuffle([item.kana, ...kanaPool.filter((value) => value !== item.kana)]).slice(0, 4),
+      options: [...new Set(shuffle([item.kana, ...kanaPool.filter((value) => value !== item.kana)]))].slice(0, 4),
     },
     {
       type: 'draw',
@@ -249,6 +249,7 @@ function defaultState() {
     perfectScores: 0,
     lastScore: 0,
     userName: '',
+    userUsername: '',
     userBio: '',
     userPhone: '',
     userBirthday: '',
@@ -257,7 +258,18 @@ function defaultState() {
     fontScale: 1,
     cozyMode: true,
     isPaid: false,
+    startingGemsGranted: true,
   }
+}
+
+function normalizeUsername(value, fallback = 'nihongo') {
+  const clean = String(value || '')
+    .trim()
+    .replace(/^@+/, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^\p{L}\p{N}_]+/gu, '')
+    .slice(0, 24)
+  return clean || fallback
 }
 
 function readGuestState() {
@@ -392,7 +404,22 @@ function ProfileEditor({ lang, values, onCancel, onSave }) {
     const file = event.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = () => setDraft((value) => ({ ...value, userAvatar: String(reader.result) }))
+    reader.onload = () => {
+      const image = new Image()
+      image.onload = () => {
+        const canvas = document.createElement('canvas')
+        const size = 256
+        canvas.width = size
+        canvas.height = size
+        const ctx = canvas.getContext('2d')
+        const scale = Math.max(size / image.width, size / image.height)
+        const width = image.width * scale
+        const height = image.height * scale
+        ctx.drawImage(image, (size - width) / 2, (size - height) / 2, width, height)
+        setDraft((value) => ({ ...value, userAvatar: canvas.toDataURL('image/jpeg', 0.82) }))
+      }
+      image.src = String(reader.result)
+    }
     reader.readAsDataURL(file)
   }
 
@@ -414,6 +441,7 @@ function ProfileEditor({ lang, values, onCancel, onSave }) {
           </label>
         </div>
         <label>{t.name}<input value={draft.userName} onChange={update('userName')} /></label>
+        <label>Username<input value={draft.userUsername || ''} onChange={update('userUsername')} placeholder="@nihongo" /></label>
         <label>{t.bio}<input value={draft.userBio} onChange={update('userBio')} /></label>
         <label>{t.phone}<input value={draft.userPhone} onChange={update('userPhone')} /></label>
         <label>{t.birthday}<input type="date" value={draft.userBirthday} onChange={update('userBirthday')} /></label>
@@ -435,7 +463,7 @@ function InfoPanel({ title, text }) {
   )
 }
 
-function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, onUpdatePrefs }) {
+function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, onAccountAction, onUpdatePrefs }) {
   const t = copy[lang]
   const [panel, setPanel] = useState('menu')
   const isDark = theme === 'dark'
@@ -473,14 +501,17 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
 
         {panel === 'account' && (
           <div className="settings-panel">
-            <button className="settings-row" onClick={onEditProfile}>
-              <span>{t.editProfile}</span>
-              <strong>›</strong>
-            </button>
-            <div className="settings-row">
-              <span>{t.profilePhoto}</span>
-              <strong>{values.userAvatar ? '✓' : '-'}</strong>
-            </div>
+            {values.isGuest ? (
+              <button className="settings-row" onClick={onAccountAction}>
+                <span>{t.create}</span>
+                <strong>›</strong>
+              </button>
+            ) : (
+              <button className="settings-row" onClick={onEditProfile}>
+                <span>{t.editProfile}</span>
+                <strong>›</strong>
+              </button>
+            )}
           </div>
         )}
 
@@ -518,6 +549,8 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
 }
 
 export default function App() {
+  const cloudSaveTimerRef = useRef(null)
+  const lastSavedCloudJsonRef = useRef('')
   const [screen, setScreen] = useState('loading')
   const [tab, setTab] = useState('home')
   const [lang, setLang] = useState(localStorage.getItem('nihongo-lang') || 'ar')
@@ -531,6 +564,7 @@ export default function App() {
   const [isGuest, setIsGuest] = useState(false)
   const [userId, setUserId] = useState(null)
   const [userName, setUserName] = useState('')
+  const [userUsername, setUserUsername] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userBio, setUserBio] = useState('')
   const [userPhone, setUserPhone] = useState('')
@@ -540,6 +574,7 @@ export default function App() {
   const [fontScale, setFontScale] = useState(1)
   const [cozyMode, setCozyMode] = useState(true)
   const [isPaid, setIsPaid] = useState(false)
+  const [startingGemsGranted, setStartingGemsGranted] = useState(true)
   const [xp, setXp] = useState(0)
   const [hearts, setHearts] = useState(5)
   const [gems, setGems] = useState(STARTING_GEMS)
@@ -559,17 +594,24 @@ export default function App() {
 
   const t = copy[lang]
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
-  const masteredCount = Object.values(progress).filter((v) => v >= 10).length
+  const masteredCount = Object.values(progress).filter((v) => v >= 8).length
   const completedLessons = Object.values(lessonProgress).filter((v) => v >= sectionCount).length
   const lessonPercent = Math.round((completedLessons / TOTAL_LESSONS) * 100)
   const lessonSlots = Array.from({ length: TOTAL_LESSONS }, (_, index) => lessons[index] || null)
   const characterSets = { hiragana, katakana, kanji: kanjiN5 }
   const letterGroups = chunk(characterSets[lettersTab] || hiragana, 5)
+  const basicCharacterTotal = lettersTab === 'kanji' ? kanjiN5.length : 46
+  const basicCharacterDone = (characterSets[lettersTab] || hiragana)
+    .slice(0, basicCharacterTotal)
+    .filter((item) => (progress[item.kana] || 0) >= 8).length
+  const userHandle = isGuest
+    ? '@guest'
+    : `@${normalizeUsername(userUsername || userName || userEmail?.split('@')[0] || 'nihongo')}`
 
   const applyState = (state) => {
     setXp(state.xp ?? 0)
     setHearts(state.hearts ?? 5)
-    setGems(state.gems ?? STARTING_GEMS)
+    setGems(state.startingGemsGranted === true ? state.gems ?? STARTING_GEMS : Math.max(state.gems ?? 0, STARTING_GEMS))
     setStreak(state.streak ?? 1)
     setLastActiveDate(state.lastActiveDate ?? todayKey())
     setLastHeartRefillAt(state.lastHeartRefillAt ?? Date.now())
@@ -579,6 +621,7 @@ export default function App() {
     setPerfectScores(state.perfectScores ?? 0)
     setLastScore(state.lastScore ?? 0)
     setUserName(state.userName || state.name || '')
+    setUserUsername(state.userUsername || state.username || '')
     setUserBio(state.userBio ?? '')
     setUserPhone(state.userPhone || state.phone || '')
     setUserBirthday(state.userBirthday || state.birthDate || '')
@@ -587,8 +630,48 @@ export default function App() {
     setFontScale(state.fontScale ?? 1)
     setCozyMode(state.cozyMode ?? true)
     setIsPaid(state.isPaid ?? false)
+    setStartingGemsGranted(true)
     if (state.theme) setTheme(state.theme)
     if (state.lang) setLang(state.lang)
+  }
+
+  const userPayload = useMemo(() => ({
+    xp,
+    hearts,
+    gems,
+    streak,
+    lastActiveDate,
+    lastHeartRefillAt,
+    progress,
+    lessonProgress,
+    totalQuizzes,
+    perfectScores,
+    lastScore,
+    userName,
+    userUsername,
+    userBio,
+    userPhone,
+    userBirthday,
+    userAvatar,
+    soundEnabled,
+    fontScale,
+    cozyMode,
+    isPaid,
+    theme,
+    lang,
+    startingGemsGranted,
+  }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang, startingGemsGranted])
+
+  const saveUserDataNow = async (id = userId, extra = {}) => {
+    if (!id || isGuest || !dataReady) return
+    const payload = {
+      ...userPayload,
+      ...extra,
+      email: userEmail,
+      updatedAt: new Date().toISOString(),
+    }
+    lastSavedCloudJsonRef.current = JSON.stringify(userPayload)
+    await setDoc(doc(db, 'users', id), payload, { merge: true })
   }
 
   const startGuest = () => {
@@ -613,17 +696,21 @@ export default function App() {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
+      setDataReady(false)
       if (!user) {
+        setUserId(null)
+        setIsGuest(false)
+        lastSavedCloudJsonRef.current = ''
         setDataReady(true)
         setScreen('welcome')
         return
       }
 
       setIsGuest(false)
-      setUserId(user.uid)
       setUserEmail(user.email || '')
 
       const snap = await getDoc(doc(db, 'users', user.uid))
+      if (auth.currentUser?.uid !== user.uid) return
       if (snap.exists()) {
         const d = snap.data()
         const activity = nextStreakValue(d.lastActiveDate ?? null, d.streak ?? 0)
@@ -631,13 +718,25 @@ export default function App() {
           ...d,
           ...activity,
           userName: d.userName || d.name || user.displayName || '',
+          userUsername: d.userUsername || d.username || normalizeUsername(d.userName || d.name || user.displayName || user.email?.split('@')[0] || 'nihongo'),
           gems: d.gems ?? STARTING_GEMS,
           hearts: d.hearts ?? 5,
         })
       } else {
         const base = defaultState()
-        applyState({ ...base, userName: user.displayName || '' })
+        const userUsername = normalizeUsername(user.displayName || user.email?.split('@')[0] || 'nihongo')
+        applyState({ ...base, userName: user.displayName || '', userUsername })
+        await setDoc(doc(db, 'users', user.uid), {
+          ...base,
+          userName: user.displayName || '',
+          userUsername,
+          email: user.email || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }, { merge: true })
       }
+      lastSavedCloudJsonRef.current = ''
+      setUserId(user.uid)
       setDataReady(true)
       setScreen('main')
     })
@@ -648,28 +747,41 @@ export default function App() {
     if (!dataReady || !isGuest) return
     localStorage.setItem(GUEST_KEY, JSON.stringify({
       xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress,
-      totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday,
+      totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday,
       userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang,
+      startingGemsGranted,
     }))
-  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang])
+  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang, startingGemsGranted])
 
   useEffect(() => {
     if (!userId || !dataReady || isGuest) return
-    setDoc(doc(db, 'users', userId), {
-      xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress,
-      totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday,
-      userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang,
-    }, { merge: true })
-  }, [userId, isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang])
+    const payload = userPayload
+    const cloudJson = JSON.stringify(payload)
+    if (cloudJson === lastSavedCloudJsonRef.current) return
+
+    if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
+    cloudSaveTimerRef.current = window.setTimeout(() => {
+      setDoc(doc(db, 'users', userId), {
+        ...payload,
+        email: userEmail,
+        updatedAt: new Date().toISOString(),
+      }, { merge: true }).then(() => {
+        lastSavedCloudJsonRef.current = cloudJson
+      }).catch((error) => {
+        console.error('Failed to sync user data', error)
+      })
+    }, 500)
+
+    return () => {
+      if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
+    }
+  }, [userId, userEmail, isGuest, dataReady, userPayload])
 
   useEffect(() => {
     if (!dataReady) return
     const timer = setInterval(() => {
       setHearts((current) => {
-        if (current >= 5) {
-          setLastHeartRefillAt(Date.now())
-          return current
-        }
+        if (current >= 5) return current
 
         const elapsed = Date.now() - lastHeartRefillAt
         if (elapsed < HEART_REFILL_MS) return current
@@ -727,7 +839,7 @@ export default function App() {
     if (opt === current.answer) {
       setScore((s) => s + 1)
       setXp((value) => value + 10)
-      setProgress((p) => ({ ...p, [current.kana]: Math.min((p[current.kana] || 0) + 1, 10) }))
+      setProgress((p) => ({ ...p, [current.kana]: Math.min((p[current.kana] || 0) + 1, 8) }))
     } else {
       setHearts((value) => Math.max(value - 1, 0))
       setLastHeartRefillAt((value) => value || Date.now())
@@ -775,9 +887,12 @@ export default function App() {
   ], [totalQuizzes, streak, perfectScores, xp, masteredCount])
 
   const logout = async () => {
+    if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
+    await saveUserDataNow()
     if (userId) await signOut(auth)
     setUserId(null)
     setUserName('')
+    setUserUsername('')
     setUserEmail('')
     setIsGuest(false)
     setScreen('welcome')
@@ -811,8 +926,7 @@ export default function App() {
             return
           }
           setIsGuest(false)
-          setUserName(name)
-          setScreen('main')
+          setScreen(dataReady && userId ? 'main' : 'loading')
         }}
       />
     )
@@ -854,6 +968,7 @@ export default function App() {
                   <span>{item.kana}</span>
                   <strong>{item.answer}</strong>
                   <small>{t.listen}</small>
+                  <meter min="0" max="8" value={progress[item.kana] || 0} />
                 </button>
               )
             })}
@@ -877,14 +992,24 @@ export default function App() {
     return (
       <ProfileEditor
         lang={lang}
-        values={{ userName, userBio, userPhone, userBirthday, userAvatar }}
+        values={{ userName, userUsername, userBio, userPhone, userBirthday, userAvatar }}
         onCancel={() => setScreen('main')}
-        onSave={(draft) => {
+        onSave={async (draft) => {
+          const nextUsername = normalizeUsername(draft.userUsername || draft.userName || userEmail?.split('@')[0] || 'nihongo')
           setUserName(draft.userName)
+          setUserUsername(nextUsername)
           setUserBio(draft.userBio)
           setUserPhone(draft.userPhone)
           setUserBirthday(draft.userBirthday)
           setUserAvatar(draft.userAvatar)
+          await saveUserDataNow(userId, {
+            userName: draft.userName,
+            userUsername: nextUsername,
+            userBio: draft.userBio,
+            userPhone: draft.userPhone,
+            userBirthday: draft.userBirthday,
+            userAvatar: draft.userAvatar,
+          })
           setScreen('main')
           setTab('profile')
         }}
@@ -898,9 +1023,10 @@ export default function App() {
         lang={lang}
         theme={theme}
         setTheme={setTheme}
-        values={{ userAvatar, soundEnabled, fontScale, cozyMode, isPaid }}
+        values={{ userAvatar, soundEnabled, fontScale, cozyMode, isPaid, isGuest }}
         onBack={() => setScreen('main')}
         onEditProfile={() => setScreen('edit-profile')}
+        onAccountAction={() => setScreen('login')}
         onUpdatePrefs={(prefs) => {
           if ('soundEnabled' in prefs) setSoundEnabled(prefs.soundEnabled)
           if ('fontScale' in prefs) setFontScale(prefs.fontScale)
@@ -916,9 +1042,10 @@ export default function App() {
         <header className="topbar">
           <div className="brand"><span className="brand-mark">日</span><span>にほんごGO</span></div>
           <div className="toolbar">
-            <span className="chip">♥ {hearts}/5</span>
-            <span className="chip">◆ {gems}</span>
-            <span className="chip">🔥 {streak}</span>
+            <span className="stat-chip hearts"><i>♥</i>{hearts}/5</span>
+            <span className="stat-chip gems"><i>◆</i>{gems}</span>
+            <span className="stat-chip xp"><i>XP</i>{xp}</span>
+            <span className="stat-chip streak"><i>✦</i>{streak}</span>
           </div>
         </header>
 
@@ -955,8 +1082,21 @@ export default function App() {
               ))}
             </div>
 
-            <h2 className="section-title">{t.lessons}</h2>
-            <div className="lesson-path">
+            <div className="unit-card">
+              <div>
+                <p>SECTION 1, N5</p>
+                <h2>{t.lessons}</h2>
+              </div>
+              <span>▤</span>
+            </div>
+
+            <div className="path-caption">
+              <span />
+              <strong>{t.continue}</strong>
+              <span />
+            </div>
+
+            <div className="lesson-path map-path">
               {lessonSlots.map((lesson, index) => {
                 const lessonNumber = index + 1
                 const prevKey = `${currentLevel}-${lessonNumber - 1}`
@@ -970,10 +1110,10 @@ export default function App() {
                   <button
                     key={lessonNumber}
                     disabled={locked}
-                    className={`lesson-node ${locked ? 'locked' : ''}`}
+                    className={`lesson-node map-node ${locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'} ${index % 2 ? 'right' : 'left'}`}
                     onClick={() => { setActiveLesson(lesson); setScreen('lesson') }}
                   >
-                    <span className="lesson-number">{lessonNumber}</span>
+                    <span className="lesson-number">{amount >= sectionCount ? '★' : lessonNumber}</span>
                     <div>
                       <strong>{lesson ? lesson.title[lang] : `${t.lesson} ${lessonNumber}`}</strong>
                       <small>{lesson?.focus || 'N5'} · {status}</small>
@@ -995,10 +1135,18 @@ export default function App() {
                 </button>
               ))}
             </div>
+            <div className="letters-progress-card">
+              <div>
+                <span>{basicCharacterDone}</span>
+                <strong>/ {basicCharacterTotal}</strong>
+              </div>
+              <p>{lettersTab === 'kanji' ? 'Kanji N5' : lang === 'ar' ? 'الأحرف الأساسية المكتملة' : 'Basic characters completed'}</p>
+              <meter min="0" max={basicCharacterTotal} value={basicCharacterDone} />
+            </div>
             <p className="section-subtitle">{t.fiveChars}</p>
             <div className="letter-group-list">
               {letterGroups.map((group, index) => {
-                const mastered = group.filter((item) => (progress[item.kana] || 0) >= 10).length
+                const mastered = group.filter((item) => (progress[item.kana] || 0) >= 8).length
                 return (
                   <button
                     key={`${lettersTab}-${index}`}
@@ -1015,7 +1163,12 @@ export default function App() {
                       <small>{mastered}/{group.length} {t.mastered}</small>
                     </div>
                     <div className="group-preview">
-                      {group.map((item) => <span key={item.kana}>{item.kana}</span>)}
+                      {group.map((item) => (
+                        <span key={item.kana}>
+                          <b>{item.kana}</b>
+                          <meter min="0" max="8" value={progress[item.kana] || 0} />
+                        </span>
+                      ))}
                     </div>
                   </button>
                 )
@@ -1026,10 +1179,17 @@ export default function App() {
 
         {tab === 'profile' && (
           <section className="content profile">
+            <div className="profile-toolbar">
+              <button className={`theme-switch ${theme === 'dark' ? 'dark' : 'light'}`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={t.theme}>
+                <span />
+              </button>
+            </div>
+
             <div className="profile-card">
               <div className="avatar">{userAvatar ? <img src={userAvatar} alt="" /> : (userName || t.guestName).slice(0, 1).toUpperCase()}</div>
               <h1>{userName || t.guestName}</h1>
-              <p>{isGuest ? t.guestHint : userEmail || 'にほんごGO learner'}</p>
+              <p className="user-handle">{userHandle}</p>
+              <p>{isGuest ? t.guestHint : 'にほんごGO learner'}</p>
               {userBio && <p>{userBio}</p>}
             </div>
 

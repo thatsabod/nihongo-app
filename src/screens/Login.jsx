@@ -22,6 +22,7 @@ const text = {
     password: 'كلمة المرور',
     confirm: 'تأكيد كلمة المرور',
     name: 'الاسم',
+    username: 'Username',
     phone: 'رقم الهاتف',
     birthday: 'تاريخ الميلاد',
     country: 'الدولة',
@@ -37,6 +38,7 @@ const text = {
     switchLogin: 'لدي حساب بالفعل - تسجيل دخول',
     or: 'أو',
     requiredName: 'الاسم مطلوب',
+    requiredUsername: 'Username مطلوب',
     requiredEmail: 'البريد الإلكتروني مطلوب',
     requiredPassword: 'كلمة المرور مطلوبة',
     shortPassword: 'كلمة المرور قصيرة جدا',
@@ -51,6 +53,7 @@ const text = {
     password: 'Password',
     confirm: 'Confirm password',
     name: 'Name',
+    username: 'Username',
     phone: 'Phone',
     birthday: 'Birthday',
     country: 'Country',
@@ -66,6 +69,7 @@ const text = {
     switchLogin: 'I already have an account - log in',
     or: 'or',
     requiredName: 'Name is required',
+    requiredUsername: 'Username is required',
     requiredEmail: 'Email is required',
     requiredPassword: 'Password is required',
     shortPassword: 'Password is too short',
@@ -81,6 +85,7 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
   const [error, setError] = useState('')
   const [form, setForm] = useState({
     name: '',
+    username: '',
     email: '',
     phone: '',
     password: '',
@@ -92,9 +97,11 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
 
   const selectedCountry = countries.find((country) => country.code === form.country)
   const update = (key) => (event) => setForm((value) => ({ ...value, [key]: event.target.value }))
+  const normalizedUsername = form.username.trim().replace(/^@+/, '').replace(/\s+/g, '_').replace(/[^\p{L}\p{N}_]+/gu, '').slice(0, 24)
 
   const validateAuthFields = () => {
     if (mode === 'register' && !form.name.trim()) return t.requiredName
+    if (mode === 'register' && !normalizedUsername) return t.requiredUsername
     if (!form.email.trim()) return t.requiredEmail
     if (!form.password) return t.requiredPassword
     if (form.password.length < 6) return t.shortPassword
@@ -111,17 +118,29 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
     try {
       const result = await createUserWithEmailAndPassword(auth, form.email, form.password)
       await updateProfile(result.user, { displayName: form.name })
+      const createdAt = new Date().toISOString()
       await setDoc(doc(db, 'users', result.user.uid), {
         userName: form.name,
+        userUsername: normalizedUsername,
         email: form.email,
         phone: form.phone,
         birthDate: form.birthDate,
+        userBirthday: form.birthDate,
         country: selectedCountry?.[lang] || '',
         city: form.city,
         xp: 0,
         hearts: 5,
         gems: 2000,
-        streak: 0,
+        startingGemsGranted: true,
+        streak: 1,
+        lastActiveDate: createdAt.slice(0, 10),
+        lastHeartRefillAt: new Date(createdAt).getTime(),
+        progress: {},
+        lessonProgress: {},
+        perfectScores: 0,
+        lastScore: 0,
+        userAvatar: '',
+        userBio: '',
         theme: 'light',
         lang,
         soundEnabled: true,
@@ -129,8 +148,9 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
         cozyMode: true,
         isPaid: false,
         totalQuizzes: 0,
-        createdAt: new Date().toISOString(),
-      })
+        createdAt,
+        updatedAt: createdAt,
+      }, { merge: true })
       onLogin(form.name)
     } catch (err) {
       setError(err.code || err.message)
@@ -176,6 +196,7 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
         {mode === 'register' && step === 1 && (
           <>
             <label>{t.name}<input value={form.name} onChange={update('name')} /></label>
+            <label>{t.username}<input value={form.username} onChange={update('username')} placeholder="@nihongo" /></label>
             <label>{t.email}<input type="email" value={form.email} onChange={update('email')} placeholder="example@email.com" /></label>
             <label>{t.phone}<input type="tel" value={form.phone} onChange={update('phone')} placeholder="+964 7XX XXX XXXX" /></label>
             <label>{t.password}<input type="password" value={form.password} onChange={update('password')} placeholder="••••••••" /></label>
