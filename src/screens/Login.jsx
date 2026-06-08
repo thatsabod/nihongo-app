@@ -120,7 +120,7 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
         city: form.city,
         xp: 0,
         hearts: 5,
-        gems: 500,
+        gems: 2000,
         streak: 0,
         totalQuizzes: 0,
         createdAt: new Date().toISOString(),

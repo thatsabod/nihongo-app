@@ -586,13 +586,50 @@ meter {
 }
 
 .settings-grid {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
 }
 
 .settings-grid button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.guest-panel,
+.shop-panel {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+}
+
+.guest-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.shop-panel {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.shop-panel strong,
+.shop-panel span {
+  display: block;
+}
+
+.shop-panel span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lesson-number {
+  font-variant-numeric: tabular-nums;
 }
 
 .achievement-grid div {
