@@ -1,5 +1,3 @@
-import { speakJapanese } from '../sounds.js'
-
 export default function Home({ xp, streak, lastScore, onStartQuiz, onVocab, onLetters }) {
   const xpPercent = Math.min((xp / 1000) * 100, 100)
 
