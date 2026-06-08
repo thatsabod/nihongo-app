@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
-import { characterGroups, hiragana, katakana, kanjiN5, lessons } from './data.js'
+import { hiragana, katakana, kanjiN5, lessons } from './data.js'
 import { speakJapanese } from './sounds.js'
 import Login from './screens/Login.jsx'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
+import DrawingPad from './components/DrawingPad.jsx'
 
 const TOTAL_LESSONS = 25
 const sectionCount = 3
@@ -65,6 +66,14 @@ const copy = {
     birthday: 'تاريخ الميلاد',
     save: 'حفظ',
     cancel: 'إلغاء',
+    groups: 'مجموعات الحروف',
+    group: 'مجموعة',
+    groupQuiz: 'كويز المجموعة',
+    drawPractice: 'تدريب الرسم',
+    chooseCharacter: 'اختر حرفا للتدرب على رسمه',
+    listen: 'استماع',
+    openGroup: 'فتح المجموعة',
+    fiveChars: 'كل مجموعة 5 أحرف',
   },
   en: {
     start: 'Start learning',
@@ -116,6 +125,14 @@ const copy = {
     birthday: 'Birthday',
     save: 'Save',
     cancel: 'Cancel',
+    groups: 'Character groups',
+    group: 'Group',
+    groupQuiz: 'Group quiz',
+    drawPractice: 'Drawing practice',
+    chooseCharacter: 'Choose a character to practice drawing',
+    listen: 'Listen',
+    openGroup: 'Open group',
+    fiveChars: 'Each group has 5 characters',
   },
 }
 
@@ -131,6 +148,41 @@ const quizSets = { hiragana, katakana, kanji: kanjiN5 }
 
 function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5)
+}
+
+function chunk(items, size = 5) {
+  return Array.from({ length: Math.ceil(items.length / size) }, (_, index) => items.slice(index * size, index * size + size))
+}
+
+function makeOptionPool(items, key) {
+  return items.map((item) => item[key])
+}
+
+function makeGroupQuiz(items) {
+  const readingPool = makeOptionPool(items, 'answer')
+  const kanaPool = makeOptionPool(items, 'kana')
+
+  return shuffle(items.flatMap((item) => [
+    {
+      type: 'reading',
+      kana: item.kana,
+      answer: item.answer,
+      options: shuffle([item.answer, ...readingPool.filter((value) => value !== item.answer)]).slice(0, 4),
+    },
+    {
+      type: 'reverse',
+      kana: item.kana,
+      answer: item.kana,
+      answerLabel: item.answer,
+      options: shuffle([item.kana, ...kanaPool.filter((value) => value !== item.kana)]).slice(0, 4),
+    },
+    {
+      type: 'draw',
+      kana: item.kana,
+      answer: '__draw_done__',
+      options: [],
+    },
+  ])).slice(0, 12)
 }
 
 function todayKey() {
@@ -329,6 +381,8 @@ export default function App() {
   const [lettersTab, setLettersTab] = useState('hiragana')
   const [currentLevel, setCurrentLevel] = useState('N5')
   const [activeLesson, setActiveLesson] = useState(null)
+  const [activeCharGroup, setActiveCharGroup] = useState(null)
+  const [drawChar, setDrawChar] = useState(null)
   const [dataReady, setDataReady] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
   const [userId, setUserId] = useState(null)
@@ -360,6 +414,8 @@ export default function App() {
   const completedLessons = Object.values(lessonProgress).filter((v) => v >= sectionCount).length
   const lessonPercent = Math.round((completedLessons / TOTAL_LESSONS) * 100)
   const lessonSlots = Array.from({ length: TOTAL_LESSONS }, (_, index) => lessons[index] || null)
+  const characterSets = { hiragana, katakana, kanji: kanjiN5 }
+  const letterGroups = chunk(characterSets[lettersTab] || hiragana, 5)
 
   const applyState = (state) => {
     setXp(state.xp ?? 0)
@@ -492,6 +548,18 @@ export default function App() {
     setScreen('quiz')
   }
 
+  const startCharacterGroupQuiz = (group) => {
+    if (hearts <= 0) {
+      setNotice(t.noHearts)
+      return
+    }
+    setQuestions(makeGroupQuiz(group.items))
+    setQIndex(0)
+    setSelected(null)
+    setScore(0)
+    setScreen('quiz')
+  }
+
   const handleAnswer = (opt) => {
     if (selected) return
     setSelected(opt)
@@ -602,6 +670,49 @@ export default function App() {
     return <LessonView lesson={activeLesson} lang={lang} onBack={() => setScreen('main')} onQuiz={() => startLessonQuiz(activeLesson)} />
   }
 
+  if (screen === 'character-group' && activeCharGroup) {
+    const title = `${activeCharGroup.label} ${activeCharGroup.index + 1}`
+    const currentDrawChar = drawChar || activeCharGroup.items[0]?.kana
+
+    return (
+      <main className="screen">
+        <header className="page-head">
+          <button className="icon-btn" onClick={() => setScreen('main')}>←</button>
+          <div>
+            <p>{t.groups}</p>
+            <h1>{title}</h1>
+          </div>
+          <Button variant="small" onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
+        </header>
+
+        <section className="content">
+          <div className="group-character-grid">
+            {activeCharGroup.items.map((item) => {
+              const active = currentDrawChar === item.kana
+              return (
+                <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
+                  <span>{item.kana}</span>
+                  <strong>{item.answer}</strong>
+                  <small>{t.listen}</small>
+                </button>
+              )
+            })}
+          </div>
+
+          <section className="drawing-section">
+            <div>
+              <p className="eyebrow">{t.drawPractice}</p>
+              <h2>{t.chooseCharacter}</h2>
+            </div>
+            <DrawingPad char={currentDrawChar} lang={lang} />
+          </section>
+
+          <Button onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
+        </section>
+      </main>
+    )
+  }
+
   if (screen === 'edit-profile') {
     return (
       <ProfileEditor
@@ -705,25 +816,31 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <Button onClick={() => startQuiz(lettersTab)}>{t.practice}</Button>
-            <div className="char-sections">
-              {characterGroups[lettersTab].map((group) => (
-                <section key={group.label}>
-                  <h2>{group.label}</h2>
-                  <div className="char-grid">
-                    {group.chars.map(([kana, reading]) => {
-                      const count = progress[kana] || 0
-                      return (
-                        <button key={kana} onClick={() => speakJapanese(kana)}>
-                          <span>{kana}</span>
-                          <strong>{reading}</strong>
-                          <meter min="0" max="10" value={count} />
-                        </button>
-                      )
-                    })}
-                  </div>
-                </section>
-              ))}
+            <p className="section-subtitle">{t.fiveChars}</p>
+            <div className="letter-group-list">
+              {letterGroups.map((group, index) => {
+                const mastered = group.filter((item) => (progress[item.kana] || 0) >= 10).length
+                return (
+                  <button
+                    key={`${lettersTab}-${index}`}
+                    className="letter-group-card"
+                    onClick={() => {
+                      setActiveCharGroup({ type: lettersTab, index, label: t.group, items: group })
+                      setDrawChar(group[0]?.kana)
+                      setScreen('character-group')
+                    }}
+                  >
+                    <div>
+                      <span className="group-number">{index + 1}</span>
+                      <strong>{t.group} {index + 1}</strong>
+                      <small>{mastered}/{group.length} {t.mastered}</small>
+                    </div>
+                    <div className="group-preview">
+                      {group.map((item) => <span key={item.kana}>{item.kana}</span>)}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </section>
         )}

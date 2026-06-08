@@ -1,11 +1,14 @@
 import { useEffect } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
+import DrawingPad from '../components/DrawingPad.jsx'
 
 const text = {
   ar: {
     question: 'السؤال',
     of: 'من',
     prompt: 'ما قراءة هذا الرمز؟',
+    reversePrompt: 'اختر شكل الحرف الصحيح',
+    drawPrompt: 'ارسم هذا الحرف بيدك',
     hear: 'اسمع النطق',
     correct: 'صحيح',
     wrong: 'الصحيح',
@@ -15,6 +18,8 @@ const text = {
     question: 'Question',
     of: 'of',
     prompt: 'What is the reading?',
+    reversePrompt: 'Choose the correct character',
+    drawPrompt: 'Draw this character by hand',
     hear: 'Hear pronunciation',
     correct: 'Correct',
     wrong: 'Correct answer',
@@ -32,6 +37,8 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
 
   if (!q) return null
 
+  const isDraw = q.type === 'draw'
+  const isReverse = q.type === 'reverse'
   const isCorrect = selected === q.answer
 
   const answer = (opt) => {
@@ -55,24 +62,33 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
 
       <section className="quiz-body">
         <p className="eyebrow">{t.question} {qIndex + 1} {t.of} {questions.length} · {score} ✓</p>
-        <button className={`kana-focus ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => speakJapanese(q.kana, 0.8)}>
-          <span>{q.kana}</span>
-          <small>{t.hear}</small>
-          {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
-        </button>
-        <h1>{t.prompt}</h1>
-        <div className="answer-grid">
-          {q.options.map((opt) => {
-            let state = ''
-            if (selected && opt === q.answer) state = 'correct'
-            if (selected && opt === selected && opt !== q.answer) state = 'wrong'
-            return (
-              <button key={opt} className={state} disabled={Boolean(selected)} onClick={() => answer(opt)}>
-                {opt}
-              </button>
-            )
-          })}
-        </div>
+        {isDraw ? (
+          <>
+            <h1>{t.drawPrompt}</h1>
+            <DrawingPad char={q.kana} lang={lang} onDone={() => answer(q.answer)} />
+          </>
+        ) : (
+          <>
+            <button className={`kana-focus ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => speakJapanese(q.kana, 0.8)}>
+              <span>{isReverse ? q.answerLabel : q.kana}</span>
+              <small>{t.hear}</small>
+              {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
+            </button>
+            <h1>{isReverse ? t.reversePrompt : t.prompt}</h1>
+            <div className="answer-grid">
+              {q.options.map((opt) => {
+                let state = ''
+                if (selected && opt === q.answer) state = 'correct'
+                if (selected && opt === selected && opt !== q.answer) state = 'wrong'
+                return (
+                  <button key={opt} className={state} disabled={Boolean(selected)} onClick={() => answer(opt)}>
+                    {opt}
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        )}
         {selected && <p className="next-note">{t.next}</p>}
       </section>
     </main>

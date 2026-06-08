@@ -389,6 +389,12 @@ button {
   font-size: 18px;
 }
 
+.section-subtitle {
+  margin: 6px 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .lesson-path {
   display: grid;
   gap: 10px;
@@ -484,6 +490,199 @@ meter {
   display: block;
   color: var(--primary-2);
   font-size: 12px;
+}
+
+.letter-group-list {
+  display: grid;
+  gap: 12px;
+}
+
+.letter-group-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  background: var(--panel);
+  text-align: start;
+  cursor: pointer;
+}
+
+.letter-group-card > div:first-child {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.letter-group-card strong,
+.letter-group-card small {
+  display: block;
+}
+
+.letter-group-card small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.group-number {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: var(--panel-2);
+  color: var(--primary-2);
+  font-weight: 900;
+}
+
+.group-preview {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.group-preview span {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  font-size: 20px;
+}
+
+.group-character-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.group-character-grid button {
+  min-height: 94px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.group-character-grid button.active {
+  border-color: var(--primary-2);
+  background: color-mix(in srgb, var(--primary) 12%, var(--panel));
+}
+
+.group-character-grid span {
+  display: block;
+  font-size: clamp(28px, 9vw, 42px);
+  line-height: 1.1;
+}
+
+.group-character-grid strong,
+.group-character-grid small {
+  display: block;
+}
+
+.group-character-grid strong {
+  color: var(--primary-2);
+  font-size: 12px;
+}
+
+.group-character-grid small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.drawing-section {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--panel);
+}
+
+.drawing-section h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.drawing-pad {
+  display: grid;
+  gap: 12px;
+}
+
+.drawing-pad p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.paper {
+  position: relative;
+  width: min(100%, 420px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px),
+    var(--panel-2);
+  background-size: 25% 25%;
+  touch-action: none;
+}
+
+.paper::before,
+.paper::after {
+  content: "";
+  position: absolute;
+  background: color-mix(in srgb, var(--primary-2) 40%, transparent);
+  pointer-events: none;
+}
+
+.paper::before {
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 1px;
+}
+
+.paper::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+.trace-char {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: color-mix(in srgb, var(--text) 14%, transparent);
+  font-size: clamp(110px, 45vw, 210px);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.paper canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
 }
 
 .study-card {
@@ -934,5 +1133,17 @@ select:focus {
   .answer-grid,
   .settings-grid {
     grid-template-columns: 1fr;
+  }
+
+  .letter-group-card {
+    grid-template-columns: 1fr;
+  }
+
+  .group-preview {
+    justify-content: flex-start;
+  }
+
+  .group-character-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
