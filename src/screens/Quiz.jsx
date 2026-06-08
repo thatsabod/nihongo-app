@@ -32,7 +32,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
   const t = text[lang] || text.en
 
   useEffect(() => {
-    if (q) speakJapanese(q.kana, 0.9)
+    if (q?.soundEnabled !== false) speakJapanese(q.kana, 0.68)
   }, [q])
 
   if (!q) return null
@@ -65,11 +65,11 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
         {isDraw ? (
           <>
             <h1>{t.drawPrompt}</h1>
-            <DrawingPad char={q.kana} lang={lang} onDone={() => answer(q.answer)} />
+            <DrawingPad char={q.kana} lang={lang} autoGrade onDone={({ correct }) => answer(correct ? q.answer : '__draw_wrong__')} />
           </>
         ) : (
           <>
-            <button className={`kana-focus ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => speakJapanese(q.kana, 0.8)}>
+            <button className={`kana-focus ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakJapanese(q.kana, 0.65)}>
               <span>{isReverse ? q.answerLabel : q.kana}</span>
               <small>{t.hear}</small>
               {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}

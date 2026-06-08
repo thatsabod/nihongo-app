@@ -122,6 +122,12 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
         hearts: 5,
         gems: 2000,
         streak: 0,
+        theme: 'light',
+        lang,
+        soundEnabled: true,
+        fontScale: 1,
+        cozyMode: true,
+        isPaid: false,
         totalQuizzes: 0,
         createdAt: new Date().toISOString(),
       })

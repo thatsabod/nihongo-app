@@ -28,10 +28,12 @@ export const playWrong = () => {
   o.stop(ctx.currentTime + 0.3)
 }
 
-export const speakJapanese = (text, rate = 1) => {
+export const speakJapanese = (text, rate = 0.72) => {
   window.speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(text)
   u.lang = 'ja-JP'
   u.rate = rate
+  u.pitch = 1
+  u.volume = 1
   window.speechSynthesis.speak(u)
 }

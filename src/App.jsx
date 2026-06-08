@@ -74,6 +74,23 @@ const copy = {
     listen: 'استماع',
     openGroup: 'فتح المجموعة',
     fiveChars: 'كل مجموعة 5 أحرف',
+    account: 'الحساب',
+    customization: 'التخصيص',
+    subscription: 'الاشتراك',
+    policy: 'سياسة التطبيق',
+    support: 'دعم مباشر',
+    donate: 'تبرع لنا',
+    freePlan: 'مجاني',
+    paidPlan: 'مدفوع',
+    sound: 'الأصوات',
+    fontSize: 'حجم الخط',
+    cozyMode: 'وضع مريح',
+    profilePhoto: 'صورة الحساب',
+    uploadPhoto: 'اختيار صورة',
+    subscriptionText: 'اشتراكك الحالي مجاني. الباقات المدفوعة ستفتح لاحقا مزايا مثل دروس أكثر وتمارين متقدمة.',
+    policyText: 'نحفظ تقدمك وبيانات حسابك الأساسية حتى تقدر تكمل التعلم من أي جهاز. بيانات الزائر تبقى على هذا الجهاز فقط.',
+    supportText: 'الدعم المباشر قيد التجهيز. حاليا تقدر تبلغنا بالمشكلة من داخل ملاحظاتك وسنضيف قناة تواصل مباشرة.',
+    donateText: 'التبرع يساعدنا نطور الدروس والصوت وتجربة الرسم. سنضيف وسيلة دفع آمنة لاحقا.',
   },
   en: {
     start: 'Start learning',
@@ -133,6 +150,23 @@ const copy = {
     listen: 'Listen',
     openGroup: 'Open group',
     fiveChars: 'Each group has 5 characters',
+    account: 'Account',
+    customization: 'Customization',
+    subscription: 'Subscription',
+    policy: 'App policy',
+    support: 'Live support',
+    donate: 'Donate',
+    freePlan: 'Free',
+    paidPlan: 'Paid',
+    sound: 'Sounds',
+    fontSize: 'Font size',
+    cozyMode: 'Cozy mode',
+    profilePhoto: 'Profile photo',
+    uploadPhoto: 'Choose photo',
+    subscriptionText: 'Your current plan is free. Paid plans will later unlock more lessons and advanced practice.',
+    policyText: 'We save learning progress and basic account data so you can continue across devices. Guest data stays on this device.',
+    supportText: 'Live support is being prepared. For now, send us the issue in your notes and we will add a direct channel.',
+    donateText: 'Donations help improve lessons, audio, and drawing practice. A secure payment method will be added later.',
   },
 }
 
@@ -218,6 +252,11 @@ function defaultState() {
     userBio: '',
     userPhone: '',
     userBirthday: '',
+    userAvatar: '',
+    soundEnabled: true,
+    fontScale: 1,
+    cozyMode: true,
+    isPaid: false,
   }
 }
 
@@ -349,6 +388,13 @@ function ProfileEditor({ lang, values, onCancel, onSave }) {
   const t = copy[lang]
   const [draft, setDraft] = useState(values)
   const update = (key) => (event) => setDraft((value) => ({ ...value, [key]: event.target.value }))
+  const updatePhoto = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setDraft((value) => ({ ...value, userAvatar: String(reader.result) }))
+    reader.readAsDataURL(file)
+  }
 
   return (
     <main className="screen">
@@ -360,6 +406,13 @@ function ProfileEditor({ lang, values, onCancel, onSave }) {
         </div>
       </header>
       <section className="auth-panel">
+        <div className="photo-picker">
+          <div className="avatar large">{draft.userAvatar ? <img src={draft.userAvatar} alt="" /> : (draft.userName || 'G').slice(0, 1).toUpperCase()}</div>
+          <label className="file-btn">
+            {t.uploadPhoto}
+            <input type="file" accept="image/*" onChange={updatePhoto} />
+          </label>
+        </div>
         <label>{t.name}<input value={draft.userName} onChange={update('userName')} /></label>
         <label>{t.bio}<input value={draft.userBio} onChange={update('userBio')} /></label>
         <label>{t.phone}<input value={draft.userPhone} onChange={update('userPhone')} /></label>
@@ -373,11 +426,102 @@ function ProfileEditor({ lang, values, onCancel, onSave }) {
   )
 }
 
+function InfoPanel({ title, text }) {
+  return (
+    <div className="settings-panel">
+      <h2>{title}</h2>
+      <p>{text}</p>
+    </div>
+  )
+}
+
+function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, onUpdatePrefs }) {
+  const t = copy[lang]
+  const [panel, setPanel] = useState('menu')
+  const isDark = theme === 'dark'
+  const items = [
+    { id: 'account', icon: '👤', title: t.account },
+    { id: 'customization', icon: '✨', title: t.customization },
+    { id: 'subscription', icon: '◆', title: t.subscription },
+    { id: 'policy', icon: '📜', title: t.policy },
+    { id: 'support', icon: '☎', title: t.support },
+    { id: 'donate', icon: '♡', title: t.donate },
+  ]
+
+  return (
+    <main className="screen">
+      <header className="page-head">
+        <button className="icon-btn" onClick={panel === 'menu' ? onBack : () => setPanel('menu')}>←</button>
+        <div>
+          <p>にほんごGO</p>
+          <h1>{panel === 'menu' ? t.settings : items.find((item) => item.id === panel)?.title}</h1>
+        </div>
+      </header>
+
+      <section className="content settings-page">
+        {panel === 'menu' && (
+          <div className="settings-list">
+            {items.map((item) => (
+              <button key={item.id} onClick={() => setPanel(item.id)}>
+                <span className="settings-icon">{item.icon}</span>
+                <strong>{item.title}</strong>
+                <small>›</small>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {panel === 'account' && (
+          <div className="settings-panel">
+            <button className="settings-row" onClick={onEditProfile}>
+              <span>{t.editProfile}</span>
+              <strong>›</strong>
+            </button>
+            <div className="settings-row">
+              <span>{t.profilePhoto}</span>
+              <strong>{values.userAvatar ? '✓' : '-'}</strong>
+            </div>
+          </div>
+        )}
+
+        {panel === 'customization' && (
+          <div className="settings-panel">
+            <div className="theme-switch-row">
+              <span>☀</span>
+              <button className={`theme-switch ${isDark ? 'dark' : 'light'}`} onClick={() => setTheme(isDark ? 'light' : 'dark')} aria-label={t.theme}>
+                <span />
+              </button>
+              <span>☾</span>
+            </div>
+            <label className="toggle-row">
+              <span>{t.sound}</span>
+              <input type="checkbox" checked={values.soundEnabled} onChange={(e) => onUpdatePrefs({ soundEnabled: e.target.checked })} />
+            </label>
+            <label>
+              {t.fontSize}
+              <input type="range" min="0.9" max="1.18" step="0.02" value={values.fontScale} onChange={(e) => onUpdatePrefs({ fontScale: Number(e.target.value) })} />
+            </label>
+            <label className="toggle-row">
+              <span>{t.cozyMode}</span>
+              <input type="checkbox" checked={values.cozyMode} onChange={(e) => onUpdatePrefs({ cozyMode: e.target.checked })} />
+            </label>
+          </div>
+        )}
+
+        {panel === 'subscription' && <InfoPanel title={values.isPaid ? t.paidPlan : t.freePlan} text={t.subscriptionText} />}
+        {panel === 'policy' && <InfoPanel title={t.policy} text={t.policyText} />}
+        {panel === 'support' && <InfoPanel title={t.support} text={t.supportText} />}
+        {panel === 'donate' && <InfoPanel title={t.donate} text={t.donateText} />}
+      </section>
+    </main>
+  )
+}
+
 export default function App() {
   const [screen, setScreen] = useState('loading')
   const [tab, setTab] = useState('home')
   const [lang, setLang] = useState(localStorage.getItem('nihongo-lang') || 'ar')
-  const [theme, setTheme] = useState(localStorage.getItem('nihongo-theme') || 'dark')
+  const [theme, setTheme] = useState(localStorage.getItem('nihongo-theme') || 'light')
   const [lettersTab, setLettersTab] = useState('hiragana')
   const [currentLevel, setCurrentLevel] = useState('N5')
   const [activeLesson, setActiveLesson] = useState(null)
@@ -391,6 +535,11 @@ export default function App() {
   const [userBio, setUserBio] = useState('')
   const [userPhone, setUserPhone] = useState('')
   const [userBirthday, setUserBirthday] = useState('')
+  const [userAvatar, setUserAvatar] = useState('')
+  const [soundEnabled, setSoundEnabled] = useState(true)
+  const [fontScale, setFontScale] = useState(1)
+  const [cozyMode, setCozyMode] = useState(true)
+  const [isPaid, setIsPaid] = useState(false)
   const [xp, setXp] = useState(0)
   const [hearts, setHearts] = useState(5)
   const [gems, setGems] = useState(STARTING_GEMS)
@@ -433,6 +582,13 @@ export default function App() {
     setUserBio(state.userBio ?? '')
     setUserPhone(state.userPhone || state.phone || '')
     setUserBirthday(state.userBirthday || state.birthDate || '')
+    setUserAvatar(state.userAvatar || '')
+    setSoundEnabled(state.soundEnabled ?? true)
+    setFontScale(state.fontScale ?? 1)
+    setCozyMode(state.cozyMode ?? true)
+    setIsPaid(state.isPaid ?? false)
+    if (state.theme) setTheme(state.theme)
+    if (state.lang) setLang(state.lang)
   }
 
   const startGuest = () => {
@@ -449,9 +605,11 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     document.documentElement.dir = dir
+    document.documentElement.style.setProperty('--font-scale', String(fontScale))
+    document.documentElement.dataset.cozy = cozyMode ? 'true' : 'false'
     localStorage.setItem('nihongo-lang', lang)
     localStorage.setItem('nihongo-theme', theme)
-  }, [lang, theme, dir])
+  }, [lang, theme, dir, fontScale, cozyMode])
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -491,16 +649,18 @@ export default function App() {
     localStorage.setItem(GUEST_KEY, JSON.stringify({
       xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress,
       totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday,
+      userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang,
     }))
-  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday])
+  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang])
 
   useEffect(() => {
     if (!userId || !dataReady || isGuest) return
     setDoc(doc(db, 'users', userId), {
       xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress,
       totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday,
+      userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang,
     }, { merge: true })
-  }, [userId, isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday])
+  }, [userId, isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang])
 
   useEffect(() => {
     if (!dataReady) return
@@ -528,7 +688,7 @@ export default function App() {
       setNotice(t.noHearts)
       return
     }
-    setQuestions(shuffle(quizSets[setName] || hiragana).slice(0, 10))
+    setQuestions(shuffle(quizSets[setName] || hiragana).slice(0, 10).map((q) => ({ ...q, soundEnabled })))
     setQIndex(0)
     setSelected(null)
     setScore(0)
@@ -553,7 +713,7 @@ export default function App() {
       setNotice(t.noHearts)
       return
     }
-    setQuestions(makeGroupQuiz(group.items))
+    setQuestions(makeGroupQuiz(group.items).map((q) => ({ ...q, soundEnabled })))
     setQIndex(0)
     setSelected(null)
     setScore(0)
@@ -717,15 +877,34 @@ export default function App() {
     return (
       <ProfileEditor
         lang={lang}
-        values={{ userName, userBio, userPhone, userBirthday }}
+        values={{ userName, userBio, userPhone, userBirthday, userAvatar }}
         onCancel={() => setScreen('main')}
         onSave={(draft) => {
           setUserName(draft.userName)
           setUserBio(draft.userBio)
           setUserPhone(draft.userPhone)
           setUserBirthday(draft.userBirthday)
+          setUserAvatar(draft.userAvatar)
           setScreen('main')
           setTab('profile')
+        }}
+      />
+    )
+  }
+
+  if (screen === 'settings') {
+    return (
+      <SettingsScreen
+        lang={lang}
+        theme={theme}
+        setTheme={setTheme}
+        values={{ userAvatar, soundEnabled, fontScale, cozyMode, isPaid }}
+        onBack={() => setScreen('main')}
+        onEditProfile={() => setScreen('edit-profile')}
+        onUpdatePrefs={(prefs) => {
+          if ('soundEnabled' in prefs) setSoundEnabled(prefs.soundEnabled)
+          if ('fontScale' in prefs) setFontScale(prefs.fontScale)
+          if ('cozyMode' in prefs) setCozyMode(prefs.cozyMode)
         }}
       />
     )
@@ -848,7 +1027,7 @@ export default function App() {
         {tab === 'profile' && (
           <section className="content profile">
             <div className="profile-card">
-              <div className="avatar">{(userName || t.guestName).slice(0, 1).toUpperCase()}</div>
+              <div className="avatar">{userAvatar ? <img src={userAvatar} alt="" /> : (userName || t.guestName).slice(0, 1).toUpperCase()}</div>
               <h1>{userName || t.guestName}</h1>
               <p>{isGuest ? t.guestHint : userEmail || 'にほんごGO learner'}</p>
               {userBio && <p>{userBio}</p>}
@@ -873,11 +1052,11 @@ export default function App() {
             </div>
 
             <h2 className="section-title">{t.settings}</h2>
-            <div className="settings-grid">
-              <button onClick={() => setScreen('edit-profile')}><span>{t.editProfile}</span><strong>›</strong></button>
-              <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}><span>{t.language}</span><strong>{lang === 'ar' ? 'عربي' : 'English'}</strong></button>
-              <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><span>{t.theme}</span><strong>{theme === 'dark' ? t.dark : t.light}</strong></button>
-            </div>
+            <button className="settings-entry" onClick={() => setScreen('settings')}>
+              <span>⚙</span>
+              <strong>{t.settings}</strong>
+              <small>›</small>
+            </button>
 
             <h2 className="section-title">{t.achievements}</h2>
             <div className="achievement-grid">
@@ -896,9 +1075,9 @@ export default function App() {
 
       <nav className="bottom-nav">
         {[
-          ['home', '⌂', t.home],
-          ['letters', '文', t.letters],
-          ['profile', '◉', t.profile],
+          ['home', '🏠', t.home],
+          ['letters', 'あ', t.letters],
+          ['profile', '👤', t.profile],
         ].map(([id, icon, label]) => (
           <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
             <span>{icon}</span>

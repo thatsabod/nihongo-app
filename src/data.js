@@ -2,7 +2,7 @@ const makeQuestions = (items) =>
   items.map(([kana, answer, ...alts]) => ({
     kana,
     answer,
-    options: [answer, ...alts].slice(0, 4),
+    options: [...new Set([answer, ...alts])].slice(0, 4),
   }))
 
 const kanaRows = {
@@ -23,6 +23,7 @@ const kanaRows = {
     ['ば', 'ba', 'ha', 'pa', 'ma'], ['び', 'bi', 'hi', 'pi', 'mi'], ['ぶ', 'bu', 'fu', 'pu', 'mu'], ['べ', 'be', 'he', 'pe', 'me'], ['ぼ', 'bo', 'ho', 'po', 'mo'],
     ['ぱ', 'pa', 'ba', 'ha', 'ma'], ['ぴ', 'pi', 'bi', 'hi', 'mi'], ['ぷ', 'pu', 'bu', 'fu', 'mu'], ['ぺ', 'pe', 'be', 'he', 'me'], ['ぽ', 'po', 'bo', 'ho', 'mo'],
     ['きゃ', 'kya', 'kyu', 'kyo', 'gya'], ['きゅ', 'kyu', 'kya', 'kyo', 'gyu'], ['きょ', 'kyo', 'kya', 'kyu', 'gyo'],
+    ['ぎゃ', 'gya', 'kya', 'bya', 'ja'], ['ぎゅ', 'gyu', 'kyu', 'byu', 'ju'], ['ぎょ', 'gyo', 'kyo', 'byo', 'jo'],
     ['しゃ', 'sha', 'shu', 'sho', 'cha'], ['しゅ', 'shu', 'sha', 'sho', 'chu'], ['しょ', 'sho', 'sha', 'shu', 'cho'],
     ['ちゃ', 'cha', 'sha', 'ja', 'kya'], ['ちゅ', 'chu', 'shu', 'ju', 'kyu'], ['ちょ', 'cho', 'sho', 'jo', 'kyo'],
     ['にゃ', 'nya', 'mya', 'rya', 'kya'], ['にゅ', 'nyu', 'myu', 'ryu', 'kyu'], ['にょ', 'nyo', 'myo', 'ryo', 'kyo'],
@@ -30,6 +31,8 @@ const kanaRows = {
     ['みゃ', 'mya', 'nya', 'rya', 'hya'], ['みゅ', 'myu', 'nyu', 'ryu', 'hyu'], ['みょ', 'myo', 'nyo', 'ryo', 'hyo'],
     ['りゃ', 'rya', 'nya', 'mya', 'kya'], ['りゅ', 'ryu', 'nyu', 'myu', 'kyu'], ['りょ', 'ryo', 'nyo', 'myo', 'kyo'],
     ['じゃ', 'ja', 'sha', 'cha', 'gya'], ['じゅ', 'ju', 'shu', 'chu', 'gyu'], ['じょ', 'jo', 'sho', 'cho', 'gyo'],
+    ['びゃ', 'bya', 'pya', 'hya', 'mya'], ['びゅ', 'byu', 'pyu', 'hyu', 'myu'], ['びょ', 'byo', 'pyo', 'hyo', 'myo'],
+    ['ぴゃ', 'pya', 'bya', 'hya', 'mya'], ['ぴゅ', 'pyu', 'byu', 'hyu', 'myu'], ['ぴょ', 'pyo', 'byo', 'hyo', 'myo'],
   ],
   katakana: [
     ['ア', 'a', 'i', 'u', 'e'], ['イ', 'i', 'a', 'ki', 'e'], ['ウ', 'u', 'o', 'a', 'ku'], ['エ', 'e', 'i', 'o', 'ne'], ['オ', 'o', 'a', 'u', 'ko'],
@@ -48,6 +51,7 @@ const kanaRows = {
     ['バ', 'ba', 'ha', 'pa', 'ma'], ['ビ', 'bi', 'hi', 'pi', 'mi'], ['ブ', 'bu', 'fu', 'pu', 'mu'], ['ベ', 'be', 'he', 'pe', 'me'], ['ボ', 'bo', 'ho', 'po', 'mo'],
     ['パ', 'pa', 'ba', 'ha', 'ma'], ['ピ', 'pi', 'bi', 'hi', 'mi'], ['プ', 'pu', 'bu', 'fu', 'mu'], ['ペ', 'pe', 'be', 'he', 'me'], ['ポ', 'po', 'bo', 'ho', 'mo'],
     ['キャ', 'kya', 'kyu', 'kyo', 'gya'], ['キュ', 'kyu', 'kya', 'kyo', 'gyu'], ['キョ', 'kyo', 'kya', 'kyu', 'gyo'],
+    ['ギャ', 'gya', 'kya', 'bya', 'ja'], ['ギュ', 'gyu', 'kyu', 'byu', 'ju'], ['ギョ', 'gyo', 'kyo', 'byo', 'jo'],
     ['シャ', 'sha', 'shu', 'sho', 'cha'], ['シュ', 'shu', 'sha', 'sho', 'chu'], ['ショ', 'sho', 'sha', 'shu', 'cho'],
     ['チャ', 'cha', 'sha', 'ja', 'kya'], ['チュ', 'chu', 'shu', 'ju', 'kyu'], ['チョ', 'cho', 'sho', 'jo', 'kyo'],
     ['ニャ', 'nya', 'mya', 'rya', 'kya'], ['ニュ', 'nyu', 'myu', 'ryu', 'kyu'], ['ニョ', 'nyo', 'myo', 'ryo', 'kyo'],
@@ -55,22 +59,48 @@ const kanaRows = {
     ['ミャ', 'mya', 'nya', 'rya', 'hya'], ['ミュ', 'myu', 'nyu', 'ryu', 'hyu'], ['ミョ', 'myo', 'nyo', 'ryo', 'hyo'],
     ['リャ', 'rya', 'nya', 'mya', 'kya'], ['リュ', 'ryu', 'nyu', 'myu', 'kyu'], ['リョ', 'ryo', 'nyo', 'myo', 'kyo'],
     ['ジャ', 'ja', 'sha', 'cha', 'gya'], ['ジュ', 'ju', 'shu', 'chu', 'gyu'], ['ジョ', 'jo', 'sho', 'cho', 'gyo'],
+    ['ビャ', 'bya', 'pya', 'hya', 'mya'], ['ビュ', 'byu', 'pyu', 'hyu', 'myu'], ['ビョ', 'byo', 'pyo', 'hyo', 'myo'],
+    ['ピャ', 'pya', 'bya', 'hya', 'mya'], ['ピュ', 'pyu', 'byu', 'hyu', 'myu'], ['ピョ', 'pyo', 'byo', 'hyo', 'myo'],
   ],
 }
 
 export const hiragana = makeQuestions(kanaRows.hiragana)
 export const katakana = makeQuestions(kanaRows.katakana)
 
-export const kanjiN5 = makeQuestions([
-  ['一', 'ichi', 'ni', 'san', 'yon'], ['二', 'ni', 'ichi', 'san', 'go'], ['三', 'san', 'ni', 'shi', 'go'], ['四', 'yon', 'shi', 'go', 'roku'], ['五', 'go', 'shi', 'roku', 'nana'],
-  ['六', 'roku', 'go', 'nana', 'hachi'], ['七', 'nana', 'roku', 'hachi', 'ku'], ['八', 'hachi', 'nana', 'ku', 'juu'], ['九', 'kyuu', 'hachi', 'juu', 'nana'], ['十', 'juu', 'ku', 'hyaku', 'nana'],
-  ['百', 'hyaku', 'juu', 'sen', 'man'], ['千', 'sen', 'hyaku', 'man', 'juu'], ['万', 'man', 'sen', 'hyaku', 'oku'], ['日', 'nichi', 'tsuki', 'hi', 'mizu'], ['月', 'tsuki', 'nichi', 'hi', 'yama'],
-  ['火', 'hi', 'mizu', 'ki', 'tsuchi'], ['水', 'mizu', 'hi', 'ki', 'kaze'], ['木', 'ki', 'mizu', 'tsuchi', 'kawa'], ['金', 'kin', 'gin', 'dou', 'ki'], ['土', 'tsuchi', 'mizu', 'ki', 'ishi'],
-  ['山', 'yama', 'kawa', 'umi', 'sora'], ['川', 'kawa', 'yama', 'umi', 'ike'], ['人', 'hito', 'ko', 'oya', 'te'], ['口', 'kuchi', 'me', 'mimi', 'te'], ['手', 'te', 'ashi', 'kuchi', 'me'],
-  ['目', 'me', 'mimi', 'kuchi', 'hana'], ['耳', 'mimi', 'me', 'kuchi', 'hana'], ['子', 'ko', 'hito', 'oya', 'otoko'], ['女', 'onna', 'otoko', 'ko', 'hito'], ['男', 'otoko', 'onna', 'ko', 'hito'],
-  ['大', 'oo', 'chii', 'naga', 'futo'], ['小', 'chii', 'oo', 'naga', 'hoso'], ['中', 'naka', 'soto', 'ue', 'shita'], ['上', 'ue', 'shita', 'naka', 'yoko'], ['下', 'shita', 'ue', 'naka', 'mae'],
-  ['本', 'hon', 'kami', 'ki', 'mizu'], ['年', 'nen', 'tsuki', 'hi', 'jikan'], ['時', 'toki', 'nen', 'tsuki', 'hi'], ['国', 'kuni', 'machi', 'mura', 'shima'], ['語', 'go', 'ji', 'bun', 'wa'],
-])
+const kanjiRows = [
+  ['一', 'ichi'], ['二', 'ni'], ['三', 'san'], ['四', 'yon'], ['五', 'go'],
+  ['六', 'roku'], ['七', 'nana'], ['八', 'hachi'], ['九', 'kyuu'], ['十', 'juu'],
+  ['百', 'hyaku'], ['千', 'sen'], ['万', 'man'], ['円', 'en'], ['日', 'nichi'],
+  ['月', 'getsu'], ['火', 'ka'], ['水', 'sui'], ['木', 'moku'], ['金', 'kin'],
+  ['土', 'do'], ['曜', 'you'], ['年', 'nen'], ['時', 'ji'], ['分', 'fun'],
+  ['半', 'han'], ['今', 'ima'], ['毎', 'mai'], ['何', 'nani'], ['人', 'hito'],
+  ['男', 'otoko'], ['女', 'onna'], ['子', 'ko'], ['父', 'chichi'], ['母', 'haha'],
+  ['友', 'tomo'], ['先', 'sen'], ['生', 'sei'], ['学', 'gaku'], ['校', 'kou'],
+  ['本', 'hon'], ['語', 'go'], ['国', 'kuni'], ['会', 'kai'], ['社', 'sha'],
+  ['店', 'mise'], ['駅', 'eki'], ['車', 'kuruma'], ['電', 'den'], ['気', 'ki'],
+  ['天', 'ten'], ['雨', 'ame'], ['空', 'sora'], ['山', 'yama'], ['川', 'kawa'],
+  ['花', 'hana'], ['魚', 'sakana'], ['口', 'kuchi'], ['目', 'me'], ['耳', 'mimi'],
+  ['手', 'te'], ['足', 'ashi'], ['力', 'chikara'], ['上', 'ue'], ['下', 'shita'],
+  ['中', 'naka'], ['外', 'soto'], ['右', 'migi'], ['左', 'hidari'], ['前', 'mae'],
+  ['後', 'ato'], ['北', 'kita'], ['南', 'minami'], ['東', 'higashi'], ['西', 'nishi'],
+  ['大', 'oo'], ['小', 'chii'], ['少', 'suku'], ['多', 'oo'], ['長', 'naga'],
+  ['高', 'taka'], ['安', 'yasu'], ['新', 'atara'], ['古', 'furu'], ['白', 'shiro'],
+  ['赤', 'aka'], ['青', 'ao'], ['行', 'iku'], ['来', 'kuru'], ['見', 'mi'],
+  ['聞', 'kiku'], ['食', 'tabe'], ['飲', 'nomi'], ['読', 'yomi'], ['書', 'kaki'],
+  ['話', 'hana'], ['買', 'kai'], ['休', 'yasu'], ['出', 'de'], ['入', 'hai'],
+  ['立', 'tachi'], ['名', 'na'], ['道', 'michi'], ['週', 'shuu'], ['間', 'aida'],
+]
+
+export const kanjiN5 = makeQuestions(
+  kanjiRows.map(([kana, answer], index) => {
+    const alts = kanjiRows
+      .filter((_, altIndex) => altIndex !== index)
+      .slice(index + 1)
+      .concat(kanjiRows.slice(0, index))
+      .map(([, reading]) => reading)
+    return [kana, answer, ...alts]
+  })
+)
 
 export const characterGroups = {
   hiragana: [
