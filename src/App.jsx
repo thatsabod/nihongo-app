@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { hiragana } from './data.js'
+import { hiragana, katakana, kanjiN5 } from './data.js'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
 import Letters from './screens/Letters.jsx'
@@ -126,13 +126,14 @@ export default function App() {
   const [score, setScore] = useState(0)
   const [lastScore, setLastScore] = useState(0)
   const [xp, setXp] = useState(0)
-  const [streak] = useState(7)
+  const [streak, setStreak] = useState(0)
+  const [lastActiveDate, setLastActiveDate] = useState(null)
   const [hearts, setHearts] = useState(5)
   const [progress, setProgress] = useState({})
   const [totalQuizzes, setTotalQuizzes] = useState(0)
   const [perfectScores, setPerfectScores] = useState(0)
   const [gems, setGems] = useState(500)
-  const [daysUsed] = useState(12)
+  const [daysUsed, setDaysUsed] = useState(0)
 
   const c = getColors(theme)
   const t = translations[lang]
@@ -191,6 +192,9 @@ export default function App() {
           setUserPhone(d.userPhone ?? '')
           setUserBirthday(d.userBirthday ?? '')
           setLessonProgress(d.lessonProgress ?? {})
+          if (d.streak !== undefined) setStreak(d.streak)
+          if (d.lastActiveDate) setLastActiveDate(d.lastActiveDate)
+          if (d.daysUsed !== undefined) setDaysUsed(d.daysUsed)
           if (d.userName) setUserName(d.userName)
         }
         setDataReady(true)
@@ -202,19 +206,51 @@ export default function App() {
     return () => unsub()
   }, [])
 
+  // Streak tracker
+  useEffect(() => {
+    if (!dataReady) return
+    const today = new Date().toDateString()
+    if (lastActiveDate === today) return
+    if (lastActiveDate) {
+      const last = new Date(lastActiveDate)
+      const now = new Date()
+      const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24))
+      if (diffDays === 1) {
+        setStreak(s => s + 1)
+      } else if (diffDays > 1) {
+        setStreak(0)
+      }
+    } else {
+      setStreak(1)
+    }
+    setLastActiveDate(today)
+    setDaysUsed(d => d + 1)
+  }, [dataReady])
+
   useEffect(() => {
     if (!userId || !dataReady) return
     setDoc(doc(db, 'users', userId), {
       xp, hearts, gems, progress, totalQuizzes, perfectScores,
-      lastScore, userName, userBio, userPhone, userBirthday, lessonProgress
+      lastScore, userName, userBio, userPhone, userBirthday,
+      lessonProgress, streak, lastActiveDate, daysUsed
     })
-  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday, lessonProgress])
+  }, [xp, hearts, gems, progress, totalQuizzes, perfectScores, lastScore, userName, userBio, userPhone, userBirthday, lessonProgress, streak, lastActiveDate, daysUsed])
 
   const stats = { xp, streak, progress, totalQuizzes, perfectScores }
 
   const startQuiz = () => {
     if (hearts <= 0) return
     setQuestions(shuffle(hiragana).slice(0, 10))
+    setQIndex(0)
+    setSelected(null)
+    setScore(0)
+    setScreen('quiz')
+  }
+
+  const startSectionQuiz = (quizSet) => {
+    const sets = { hiragana, katakana, kanji: kanjiN5 }
+    const q = shuffle(sets[quizSet] || hiragana).slice(0, 10)
+    setQuestions(q)
     setQIndex(0)
     setSelected(null)
     setScore(0)
@@ -260,10 +296,10 @@ export default function App() {
     setUserPhone(''); setUserBirthday(''); setXp(0); setHearts(5)
     setGems(500); setProgress({}); setTotalQuizzes(0)
     setPerfectScores(0); setLastScore(0); setDataReady(false)
+    setStreak(0); setLastActiveDate(null); setDaysUsed(0)
     setScreen('welcome')
   }
 
-  // LOADING
   if (screen === 'loading') return (
     <div style={{ minHeight: '100vh', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
       <div style={{ textAlign: 'center' }}>
@@ -309,7 +345,6 @@ export default function App() {
   const masteredCount = Object.values(progress).filter(v => v >= 10).length
   const n5Progress = Math.round((masteredCount / 46) * 100)
 
-  // LEVEL PICKER POPUP
   const LevelPicker = () => (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'flex-end' }}
       onClick={() => setShowLevelPicker(false)}>
@@ -491,8 +526,6 @@ export default function App() {
 
   const HomeTab = () => (
     <div style={{ paddingBottom: '90px', background: c.bg, minHeight: '100vh' }}>
-
-      {/* Header */}
       <div style={{ background: c.card, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: `0.5px solid ${c.border}` }}>
         <h1 style={{ margin: 0, fontSize: '20px', color: c.text }}>にほんご<span style={{ color: c.primary }}>GO</span></h1>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -502,7 +535,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Level progress bar — tappable */}
       <button onClick={() => setShowLevelPicker(true)}
         style={{ width: '100%', background: c.card2, border: 'none', borderBottom: `0.5px solid ${c.border}`, padding: '10px 20px', cursor: 'pointer', textAlign: lang === 'ar' ? 'right' : 'left' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
@@ -514,33 +546,27 @@ export default function App() {
         </div>
       </button>
 
-      {/* Content tab — Vocab / Grammar */}
       <div style={{ display: 'flex', background: c.card, borderBottom: `0.5px solid ${c.border}` }}>
         {['vocab', 'grammar'].map(tb => (
           <button key={tb} onClick={() => setContentTab(tb)}
-            style={{ flex: 1, padding: '12px', background: 'none', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', color: contentTab === tb ? c.primary : c.textMuted, borderBottom: contentTab === tb ? `2px solid ${c.primary}` : '2px solid transparent', transition: 'all 0.15s' }}>
+            style={{ flex: 1, padding: '12px', background: 'none', border: 'none', fontSize: '14px', fontWeight: '500', cursor: 'pointer', color: contentTab === tb ? c.primary : c.textMuted, borderBottom: contentTab === tb ? `2px solid ${c.primary}` : '2px solid transparent' }}>
             {tb === 'vocab' ? t.vocab : t.grammar}
           </button>
         ))}
       </div>
 
-      {/* Lesson map */}
-      <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0' }}>
+      <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {Array.from({ length: TOTAL_LESSONS }, (_, i) => i + 1).map((lessonNum) => {
           const status = getLessonStatus(lessonNum)
           const isDone = status === 'done'
           const isCurrent = status === 'current'
           const isLocked = status === 'locked'
           const sections = lessonProgress[`${currentLevel}-${lessonNum}`] || 0
-
           return (
             <div key={lessonNum} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              {/* Connector line */}
               {lessonNum > 1 && (
-                <div style={{ width: '2px', height: '20px', background: isDone ? c.primary : c.border, transition: 'background 0.3s' }} />
+                <div style={{ width: '2px', height: '20px', background: isDone ? c.primary : c.border }} />
               )}
-
-              {/* Lesson circle */}
               <button
                 disabled={isLocked}
                 onClick={() => {
@@ -550,24 +576,13 @@ export default function App() {
                     startQuiz()
                   }
                 }}
-                style={{
-                  width: '64px', height: '64px', borderRadius: '50%',
-                  background: isDone ? c.primaryGrad : isCurrent ? c.card : c.card2,
-                  border: isDone ? 'none' : isCurrent ? `2px solid ${c.primary}` : `1.5px solid ${c.border}`,
-                  color: isDone ? 'white' : isCurrent ? c.primary : c.textMuted,
-                  fontSize: '18px', fontWeight: '700', cursor: isLocked ? 'not-allowed' : 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  opacity: isLocked ? 0.4 : 1, transition: 'all 0.2s',
-                  boxShadow: isCurrent ? `0 0 0 4px ${c.primary}22` : 'none'
-                }}>
+                style={{ width: '64px', height: '64px', borderRadius: '50%', background: isDone ? c.primaryGrad : isCurrent ? c.card : c.card2, border: isDone ? 'none' : isCurrent ? `2px solid ${c.primary}` : `1.5px solid ${c.border}`, color: isDone ? 'white' : isCurrent ? c.primary : c.textMuted, fontSize: '18px', fontWeight: '700', cursor: isLocked ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: isLocked ? 0.4 : 1, boxShadow: isCurrent ? `0 0 0 4px ${c.primary}22` : 'none' }}>
                 {isDone ? '✓' : isLocked ? '🔒' : lessonNum}
               </button>
-
-              {/* Section dots */}
               {!isLocked && (
                 <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
                   {Array.from({ length: SECTIONS_PER_LESSON }, (_, si) => (
-                    <div key={si} style={{ width: '6px', height: '6px', borderRadius: '50%', background: si < sections ? c.primary : c.border, transition: 'background 0.3s' }} />
+                    <div key={si} style={{ width: '6px', height: '6px', borderRadius: '50%', background: si < sections ? c.primary : c.border }} />
                   ))}
                 </div>
               )}
@@ -581,17 +596,17 @@ export default function App() {
 
   const LettersTab = () => {
     const hiraganaGroups = [
-      { label: 'あ行', chars: [{ k: 'あ', r: 'a' }, { k: 'い', r: 'i' }, { k: 'う', r: 'u' }, { k: 'え', r: 'e' }, { k: 'お', r: 'o' }] },
-      { label: 'か行', chars: [{ k: 'か', r: 'ka' }, { k: 'き', r: 'ki' }, { k: 'く', r: 'ku' }, { k: 'け', r: 'ke' }, { k: 'こ', r: 'ko' }] },
-      { label: 'さ行', chars: [{ k: 'さ', r: 'sa' }, { k: 'し', r: 'shi' }, { k: 'す', r: 'su' }, { k: 'せ', r: 'se' }, { k: 'そ', r: 'so' }] },
-      { label: 'た行', chars: [{ k: 'た', r: 'ta' }, { k: 'ち', r: 'chi' }, { k: 'つ', r: 'tsu' }, { k: 'て', r: 'te' }, { k: 'と', r: 'to' }] },
-      { label: 'な行', chars: [{ k: 'な', r: 'na' }, { k: 'に', r: 'ni' }, { k: 'ぬ', r: 'nu' }, { k: 'ね', r: 'ne' }, { k: 'の', r: 'no' }] },
-      { label: 'は行', chars: [{ k: 'は', r: 'ha' }, { k: 'ひ', r: 'hi' }, { k: 'ふ', r: 'fu' }, { k: 'へ', r: 'he' }, { k: 'ほ', r: 'ho' }] },
-      { label: 'ま行', chars: [{ k: 'ま', r: 'ma' }, { k: 'み', r: 'mi' }, { k: 'む', r: 'mu' }, { k: 'め', r: 'me' }, { k: 'も', r: 'mo' }] },
-      { label: 'や行', chars: [{ k: 'や', r: 'ya' }, { k: 'ゆ', r: 'yu' }, { k: 'よ', r: 'yo' }] },
-      { label: 'ら行', chars: [{ k: 'ら', r: 'ra' }, { k: 'り', r: 'ri' }, { k: 'る', r: 'ru' }, { k: 'れ', r: 're' }, { k: 'ろ', r: 'ro' }] },
-      { label: 'わ行', chars: [{ k: 'わ', r: 'wa' }, { k: 'を', r: 'wo' }, { k: 'ん', r: 'n' }] },
-      { label: lang === 'ar' ? 'المشتقات (dakuten)' : 'Dakuten', chars: [
+      { label: 'あ', chars: [{ k: 'あ', r: 'a' }, { k: 'い', r: 'i' }, { k: 'う', r: 'u' }, { k: 'え', r: 'e' }, { k: 'お', r: 'o' }] },
+      { label: 'か', chars: [{ k: 'か', r: 'ka' }, { k: 'き', r: 'ki' }, { k: 'く', r: 'ku' }, { k: 'け', r: 'ke' }, { k: 'こ', r: 'ko' }] },
+      { label: 'さ', chars: [{ k: 'さ', r: 'sa' }, { k: 'し', r: 'shi' }, { k: 'す', r: 'su' }, { k: 'せ', r: 'se' }, { k: 'そ', r: 'so' }] },
+      { label: 'た', chars: [{ k: 'た', r: 'ta' }, { k: 'ち', r: 'chi' }, { k: 'つ', r: 'tsu' }, { k: 'て', r: 'te' }, { k: 'と', r: 'to' }] },
+      { label: 'な', chars: [{ k: 'な', r: 'na' }, { k: 'に', r: 'ni' }, { k: 'ぬ', r: 'nu' }, { k: 'ね', r: 'ne' }, { k: 'の', r: 'no' }] },
+      { label: 'は', chars: [{ k: 'は', r: 'ha' }, { k: 'ひ', r: 'hi' }, { k: 'ふ', r: 'fu' }, { k: 'へ', r: 'he' }, { k: 'ほ', r: 'ho' }] },
+      { label: 'ま', chars: [{ k: 'ま', r: 'ma' }, { k: 'み', r: 'mi' }, { k: 'む', r: 'mu' }, { k: 'め', r: 'me' }, { k: 'も', r: 'mo' }] },
+      { label: 'や', chars: [{ k: 'や', r: 'ya' }, { k: 'ゆ', r: 'yu' }, { k: 'よ', r: 'yo' }] },
+      { label: 'ら', chars: [{ k: 'ら', r: 'ra' }, { k: 'り', r: 'ri' }, { k: 'る', r: 'ru' }, { k: 'れ', r: 're' }, { k: 'ろ', r: 'ro' }] },
+      { label: 'わ', chars: [{ k: 'わ', r: 'wa' }, { k: 'を', r: 'wo' }, { k: 'ん', r: 'n' }] },
+      { label: lang === 'ar' ? 'المشتقات' : 'Dakuten', chars: [
         { k: 'が', r: 'ga' }, { k: 'ぎ', r: 'gi' }, { k: 'ぐ', r: 'gu' }, { k: 'げ', r: 'ge' }, { k: 'ご', r: 'go' },
         { k: 'ざ', r: 'za' }, { k: 'じ', r: 'ji' }, { k: 'ず', r: 'zu' }, { k: 'ぜ', r: 'ze' }, { k: 'ぞ', r: 'zo' },
         { k: 'だ', r: 'da' }, { k: 'ぢ', r: 'di' }, { k: 'づ', r: 'du' }, { k: 'で', r: 'de' }, { k: 'ど', r: 'do' },
@@ -614,16 +629,16 @@ export default function App() {
     ]
 
     const katakanaGroups = [
-      { label: 'ア行', chars: [{ k: 'ア', r: 'a' }, { k: 'イ', r: 'i' }, { k: 'ウ', r: 'u' }, { k: 'エ', r: 'e' }, { k: 'オ', r: 'o' }] },
-      { label: 'カ行', chars: [{ k: 'カ', r: 'ka' }, { k: 'キ', r: 'ki' }, { k: 'ク', r: 'ku' }, { k: 'ケ', r: 'ke' }, { k: 'コ', r: 'ko' }] },
-      { label: 'サ行', chars: [{ k: 'サ', r: 'sa' }, { k: 'シ', r: 'shi' }, { k: 'ス', r: 'su' }, { k: 'セ', r: 'se' }, { k: 'ソ', r: 'so' }] },
-      { label: 'タ行', chars: [{ k: 'タ', r: 'ta' }, { k: 'チ', r: 'chi' }, { k: 'ツ', r: 'tsu' }, { k: 'テ', r: 'te' }, { k: 'ト', r: 'to' }] },
-      { label: 'ナ行', chars: [{ k: 'ナ', r: 'na' }, { k: 'ニ', r: 'ni' }, { k: 'ヌ', r: 'nu' }, { k: 'ネ', r: 'ne' }, { k: 'ノ', r: 'no' }] },
-      { label: 'ハ行', chars: [{ k: 'ハ', r: 'ha' }, { k: 'ヒ', r: 'hi' }, { k: 'フ', r: 'fu' }, { k: 'ヘ', r: 'he' }, { k: 'ホ', r: 'ho' }] },
-      { label: 'マ行', chars: [{ k: 'マ', r: 'ma' }, { k: 'ミ', r: 'mi' }, { k: 'ム', r: 'mu' }, { k: 'メ', r: 'me' }, { k: 'モ', r: 'mo' }] },
-      { label: 'ヤ行', chars: [{ k: 'ヤ', r: 'ya' }, { k: 'ユ', r: 'yu' }, { k: 'ヨ', r: 'yo' }] },
-      { label: 'ラ行', chars: [{ k: 'ラ', r: 'ra' }, { k: 'リ', r: 'ri' }, { k: 'ル', r: 'ru' }, { k: 'レ', r: 're' }, { k: 'ロ', r: 'ro' }] },
-      { label: 'ワ行', chars: [{ k: 'ワ', r: 'wa' }, { k: 'ヲ', r: 'wo' }, { k: 'ン', r: 'n' }] },
+      { label: 'ア', chars: [{ k: 'ア', r: 'a' }, { k: 'イ', r: 'i' }, { k: 'ウ', r: 'u' }, { k: 'エ', r: 'e' }, { k: 'オ', r: 'o' }] },
+      { label: 'カ', chars: [{ k: 'カ', r: 'ka' }, { k: 'キ', r: 'ki' }, { k: 'ク', r: 'ku' }, { k: 'ケ', r: 'ke' }, { k: 'コ', r: 'ko' }] },
+      { label: 'サ', chars: [{ k: 'サ', r: 'sa' }, { k: 'シ', r: 'shi' }, { k: 'ス', r: 'su' }, { k: 'セ', r: 'se' }, { k: 'ソ', r: 'so' }] },
+      { label: 'タ', chars: [{ k: 'タ', r: 'ta' }, { k: 'チ', r: 'chi' }, { k: 'ツ', r: 'tsu' }, { k: 'テ', r: 'te' }, { k: 'ト', r: 'to' }] },
+      { label: 'ナ', chars: [{ k: 'ナ', r: 'na' }, { k: 'ニ', r: 'ni' }, { k: 'ヌ', r: 'nu' }, { k: 'ネ', r: 'ne' }, { k: 'ノ', r: 'no' }] },
+      { label: 'ハ', chars: [{ k: 'ハ', r: 'ha' }, { k: 'ヒ', r: 'hi' }, { k: 'フ', r: 'fu' }, { k: 'ヘ', r: 'he' }, { k: 'ホ', r: 'ho' }] },
+      { label: 'マ', chars: [{ k: 'マ', r: 'ma' }, { k: 'ミ', r: 'mi' }, { k: 'ム', r: 'mu' }, { k: 'メ', r: 'me' }, { k: 'モ', r: 'mo' }] },
+      { label: 'ヤ', chars: [{ k: 'ヤ', r: 'ya' }, { k: 'ユ', r: 'yu' }, { k: 'ヨ', r: 'yo' }] },
+      { label: 'ラ', chars: [{ k: 'ラ', r: 'ra' }, { k: 'リ', r: 'ri' }, { k: 'ル', r: 'ru' }, { k: 'レ', r: 're' }, { k: 'ロ', r: 'ro' }] },
+      { label: 'ワ', chars: [{ k: 'ワ', r: 'wa' }, { k: 'ヲ', r: 'wo' }, { k: 'ン', r: 'n' }] },
       { label: lang === 'ar' ? 'المشتقات' : 'Dakuten', chars: [
         { k: 'ガ', r: 'ga' }, { k: 'ギ', r: 'gi' }, { k: 'グ', r: 'gu' }, { k: 'ゲ', r: 'ge' }, { k: 'ゴ', r: 'go' },
         { k: 'ザ', r: 'za' }, { k: 'ジ', r: 'ji' }, { k: 'ズ', r: 'zu' }, { k: 'ゼ', r: 'ze' }, { k: 'ゾ', r: 'zo' },
@@ -673,35 +688,15 @@ export default function App() {
       ]},
     ]
 
-    const sectionData = {
-      hiragana: { groups: hiraganaGroups, quizSet: 'hiragana' },
-      katakana: { groups: katakanaGroups, quizSet: 'katakana' },
-      kanji:    { groups: kanjiGroups,    quizSet: 'kanji' },
-    }
-
-    const { groups: currentGroups } = sectionData[lettersTab] || sectionData.hiragana
-
-    const startSectionQuiz = (quizSet) => {
-      import('./data.js').then(({ hiragana: h, katakana: k, kanjiN5: kj }) => {
-        const sets = { hiragana: h, katakana: k, kanji: kj }
-        const q = shuffle(sets[quizSet] || h).slice(0, 10)
-        setQuestions(q)
-        setQIndex(0)
-        setSelected(null)
-        setScore(0)
-        setScreen('quiz')
-      })
-    }
-
+    const currentGroups = lettersTab === 'hiragana' ? hiraganaGroups : lettersTab === 'katakana' ? katakanaGroups : kanjiGroups
     const tabs = [
       { id: 'hiragana', label: 'Hiragana' },
       { id: 'katakana', label: 'Katakana' },
-      { id: 'kanji',    label: 'Kanji N5' },
+      { id: 'kanji', label: 'Kanji N5' },
     ]
 
     return (
       <div style={{ paddingBottom: '90px', background: c.bg, minHeight: '100vh' }}>
-        {/* Header with tabs */}
         <div style={{ background: c.card, padding: '18px 20px', borderBottom: `0.5px solid ${c.border}` }}>
           <h2 style={{ margin: '0 0 14px', fontSize: '18px', color: c.text }}>{lang === 'ar' ? 'الأحرف' : 'Characters'}</h2>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -714,16 +709,13 @@ export default function App() {
           </div>
         </div>
 
-        {/* Practice Now button */}
         <div style={{ padding: '12px 16px', background: c.card2, borderBottom: `0.5px solid ${c.border}` }}>
-          <button
-            onClick={() => startSectionQuiz(lettersTab)}
+          <button onClick={() => startSectionQuiz(lettersTab)}
             style={{ width: '100%', padding: '13px', background: c.primaryGrad, border: 'none', borderRadius: '12px', color: 'white', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
             ⚡ {lang === 'ar' ? 'تدرب الآن' : 'Practice Now'}
           </button>
         </div>
 
-        {/* Character groups */}
         <div style={{ padding: '16px' }}>
           {currentGroups.map((group, gi) => (
             <div key={gi} style={{ marginBottom: '24px' }}>
