@@ -8,13 +8,46 @@ function hasKanji(value = '') {
   return /[\u3400-\u9fff]/.test(value)
 }
 
+function getRubyReadings(text, reading) {
+  const parts = String(text || '').split(/([\u3400-\u9fff]+)/g).filter(Boolean)
+  const kanjiParts = parts.filter((part) => hasKanji(part))
+  const rawReading = String(reading || '').trim()
+
+  if (/[\u3040-\u30ff]/.test(rawReading)) {
+    let remaining = rawReading
+    parts.forEach((part) => {
+      if (hasKanji(part) || !part) return
+      if (remaining.startsWith(part)) remaining = remaining.slice(part.length)
+      else if (remaining.endsWith(part)) remaining = remaining.slice(0, -part.length)
+    })
+    if (kanjiParts.length === 1 && remaining) return [remaining]
+  }
+
+  const readingChunks = rawReading.split(/\s+/).filter(Boolean)
+  if (readingChunks.length === kanjiParts.length) return readingChunks
+
+  return kanjiParts.map(() => rawReading)
+}
+
 function RubyText({ text, reading, className = '' }) {
-  if (!reading || !hasKanji(text)) return <span className={className}>{text}</span>
+  const wrapperClass = ['jp-inline', className].filter(Boolean).join(' ')
+  if (!reading || !hasKanji(text)) return <span className={wrapperClass}>{text}</span>
+  const parts = String(text || '').split(/([\u3400-\u9fff]+)/g).filter(Boolean)
+  const readings = getRubyReadings(text, reading)
   return (
-    <ruby className={className}>
-      {text}
-      <rt>{reading}</rt>
-    </ruby>
+    <span className={wrapperClass}>
+      {parts.map((part, index) => {
+        if (!hasKanji(part)) return <span key={`${part}-${index}`}>{part}</span>
+        const kanjiIndex = parts.slice(0, index).filter((previous) => hasKanji(previous)).length
+        const rt = readings[kanjiIndex] || reading
+        return (
+          <ruby key={`${part}-${index}`}>
+            {part}
+            <rt>{rt}</rt>
+          </ruby>
+        )
+      })}
+    </span>
   )
 }
 
@@ -55,6 +88,25 @@ const text = {
   },
 }
 
+function ruaaMode({ q, selected, isCorrect }) {
+  if (selected) return isCorrect ? 'cheer' : 'skeptical'
+  if (q?.type === 'audio_word') return 'wave'
+  if (q?.type === 'matching') return 'calm'
+  if (q?.type === 'sentence') return 'thinking'
+  if (q?.type === 'draw') return 'surprise'
+  return 'thinking'
+}
+
+function RuaaMascot({ mode, visible }) {
+  if (!visible) return null
+  return (
+    <aside className={`ruaa-mascot ruaa-${mode}`} aria-label="ruaa">
+      <span className="ruaa-sprite" aria-hidden="true" />
+      <strong>ruaa</strong>
+    </aside>
+  )
+}
+
 export default function Quiz({ questions, qIndex, selected, score, xp, hearts, lang, onAnswer, onBack }) {
   const q = questions[qIndex]
   const t = text[lang] || text.en
@@ -77,6 +129,8 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
   const isSentence = q.type === 'sentence'
   const isMeaning = q.type === 'vocab_meaning'
   const isCorrect = selected === q.answer
+  const showRuaa = qIndex % 10 !== 9
+  const mascotMode = ruaaMode({ q, selected, isCorrect })
 
   const answer = (opt) => {
     if (selected) return
@@ -131,6 +185,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
 
       <section className="quiz-body">
         <p className="eyebrow">{t.question} {qIndex + 1} {t.of} {questions.length} · {score} ✓</p>
+        <RuaaMascot mode={mascotMode} visible={showRuaa} />
         {isDraw ? (
           <>
             <h1>{t.drawPrompt}</h1>
@@ -171,7 +226,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
         ) : (
           <>
             <button className={`kana-focus ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakJapanese(q.speakText || q.kana, { rate: 0.54, voiceIndex })}>
-              {isSentence ? <span>{q.sentence}</span> : isAudioWord ? <span>聞く</span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
+              {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus">♪</span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
               <small>{t.hear}</small>
               {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
             </button>
@@ -182,7 +237,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
                 if (selected && opt === q.answer) state = 'correct'
                 if (selected && opt === selected && opt !== q.answer) state = 'wrong'
                 return (
-                  <button key={opt} className={state} disabled={Boolean(selected)} onClick={() => answer(opt)}>
+                  <button key={opt} dir="ltr" className={state} disabled={Boolean(selected)} onClick={() => answer(opt)}>
                     <RubyText text={opt} reading={q.optionReadings?.[opt]} />
                   </button>
                 )

@@ -4,6 +4,7 @@ import { addDoc, collection, deleteDoc, doc, getDoc, increment, limit, onSnapsho
 import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons } from './data.js'
 import { speakJapanese } from './sounds.js'
+import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
 import Login from './screens/Login.jsx'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
@@ -428,27 +429,54 @@ function speakableVocab(item) {
   return item.hiragana || item.jp || item.kanji
 }
 
-function optionReadingsFor(items, mode = 'hiragana') {
+function optionReadingsFor(options, items, mode = 'hiragana') {
+  const byOption = new Map()
+  options.forEach((option) => {
+    const item = items.find((candidate) => vocabLabel(candidate) === option)
+    if (item) byOption.set(option, vocabReading(item, mode))
+  })
   return items.reduce((acc, item) => ({
     ...acc,
-    [vocabLabel(item)]: vocabReading(item, mode),
+    [vocabLabel(item)]: byOption.get(vocabLabel(item)) || vocabReading(item, mode),
   }), {})
+}
+
+function comparableVocabItems(items, item) {
+  const sameType = items.filter((candidate) => candidate.type && candidate.type === item.type)
+  if (sameType.length >= 2) return sameType
+
+  const broadGroups = [
+    ['pronoun', 'person', 'question-word'],
+    ['occupation'],
+    ['place', 'organization'],
+    ['suffix'],
+    ['age'],
+    ['response'],
+  ]
+  const selectedTypes = broadGroups.find((group) => group.includes(item.type))
+  if (!selectedTypes) return items
+
+  const grouped = items.filter((candidate) => selectedTypes.includes(candidate.type))
+  return grouped.length >= 2 ? grouped : items
 }
 
 function makeVocabOptions(items, item, key) {
   const answer = key === 'label' ? vocabLabel(item) : item[key]
-  const distractors = items
+  const pool = comparableVocabItems(items, item)
+  const distractors = pool
     .filter((candidate) => candidate !== item)
     .map((candidate) => key === 'label' ? vocabLabel(candidate) : candidate[key])
     .filter(Boolean)
-  return shuffle([answer, ...shuffle(distractors).slice(0, 5)])
+  const options = shuffle([answer, ...shuffle(distractors).slice(0, 5)])
     .filter((value, index, arr) => arr.indexOf(value) === index)
     .slice(0, 4)
+  if (!options.includes(answer)) return [answer, ...options].slice(0, 4)
+  return options
 }
 
 function sentenceForVocab(item) {
   const occupationReadings = new Set(['sensei', 'kyoushi', 'gakusei', 'kaishain', 'shain', 'ginkouin', 'isha', 'kenkyuusha', 'enjinia'])
-  const personReadings = new Set(['watashi', 'watashitachi', 'anata', 'ano hito', 'ano kata', 'minna-san'])
+  const personReadings = new Set(['watashi', 'watashitachi', 'anata', 'ano hito', 'ano kata', 'minasan'])
   const placeReadings = new Set(['daigaku', 'byouin'])
   const questionReadings = new Set(['dare', 'donata'])
   if (occupationReadings.has(item.reading)) return 'わたし は ____ です。'
@@ -465,6 +493,26 @@ function sentenceForVocab(item) {
   if (item.reading === 'hai') return '____、がくせい です。'
   if (item.reading === 'iie') return '____、がくせい じゃありません。'
   return `____ = ${item.meaning}`
+}
+
+function sentenceOptionItems(allItems, item) {
+  const groups = [
+    ['sensei', 'kyoushi', 'gakusei', 'kaishain', 'shain', 'ginkouin', 'isha', 'kenkyuusha', 'enjinia'],
+    ['watashi', 'watashitachi', 'anata', 'ano hito', 'ano kata', 'minasan'],
+    ['~san', '~chan', '~kun', '~jin'],
+    ['daigaku', 'byouin', 'denki'],
+    ['dare', 'donata'],
+    ['nan-sai desu ka', 'sai'],
+    ['hai', 'iie'],
+  ]
+  const selected = groups.find((group) => group.includes(item.reading))
+  if (!selected) return allItems
+  const scoped = allItems.filter((candidate) => selected.includes(candidate.reading))
+  return scoped.length >= 2 ? scoped : allItems
+}
+
+function sentenceSpeakText(item, sentence) {
+  return sentence.replace('____', speakableVocab(item))
 }
 
 function makeMatchingQuestion(lesson, items, kanjiReadingMode = 'hiragana') {
@@ -496,15 +544,17 @@ function makeMatchingQuestion(lesson, items, kanjiReadingMode = 'hiragana') {
 function makeSentenceQuestion(lesson, item, items, kanjiReadingMode = 'hiragana') {
   const label = vocabLabel(item)
   const sentence = sentenceForVocab(item)
+  const optionItems = sentenceOptionItems(lesson.vocab, item)
+  const options = makeVocabOptions(optionItems, item, 'label')
   return {
     type: 'sentence',
     kana: label,
     kanaReading: vocabReading(item, kanjiReadingMode),
-    speakText: speakableVocab(item),
+    speakText: sentenceSpeakText(item, sentence),
     sentence,
     answer: label,
-    options: makeVocabOptions(items, item, 'label'),
-    optionReadings: optionReadingsFor(items, kanjiReadingMode),
+    options,
+    optionReadings: optionReadingsFor(options, optionItems, kanjiReadingMode),
     kanjiReadingMode,
     progressKeys: [vocabKey(lesson.id, item)],
     progressMax: VOCAB_MASTERY_TARGET,
@@ -525,17 +575,20 @@ function makeLessonVocabQuiz(lesson, groupItems = lesson.vocab, kanjiReadingMode
     progressKeys: [vocabKey(lesson.id, item)],
     progressMax: VOCAB_MASTERY_TARGET,
   }))
-  const audioQuestions = shuffle(items).map((item) => ({
-    type: 'audio_word',
-    kana: '聞く',
-    speakText: speakableVocab(item),
-    answer: vocabLabel(item),
-    options: makeVocabOptions(items, item, 'label'),
-    optionReadings: optionReadingsFor(items, kanjiReadingMode),
-    kanjiReadingMode,
-    progressKeys: [vocabKey(lesson.id, item)],
-    progressMax: VOCAB_MASTERY_TARGET,
-  }))
+  const audioQuestions = shuffle(items).map((item) => {
+    const options = makeVocabOptions(items, item, 'label')
+    return {
+      type: 'audio_word',
+      kana: '聞く',
+      speakText: speakableVocab(item),
+      answer: vocabLabel(item),
+      options,
+      optionReadings: optionReadingsFor(options, items, kanjiReadingMode),
+      kanjiReadingMode,
+      progressKeys: [vocabKey(lesson.id, item)],
+      progressMax: VOCAB_MASTERY_TARGET,
+    }
+  })
   const sentenceQuestions = shuffle(items).map((item) => makeSentenceQuestion(lesson, item, items, kanjiReadingMode))
   const matching = items.length >= 4 ? [makeMatchingQuestion(lesson, shuffle(items), kanjiReadingMode)] : []
   return shuffle([
@@ -634,21 +687,53 @@ function JapaneseTerm({ item, className = 'jp', readingMode = 'hiragana' }) {
   const reading = readingMode === 'romaji' ? item.reading || kana : kana
   if (kanji === kana) return <span className={className}>{kana}</span>
   return (
-    <ruby className={className}>
-      {kanji}
-      <rt>{reading}</rt>
-    </ruby>
+    <span className={className}>
+      <KanjiOnlyRuby text={kanji} reading={reading} />
+    </span>
   )
+}
+
+function getRubyReadings(text, reading) {
+  const parts = String(text || '').split(/([\u3400-\u9fff]+)/g).filter(Boolean)
+  const kanjiParts = parts.filter((part) => /[\u3400-\u9fff]/.test(part))
+  const rawReading = String(reading || '').trim()
+
+  if (/[\u3040-\u30ff]/.test(rawReading)) {
+    let remaining = rawReading
+    parts.forEach((part) => {
+      if (/[\u3400-\u9fff]/.test(part) || !part) return
+      if (remaining.startsWith(part)) remaining = remaining.slice(part.length)
+      else if (remaining.endsWith(part)) remaining = remaining.slice(0, -part.length)
+    })
+    if (kanjiParts.length === 1 && remaining) return [remaining]
+  }
+
+  const readingChunks = rawReading.split(/\s+/).filter(Boolean)
+  if (readingChunks.length === kanjiParts.length) return readingChunks
+
+  return kanjiParts.map(() => rawReading)
+}
+
+function KanjiOnlyRuby({ text, reading }) {
+  const parts = String(text || '').split(/([\u3400-\u9fff]+)/g).filter(Boolean)
+  const readings = getRubyReadings(text, reading)
+  let readingIndex = 0
+  return parts.map((part, index) => {
+    if (!/[\u3400-\u9fff]/.test(part)) return <span key={`${part}-${index}`}>{part}</span>
+    const rt = readings[readingIndex] || reading
+    readingIndex += 1
+    return (
+      <ruby key={`${part}-${index}`}>
+        {part}
+        <rt>{rt}</rt>
+      </ruby>
+    )
+  })
 }
 
 function CharacterSymbol({ item, readingMode = 'hiragana' }) {
   if (!/[\u3400-\u9fff]/.test(item.kana)) return <>{item.kana}</>
-  return (
-    <ruby>
-      {item.kana}
-      <rt>{readingMode === 'romaji' ? item.answer : item.hiragana || item.answer}</rt>
-    </ruby>
-  )
+  return <KanjiOnlyRuby text={item.kana} reading={readingMode === 'romaji' ? item.answer : item.hiragana || item.answer} />
 }
 
 function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, onStartDaily, onNotice }) {
@@ -1665,6 +1750,7 @@ function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
 function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }) {
   const [section, setSection] = useState('vocabulary')
   const [flipped, setFlipped] = useState({})
+  const [activeGrammarEx, setActiveGrammarEx] = useState(null)
   const t = copy[lang]
   const vocabGroups = chunk(lesson.vocab, 8)
 
@@ -1728,26 +1814,47 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
       {section === 'grammar' && (
         <section className="lesson-card">
           <p className="eyebrow">{t.grammar}</p>
-          {Array.isArray(lesson.grammar) ? (
+          {activeGrammarEx && (
+            <GrammarExercises
+              exercises={activeGrammarEx.exercises}
+              lang={lang}
+              onClose={() => setActiveGrammarEx(null)}
+            />
+          )}
+          {!activeGrammarEx && Array.isArray(lesson.grammar) ? (
             <div className="grammar-list">
               {lesson.grammar.map((rule) => (
                 <article key={rule.title} className="grammar-card">
+                  {rule.particle && (
+                    <div className="grammar-particle-banner">
+                      <span className="grammar-particle-badge" dir="ltr">{rule.particle}</span>
+                      {rule.howItWorks && <p className="grammar-how">{rule.howItWorks}</p>}
+                    </div>
+                  )}
                   <h2>{rule.title}</h2>
-                  <strong>{rule.pattern}</strong>
+                  <code className="grammar-pattern" dir="ltr">{rule.pattern}</code>
                   <p>{rule.explanation}</p>
-                  <button onClick={() => speakJapanese(rule.example.jp)}>
-                    <span className="jp-line">{rule.example.jp}</span>
-                    <small>{rule.example.romaji} · {rule.example.ar}</small>
+                  <button className="grammar-example-btn" onClick={() => speakJapanese(rule.example.jp)}>
+                    <span className="jp-line" dir="ltr">
+                      <HighlightSentence text={rule.example.jp} particle={rule.particle} />
+                    </span>
+                    <small dir="ltr">{rule.example.romaji}</small>
+                    <span className="grammar-example-ar">{rule.example.ar}</span>
                   </button>
+                  {rule.exercises?.length > 0 && (
+                    <button className="btn btn-small grammar-ex-open" onClick={() => setActiveGrammarEx(rule)}>
+                      {lang === 'ar' ? '🎯 تمارين هذه القاعدة' : '🎯 Practice this rule'}
+                    </button>
+                  )}
                 </article>
               ))}
             </div>
-          ) : (
+          ) : !activeGrammarEx ? (
             <>
               <h2>{lesson.grammar[lang].split('—')[0]}</h2>
               <p>{lesson.grammar[lang].split('—')[1]}</p>
             </>
-          )}
+          ) : null}
           <div className="mini-list">
             {lesson.vocab.map((item) => (
               <button key={item.jp} onClick={() => speakJapanese(item.hiragana || item.jp)}>
@@ -2702,18 +2809,13 @@ export default function App() {
                 <p className="eyebrow">{t.continue}</p>
                 <h1>{t.level}</h1>
                 <p>{levels.find((level) => level.id === currentLevel)?.[lang]} · {lessonPercent}%</p>
+                <div className="dashboard-stats">
+                  <Stat label={t.xp} value={xp} />
+                  <Stat label={t.mastered} value={masteredCount} />
+                  <Stat label={t.quiz} value={totalQuizzes} />
+                </div>
               </div>
               <div className="ring" style={{ '--value': `${lessonPercent}%` }}>{lessonPercent}%</div>
-            </div>
-
-            <div className="stats-grid">
-              <Stat label={t.xp} value={xp} />
-              <Stat label={t.mastered} value={masteredCount} />
-              <Stat label={t.quiz} value={totalQuizzes} />
-            </div>
-
-            <div className="quick-actions">
-              <Button onClick={() => startQuiz('hiragana')}>{t.quiz}</Button>
             </div>
 
             <div className="level-strip">

@@ -1,3 +1,5 @@
+import { lessonOne } from './content/lessons.n5.js'
+
 const makeQuestions = (items) =>
   items.map(([kana, answer, ...alts]) => ({
     kana,
@@ -153,7 +155,7 @@ export const vocab = [
   { jp: '先生', reading: 'sensei', meaning: 'أستاذ' },
 ]
 
-export const lessons = [
+const legacyLessons = [
   {
     id: 1,
     title: { ar: 'تحية وتعارف', en: 'Greetings and Introductions' },
@@ -284,3 +286,5 @@ export const lessons = [
     ],
   },
 ]
+
+export const lessons = [lessonOne, ...legacyLessons.slice(1)]
