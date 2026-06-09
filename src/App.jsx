@@ -232,12 +232,16 @@ const communityText = {
     saved: 'تم الحفظ بالمجتمع.',
     loginRequired: 'سجل دخول حتى تشارك بالمجتمع وتحفظ باسمك.',
     follow: 'متابعة',
+    followRequest: 'إرسال طلب متابعة',
     following: 'تتابعه',
+    ownProfile: 'هذا حسابك',
     message: 'رسالة',
     friendsOnly: 'الرسائل تفتح بعد ما تصيرون أصدقاء: لازم تتابعوه ويتابعك.',
     messageSoon: 'المحادثات الخاصة جاهزة للربط كخطوة قادمة.',
     viewProfile: 'عرض البروفايل',
     publicStats: 'إحصائيات عامة',
+    learningLevel: 'N5 learner',
+    noBio: 'ماكو نبذة بعد.',
     emptyCorrection: 'اكتب جملة حتى أراجعها.',
     goodJapanese: 'حلو، الجملة تحتوي ياباني. انتبه للمسافات حول は و の حتى تكون القراءة أوضح.',
     needsJapanese: 'حاول تضيف نص ياباني حتى يكون التصحيح مفيد.',
@@ -267,12 +271,16 @@ const communityText = {
     saved: 'Saved to the community.',
     loginRequired: 'Log in to post to the community under your name.',
     follow: 'Follow',
+    followRequest: 'Send follow request',
     following: 'Following',
+    ownProfile: 'This is you',
     message: 'Message',
     friendsOnly: 'Messages unlock after you become friends: you follow them and they follow you back.',
     messageSoon: 'Private messages are ready to wire in the next step.',
     viewProfile: 'View profile',
     publicStats: 'Public stats',
+    learningLevel: 'N5 learner',
+    noBio: 'No bio yet.',
     emptyCorrection: 'Write a sentence first.',
     goodJapanese: 'Nice, this includes Japanese. Watch spacing around は and の for clearer reading.',
     needsJapanese: 'Add Japanese text so correction is useful.',
@@ -482,6 +490,31 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       current: profile.id === userId || profile.userId === userId,
     }))
     .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+  const ownPublicProfile = leaderboard.find((profile) => profile.current) || fallbackProfile
+  const profileForCommunityItem = (item) => {
+    const handle = item.authorHandle || item.userHandle
+    const profile = publicProfiles.find((entry) => (
+      (item.userId && (entry.id === item.userId || entry.userId === item.userId))
+      || (handle && (entry.userHandle === handle || `@${entry.userUsername}` === handle))
+    ))
+    if (profile) return {
+      ...profile,
+      userHandle: profile.userHandle || `@${profile.userUsername || 'nihongo'}`,
+      current: profile.id === userId || profile.userId === userId,
+    }
+    return {
+      id: item.userId || handle || item.id,
+      userId: item.userId,
+      userName: item.authorName || handle || 'Nihongo learner',
+      userHandle: handle || '@nihongo',
+      xp: 0,
+      streak: 0,
+      masteredCount: 0,
+      completedLessons: 0,
+      totalQuizzes: 0,
+      current: item.userId === userId,
+    }
+  }
 
   useEffect(() => {
     const questionQuery = query(collection(db, 'communityQuestions'), orderBy('createdAt', 'desc'), limit(20))
@@ -715,10 +748,17 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
           </div>
           <div className="question-list">
             {visibleQuestions.map((question) => (
-              <button key={question.id} onClick={() => onNotice(text.locked)}>
-                <strong>{question.text}</strong>
-                <small>{question.answers || 0} {isAr ? 'إجابات' : 'answers'}{question.authorHandle ? ` · ${question.authorHandle}` : ''}</small>
-              </button>
+              <div key={question.id} className="community-post">
+                <button className="post-main" onClick={() => onNotice(text.locked)}>
+                  <strong>{question.text}</strong>
+                  <small>{question.answers || 0} {isAr ? 'إجابات' : 'answers'}</small>
+                </button>
+                {(question.authorHandle || question.userId) && (
+                  <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(question))}>
+                    {question.authorHandle || text.viewProfile}
+                  </button>
+                )}
+              </div>
             ))}
           </div>
           <div className="community-input">
@@ -734,10 +774,17 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
           </div>
           <div className="sentence-feed">
             {visibleSentences.map((item) => (
-              <button key={item.id} onClick={() => speakJapanese(item.jp)}>
-                <span>{item.jp}</span>
-                <small>{item.meaning || '—'} · {item.authorHandle}</small>
-              </button>
+              <div key={item.id} className="community-post">
+                <button className="post-main" onClick={() => speakJapanese(item.jp)}>
+                  <span>{item.jp}</span>
+                  <small>{item.meaning || '—'}</small>
+                </button>
+                {(item.authorHandle || item.userId) && (
+                  <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(item))}>
+                    {item.authorHandle || text.viewProfile}
+                  </button>
+                )}
+              </div>
             ))}
           </div>
           <div className="community-input">
@@ -773,26 +820,40 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
           <button className="modal-backdrop" onClick={() => setSelectedProfile(null)} aria-label="Close" />
           <article className="public-profile-card">
             <button className="icon-btn modal-close" onClick={() => setSelectedProfile(null)}>×</button>
-            <div className="avatar large">
-              {selectedProfile.userAvatar ? <img src={selectedProfile.userAvatar} alt="" /> : (selectedProfile.userName || 'N').slice(0, 1).toUpperCase()}
+            <div className="profile-cover">
+              <span>{selectedProfile.current ? text.ownProfile : text.learningLevel}</span>
             </div>
-            <h2>{selectedProfile.userName || 'Nihongo learner'}</h2>
-            <p className="user-handle">{selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`}</p>
-            {selectedProfile.userBio && <p>{selectedProfile.userBio}</p>}
+            <div className="public-profile-top">
+              <div className="avatar large public-avatar">
+                {selectedProfile.userAvatar ? <img src={selectedProfile.userAvatar} alt="" /> : (selectedProfile.userName || 'N').slice(0, 1).toUpperCase()}
+              </div>
+              <div>
+                <h2>{selectedProfile.userName || 'Nihongo learner'}</h2>
+                <p className="user-handle">{selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`}</p>
+              </div>
+            </div>
+            <p className="public-bio">{selectedProfile.userBio || text.noBio}</p>
             <div className="public-stat-grid">
               <Stat label="XP" value={selectedProfile.xp || 0} />
               <Stat label="Streak" value={selectedProfile.streak || 0} />
               <Stat label={isAr ? 'حروف' : 'Chars'} value={selectedProfile.masteredCount || 0} />
               <Stat label={isAr ? 'دروس' : 'Lessons'} value={selectedProfile.completedLessons || 0} />
             </div>
-            <div className="split-actions">
-              {(selectedProfile.id || selectedProfile.userId) !== userId && (
-                <Button variant="small" onClick={() => followProfile(selectedProfile)}>
-                  {visibleFollowingIds.has(selectedProfile.id || selectedProfile.userId) ? text.following : text.follow}
-                </Button>
-              )}
-              {(selectedProfile.id || selectedProfile.userId) !== userId && (
-                <Button variant="secondary" onClick={() => messageProfile(selectedProfile)}>{text.message}</Button>
+            <div className="profile-detail-list">
+              <div><span>{isAr ? 'الاختبارات' : 'Quizzes'}</span><strong>{selectedProfile.totalQuizzes || 0}</strong></div>
+              <div><span>{isAr ? 'المستوى' : 'Level'}</span><strong>N5</strong></div>
+              <div><span>{isAr ? 'الحالة' : 'Status'}</span><strong>{selectedProfile.current ? text.ownProfile : visibleFollowingIds.has(selectedProfile.id || selectedProfile.userId) ? text.following : text.follow}</strong></div>
+            </div>
+            <div className="profile-actions">
+              {selectedProfile.current ? (
+                <Button variant="secondary" onClick={() => setSelectedProfile(ownPublicProfile)}>{text.ownProfile}</Button>
+              ) : (
+                <>
+                  <Button variant="small" onClick={() => followProfile(selectedProfile)}>
+                    {visibleFollowingIds.has(selectedProfile.id || selectedProfile.userId) ? text.following : text.followRequest}
+                  </Button>
+                  <Button variant="secondary" onClick={() => messageProfile(selectedProfile)}>{text.message}</Button>
+                </>
               )}
             </div>
           </article>
