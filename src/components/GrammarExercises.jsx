@@ -1,20 +1,50 @@
 import { useState } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
+import RuaaMascot from './RuaaMascot.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
-export function HighlightSentence({ text, particle }) {
+export function HighlightSentence({ text, particle, readingMap = {} }) {
+  const sortedKeys = Object.keys(readingMap).sort((a, b) => b.length - a.length)
+
+  function tokenize(str) {
+    const parts = []
+    let remaining = str
+    let i = 0
+    while (remaining.length > 0) {
+      let matched = false
+      for (const key of sortedKeys) {
+        if (remaining.startsWith(key)) {
+          parts.push(<ruby key={i++}>{key}<rt>{readingMap[key]}</rt></ruby>)
+          remaining = remaining.slice(key.length)
+          matched = true
+          break
+        }
+      }
+      if (!matched) {
+        const last = parts[parts.length - 1]
+        if (typeof last === 'string') {
+          parts[parts.length - 1] = last + remaining[0]
+        } else {
+          parts.push(remaining[0])
+        }
+        remaining = remaining.slice(1)
+      }
+    }
+    return parts
+  }
+
   if (!particle || !text.includes(particle)) {
-    return <span dir="ltr">{text}</span>
+    return <span dir="ltr">{tokenize(text)}</span>
   }
   const idx = text.indexOf(particle)
   return (
     <span dir="ltr">
-      {text.slice(0, idx)}
+      {tokenize(text.slice(0, idx))}
       <mark className="grammar-particle-mark">{particle}</mark>
-      {text.slice(idx + particle.length)}
+      {tokenize(text.slice(idx + particle.length))}
     </span>
   )
 }
@@ -46,8 +76,11 @@ function BuildExercise({ ex, lang, onAnswer }) {
 
   const isParticle = (w) => ex.particles?.includes(w)
 
+  const mascotMode = result ? (result === 'correct' ? 'cheer' : 'skeptical') : 'thinking'
+
   return (
     <div className="grammar-ex">
+      <RuaaMascot mode={mascotMode} />
       <p className="ex-prompt">{lang === 'ar' ? 'رتّب الكلمات لتكوين الجملة:' : 'Arrange the words to form the sentence:'}</p>
       <p className="ex-hint">{ex.ar}</p>
 
@@ -88,8 +121,11 @@ function FillExercise({ ex, lang, onAnswer }) {
     setTimeout(() => onAnswer(opt === ex.answer), 1100)
   }
 
+  const mascotMode = picked ? (picked === ex.answer ? 'cheer' : 'skeptical') : 'thinking'
+
   return (
     <div className="grammar-ex">
+      <RuaaMascot mode={mascotMode} />
       <p className="ex-prompt">{lang === 'ar' ? 'اختر الأداة القواعدية الصحيحة:' : 'Choose the correct particle:'}</p>
 
       <div className="fill-sentence" dir="ltr">
@@ -128,8 +164,11 @@ function MeaningExercise({ ex, lang, onAnswer }) {
     setTimeout(() => onAnswer(opt === ex.answer), 1100)
   }
 
+  const mascotMode = picked ? (picked === ex.answer ? 'cheer' : 'skeptical') : 'calm'
+
   return (
     <div className="grammar-ex">
+      <RuaaMascot mode={mascotMode} />
       <p className="ex-prompt">{lang === 'ar' ? 'ما معنى هذه الجملة؟' : 'What does this sentence mean?'}</p>
 
       <button className="sentence-display" dir="ltr" onClick={() => speakJapanese(ex.sentence)}>

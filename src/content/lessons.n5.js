@@ -1,3 +1,5 @@
+import { lessonTwo } from './lessons/lesson02.js'
+
 export const lessonOne = {
   id: 1,
   title: { ar: 'تحية وتعارف', en: 'Greetings and Introductions' },
@@ -292,4 +294,4 @@ export const lessonOne = {
   videos: [],
 }
 
-export const n5Lessons = [lessonOne]
+export const n5Lessons = [lessonOne, lessonTwo]

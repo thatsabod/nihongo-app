@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import DrawingPad from '../components/DrawingPad.jsx'
+import RuaaMascot from '../components/RuaaMascot.jsx'
 
 const MAX_HEARTS = 10
 
@@ -97,15 +98,6 @@ function ruaaMode({ q, selected, isCorrect }) {
   return 'thinking'
 }
 
-function RuaaMascot({ mode, visible }) {
-  if (!visible) return null
-  return (
-    <aside className={`ruaa-mascot ruaa-${mode}`} aria-label="ruaa">
-      <span className="ruaa-sprite" aria-hidden="true" />
-      <strong>ruaa</strong>
-    </aside>
-  )
-}
 
 export default function Quiz({ questions, qIndex, selected, score, xp, hearts, lang, onAnswer, onBack }) {
   const q = questions[qIndex]
@@ -129,7 +121,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
   const isSentence = q.type === 'sentence'
   const isMeaning = q.type === 'vocab_meaning'
   const isCorrect = selected === q.answer
-  const showRuaa = qIndex % 10 !== 9
+  const showRuaa = isAudioWord || (isSentence && String(q.sentence || '').length <= 30)
   const mascotMode = ruaaMode({ q, selected, isCorrect })
 
   const answer = (opt) => {
@@ -185,15 +177,24 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
 
       <section className="quiz-body">
         <p className="eyebrow">{t.question} {qIndex + 1} {t.of} {questions.length} · {score} ✓</p>
-        <RuaaMascot mode={mascotMode} visible={showRuaa} />
         {isDraw ? (
           <>
-            <h1>{t.drawPrompt}</h1>
+            <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
+              <RuaaMascot mode={mascotMode} visible={showRuaa} />
+              <div className="ruaa-speech">
+                <h1>{t.drawPrompt}</h1>
+              </div>
+            </div>
             <DrawingPad char={q.kana} lang={lang} autoGrade onDone={({ correct }) => answer(correct ? q.answer : '__draw_wrong__')} />
           </>
         ) : isMatching ? (
           <>
-            <h1>{prompt}</h1>
+            <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
+              <RuaaMascot mode={mascotMode} visible={showRuaa} />
+              <div className="ruaa-speech">
+                <h1>{prompt}</h1>
+              </div>
+            </div>
             <div className="matching-board">
               <div>
                 <strong>{t.leftColumn}</strong>
@@ -225,12 +226,15 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
           </>
         ) : (
           <>
-            <button className={`kana-focus ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakJapanese(q.speakText || q.kana, { rate: 0.54, voiceIndex })}>
-              {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus">♪</span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
-              <small>{t.hear}</small>
-              {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
-            </button>
             <h1>{prompt}</h1>
+            <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
+              <RuaaMascot mode={mascotMode} visible={showRuaa} />
+              <button className={`kana-focus ruaa-speech ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakJapanese(q.speakText || q.kana, { rate: 0.54, voiceIndex })}>
+                {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus">♪</span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
+                <small>{t.hear}</small>
+                {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
+              </button>
+            </div>
             <div className="answer-grid">
               {q.options.map((opt) => {
                 let state = ''

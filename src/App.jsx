@@ -5,6 +5,7 @@ import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons } from './data.js'
 import { speakJapanese } from './sounds.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
+import { ExercisesSection, ReviewSection } from './components/LessonSections.jsx'
 import Login from './screens/Login.jsx'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
@@ -1753,6 +1754,15 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
   const [activeGrammarEx, setActiveGrammarEx] = useState(null)
   const t = copy[lang]
   const vocabGroups = chunk(lesson.vocab, 8)
+  const grammarReadingMap = useMemo(() => {
+    const map = {}
+    ;(lesson.vocab || []).forEach((item) => {
+      const surface = item.kanji || item.jp
+      if (!surface || !/[㐀-鿿]/.test(surface)) return
+      map[surface] = kanjiReadingMode === 'romaji' ? (item.reading || '') : (item.hiragana || item.jp || '')
+    })
+    return map
+  }, [lesson.vocab, kanjiReadingMode])
 
   return (
     <main className="screen">
@@ -1836,7 +1846,7 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
                   <p>{rule.explanation}</p>
                   <button className="grammar-example-btn" onClick={() => speakJapanese(rule.example.jp)}>
                     <span className="jp-line" dir="ltr">
-                      <HighlightSentence text={rule.example.jp} particle={rule.particle} />
+                      <HighlightSentence text={rule.example.jp} particle={rule.particle} readingMap={grammarReadingMap} />
                     </span>
                     <small dir="ltr">{rule.example.romaji}</small>
                     <span className="grammar-example-ar">{rule.example.ar}</span>
@@ -1868,16 +1878,7 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
       )}
 
       {section === 'exercises' && (
-        <div className="example-list exercise-list">
-          {(lesson.exercises || lesson.examples).map((exercise, index) => (
-            <button key={`${exercise.type || 'example'}-${index}`} onClick={() => exercise.jp && speakJapanese(exercise.jp)}>
-              <span className="jp-line">{exercise.prompt || exercise.jp}</span>
-              <strong>{exercise.answer || exercise.en}</strong>
-              <small>{exercise.hint || exercise.ar}</small>
-            </button>
-          ))}
-          <Button onClick={() => onQuiz()}>{t.practice}</Button>
-        </div>
+        <ExercisesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onQuiz={onQuiz} />
       )}
 
       {section === 'videos' && (
@@ -1900,20 +1901,7 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
       )}
 
       {section === 'review' && (
-        <section className="lesson-card review-card">
-          <p className="eyebrow">{t.review}</p>
-          <h2>{lesson.focus}</h2>
-          <p>{Array.isArray(lesson.grammar) ? lesson.grammar.map((rule) => rule.title).join(' · ') : lesson.grammar[lang]}</p>
-          <div className="mini-list">
-            {lesson.vocab.slice(0, 4).map((item) => (
-              <button key={item.jp} onClick={() => speakJapanese(item.hiragana || item.jp)}>
-                <JapaneseTerm item={item} className="jp-line" readingMode={kanjiReadingMode} />
-                <small>{item.reading} · {item.meaning}</small>
-              </button>
-            ))}
-          </div>
-          <Button onClick={() => onQuiz()}>{t.practice}</Button>
-        </section>
+        <ReviewSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onQuiz={onQuiz} />
       )}
     </main>
   )
