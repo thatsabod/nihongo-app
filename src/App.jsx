@@ -15,7 +15,7 @@ const STARTING_GEMS = 2000
 const HEART_REFILL_MS = 90 * 1000
 const GUEST_KEY = 'nihongo-guest-state'
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
-const VERIFICATION_COOLDOWN_MS = 5 * 60 * 1000
+const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
 
 const copy = {
   ar: {
@@ -631,7 +631,8 @@ export default function App() {
     ? '@guest'
     : `@${normalizeUsername(userUsername || userName || userEmail?.split('@')[0] || 'nihongo')}`
   const verificationWaitMs = Math.max(0, verificationRetryAt - nowTick)
-  const verificationWaitLabel = `${Math.ceil(verificationWaitMs / 60000)}:${String(Math.ceil((verificationWaitMs % 60000) / 1000)).padStart(2, '0')}`
+  const verificationWaitSeconds = Math.ceil(verificationWaitMs / 1000)
+  const verificationWaitLabel = `${Math.floor(verificationWaitSeconds / 60)}:${String(verificationWaitSeconds % 60).padStart(2, '0')}`
 
   const applyState = (state) => {
     setXp(state.xp ?? 0)
@@ -754,9 +755,28 @@ export default function App() {
   useEffect(() => {
     if (!verificationRetryAt) return
     localStorage.setItem('nihongo-verification-retry-at', String(verificationRetryAt))
-    const timer = window.setInterval(() => setNowTick(Date.now()), 1000)
+    const timer = window.setInterval(() => {
+      const now = Date.now()
+      setNowTick(now)
+      if (now >= verificationRetryAt) {
+        localStorage.removeItem('nihongo-verification-retry-at')
+        setVerificationRetryAt(0)
+      }
+    }, 1000)
     return () => window.clearInterval(timer)
   }, [verificationRetryAt])
+
+  useEffect(() => {
+    const onVerificationSent = (event) => {
+      const retryAt = Number(event.detail?.retryAt || localStorage.getItem('nihongo-verification-retry-at') || 0)
+      if (retryAt) {
+        setVerificationRetryAt(retryAt)
+        setNowTick(Date.now())
+      }
+    }
+    window.addEventListener('nihongo-verification-sent', onVerificationSent)
+    return () => window.removeEventListener('nihongo-verification-sent', onVerificationSent)
+  }, [])
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -963,7 +983,7 @@ export default function App() {
       setVerificationRetryAt(retryAt)
       const code = error.code || error.message
       const message = code === 'auth/too-many-requests'
-        ? `${t.resendWait} 5:00 ثم جرّب مرة ثانية. Firebase وقف الإرسال مؤقتا بسبب كثرة الطلبات.`
+        ? `${t.resendWait} 15:00 ثم جرّب مرة ثانية. Firebase وقف الإرسال مؤقتا بسبب كثرة الطلبات.`
         : `تعذر إرسال رابط التأكيد حاليا: ${code}`
       setNotice(message)
     }

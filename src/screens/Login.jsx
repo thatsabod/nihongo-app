@@ -4,6 +4,7 @@ import { doc, getDoc, runTransaction } from 'firebase/firestore'
 import { auth, db } from '../firebase.js'
 
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
+const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
 
 const countries = [
   { code: 'IQ', ar: 'العراق', en: 'Iraq', cities: ['بغداد', 'البصرة', 'الموصل', 'أربيل', 'النجف', 'كربلاء', 'السليمانية'] },
@@ -189,6 +190,10 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
       await sendEmailVerification(result.user, {
         url: window.location.origin,
         handleCodeInApp: false,
+      }).then(() => {
+        const retryAt = Date.now() + VERIFICATION_COOLDOWN_MS
+        localStorage.setItem('nihongo-verification-retry-at', String(retryAt))
+        window.dispatchEvent(new CustomEvent('nihongo-verification-sent', { detail: { retryAt } }))
       }).catch((error) => {
         console.warn('Failed to send verification email', error)
       })
