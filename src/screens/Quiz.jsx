@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import DrawingPad from '../components/DrawingPad.jsx'
 
+const MAX_HEARTS = 10
+
 const text = {
   ar: {
     question: 'السؤال',
@@ -52,7 +54,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
     <main className="quiz-screen">
       <header className="quiz-head">
         <button className="icon-btn" onClick={onBack}>×</button>
-        <div className="heart-row">{Array.from({ length: 5 }, (_, i) => <span key={i} className={i < hearts ? '' : 'empty'}>♥</span>)}</div>
+        <div className="heart-row">{Array.from({ length: MAX_HEARTS }, (_, i) => <span key={i} className={i < hearts ? '' : 'empty'}>♥</span>)}</div>
         <strong>{xp} XP</strong>
       </header>
 

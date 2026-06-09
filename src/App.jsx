@@ -12,10 +12,13 @@ import DrawingPad from './components/DrawingPad.jsx'
 const TOTAL_LESSONS = 25
 const sectionCount = 3
 const STARTING_GEMS = 2000
+const MAX_HEARTS = 10
 const HEART_REFILL_MS = 90 * 1000
 const GUEST_KEY = 'nihongo-guest-state'
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
 const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
+const LESSON_PATH_X = [30, 36, 43, 50, 56, 61, 64, 62, 57, 51, 45, 39, 34, 31, 33, 39, 46, 53, 60, 65, 63, 57, 50, 43, 36]
+const LESSON_PATH_X_MOBILE = [18, 26, 36, 47, 58, 67, 72, 70, 63, 53, 42, 31, 22, 18, 25, 35, 46, 58, 68, 74, 71, 61, 50, 39, 28]
 
 const copy = {
   ar: {
@@ -57,7 +60,7 @@ const copy = {
     guestName: 'زائر',
     guestHint: 'تقدمك محفوظ على هذا الجهاز فقط.',
     loginPrompt: 'سجل دخول أو أنشئ حساب حتى تحفظ تقدمك بالسحابة.',
-    refillAll: 'تعبئة 5 قلوب',
+    refillAll: 'تعبئة البطارية',
     refillCost: '250 جوهرة',
     notEnoughGems: 'الجواهر غير كافية.',
     usernameInvalid: 'Username لازم يبدأ بحرف إنكليزي ويحتوي حروف إنكليزية أو أرقام أو _ فقط، من 3 إلى 24 حرف.',
@@ -141,7 +144,7 @@ const copy = {
     guestName: 'Guest',
     guestHint: 'Your progress is saved on this device only.',
     loginPrompt: 'Log in or create an account to save progress in the cloud.',
-    refillAll: 'Refill 5 hearts',
+    refillAll: 'Refill battery',
     refillCost: '250 gems',
     notEnoughGems: 'Not enough gems.',
     usernameInvalid: 'Username must start with an English letter and use only English letters, numbers, or _, 3-24 characters.',
@@ -256,7 +259,7 @@ function nextStreakValue(previousDate, currentStreak) {
 function defaultState() {
   return {
     xp: 0,
-    hearts: 5,
+    hearts: MAX_HEARTS,
     gems: STARTING_GEMS,
     streak: 1,
     lastActiveDate: todayKey(),
@@ -597,7 +600,7 @@ export default function App() {
   const [isPaid, setIsPaid] = useState(false)
   const [startingGemsGranted, setStartingGemsGranted] = useState(true)
   const [xp, setXp] = useState(0)
-  const [hearts, setHearts] = useState(5)
+  const [hearts, setHearts] = useState(MAX_HEARTS)
   const [gems, setGems] = useState(STARTING_GEMS)
   const [streak, setStreak] = useState(0)
   const [lastActiveDate, setLastActiveDate] = useState(null)
@@ -636,7 +639,7 @@ export default function App() {
 
   const applyState = (state) => {
     setXp(state.xp ?? 0)
-    setHearts(state.hearts ?? 5)
+    setHearts(state.hearts ?? MAX_HEARTS)
     setGems(state.startingGemsGranted === true ? state.gems ?? STARTING_GEMS : Math.max(state.gems ?? 0, STARTING_GEMS))
     setStreak(state.streak ?? 1)
     setLastActiveDate(state.lastActiveDate ?? todayKey())
@@ -807,7 +810,7 @@ export default function App() {
           userUsername: d.userUsername || d.username || normalizeUsername(d.userName || d.name || user.displayName || user.email?.split('@')[0] || 'nihongo'),
           emailVerified: Boolean(user.emailVerified),
           gems: d.gems ?? STARTING_GEMS,
-          hearts: d.hearts ?? 5,
+          hearts: d.hearts ?? MAX_HEARTS,
         })
       } else {
         const base = defaultState()
@@ -869,13 +872,13 @@ export default function App() {
     if (!dataReady) return
     const timer = setInterval(() => {
       setHearts((current) => {
-        if (current >= 5) return current
+        if (current >= MAX_HEARTS) return current
 
         const elapsed = Date.now() - lastHeartRefillAt
         if (elapsed < HEART_REFILL_MS) return current
 
         const gained = Math.floor(elapsed / HEART_REFILL_MS)
-        const next = Math.min(5, current + gained)
+        const next = Math.min(MAX_HEARTS, current + gained)
         setLastHeartRefillAt(lastHeartRefillAt + gained * HEART_REFILL_MS)
         return next
       })
@@ -958,10 +961,10 @@ export default function App() {
   }, [selected, questions, qIndex, score, activeLesson, currentLevel])
 
   const refillHearts = () => {
-    if (hearts >= 5) return setNotice(t.heartsFull)
+    if (hearts >= MAX_HEARTS) return setNotice(t.heartsFull)
     if (gems < 250) return setNotice(t.notEnoughGems)
     setGems((value) => value - 250)
-    setHearts(5)
+    setHearts(MAX_HEARTS)
     setLastHeartRefillAt(Date.now())
   }
 
@@ -1223,13 +1226,14 @@ export default function App() {
   return (
     <>
       <main className="app-shell">
-        <header className="topbar">
-          <div className="brand"><span className="brand-mark">日</span><span>にほんごGO</span></div>
-          <div className="toolbar">
-            <span className="stat-chip hearts"><i>♥</i>{hearts}/5</span>
+        <header className="topbar app-topbar">
+          <div className="toolbar top-stats">
             <span className="stat-chip gems"><i>◆</i>{gems}</span>
-            <span className="stat-chip xp"><i>XP</i>{xp}</span>
             <span className="stat-chip streak"><i>✦</i>{streak}</span>
+            <span className="stat-chip battery">
+              <i><span style={{ width: `${Math.max(8, (hearts / MAX_HEARTS) * 100)}%` }} /></i>
+              {hearts}/{MAX_HEARTS}
+            </span>
           </div>
         </header>
 
@@ -1288,11 +1292,18 @@ export default function App() {
                 const prevDone = lessonNumber === 1 || (lessonProgress[prevKey] || 0) >= sectionCount
                 const amount = lessonProgress[key] || 0
                 const locked = !prevDone || !lesson
+                const progressPercent = Math.max(amount > 0 ? Math.round((amount / sectionCount) * 100) : 0, locked ? 0 : 8)
                 return (
                   <button
                     key={lessonNumber}
                     disabled={locked}
                     className={`lesson-node map-node ${locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'} step-${index % 12}`}
+                    style={{
+                      '--path-row': lessonNumber,
+                      '--path-x': `${LESSON_PATH_X[index % LESSON_PATH_X.length]}%`,
+                      '--path-x-mobile': `${LESSON_PATH_X_MOBILE[index % LESSON_PATH_X_MOBILE.length]}%`,
+                      '--lesson-progress': `${locked ? 0 : progressPercent}%`,
+                    }}
                     aria-label={`${t.lesson} ${lessonNumber}`}
                     onClick={() => { setActiveLesson(lesson); setScreen('lesson') }}
                   >
@@ -1401,7 +1412,7 @@ export default function App() {
                 <strong>{t.refillAll}</strong>
                 <span>{t.refillCost}</span>
               </div>
-              <Button variant="small" onClick={refillHearts}>♥ +5</Button>
+              <Button variant="small" onClick={refillHearts}>+10</Button>
             </div>
 
             <h2 className="section-title">{t.settings}</h2>

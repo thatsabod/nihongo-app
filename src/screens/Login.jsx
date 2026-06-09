@@ -5,6 +5,7 @@ import { auth, db } from '../firebase.js'
 
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
 const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
+const MAX_HEARTS = 10
 
 async function sendEmailVerificationSafely(user) {
   try {
@@ -188,7 +189,7 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
           country: selectedCountry?.[lang] || '',
           city: form.city,
           xp: 0,
-          hearts: 5,
+          hearts: MAX_HEARTS,
           gems: 2000,
           startingGemsGranted: true,
           streak: 1,
