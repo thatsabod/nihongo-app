@@ -54,7 +54,10 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
     <main className="quiz-screen">
       <header className="quiz-head">
         <button className="icon-btn" onClick={onBack}>×</button>
-        <div className="heart-row">{Array.from({ length: MAX_HEARTS }, (_, i) => <span key={i} className={i < hearts ? '' : 'empty'}>♥</span>)}</div>
+        <div className="quiz-battery" style={{ '--battery-fill': `${Math.max(0, (hearts / MAX_HEARTS) * 100)}%` }}>
+          <span />
+          <b>{hearts}</b>
+        </div>
         <strong>{xp} XP</strong>
       </header>
 

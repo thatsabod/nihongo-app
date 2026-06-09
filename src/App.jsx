@@ -17,8 +17,8 @@ const HEART_REFILL_MS = 90 * 1000
 const GUEST_KEY = 'nihongo-guest-state'
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
 const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
-const LESSON_PATH_X = [30, 36, 43, 50, 56, 61, 64, 62, 57, 51, 45, 39, 34, 31, 33, 39, 46, 53, 60, 65, 63, 57, 50, 43, 36]
-const LESSON_PATH_X_MOBILE = [18, 26, 36, 47, 58, 67, 72, 70, 63, 53, 42, 31, 22, 18, 25, 35, 46, 58, 68, 74, 71, 61, 50, 39, 28]
+const LESSON_PATH_X = [18, 32, 50, 70, 88, 80, 62, 40, 22, 10, 24, 44, 66, 86, 92, 76, 54, 30, 12, 8, 26, 50, 74, 90, 72]
+const LESSON_PATH_X_MOBILE = [6, 18, 36, 58, 82, 76, 58, 36, 16, 4, 18, 40, 64, 86, 94, 76, 52, 28, 10, 3, 20, 46, 72, 92, 68]
 
 const copy = {
   ar: {
@@ -44,8 +44,12 @@ const copy = {
     current: 'نشط',
     comingSoon: 'قريبا',
     vocabulary: 'مفردات',
-    grammar: 'قاعدة',
+    grammar: 'قواعد',
     examples: 'أمثلة',
+    exercises: 'تمارين',
+    videos: 'فيديوهات',
+    review: 'مراجعة',
+    noVideos: 'سنضيف فيديوهات هذا الدرس لاحقا. حاليا تدرب على المفردات والقواعد.',
     tapHear: 'اضغط للسماع',
     quiz: 'اختبار',
     settings: 'الإعدادات',
@@ -130,6 +134,10 @@ const copy = {
     vocabulary: 'Vocabulary',
     grammar: 'Grammar',
     examples: 'Examples',
+    exercises: 'Exercises',
+    videos: 'Videos',
+    review: 'Review',
+    noVideos: 'Videos for this lesson will be added later. Practice vocabulary and grammar for now.',
     tapHear: 'Tap to hear',
     quiz: 'Quiz',
     settings: 'Settings',
@@ -317,6 +325,18 @@ function Stat({ label, value }) {
   )
 }
 
+function JapaneseTerm({ item, className = 'jp' }) {
+  const kana = item.hiragana || item.jp
+  const kanji = item.kanji && item.kanji !== '—' ? item.kanji : kana
+  if (kanji === kana) return <span className={className}>{kana}</span>
+  return (
+    <ruby className={className}>
+      {kanji}
+      <rt>{kana}</rt>
+    </ruby>
+  )
+}
+
 function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
   const t = copy[lang]
   return (
@@ -364,56 +384,116 @@ function LessonView({ lesson, lang, onBack, onQuiz }) {
         <Button variant="small" onClick={onQuiz}>{t.quiz}</Button>
       </header>
 
-      <div className="tabs">
-        {['vocabulary', 'grammar', 'examples'].map((id) => (
-          <button key={id} className={section === id ? 'active' : ''} onClick={() => setSection(id)}>
-            {t[id]}
-          </button>
-        ))}
+      <div className="lesson-toolbar">
+        <Button variant="small" onClick={onQuiz}>{t.practice}</Button>
+        <div className="tabs lesson-tabs">
+          {['vocabulary', 'grammar', 'exercises', 'videos', 'review'].map((id) => (
+            <button key={id} className={section === id ? 'active' : ''} onClick={() => setSection(id)}>
+              {t[id]}
+            </button>
+          ))}
+        </div>
       </div>
 
       {section === 'vocabulary' && (
-        <div className="card-grid">
-          {lesson.vocab.map((item, index) => {
-            const shown = flipped[index]
-            return (
-              <button className="study-card" key={item.jp} onClick={() => setFlipped((f) => ({ ...f, [index]: !shown }))}>
-                <span className="jp">{shown ? item.reading : item.jp}</span>
-                <strong>{shown ? item.meaning : t.tapHear}</strong>
-                <small>{shown ? item.jp : item.reading}</small>
-              </button>
-            )
-          })}
-        </div>
+        <>
+          <div className="card-grid">
+            {lesson.vocab.map((item, index) => {
+              const shown = flipped[index]
+              return (
+                <button className="study-card" key={item.jp} onClick={() => setFlipped((f) => ({ ...f, [index]: !shown }))}>
+                  {shown ? <span className="jp">{item.reading}</span> : <JapaneseTerm item={item} />}
+                  <strong>{shown ? item.meaning : t.tapHear}</strong>
+                  <small>{shown ? (item.hiragana || item.jp) : item.reading}</small>
+                </button>
+              )
+            })}
+          </div>
+        </>
       )}
 
       {section === 'grammar' && (
         <section className="lesson-card">
           <p className="eyebrow">{t.grammar}</p>
-          <h2>{lesson.grammar[lang].split('—')[0]}</h2>
-          <p>{lesson.grammar[lang].split('—')[1]}</p>
+          {Array.isArray(lesson.grammar) ? (
+            <div className="grammar-list">
+              {lesson.grammar.map((rule) => (
+                <article key={rule.title} className="grammar-card">
+                  <h2>{rule.title}</h2>
+                  <strong>{rule.pattern}</strong>
+                  <p>{rule.explanation}</p>
+                  <button onClick={() => speakJapanese(rule.example.jp)}>
+                    <span className="jp-line">{rule.example.jp}</span>
+                    <small>{rule.example.romaji} · {rule.example.ar}</small>
+                  </button>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <>
+              <h2>{lesson.grammar[lang].split('—')[0]}</h2>
+              <p>{lesson.grammar[lang].split('—')[1]}</p>
+            </>
+          )}
           <div className="mini-list">
             {lesson.vocab.map((item) => (
-              <button key={item.jp} onClick={() => speakJapanese(item.jp)}>
-                <span>{item.jp}</span>
+              <button key={item.jp} onClick={() => speakJapanese(item.hiragana || item.jp)}>
+                <JapaneseTerm item={item} className="jp-line" />
                 <small>{item.reading} · {item.meaning}</small>
               </button>
             ))}
           </div>
+          <Button onClick={onQuiz}>{t.practice}</Button>
         </section>
       )}
 
-      {section === 'examples' && (
-        <div className="example-list">
-          {lesson.examples.map((example) => (
-            <button key={example.jp} onClick={() => speakJapanese(example.jp)}>
-              <span className="jp-line">{example.jp}</span>
-              <strong>{example.en}</strong>
-              <small>{example.ar}</small>
+      {section === 'exercises' && (
+        <div className="example-list exercise-list">
+          {(lesson.exercises || lesson.examples).map((exercise, index) => (
+            <button key={`${exercise.type || 'example'}-${index}`} onClick={() => exercise.jp && speakJapanese(exercise.jp)}>
+              <span className="jp-line">{exercise.prompt || exercise.jp}</span>
+              <strong>{exercise.answer || exercise.en}</strong>
+              <small>{exercise.hint || exercise.ar}</small>
             </button>
           ))}
           <Button onClick={onQuiz}>{t.practice}</Button>
         </div>
+      )}
+
+      {section === 'videos' && (
+        <section className="lesson-card">
+          <p className="eyebrow">{t.videos}</p>
+          {lesson.videos?.length ? (
+            <div className="mini-list">
+              {lesson.videos.map((video) => (
+                <a key={video.url} className="video-link" href={video.url} target="_blank" rel="noreferrer">
+                  <span>{video.title?.[lang] || video.title || t.videos}</span>
+                  <small>{video.duration || 'Video'}</small>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p>{t.noVideos}</p>
+          )}
+          <Button onClick={onQuiz}>{t.practice}</Button>
+        </section>
+      )}
+
+      {section === 'review' && (
+        <section className="lesson-card review-card">
+          <p className="eyebrow">{t.review}</p>
+          <h2>{lesson.focus}</h2>
+          <p>{Array.isArray(lesson.grammar) ? lesson.grammar.map((rule) => rule.title).join(' · ') : lesson.grammar[lang]}</p>
+          <div className="mini-list">
+            {lesson.vocab.slice(0, 4).map((item) => (
+              <button key={item.jp} onClick={() => speakJapanese(item.hiragana || item.jp)}>
+                <JapaneseTerm item={item} className="jp-line" />
+                <small>{item.reading} · {item.meaning}</small>
+              </button>
+            ))}
+          </div>
+          <Button onClick={onQuiz}>{t.practice}</Button>
+        </section>
       )}
     </main>
   )
@@ -938,7 +1018,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (!selected) return
+    if (screen !== 'quiz' || !selected || !questions.length || !questions[qIndex]) return
     const isCorrect = selected === questions[qIndex]?.answer
     const timer = setTimeout(() => {
       if (qIndex + 1 < questions.length) {
@@ -958,7 +1038,16 @@ export default function App() {
       setScreen('result')
     }, isCorrect ? 850 : 1500)
     return () => clearTimeout(timer)
-  }, [selected, questions, qIndex, score, activeLesson, currentLevel])
+  }, [screen, selected, questions, qIndex, score, activeLesson, currentLevel])
+
+  const openLesson = (lesson) => {
+    setQuestions([])
+    setQIndex(0)
+    setSelected(null)
+    setScore(0)
+    setActiveLesson(lesson)
+    setScreen('lesson')
+  }
 
   const refillHearts = () => {
     if (hearts >= MAX_HEARTS) return setNotice(t.heartsFull)
@@ -1231,8 +1320,10 @@ export default function App() {
             <span className="stat-chip gems"><i>◆</i>{gems}</span>
             <span className="stat-chip streak"><i>✦</i>{streak}</span>
             <span className="stat-chip battery">
-              <i><span style={{ width: `${Math.max(8, (hearts / MAX_HEARTS) * 100)}%` }} /></i>
-              {hearts}/{MAX_HEARTS}
+              <i>
+                <span style={{ width: `${Math.max(0, (hearts / MAX_HEARTS) * 100)}%` }} />
+                <b>{hearts}</b>
+              </i>
             </span>
           </div>
         </header>
@@ -1290,9 +1381,9 @@ export default function App() {
                 const prevKey = `${currentLevel}-${lessonNumber - 1}`
                 const key = `${currentLevel}-${lessonNumber}`
                 const prevDone = lessonNumber === 1 || (lessonProgress[prevKey] || 0) >= sectionCount
-                const amount = lessonProgress[key] || 0
+                const amount = Math.min(lessonProgress[key] || 0, sectionCount)
                 const locked = !prevDone || !lesson
-                const progressPercent = Math.max(amount > 0 ? Math.round((amount / sectionCount) * 100) : 0, locked ? 0 : 8)
+                const progressPercent = amount > 0 ? Math.round((amount / sectionCount) * 100) : 0
                 return (
                   <button
                     key={lessonNumber}
@@ -1305,7 +1396,7 @@ export default function App() {
                       '--lesson-progress': `${locked ? 0 : progressPercent}%`,
                     }}
                     aria-label={`${t.lesson} ${lessonNumber}`}
-                    onClick={() => { setActiveLesson(lesson); setScreen('lesson') }}
+                    onClick={() => openLesson(lesson)}
                   >
                     <span className="lesson-number">{amount >= sectionCount ? '★' : lessonNumber}</span>
                   </button>

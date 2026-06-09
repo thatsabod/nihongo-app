@@ -26,7 +26,9 @@ const text = {
 export default function Result({ score, total, xpEarned, lang, onHome, onRetry }) {
   const [ready, setReady] = useState(false)
   const t = text[lang] || text.en
-  const percent = total ? Math.round((score / total) * 100) : 0
+  const safeTotal = Math.max(total, 0)
+  const safeScore = Math.min(Math.max(score, 0), safeTotal)
+  const percent = safeTotal ? Math.round((safeScore / safeTotal) * 100) : 0
   const title = percent === 100 ? t.perfect : percent >= 70 ? t.good : t.practice
 
   useEffect(() => {
@@ -38,14 +40,14 @@ export default function Result({ score, total, xpEarned, lang, onHome, onRetry }
     <main className={`result-screen ${ready ? 'ready' : ''}`}>
       <section className="result-card">
         <div className="score-ring" style={{ '--value': `${percent}%` }}>
-          <strong>{score}/{total}</strong>
+          <strong>{safeScore}/{safeTotal}</strong>
           <span>{percent}%</span>
         </div>
         <p className="eyebrow">{t.result}</p>
         <h1>{title}</h1>
         <div className="result-stats">
-          <div><strong>{score}</strong><span>{t.correct}</span></div>
-          <div><strong>{Math.max(total - score, 0)}</strong><span>{t.wrong}</span></div>
+          <div><strong>{safeScore}</strong><span>{t.correct}</span></div>
+          <div><strong>{Math.max(safeTotal - safeScore, 0)}</strong><span>{t.wrong}</span></div>
           <div><strong>+{xpEarned}</strong><span>XP</span></div>
         </div>
         <button className="btn btn-primary" onClick={onHome}>{t.home}</button>
