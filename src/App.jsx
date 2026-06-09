@@ -15,6 +15,7 @@ const STARTING_GEMS = 2000
 const HEART_REFILL_MS = 90 * 1000
 const GUEST_KEY = 'nihongo-guest-state'
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
+const VERIFICATION_COOLDOWN_MS = 5 * 60 * 1000
 
 const copy = {
   ar: {
@@ -63,6 +64,7 @@ const copy = {
     usernameTaken: 'هذا الـ username مأخوذ، جرّب واحد ثاني.',
     emailUnverified: 'بريدك غير مؤكد بعد. أكد البريد حتى يبقى حسابك آمن وتقدر تسترجعه لاحقا.',
     resendEmail: 'إرسال رابط التأكيد',
+    resendWait: 'انتظر',
     refreshEmail: 'تحديث الحالة',
     verificationSent: 'تم إرسال رابط التأكيد إلى بريدك.',
     emailVerified: 'البريد مؤكد',
@@ -146,6 +148,7 @@ const copy = {
     usernameTaken: 'This username is already taken.',
     emailUnverified: 'Your email is not verified yet. Verify it to keep the account secure and recoverable.',
     resendEmail: 'Send verification link',
+    resendWait: 'Wait',
     refreshEmail: 'Refresh status',
     verificationSent: 'Verification link sent to your email.',
     emailVerified: 'Email verified',
@@ -609,6 +612,8 @@ export default function App() {
   const [score, setScore] = useState(0)
   const [lastScore, setLastScore] = useState(0)
   const [notice, setNotice] = useState('')
+  const [verificationRetryAt, setVerificationRetryAt] = useState(() => Number(localStorage.getItem('nihongo-verification-retry-at') || 0))
+  const [nowTick, setNowTick] = useState(() => Date.now())
 
   const t = copy[lang]
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
@@ -625,6 +630,8 @@ export default function App() {
   const userHandle = isGuest
     ? '@guest'
     : `@${normalizeUsername(userUsername || userName || userEmail?.split('@')[0] || 'nihongo')}`
+  const verificationWaitMs = Math.max(0, verificationRetryAt - nowTick)
+  const verificationWaitLabel = `${Math.ceil(verificationWaitMs / 60000)}:${String(Math.ceil((verificationWaitMs % 60000) / 1000)).padStart(2, '0')}`
 
   const applyState = (state) => {
     setXp(state.xp ?? 0)
@@ -743,6 +750,13 @@ export default function App() {
     localStorage.setItem('nihongo-lang', lang)
     localStorage.setItem('nihongo-theme', theme)
   }, [lang, theme, dir, fontScale, cozyMode])
+
+  useEffect(() => {
+    if (!verificationRetryAt) return
+    localStorage.setItem('nihongo-verification-retry-at', String(verificationRetryAt))
+    const timer = window.setInterval(() => setNowTick(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [verificationRetryAt])
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -933,14 +947,25 @@ export default function App() {
 
   const resendVerificationEmail = async () => {
     if (!auth.currentUser || auth.currentUser.emailVerified) return
+    if (Date.now() < verificationRetryAt) {
+      setNotice(`${t.resendWait} ${verificationWaitLabel}`)
+      return
+    }
     try {
       await sendEmailVerification(auth.currentUser, {
         url: window.location.origin,
         handleCodeInApp: false,
       })
+      setVerificationRetryAt(Date.now() + VERIFICATION_COOLDOWN_MS)
       setNotice(t.verificationSent)
     } catch (error) {
-      setNotice(`تعذر إرسال رابط التأكيد حاليا: ${error.code || error.message}`)
+      const retryAt = Date.now() + VERIFICATION_COOLDOWN_MS
+      setVerificationRetryAt(retryAt)
+      const code = error.code || error.message
+      const message = code === 'auth/too-many-requests'
+        ? `${t.resendWait} 5:00 ثم جرّب مرة ثانية. Firebase وقف الإرسال مؤقتا بسبب كثرة الطلبات.`
+        : `تعذر إرسال رابط التأكيد حاليا: ${code}`
+      setNotice(message)
     }
   }
 
@@ -1334,7 +1359,9 @@ export default function App() {
                   <span>{userEmail}</span>
                 </div>
                 <div className="split-actions">
-                  <Button variant="small" onClick={resendVerificationEmail}>{t.resendEmail}</Button>
+                  <Button variant="small" disabled={verificationWaitMs > 0} onClick={resendVerificationEmail}>
+                    {verificationWaitMs > 0 ? `${t.resendWait} ${verificationWaitLabel}` : t.resendEmail}
+                  </Button>
                   <Button variant="secondary" onClick={refreshEmailVerification}>{t.refreshEmail}</Button>
                 </div>
               </div>
