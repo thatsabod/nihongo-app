@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { speakJapanese } from '../sounds.js'
 
 export default function Lesson({ lesson, lang, theme, onBack, onStartQuiz }) {
   const [section, setSection] = useState('vocab') // vocab | grammar | examples
@@ -18,12 +19,7 @@ export default function Lesson({ lesson, lang, theme, onBack, onStartQuiz }) {
 
   const c = getColors(theme)
 
-  const speak = (text) => {
-    const u = new SpeechSynthesisUtterance(text)
-    u.lang = 'ja-JP'
-    u.rate = 0.8
-    window.speechSynthesis.speak(u)
-  }
+  const speak = (text) => speakJapanese(text, { rate: 0.56 })
 
   const tabs = [
     { id: 'vocab',    label: lang === 'ar' ? 'المفردات' : 'Vocabulary', icon: '📚' },

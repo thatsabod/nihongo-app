@@ -28,12 +28,65 @@ export const playWrong = () => {
   o.stop(ctx.currentTime + 0.3)
 }
 
-export const speakJapanese = (text, rate = 0.72) => {
+let cachedJapaneseVoices = []
+let voiceLoadRequested = false
+
+const preferredVoiceHints = [
+  'nanami',
+  'kyoko',
+  'otoya',
+  'haruka',
+  'ichiro',
+  'google 日本語',
+  'google japanese',
+  'microsoft',
+  'japanese',
+  '日本',
+]
+
+function rankVoice(voice) {
+  const name = `${voice.name} ${voice.lang}`.toLowerCase()
+  const hintIndex = preferredVoiceHints.findIndex((hint) => name.includes(hint))
+  return hintIndex === -1 ? 100 : hintIndex
+}
+
+export function getJapaneseVoices() {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return []
+  const voices = window.speechSynthesis.getVoices()
+  const japanese = voices
+    .filter((voice) => voice.lang?.toLowerCase().startsWith('ja'))
+    .sort((a, b) => rankVoice(a) - rankVoice(b) || a.name.localeCompare(b.name))
+
+  if (japanese.length) cachedJapaneseVoices = japanese
+
+  if (!voiceLoadRequested) {
+    voiceLoadRequested = true
+    window.speechSynthesis.onvoiceschanged = () => {
+      cachedJapaneseVoices = window.speechSynthesis
+        .getVoices()
+        .filter((voice) => voice.lang?.toLowerCase().startsWith('ja'))
+        .sort((a, b) => rankVoice(a) - rankVoice(b) || a.name.localeCompare(b.name))
+    }
+  }
+
+  return cachedJapaneseVoices
+}
+
+export const speakJapanese = (text, options = {}) => {
+  const config = typeof options === 'number' ? { rate: options } : options
+  if (typeof window === 'undefined' || !window.speechSynthesis) return
+
   window.speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(text)
+  const voices = getJapaneseVoices()
+  const voiceIndex = config.voiceIndex ?? 0
+  const voice = voices.length ? voices[Math.abs(voiceIndex) % voices.length] : null
+
   u.lang = 'ja-JP'
-  u.rate = rate
-  u.pitch = 1
+  if (voice) u.voice = voice
+  u.rate = config.rate ?? 0.58
+  u.pitch = config.pitch ?? 0.96
   u.volume = 1
+
   window.speechSynthesis.speak(u)
 }

@@ -255,6 +255,23 @@ const communityText = {
     publicStats: 'إحصائيات عامة',
     learningLevel: 'N5 learner',
     noBio: 'ماكو نبذة بعد.',
+    like: 'لايك',
+    reply: 'رد',
+    repost: 'إعادة نشر',
+    shareComment: 'مشاركة',
+    replyPlaceholder: 'اكتب ردك على السؤال...',
+    replySent: 'تم إرسال الرد.',
+    liked: 'تم تسجيل اللايك.',
+    reposted: 'تمت إعادة النشر.',
+    copied: 'تم نسخ السؤال.',
+    edit: 'تعديل',
+    delete: 'حذف',
+    report: 'تبليغ',
+    save: 'حفظ',
+    cancel: 'إلغاء',
+    updated: 'تم التعديل.',
+    deleted: 'تم الحذف.',
+    reported: 'تم إرسال البلاغ.',
     emptyCorrection: 'اكتب جملة حتى أراجعها.',
     goodJapanese: 'حلو، الجملة تحتوي ياباني. انتبه للمسافات حول は و の حتى تكون القراءة أوضح.',
     needsJapanese: 'حاول تضيف نص ياباني حتى يكون التصحيح مفيد.',
@@ -307,6 +324,23 @@ const communityText = {
     publicStats: 'Public stats',
     learningLevel: 'N5 learner',
     noBio: 'No bio yet.',
+    like: 'Like',
+    reply: 'Reply',
+    repost: 'Repost',
+    shareComment: 'Share',
+    replyPlaceholder: 'Write your reply...',
+    replySent: 'Reply sent.',
+    liked: 'Liked.',
+    reposted: 'Reposted.',
+    copied: 'Question copied.',
+    edit: 'Edit',
+    delete: 'Delete',
+    report: 'Report',
+    save: 'Save',
+    cancel: 'Cancel',
+    updated: 'Updated.',
+    deleted: 'Deleted.',
+    reported: 'Report sent.',
     emptyCorrection: 'Write a sentence first.',
     goodJapanese: 'Nice, this includes Japanese. Watch spacing around は and の for clearer reading.',
     needsJapanese: 'Add Japanese text so correction is useful.',
@@ -324,11 +358,6 @@ const communityQuestions = [
   { ar: 'متى أستخدم は ومتى أستخدم が؟', en: 'When should I use は vs が?', answers: 8 },
   { ar: 'شلون أحفظ الكاتاكانا بسرعة؟', en: 'How can I memorize katakana faster?', answers: 5 },
   { ar: 'هل じゃありません رسمي كفاية؟', en: 'Is じゃありません formal enough?', answers: 3 },
-]
-
-const sharedSentences = [
-  { jp: 'わたしは がくせい です。', ar: 'أنا طالب.', user: '@sakura' },
-  { jp: 'ミラーさんも かいしゃいん です。', ar: 'السيد ميرا أيضاً موظف شركة.', user: '@nihongo' },
 ]
 
 const quizSets = { hiragana, katakana, kanji: kanjiN5 }
@@ -467,14 +496,19 @@ function JapaneseTerm({ item, className = 'jp' }) {
 
 function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, onStartDaily, onNotice }) {
   const [sentence, setSentence] = useState('')
-  const [shareSentence, setShareSentence] = useState('')
-  const [shareMeaning, setShareMeaning] = useState('')
   const [questionText, setQuestionText] = useState('')
+  const [activeReplyId, setActiveReplyId] = useState(null)
+  const [replyDrafts, setReplyDrafts] = useState({})
+  const [liveReplies, setLiveReplies] = useState([])
+  const [openPostMenu, setOpenPostMenu] = useState(null)
+  const [editingQuestionId, setEditingQuestionId] = useState(null)
+  const [questionEditDrafts, setQuestionEditDrafts] = useState({})
+  const [editingReplyId, setEditingReplyId] = useState(null)
+  const [replyEditDrafts, setReplyEditDrafts] = useState({})
   const [partnerMessage, setPartnerMessage] = useState('')
   const [correction, setCorrection] = useState('')
   const [partnerReply, setPartnerReply] = useState('')
   const [liveQuestions, setLiveQuestions] = useState([])
-  const [liveSentences, setLiveSentences] = useState([])
   const [publicProfiles, setPublicProfiles] = useState([])
   const [followingIds, setFollowingIds] = useState(new Set())
   const [followerIds, setFollowerIds] = useState(new Set())
@@ -483,8 +517,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
   const [friendRequests, setFriendRequests] = useState([])
   const [sentFriendRequests, setSentFriendRequests] = useState(new Set())
   const [messages, setMessages] = useState([])
+  const [sentMessages, setSentMessages] = useState([])
   const [notifications, setNotifications] = useState([])
   const [messageDraft, setMessageDraft] = useState('')
+  const [dmProfile, setDmProfile] = useState(null)
   const [friendMenuOpen, setFriendMenuOpen] = useState(false)
   const text = communityText[lang] || communityText.en
   const isAr = lang === 'ar'
@@ -497,12 +533,13 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     text: item[isAr ? 'ar' : 'en'],
     answers: item.answers,
   }))
-  const visibleSentences = liveSentences.length ? liveSentences : sharedSentences.map((item) => ({
-    id: item.jp,
-    jp: item.jp,
-    meaning: item.ar,
-    authorHandle: item.user,
-  }))
+  const repliesForQuestion = (questionId) => liveReplies
+    .filter((reply) => reply.questionId === questionId && !reply.deleted)
+    .sort((a, b) => {
+      const aTime = a.createdAt?.seconds || 0
+      const bTime = b.createdAt?.seconds || 0
+      return aTime - bTime
+    })
   const fallbackProfile = {
     id: userId || 'guest',
     userId: userId || 'guest',
@@ -526,6 +563,15 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
   const unreadMessages = messages.filter((item) => !item.read).length
   const unreadNotifications = notifications.filter((item) => !item.read).length
   const profileTargetId = (profile) => profile?.id || profile?.userId
+  const dmTargetId = profileTargetId(dmProfile)
+  const dmMessages = dmTargetId
+    ? [...messages, ...sentMessages]
+      .filter((item) => (
+        (item.fromId === userId && item.toId === dmTargetId)
+        || (item.fromId === dmTargetId && item.toId === userId)
+      ))
+      .sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0))
+    : []
   const friendshipState = (profile) => {
     const targetId = profileTargetId(profile)
     if (!targetId || targetId === userId) return 'self'
@@ -560,7 +606,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
   useEffect(() => {
     const questionQuery = query(collection(db, 'communityQuestions'), orderBy('createdAt', 'desc'), limit(20))
-    const sentenceQuery = query(collection(db, 'communitySentences'), orderBy('createdAt', 'desc'), limit(20))
+    const replyQuery = query(collection(db, 'communityQuestionReplies'), orderBy('createdAt', 'desc'), limit(100))
     const profileQuery = query(collection(db, 'publicProfiles'), orderBy('xp', 'desc'), limit(30))
 
     const stopQuestions = onSnapshot(questionQuery, (snapshot) => {
@@ -569,10 +615,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       console.warn('Community questions unavailable', error)
     })
 
-    const stopSentences = onSnapshot(sentenceQuery, (snapshot) => {
-      setLiveSentences(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    const stopReplies = onSnapshot(replyQuery, (snapshot) => {
+      setLiveReplies(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
     }, (error) => {
-      console.warn('Community sentences unavailable', error)
+      console.warn('Community replies unavailable', error)
     })
 
     const stopProfiles = onSnapshot(profileQuery, (snapshot) => {
@@ -583,7 +629,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
     return () => {
       stopQuestions()
-      stopSentences()
+      stopReplies()
       stopProfiles()
     }
   }, [])
@@ -598,6 +644,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     const requestQuery = query(collection(db, 'friendRequests'), where('toId', '==', userId), where('status', '==', 'pending'), limit(100))
     const sentRequestQuery = query(collection(db, 'friendRequests'), where('fromId', '==', userId), where('status', '==', 'pending'), limit(100))
     const messageQuery = query(collection(db, 'messages'), where('toId', '==', userId), limit(100))
+    const sentMessageQuery = query(collection(db, 'messages'), where('fromId', '==', userId), limit(100))
     const notificationQuery = query(collection(db, 'notifications'), where('toId', '==', userId), limit(100))
 
     const stopFollowing = onSnapshot(followingQuery, (snapshot) => {
@@ -630,6 +677,12 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       console.warn('Messages unavailable', error)
     })
 
+    const stopSentMessages = onSnapshot(sentMessageQuery, (snapshot) => {
+      setSentMessages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    }, (error) => {
+      console.warn('Sent messages unavailable', error)
+    })
+
     const stopNotifications = onSnapshot(notificationQuery, (snapshot) => {
       setNotifications(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
     }, (error) => {
@@ -642,6 +695,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       stopRequests()
       stopSentRequests()
       stopMessages()
+      stopSentMessages()
       stopNotifications()
     }
   }, [userId, isGuest])
@@ -650,6 +704,25 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     if (canPost) return true
     onNotice(text.loginRequired)
     return false
+  }
+
+  const markItemsRead = async (collectionName, items) => {
+    if (!canPost) return
+    const unread = items.filter((item) => item.id && !item.read)
+    if (!unread.length) return
+    try {
+      await Promise.all(unread.map((item) => updateDoc(doc(db, collectionName, item.id), { read: true })))
+    } catch (error) {
+      console.warn(`Could not mark ${collectionName} as read`, error)
+    }
+  }
+
+  const openInbox = (nextInbox) => {
+    const opening = activeInbox !== nextInbox
+    setActiveInbox(opening ? nextInbox : null)
+    if (!opening) return
+    if (nextInbox === 'messages') markItemsRead('messages', messages)
+    if (nextInbox === 'notifications') markItemsRead('notifications', notifications)
   }
 
   const askQuestion = async () => {
@@ -673,24 +746,177 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     }
   }
 
-  const shareCommunitySentence = async () => {
-    const next = shareSentence.trim()
-    if (!next) return onNotice(text.sentencePlaceholder)
-    if (!hasJapanese(next)) return onNotice(text.needsJapanese)
+  const notifyQuestionAuthor = async (question, type, message) => {
+    if (!question.userId || question.userId === userId) return
+    await addDoc(collection(db, 'notifications'), {
+      toId: question.userId,
+      fromId: userId,
+      fromHandle: userHandle,
+      type,
+      text: message,
+      read: false,
+      createdAt: serverTimestamp(),
+    })
+  }
+
+  const likeQuestion = async (question) => {
     if (!requireCommunityAccount()) return
     try {
-      await addDoc(collection(db, 'communitySentences'), {
-        jp: next,
-        meaning: shareMeaning.trim(),
-        lang,
-        authorName: displayName,
-        authorHandle: userHandle,
+      await setDoc(doc(db, 'communityQuestionLikes', `${question.id}_${userId}`), {
+        questionId: question.id,
         userId,
+        userHandle,
+        createdAt: serverTimestamp(),
+      }, { merge: true })
+      onNotice(text.liked)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const repostQuestion = async (question) => {
+    if (!requireCommunityAccount()) return
+    try {
+      await addDoc(collection(db, 'communityQuestionReposts'), {
+        questionId: question.id,
+        questionText: question.text,
+        userId,
+        userHandle,
         createdAt: serverTimestamp(),
       })
-      setShareSentence('')
-      setShareMeaning('')
-      onNotice(text.saved)
+      await notifyQuestionAuthor(question, 'question_repost', `${userHandle} ${text.reposted}`)
+      onNotice(text.reposted)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const sendQuestionReply = async (question) => {
+    const body = (replyDrafts[question.id] || '').trim()
+    if (!body) return onNotice(text.replyPlaceholder)
+    if (!requireCommunityAccount()) return
+    try {
+      await addDoc(collection(db, 'communityQuestionReplies'), {
+        questionId: question.id,
+        questionText: question.text,
+        body,
+        userId,
+        authorName: displayName,
+        authorHandle: userHandle,
+        createdAt: serverTimestamp(),
+      })
+      await Promise.allSettled([
+        liveQuestions.some((item) => item.id === question.id)
+          ? updateDoc(doc(db, 'communityQuestions', question.id), { answers: increment(1) })
+          : Promise.resolve(),
+        notifyQuestionAuthor(question, 'question_reply', `${userHandle}: ${body.slice(0, 80)}`),
+      ])
+      setReplyDrafts((drafts) => ({ ...drafts, [question.id]: '' }))
+      setActiveReplyId(question.id)
+      onNotice(text.replySent)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const shareQuestion = async (question) => {
+    try {
+      await navigator.clipboard.writeText(question.text)
+      onNotice(text.copied)
+    } catch {
+      onNotice(question.text)
+    }
+  }
+
+  const startQuestionEdit = (question) => {
+    setQuestionEditDrafts((drafts) => ({ ...drafts, [question.id]: question.text }))
+    setEditingQuestionId(question.id)
+    setOpenPostMenu(null)
+  }
+
+  const saveQuestionEdit = async (question) => {
+    const next = (questionEditDrafts[question.id] || '').trim()
+    if (!next) return onNotice(text.questionPlaceholder)
+    if (!requireCommunityAccount()) return
+    try {
+      await updateDoc(doc(db, 'communityQuestions', question.id), {
+        text: next,
+        editedAt: serverTimestamp(),
+      })
+      setEditingQuestionId(null)
+      onNotice(text.updated)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const deleteQuestionPost = async (question) => {
+    if (!requireCommunityAccount()) return
+    try {
+      await updateDoc(doc(db, 'communityQuestions', question.id), {
+        text: isAr ? 'تم حذف هذا السؤال.' : 'This question was deleted.',
+        deleted: true,
+        deletedAt: serverTimestamp(),
+      })
+      setOpenPostMenu(null)
+      onNotice(text.deleted)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const reportCommunityItem = async (item, itemType) => {
+    if (!requireCommunityAccount()) return
+    try {
+      await addDoc(collection(db, 'communityReports'), {
+        itemId: item.id,
+        itemType,
+        ownerId: item.userId || '',
+        text: item.text || item.body || '',
+        reporterId: userId,
+        reporterHandle: userHandle,
+        status: 'open',
+        createdAt: serverTimestamp(),
+      })
+      setOpenPostMenu(null)
+      onNotice(text.reported)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const startReplyEdit = (reply) => {
+    setReplyEditDrafts((drafts) => ({ ...drafts, [reply.id]: reply.body }))
+    setEditingReplyId(reply.id)
+    setOpenPostMenu(null)
+  }
+
+  const saveReplyEdit = async (reply) => {
+    const next = (replyEditDrafts[reply.id] || '').trim()
+    if (!next) return onNotice(text.replyPlaceholder)
+    if (!requireCommunityAccount()) return
+    try {
+      await updateDoc(doc(db, 'communityQuestionReplies', reply.id), {
+        body: next,
+        editedAt: serverTimestamp(),
+      })
+      setEditingReplyId(null)
+      onNotice(text.updated)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const deleteReplyPost = async (reply) => {
+    if (!requireCommunityAccount()) return
+    try {
+      await updateDoc(doc(db, 'communityQuestionReplies', reply.id), {
+        body: isAr ? 'تم حذف هذا الرد.' : 'This reply was deleted.',
+        deleted: true,
+        deletedAt: serverTimestamp(),
+      })
+      setOpenPostMenu(null)
+      onNotice(text.deleted)
     } catch (error) {
       onNotice(`${text.locked} ${error.code || error.message}`)
     }
@@ -832,13 +1058,27 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       onNotice(text.friendsOnly)
       return
     }
-    setSelectedProfile(profile)
-    setActiveInbox('compose')
+    setDmProfile(profile)
+    setSelectedProfile(null)
+    setActiveInbox(null)
+  }
+
+  const openMessageThread = async (message) => {
+    await markItemsRead('messages', [message])
+    setDmProfile(profileForCommunityItem({ userId: message.fromId, authorHandle: message.fromHandle, authorName: message.fromName }))
+    setActiveInbox(null)
+  }
+
+  const openNotification = async (item) => {
+    await markItemsRead('notifications', [item])
+    if (item.fromId) {
+      setSelectedProfile(profileForCommunityItem({ userId: item.fromId, authorHandle: item.fromHandle }))
+    }
   }
 
   const sendMessageToProfile = async () => {
-    if (!selectedProfile || !requireCommunityAccount()) return
-    const targetId = selectedProfile.id || selectedProfile.userId
+    if (!dmProfile || !requireCommunityAccount()) return
+    const targetId = dmProfile.id || dmProfile.userId
     const body = messageDraft.trim()
     if (!body) return onNotice(text.messagePlaceholder)
     try {
@@ -847,7 +1087,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         toId: targetId,
         fromName: displayName,
         fromHandle: userHandle,
-        toHandle: selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`,
+        toHandle: dmProfile.userHandle || `@${dmProfile.userUsername || 'nihongo'}`,
         body,
         read: false,
         createdAt: serverTimestamp(),
@@ -862,7 +1102,6 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         createdAt: serverTimestamp(),
       })
       setMessageDraft('')
-      setActiveInbox(null)
       onNotice(text.messageSent)
     } catch (error) {
       onNotice(`${text.locked} ${error.code || error.message}`)
@@ -891,7 +1130,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         </div>
         <div className="community-hero-side">
           <div className="community-inbox-actions">
-            <button onClick={() => setActiveInbox(activeInbox === 'messages' ? null : 'messages')} aria-label={text.inbox}>
+            <button onClick={() => openInbox('messages')} aria-label={text.inbox}>
               <span>✉</span>
               {unreadMessages > 0 && <b>{unreadMessages}</b>}
             </button>
@@ -899,7 +1138,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
               <span>＋</span>
               {friendRequests.length > 0 && <b>{friendRequests.length}</b>}
             </button>
-            <button onClick={() => setActiveInbox(activeInbox === 'notifications' ? null : 'notifications')} aria-label={text.notifications}>
+            <button onClick={() => openInbox('notifications')} aria-label={text.notifications}>
               <span>🔔</span>
               {unreadNotifications > 0 && <b>{unreadNotifications}</b>}
             </button>
@@ -921,7 +1160,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
           {activeInbox === 'messages' && (
             <div className="inbox-list">
               {messages.length ? messages.map((message) => (
-                <button key={message.id} onClick={() => setSelectedProfile(profileForCommunityItem({ userId: message.fromId, authorHandle: message.fromHandle, authorName: message.fromName }))}>
+                <button key={message.id} className={!message.read ? 'unread' : ''} onClick={() => openMessageThread(message)}>
                   <strong>{message.fromHandle}</strong>
                   <span>{message.body}</span>
                 </button>
@@ -944,7 +1183,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
           {activeInbox === 'notifications' && (
             <div className="inbox-list">
               {notifications.length ? notifications.map((item) => (
-                <button key={item.id} onClick={() => item.fromId && setSelectedProfile(profileForCommunityItem({ userId: item.fromId, authorHandle: item.fromHandle }))}>
+                <button key={item.id} className={!item.read ? 'unread' : ''} onClick={() => openNotification(item)}>
                   <strong>{item.fromHandle || 'Nihongo'}</strong>
                   <span>{item.text}</span>
                 </button>
@@ -1012,15 +1251,99 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
           <div className="question-list">
             {visibleQuestions.map((question) => (
               <div key={question.id} className="community-post">
-                <button className="post-main" onClick={() => onNotice(text.locked)}>
-                  <strong>{question.text}</strong>
-                  <small>{question.answers || 0} {isAr ? 'إجابات' : 'answers'}</small>
-                </button>
-                {(question.authorHandle || question.userId) && (
-                  <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(question))}>
-                    {question.authorHandle || text.viewProfile}
-                  </button>
-                )}
+                <div className="post-main">
+                  {editingQuestionId === question.id ? (
+                    <div className="edit-box">
+                      <input
+                        value={questionEditDrafts[question.id] || ''}
+                        onChange={(event) => setQuestionEditDrafts((drafts) => ({ ...drafts, [question.id]: event.target.value }))}
+                      />
+                      <div>
+                        <Button variant="small" onClick={() => saveQuestionEdit(question)}>{text.save}</Button>
+                        <Button variant="secondary" onClick={() => setEditingQuestionId(null)}>{text.cancel}</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button className="post-title" onClick={() => setActiveReplyId(activeReplyId === question.id ? null : question.id)}>
+                      <strong>{question.text}</strong>
+                      <small>{question.answers || 0} {isAr ? 'إجابات' : 'answers'}</small>
+                    </button>
+                  )}
+                  <div className="question-actions">
+                    <button onClick={() => likeQuestion(question)}>♡ {text.like}</button>
+                    <button onClick={() => setActiveReplyId(activeReplyId === question.id ? null : question.id)}>↩ {text.reply}</button>
+                    <button onClick={() => repostQuestion(question)}>↻ {text.repost}</button>
+                    <button onClick={() => shareQuestion(question)}>⤴ {text.shareComment}</button>
+                  </div>
+                  {(repliesForQuestion(question.id).length > 0 || activeReplyId === question.id) && (
+                    <div className="reply-panel">
+                      {repliesForQuestion(question.id).length > 0 && (
+                        <div className="reply-list">
+                          {repliesForQuestion(question.id).map((reply) => (
+                            <div key={reply.id} className="reply-item">
+                              <div>
+                                <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(reply))}>
+                                  {reply.authorHandle || text.viewProfile}
+                                </button>
+                                {editingReplyId === reply.id ? (
+                                  <div className="edit-box compact">
+                                    <input
+                                      value={replyEditDrafts[reply.id] || ''}
+                                      onChange={(event) => setReplyEditDrafts((drafts) => ({ ...drafts, [reply.id]: event.target.value }))}
+                                    />
+                                    <div>
+                                      <Button variant="small" onClick={() => saveReplyEdit(reply)}>{text.save}</Button>
+                                      <Button variant="secondary" onClick={() => setEditingReplyId(null)}>{text.cancel}</Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p>{reply.body}</p>
+                                )}
+                              </div>
+                              <span className="post-menu-wrap">
+                                <button className="post-menu-btn" onClick={() => setOpenPostMenu(openPostMenu === `reply:${reply.id}` ? null : `reply:${reply.id}`)}>⋯</button>
+                                {openPostMenu === `reply:${reply.id}` && (
+                                  <span className="post-menu">
+                                    {reply.userId === userId && <button onClick={() => startReplyEdit(reply)}>{text.edit}</button>}
+                                    {reply.userId === userId && <button onClick={() => deleteReplyPost(reply)}>{text.delete}</button>}
+                                    <button onClick={() => reportCommunityItem(reply, 'reply')}>{text.report}</button>
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {activeReplyId === question.id && (
+                      <div className="reply-box">
+                        <input
+                          value={replyDrafts[question.id] || ''}
+                          onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [question.id]: event.target.value }))}
+                          placeholder={text.replyPlaceholder}
+                        />
+                        <Button variant="small" onClick={() => sendQuestionReply(question)}>{text.send}</Button>
+                      </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="post-side">
+                  {(question.authorHandle || question.userId) && (
+                    <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(question))}>
+                      {question.authorHandle || text.viewProfile}
+                    </button>
+                  )}
+                  <span className="post-menu-wrap">
+                    <button className="post-menu-btn" onClick={() => setOpenPostMenu(openPostMenu === `question:${question.id}` ? null : `question:${question.id}`)}>⋯</button>
+                    {openPostMenu === `question:${question.id}` && (
+                      <span className="post-menu">
+                        {question.userId === userId && <button onClick={() => startQuestionEdit(question)}>{text.edit}</button>}
+                        {question.userId === userId && <button onClick={() => deleteQuestionPost(question)}>{text.delete}</button>}
+                        <button onClick={() => reportCommunityItem(question, 'question')}>{text.report}</button>
+                      </span>
+                    )}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -1028,33 +1351,6 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
             <input value={questionText} onChange={(event) => setQuestionText(event.target.value)} placeholder={text.questionPlaceholder} />
             <Button variant="secondary" onClick={askQuestion}>{text.ask}</Button>
           </div>
-        </article>
-
-        <article className="community-card">
-          <div className="card-heading">
-            <span>✍</span>
-            <h2>{text.sentences}</h2>
-          </div>
-          <div className="sentence-feed">
-            {visibleSentences.map((item) => (
-              <div key={item.id} className="community-post">
-                <button className="post-main" onClick={() => speakJapanese(item.jp)}>
-                  <span>{item.jp}</span>
-                  <small>{item.meaning || '—'}</small>
-                </button>
-                {(item.authorHandle || item.userId) && (
-                  <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(item))}>
-                    {item.authorHandle || text.viewProfile}
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="community-input">
-            <input value={shareSentence} onChange={(event) => setShareSentence(event.target.value)} placeholder={text.sentencePlaceholder} />
-            <Button variant="small" onClick={shareCommunitySentence}>{text.share}</Button>
-          </div>
-          <input className="community-meaning" value={shareMeaning} onChange={(event) => setShareMeaning(event.target.value)} placeholder={text.meaningPlaceholder} />
         </article>
 
         <article className="community-card ai-card">
@@ -1134,12 +1430,41 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
               <div><span>{isAr ? 'الدروس' : 'Lessons'}</span><strong>{selectedProfile.completedLessons || 0}</strong></div>
               <div><span>{isAr ? 'المستوى' : 'Level'}</span><strong>N5</strong></div>
             </div>
-            {activeInbox === 'compose' && selectedProfile && (
-              <div className="message-compose">
-                <textarea value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} placeholder={text.messagePlaceholder} />
-                <Button variant="small" onClick={sendMessageToProfile}>{text.message}</Button>
+          </article>
+        </div>
+      )}
+
+      {dmProfile && (
+        <div className="dm-modal" role="dialog" aria-modal="true">
+          <button className="modal-backdrop" onClick={() => setDmProfile(null)} aria-label="Close" />
+          <article className="dm-panel">
+            <header className="dm-head">
+              <button className="icon-btn" onClick={() => setDmProfile(null)}>×</button>
+              <div className="avatar dm-avatar">
+                {dmProfile.userAvatar ? <img src={dmProfile.userAvatar} alt="" /> : (dmProfile.userName || 'N').slice(0, 1).toUpperCase()}
               </div>
-            )}
+              <div>
+                <strong>{dmProfile.userName || 'Nihongo learner'}</strong>
+                <span>{dmProfile.userHandle || `@${dmProfile.userUsername || 'nihongo'}`}</span>
+              </div>
+            </header>
+            <div className="dm-thread">
+              {dmMessages.length ? dmMessages.map((message) => (
+                <div key={message.id} className={`dm-bubble ${message.fromId === userId ? 'mine' : 'theirs'}`}>
+                  <p>{message.body}</p>
+                  <small>{message.fromId === userId ? userHandle : message.fromHandle}</small>
+                </div>
+              )) : (
+                <div className="dm-empty">
+                  <strong>{text.message}</strong>
+                  <span>{text.messagePlaceholder}</span>
+                </div>
+              )}
+            </div>
+            <footer className="dm-compose">
+              <input value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} placeholder={text.messagePlaceholder} />
+              <Button variant="small" onClick={sendMessageToProfile}>{text.send}</Button>
+            </footer>
           </article>
         </div>
       )}
@@ -2195,7 +2520,6 @@ export default function App() {
 
             <div className="quick-actions">
               <Button onClick={() => startQuiz('hiragana')}>{t.quiz}</Button>
-              <Button variant="secondary" onClick={() => { setTab('letters'); setLettersTab('hiragana') }}>{t.letters}</Button>
             </div>
 
             <div className="level-strip">

@@ -38,7 +38,7 @@ export default function Letters({ progress, onBack, lang }) {
             }}>
               {/* Kana — tap to speak normal speed */}
               <div
-                onClick={() => speakJapanese(item.kana, 1)}
+                onClick={() => speakJapanese(item.kana, { rate: 0.58 })}
                 style={{ fontSize: '28px', lineHeight: 1, marginBottom: '4px', cursor: 'pointer' }}>
                 {item.kana}
               </div>
@@ -52,7 +52,7 @@ export default function Letters({ progress, onBack, lang }) {
               <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
                 {/* Normal speed */}
                 <span
-                  onClick={() => { speakJapanese(item.kana, 1); setSlowMode(s => ({ ...s, [item.kana]: false })) }}
+                  onClick={() => { speakJapanese(item.kana, { rate: 0.58 }); setSlowMode(s => ({ ...s, [item.kana]: false })) }}
                   title="Normal speed"
                   style={{
                     fontSize: '16px', cursor: 'pointer', opacity: isSlow ? 0.35 : 1,
@@ -63,7 +63,7 @@ export default function Letters({ progress, onBack, lang }) {
 
                 {/* Slow speed turtle */}
                 <span
-                  onClick={() => { speakJapanese(item.kana, 0.75); setSlowMode(s => ({ ...s, [item.kana]: true })) }}
+                  onClick={() => { speakJapanese(item.kana, { rate: 0.48 }); setSlowMode(s => ({ ...s, [item.kana]: true })) }}
                   title="Slow speed"
                   style={{
                     fontSize: '16px', cursor: 'pointer', opacity: isSlow ? 1 : 0.35,
