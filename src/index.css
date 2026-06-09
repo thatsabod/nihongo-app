@@ -1220,6 +1220,49 @@ rt {
   font-size: 11px;
 }
 
+.community-hero-side {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.community-inbox-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.community-inbox-actions button,
+.profile-inline-actions button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--primary) 16%, var(--panel));
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.community-inbox-actions b {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  border: 2px solid var(--panel);
+  border-radius: 999px;
+  padding: 0 5px;
+  background: var(--red);
+  color: white;
+  font-size: 11px;
+  line-height: 1;
+}
+
 .community-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1239,6 +1282,10 @@ rt {
 
 .community-card.wide {
   grid-column: 1 / -1;
+}
+
+.inbox-panel {
+  margin-top: -4px;
 }
 
 .card-heading {
@@ -1329,6 +1376,47 @@ rt {
   direction: ltr;
   font-size: 12px;
   font-weight: 850;
+  cursor: pointer;
+}
+
+.inbox-list {
+  display: grid;
+  gap: 10px;
+}
+
+.inbox-list > button,
+.request-row {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+  background: var(--panel-2);
+  color: var(--text);
+  text-align: start;
+}
+
+.inbox-list > button {
+  cursor: pointer;
+}
+
+.inbox-list p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.request-row {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.request-row > button:first-child {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: start;
   cursor: pointer;
 }
 
@@ -1474,7 +1562,8 @@ rt {
 .profile-cover {
   display: flex;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   min-height: 132px;
   padding: 18px;
   border-radius: 24px 24px 0 0;
@@ -1501,6 +1590,45 @@ rt {
   gap: 14px;
   padding: 0 24px;
   margin-top: -48px;
+}
+
+.profile-handle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.profile-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-inline-actions button {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+}
+
+.friend-action-wrap {
+  position: relative;
+}
+
+.friend-menu {
+  position: absolute !important;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 4;
+  width: max-content !important;
+  min-width: 138px;
+  height: auto !important;
+  border-color: color-mix(in srgb, var(--red) 45%, var(--border)) !important;
+  padding: 9px 12px;
+  background: var(--panel) !important;
+  color: var(--red) !important;
+  font-size: 13px;
 }
 
 .public-avatar {
@@ -1560,6 +1688,23 @@ rt {
 
 .profile-actions .btn {
   flex: 1;
+}
+
+.message-compose {
+  display: grid;
+  gap: 10px;
+  margin-inline: 24px;
+}
+
+.message-compose textarea {
+  min-height: 88px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: var(--panel-2);
+  color: var(--text);
+  resize: vertical;
 }
 
 .bottom-nav {
@@ -2187,6 +2332,19 @@ select:focus {
     width: 100%;
     height: auto;
     min-height: 74px;
+  }
+
+  .community-hero-side,
+  .community-inbox-actions {
+    width: 100%;
+  }
+
+  .community-hero-side {
+    justify-items: stretch;
+  }
+
+  .community-inbox-actions button {
+    flex: 1;
   }
 
   .bottom-nav {

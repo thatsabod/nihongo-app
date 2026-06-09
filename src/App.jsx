@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/auth'
-import { addDoc, collection, doc, getDoc, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, where } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDoc, increment, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons } from './data.js'
 import { speakJapanese } from './sounds.js'
@@ -233,6 +233,19 @@ const communityText = {
     loginRequired: 'سجل دخول حتى تشارك بالمجتمع وتحفظ باسمك.',
     follow: 'متابعة',
     followRequest: 'إرسال طلب متابعة',
+    requestSent: 'تم إرسال طلب الصداقة.',
+    requestPending: 'بانتظار الموافقة',
+    removeFriend: 'حذف الصداقة',
+    friendRemoved: 'تم حذف الصداقة.',
+    accept: 'قبول',
+    requests: 'طلبات',
+    inbox: 'الرسائل',
+    notifications: 'الإشعارات',
+    noMessages: 'ماكو رسائل بعد.',
+    noRequests: 'ماكو طلبات صداقة حالياً.',
+    noNotifications: 'ماكو إشعارات جديدة.',
+    messagePlaceholder: 'اكتب رسالتك...',
+    messageSent: 'تم إرسال الرسالة.',
     following: 'تتابعه',
     ownProfile: 'هذا حسابك',
     message: 'رسالة',
@@ -272,6 +285,19 @@ const communityText = {
     loginRequired: 'Log in to post to the community under your name.',
     follow: 'Follow',
     followRequest: 'Send follow request',
+    requestSent: 'Friend request sent.',
+    requestPending: 'Pending',
+    removeFriend: 'Remove friend',
+    friendRemoved: 'Friend removed.',
+    accept: 'Accept',
+    requests: 'Requests',
+    inbox: 'Messages',
+    notifications: 'Notifications',
+    noMessages: 'No messages yet.',
+    noRequests: 'No friend requests right now.',
+    noNotifications: 'No new notifications.',
+    messagePlaceholder: 'Write your message...',
+    messageSent: 'Message sent.',
     following: 'Following',
     ownProfile: 'This is you',
     message: 'Message',
@@ -453,6 +479,13 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
   const [followingIds, setFollowingIds] = useState(new Set())
   const [followerIds, setFollowerIds] = useState(new Set())
   const [selectedProfile, setSelectedProfile] = useState(null)
+  const [activeInbox, setActiveInbox] = useState(null)
+  const [friendRequests, setFriendRequests] = useState([])
+  const [sentFriendRequests, setSentFriendRequests] = useState(new Set())
+  const [messages, setMessages] = useState([])
+  const [notifications, setNotifications] = useState([])
+  const [messageDraft, setMessageDraft] = useState('')
+  const [friendMenuOpen, setFriendMenuOpen] = useState(false)
   const text = communityText[lang] || communityText.en
   const isAr = lang === 'ar'
   const displayName = userName || (isAr ? 'أنت' : 'You')
@@ -490,7 +523,16 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       current: profile.id === userId || profile.userId === userId,
     }))
     .sort((a, b) => (b.xp || 0) - (a.xp || 0))
-  const ownPublicProfile = leaderboard.find((profile) => profile.current) || fallbackProfile
+  const unreadMessages = messages.filter((item) => !item.read).length
+  const unreadNotifications = notifications.filter((item) => !item.read).length
+  const profileTargetId = (profile) => profile?.id || profile?.userId
+  const friendshipState = (profile) => {
+    const targetId = profileTargetId(profile)
+    if (!targetId || targetId === userId) return 'self'
+    if (visibleFollowingIds.has(targetId) && visibleFollowerIds.has(targetId)) return 'friends'
+    if (sentFriendRequests.has(targetId)) return 'pending'
+    return 'none'
+  }
   const profileForCommunityItem = (item) => {
     const handle = item.authorHandle || item.userHandle
     const profile = publicProfiles.find((entry) => (
@@ -553,6 +595,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
     const followingQuery = query(collection(db, 'follows'), where('followerId', '==', userId), limit(500))
     const followersQuery = query(collection(db, 'follows'), where('followingId', '==', userId), limit(500))
+    const requestQuery = query(collection(db, 'friendRequests'), where('toId', '==', userId), where('status', '==', 'pending'), limit(100))
+    const sentRequestQuery = query(collection(db, 'friendRequests'), where('fromId', '==', userId), where('status', '==', 'pending'), limit(100))
+    const messageQuery = query(collection(db, 'messages'), where('toId', '==', userId), limit(100))
+    const notificationQuery = query(collection(db, 'notifications'), where('toId', '==', userId), limit(100))
 
     const stopFollowing = onSnapshot(followingQuery, (snapshot) => {
       setFollowingIds(new Set(snapshot.docs.map((item) => item.data().followingId)))
@@ -566,9 +612,37 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       console.warn('Follower list unavailable', error)
     })
 
+    const stopRequests = onSnapshot(requestQuery, (snapshot) => {
+      setFriendRequests(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    }, (error) => {
+      console.warn('Friend requests unavailable', error)
+    })
+
+    const stopSentRequests = onSnapshot(sentRequestQuery, (snapshot) => {
+      setSentFriendRequests(new Set(snapshot.docs.map((item) => item.data().toId)))
+    }, (error) => {
+      console.warn('Sent friend requests unavailable', error)
+    })
+
+    const stopMessages = onSnapshot(messageQuery, (snapshot) => {
+      setMessages(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    }, (error) => {
+      console.warn('Messages unavailable', error)
+    })
+
+    const stopNotifications = onSnapshot(notificationQuery, (snapshot) => {
+      setNotifications(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    }, (error) => {
+      console.warn('Notifications unavailable', error)
+    })
+
     return () => {
       stopFollowing()
       stopFollowers()
+      stopRequests()
+      stopSentRequests()
+      stopMessages()
+      stopNotifications()
     }
   }, [userId, isGuest])
 
@@ -643,14 +717,107 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     if (!requireCommunityAccount()) return
     const targetId = profile.id || profile.userId
     if (!targetId || targetId === userId) return
+    if (friendshipState(profile) === 'friends') {
+      await removeFriend(profile)
+      return
+    }
+    if (friendshipState(profile) === 'pending') {
+      onNotice(text.requestPending)
+      return
+    }
     try {
-      await setDoc(doc(db, 'follows', `${userId}_${targetId}`), {
-        followerId: userId,
-        followingId: targetId,
+      await setDoc(doc(db, 'friendRequests', `${userId}_${targetId}`), {
+        fromId: userId,
+        toId: targetId,
+        fromName: displayName,
         followerHandle: userHandle,
-        followingHandle: profile.userHandle || `@${profile.userUsername || 'nihongo'}`,
+        fromHandle: userHandle,
+        toHandle: profile.userHandle || `@${profile.userUsername || 'nihongo'}`,
+        status: 'pending',
         createdAt: serverTimestamp(),
       }, { merge: true })
+      await addDoc(collection(db, 'notifications'), {
+        toId: targetId,
+        fromId: userId,
+        fromHandle: userHandle,
+        type: 'friend_request',
+        text: `${userHandle} ${text.requestSent}`,
+        read: false,
+        createdAt: serverTimestamp(),
+      })
+      onNotice(text.requestSent)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const removeFriend = async (profile) => {
+    if (!requireCommunityAccount()) return
+    const targetId = profile.id || profile.userId
+    if (!targetId || targetId === userId) return
+    try {
+      await Promise.all([
+        deleteDoc(doc(db, 'follows', `${userId}_${targetId}`)),
+        deleteDoc(doc(db, 'follows', `${targetId}_${userId}`)),
+        setDoc(doc(db, 'publicProfiles', userId), {
+          followersCount: increment(-1),
+          followingCount: increment(-1),
+          updatedAt: new Date().toISOString(),
+        }, { merge: true }),
+        setDoc(doc(db, 'publicProfiles', targetId), {
+          followersCount: increment(-1),
+          followingCount: increment(-1),
+          updatedAt: new Date().toISOString(),
+        }, { merge: true }),
+      ])
+      onNotice(text.friendRemoved)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const acceptFriendRequest = async (request) => {
+    if (!requireCommunityAccount()) return
+    try {
+      await setDoc(doc(db, 'follows', `${request.fromId}_${userId}`), {
+        followerId: request.fromId,
+        followingId: userId,
+        followerHandle: request.fromHandle || request.followerHandle,
+        followingHandle: userHandle,
+        createdAt: serverTimestamp(),
+      }, { merge: true })
+      await setDoc(doc(db, 'follows', `${userId}_${request.fromId}`), {
+        followerId: userId,
+        followingId: request.fromId,
+        followerHandle: userHandle,
+        followingHandle: request.fromHandle || request.followerHandle,
+        createdAt: serverTimestamp(),
+      }, { merge: true })
+      await updateDoc(doc(db, 'friendRequests', request.id), {
+        status: 'accepted',
+        acceptedAt: serverTimestamp(),
+      })
+      await Promise.all([
+        setDoc(doc(db, 'publicProfiles', userId), {
+          followersCount: increment(1),
+          followingCount: increment(1),
+          updatedAt: new Date().toISOString(),
+        }, { merge: true }),
+        setDoc(doc(db, 'publicProfiles', request.fromId), {
+          followersCount: increment(1),
+          followingCount: increment(1),
+          updatedAt: new Date().toISOString(),
+        }, { merge: true }),
+        addDoc(collection(db, 'notifications'), {
+          toId: request.fromId,
+          fromId: userId,
+          fromHandle: userHandle,
+          type: 'friend_accept',
+          text: `${userHandle} ${isAr ? 'قبل طلب الصداقة.' : 'accepted your friend request.'}`,
+          read: false,
+          createdAt: serverTimestamp(),
+        }),
+      ])
       onNotice(text.following)
     } catch (error) {
       onNotice(`${text.locked} ${error.code || error.message}`)
@@ -661,7 +828,45 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     const targetId = profile.id || profile.userId
     if (!targetId || targetId === userId) return
     const friends = visibleFollowingIds.has(targetId) && visibleFollowerIds.has(targetId)
-    onNotice(friends ? text.messageSoon : text.friendsOnly)
+    if (!friends) {
+      onNotice(text.friendsOnly)
+      return
+    }
+    setSelectedProfile(profile)
+    setActiveInbox('compose')
+  }
+
+  const sendMessageToProfile = async () => {
+    if (!selectedProfile || !requireCommunityAccount()) return
+    const targetId = selectedProfile.id || selectedProfile.userId
+    const body = messageDraft.trim()
+    if (!body) return onNotice(text.messagePlaceholder)
+    try {
+      await addDoc(collection(db, 'messages'), {
+        fromId: userId,
+        toId: targetId,
+        fromName: displayName,
+        fromHandle: userHandle,
+        toHandle: selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`,
+        body,
+        read: false,
+        createdAt: serverTimestamp(),
+      })
+      await addDoc(collection(db, 'notifications'), {
+        toId: targetId,
+        fromId: userId,
+        fromHandle: userHandle,
+        type: 'message',
+        text: `${userHandle}: ${body.slice(0, 80)}`,
+        read: false,
+        createdAt: serverTimestamp(),
+      })
+      setMessageDraft('')
+      setActiveInbox(null)
+      onNotice(text.messageSent)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
   }
 
   const checkSentence = () => {
@@ -684,12 +889,70 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
           <h1>{text.title}</h1>
           <p>{text.subtitle}</p>
         </div>
-        <div className="community-score">
-          <strong>{streak}</strong>
-          <span>Streak</span>
-          <small>{totalQuizzes} Quiz</small>
+        <div className="community-hero-side">
+          <div className="community-inbox-actions">
+            <button onClick={() => setActiveInbox(activeInbox === 'messages' ? null : 'messages')} aria-label={text.inbox}>
+              <span>✉</span>
+              {unreadMessages > 0 && <b>{unreadMessages}</b>}
+            </button>
+            <button onClick={() => setActiveInbox(activeInbox === 'requests' ? null : 'requests')} aria-label={text.requests}>
+              <span>＋</span>
+              {friendRequests.length > 0 && <b>{friendRequests.length}</b>}
+            </button>
+            <button onClick={() => setActiveInbox(activeInbox === 'notifications' ? null : 'notifications')} aria-label={text.notifications}>
+              <span>🔔</span>
+              {unreadNotifications > 0 && <b>{unreadNotifications}</b>}
+            </button>
+          </div>
+          <div className="community-score">
+            <strong>{streak}</strong>
+            <span>Streak</span>
+            <small>{totalQuizzes} Quiz</small>
+          </div>
         </div>
       </div>
+
+      {activeInbox && activeInbox !== 'compose' && (
+        <article className="community-card inbox-panel">
+          <div className="card-heading">
+            <span>{activeInbox === 'messages' ? '✉' : activeInbox === 'requests' ? '＋' : '🔔'}</span>
+            <h2>{activeInbox === 'messages' ? text.inbox : activeInbox === 'requests' ? text.requests : text.notifications}</h2>
+          </div>
+          {activeInbox === 'messages' && (
+            <div className="inbox-list">
+              {messages.length ? messages.map((message) => (
+                <button key={message.id} onClick={() => setSelectedProfile(profileForCommunityItem({ userId: message.fromId, authorHandle: message.fromHandle, authorName: message.fromName }))}>
+                  <strong>{message.fromHandle}</strong>
+                  <span>{message.body}</span>
+                </button>
+              )) : <p>{text.noMessages}</p>}
+            </div>
+          )}
+          {activeInbox === 'requests' && (
+            <div className="inbox-list">
+              {friendRequests.length ? friendRequests.map((request) => (
+                <div key={request.id} className="request-row">
+                  <button onClick={() => setSelectedProfile(profileForCommunityItem({ userId: request.fromId, authorHandle: request.fromHandle || request.followerHandle, authorName: request.fromName }))}>
+                    <strong>{request.fromHandle || request.followerHandle}</strong>
+                    <span>{text.followRequest}</span>
+                  </button>
+                  <Button variant="small" onClick={() => acceptFriendRequest(request)}>{text.accept}</Button>
+                </div>
+              )) : <p>{text.noRequests}</p>}
+            </div>
+          )}
+          {activeInbox === 'notifications' && (
+            <div className="inbox-list">
+              {notifications.length ? notifications.map((item) => (
+                <button key={item.id} onClick={() => item.fromId && setSelectedProfile(profileForCommunityItem({ userId: item.fromId, authorHandle: item.fromHandle }))}>
+                  <strong>{item.fromHandle || 'Nihongo'}</strong>
+                  <span>{item.text}</span>
+                </button>
+              )) : <p>{text.noNotifications}</p>}
+            </div>
+          )}
+        </article>
+      )}
 
       <div className="community-grid">
         <article className="community-card daily-card">
@@ -829,33 +1092,54 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
               </div>
               <div>
                 <h2>{selectedProfile.userName || 'Nihongo learner'}</h2>
-                <p className="user-handle">{selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`}</p>
+                <div className="profile-handle-row">
+                  <p className="user-handle">{selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`}</p>
+                  {!selectedProfile.current && (
+                    <div className="profile-inline-actions">
+                      <button onClick={() => messageProfile(selectedProfile)} aria-label={text.message}>✉</button>
+                      <span className="friend-action-wrap">
+                        <button
+                          onClick={() => {
+                            if (friendshipState(selectedProfile) === 'friends') {
+                              setFriendMenuOpen((value) => !value)
+                              return
+                            }
+                            followProfile(selectedProfile)
+                          }}
+                          aria-label={text.followRequest}
+                        >
+                          {friendshipState(selectedProfile) === 'friends' ? '✓' : friendshipState(selectedProfile) === 'pending' ? '⌛' : '👤+'}
+                        </button>
+                        {friendMenuOpen && friendshipState(selectedProfile) === 'friends' && (
+                          <button className="friend-menu" onClick={() => { setFriendMenuOpen(false); removeFriend(selectedProfile) }}>
+                            {text.removeFriend}
+                          </button>
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <p className="public-bio">{selectedProfile.userBio || text.noBio}</p>
             <div className="public-stat-grid">
               <Stat label="XP" value={selectedProfile.xp || 0} />
               <Stat label="Streak" value={selectedProfile.streak || 0} />
-              <Stat label={isAr ? 'حروف' : 'Chars'} value={selectedProfile.masteredCount || 0} />
-              <Stat label={isAr ? 'دروس' : 'Lessons'} value={selectedProfile.completedLessons || 0} />
+              <Stat label={isAr ? 'متابعين' : 'Followers'} value={selectedProfile.current ? visibleFollowerIds.size : selectedProfile.followersCount || 0} />
+              <Stat label={isAr ? 'يتابع' : 'Following'} value={selectedProfile.current ? visibleFollowingIds.size : selectedProfile.followingCount || 0} />
             </div>
             <div className="profile-detail-list">
               <div><span>{isAr ? 'الاختبارات' : 'Quizzes'}</span><strong>{selectedProfile.totalQuizzes || 0}</strong></div>
+              <div><span>{isAr ? 'الحروف المتقنة' : 'Mastered chars'}</span><strong>{selectedProfile.masteredCount || 0}</strong></div>
+              <div><span>{isAr ? 'الدروس' : 'Lessons'}</span><strong>{selectedProfile.completedLessons || 0}</strong></div>
               <div><span>{isAr ? 'المستوى' : 'Level'}</span><strong>N5</strong></div>
-              <div><span>{isAr ? 'الحالة' : 'Status'}</span><strong>{selectedProfile.current ? text.ownProfile : visibleFollowingIds.has(selectedProfile.id || selectedProfile.userId) ? text.following : text.follow}</strong></div>
             </div>
-            <div className="profile-actions">
-              {selectedProfile.current ? (
-                <Button variant="secondary" onClick={() => setSelectedProfile(ownPublicProfile)}>{text.ownProfile}</Button>
-              ) : (
-                <>
-                  <Button variant="small" onClick={() => followProfile(selectedProfile)}>
-                    {visibleFollowingIds.has(selectedProfile.id || selectedProfile.userId) ? text.following : text.followRequest}
-                  </Button>
-                  <Button variant="secondary" onClick={() => messageProfile(selectedProfile)}>{text.message}</Button>
-                </>
-              )}
-            </div>
+            {activeInbox === 'compose' && selectedProfile && (
+              <div className="message-compose">
+                <textarea value={messageDraft} onChange={(event) => setMessageDraft(event.target.value)} placeholder={text.messagePlaceholder} />
+                <Button variant="small" onClick={sendMessageToProfile}>{text.message}</Button>
+              </div>
+            )}
           </article>
         </div>
       )}
