@@ -1,4 +1,16 @@
 import { lessonTwo } from './lessons/lesson02.js'
+import { lessonThree } from './lessons/lesson03.js'
+import { lessonFour } from './lessons/lesson04.js'
+import { lessonFive } from './lessons/lesson05.js'
+import { lessonSix } from './lessons/lesson06.js'
+import { lessonSeven } from './lessons/lesson07.js'
+import { lessonEight } from './lessons/lesson08.js'
+import { lessonNine } from './lessons/lesson09.js'
+import { lessonTen } from './lessons/lesson10.js'
+import { lessonEleven } from './lessons/lesson11.js'
+import { lessonTwelve } from './lessons/lesson12.js'
+import { lessonThirteen } from './lessons/lesson13.js'
+import { lessonFourteen } from './lessons/lesson14.js'
 
 export const lessonOne = {
   id: 1,
@@ -294,4 +306,4 @@ export const lessonOne = {
   videos: [],
 }
 
-export const n5Lessons = [lessonOne, lessonTwo]
+export const n5Lessons = [lessonOne, lessonTwo, lessonThree, lessonFour, lessonFive, lessonSix, lessonSeven, lessonEight, lessonNine, lessonTen, lessonEleven, lessonTwelve, lessonThirteen, lessonFourteen]
