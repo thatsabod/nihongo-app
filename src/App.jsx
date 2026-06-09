@@ -972,10 +972,15 @@ export default function App() {
       return
     }
     try {
-      await sendEmailVerification(auth.currentUser, {
-        url: window.location.origin,
-        handleCodeInApp: false,
-      })
+      try {
+        await sendEmailVerification(auth.currentUser, {
+          url: window.location.origin,
+          handleCodeInApp: false,
+        })
+      } catch (error) {
+        if (error.code !== 'auth/unauthorized-continue-uri') throw error
+        await sendEmailVerification(auth.currentUser)
+      }
       setVerificationRetryAt(Date.now() + VERIFICATION_COOLDOWN_MS)
       setNotice(t.verificationSent)
     } catch (error) {
@@ -1283,21 +1288,15 @@ export default function App() {
                 const prevDone = lessonNumber === 1 || (lessonProgress[prevKey] || 0) >= sectionCount
                 const amount = lessonProgress[key] || 0
                 const locked = !prevDone || !lesson
-                const status = !lesson ? t.comingSoon : locked ? t.locked : amount >= sectionCount ? t.done : t.current
-
                 return (
                   <button
                     key={lessonNumber}
                     disabled={locked}
-                    className={`lesson-node map-node ${locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'} ${index % 2 ? 'right' : 'left'}`}
+                    className={`lesson-node map-node ${locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'} step-${index % 12}`}
+                    aria-label={`${t.lesson} ${lessonNumber}`}
                     onClick={() => { setActiveLesson(lesson); setScreen('lesson') }}
                   >
                     <span className="lesson-number">{amount >= sectionCount ? '★' : lessonNumber}</span>
-                    <div>
-                      <strong>{lesson ? lesson.title[lang] : `${t.lesson} ${lessonNumber}`}</strong>
-                      <small>{lesson?.focus || 'N5'} · {status}</small>
-                    </div>
-                    <meter min="0" max={sectionCount} value={amount} />
                   </button>
                 )
               })}

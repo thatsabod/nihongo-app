@@ -6,6 +6,30 @@ import { auth, db } from '../firebase.js'
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
 const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
 
+async function sendEmailVerificationSafely(user) {
+  try {
+    await sendEmailVerification(user, {
+      url: window.location.origin,
+      handleCodeInApp: false,
+    })
+  } catch (error) {
+    if (error.code !== 'auth/unauthorized-continue-uri') throw error
+    await sendEmailVerification(user)
+  }
+}
+
+async function sendPasswordResetSafely(email) {
+  try {
+    await sendPasswordResetEmail(auth, email, {
+      url: window.location.origin,
+      handleCodeInApp: false,
+    })
+  } catch (error) {
+    if (error.code !== 'auth/unauthorized-continue-uri') throw error
+    await sendPasswordResetEmail(auth, email)
+  }
+}
+
 const countries = [
   { code: 'IQ', ar: 'العراق', en: 'Iraq', cities: ['بغداد', 'البصرة', 'الموصل', 'أربيل', 'النجف', 'كربلاء', 'السليمانية'] },
   { code: 'SA', ar: 'السعودية', en: 'Saudi Arabia', cities: ['الرياض', 'جدة', 'مكة', 'المدينة', 'الدمام'] },
@@ -187,10 +211,7 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
           updatedAt: createdAt,
         }, { merge: true })
       })
-      await sendEmailVerification(result.user, {
-        url: window.location.origin,
-        handleCodeInApp: false,
-      }).then(() => {
+      await sendEmailVerificationSafely(result.user).then(() => {
         const retryAt = Date.now() + VERIFICATION_COOLDOWN_MS
         localStorage.setItem('nihongo-verification-retry-at', String(retryAt))
         window.dispatchEvent(new CustomEvent('nihongo-verification-sent', { detail: { retryAt } }))
@@ -232,10 +253,7 @@ export default function Login({ lang = 'ar', onBack, onLogin }) {
     setError('')
     setMessage('')
     try {
-      await sendPasswordResetEmail(auth, form.email.trim(), {
-        url: window.location.origin,
-        handleCodeInApp: false,
-      })
+      await sendPasswordResetSafely(form.email.trim())
       setMessage(t.resetSent)
     } catch (err) {
       setError(err.code || err.message)
