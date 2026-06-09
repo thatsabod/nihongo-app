@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/auth'
-import { doc, getDoc, runTransaction, setDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, where } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons } from './data.js'
 import { speakJapanese } from './sounds.js'
@@ -207,6 +207,96 @@ const levels = [
   { id: 'N1', ar: 'احترافي', en: 'Professional', unlocked: false },
 ]
 
+const communityText = {
+  ar: {
+    title: 'مجتمع الدراسة',
+    subtitle: 'تفاعل يخدم التعلم: تحديات، أسئلة، مجموعات، وجمل يابانية.',
+    daily: 'تحدي اليوم',
+    groups: 'مجموعات الدراسة',
+    questions: 'أسئلة المجتمع',
+    sentences: 'مشاركة الجمل',
+    leaderboard: 'المتصدرون',
+    aiPartner: 'شريك اللغة AI',
+    corrector: 'تصحيح الجمل',
+    start: 'ابدأ',
+    join: 'انضم',
+    ask: 'اسأل المجتمع',
+    share: 'شارك الجملة',
+    correct: 'صحح',
+    send: 'إرسال',
+    questionPlaceholder: 'اكتب سؤالك عن الياباني...',
+    sentencePlaceholder: 'اكتب جملة يابانية مثل: わたしはがくせいです',
+    meaningPlaceholder: 'المعنى بالعربي اختياري',
+    partnerPlaceholder: 'اكتب رسالة قصيرة بالياباني أو العربي...',
+    locked: 'قريباً ربط مباشر مع Firestore و AI حقيقي.',
+    saved: 'تم الحفظ بالمجتمع.',
+    loginRequired: 'سجل دخول حتى تشارك بالمجتمع وتحفظ باسمك.',
+    follow: 'متابعة',
+    following: 'تتابعه',
+    message: 'رسالة',
+    friendsOnly: 'الرسائل تفتح بعد ما تصيرون أصدقاء: لازم تتابعوه ويتابعك.',
+    messageSoon: 'المحادثات الخاصة جاهزة للربط كخطوة قادمة.',
+    viewProfile: 'عرض البروفايل',
+    publicStats: 'إحصائيات عامة',
+    emptyCorrection: 'اكتب جملة حتى أراجعها.',
+    goodJapanese: 'حلو، الجملة تحتوي ياباني. انتبه للمسافات حول は و の حتى تكون القراءة أوضح.',
+    needsJapanese: 'حاول تضيف نص ياباني حتى يكون التصحيح مفيد.',
+    partnerReply: 'いいですね! خل نكمل: عرّف عن نفسك بجملة واحدة باليابانية.',
+  },
+  en: {
+    title: 'Study Hub',
+    subtitle: 'Interaction built for learning: challenges, questions, groups, and Japanese sentences.',
+    daily: 'Daily challenge',
+    groups: 'Study groups',
+    questions: 'Community questions',
+    sentences: 'Sentence sharing',
+    leaderboard: 'Leaderboard',
+    aiPartner: 'AI language partner',
+    corrector: 'Sentence correction',
+    start: 'Start',
+    join: 'Join',
+    ask: 'Ask community',
+    share: 'Share sentence',
+    correct: 'Correct',
+    send: 'Send',
+    questionPlaceholder: 'Write your Japanese question...',
+    sentencePlaceholder: 'Write a Japanese sentence, e.g. わたしはがくせいです',
+    meaningPlaceholder: 'Arabic meaning, optional',
+    partnerPlaceholder: 'Write a short message in Japanese or Arabic...',
+    locked: 'Firestore and real AI wiring can be added next.',
+    saved: 'Saved to the community.',
+    loginRequired: 'Log in to post to the community under your name.',
+    follow: 'Follow',
+    following: 'Following',
+    message: 'Message',
+    friendsOnly: 'Messages unlock after you become friends: you follow them and they follow you back.',
+    messageSoon: 'Private messages are ready to wire in the next step.',
+    viewProfile: 'View profile',
+    publicStats: 'Public stats',
+    emptyCorrection: 'Write a sentence first.',
+    goodJapanese: 'Nice, this includes Japanese. Watch spacing around は and の for clearer reading.',
+    needsJapanese: 'Add Japanese text so correction is useful.',
+    partnerReply: 'いいですね! Next, introduce yourself in one Japanese sentence.',
+  },
+}
+
+const studyGroups = [
+  { icon: 'あ', ar: 'نادي حروف N5', en: 'N5 Character Club', metaAr: 'تدريب رسم وصوت', metaEn: 'Drawing and sound practice' },
+  { icon: '文', ar: 'مختبر الجمل', en: 'Sentence Lab', metaAr: 'شارك جملة وخذ تصحيح', metaEn: 'Share sentences and get feedback' },
+  { icon: '会', ar: 'غرفة محادثة المبتدئين', en: 'Beginner Chat Room', metaAr: 'تعرف وسولف بجمل بسيطة', metaEn: 'Simple beginner conversations' },
+]
+
+const communityQuestions = [
+  { ar: 'متى أستخدم は ومتى أستخدم が؟', en: 'When should I use は vs が?', answers: 8 },
+  { ar: 'شلون أحفظ الكاتاكانا بسرعة؟', en: 'How can I memorize katakana faster?', answers: 5 },
+  { ar: 'هل じゃありません رسمي كفاية؟', en: 'Is じゃありません formal enough?', answers: 3 },
+]
+
+const sharedSentences = [
+  { jp: 'わたしは がくせい です。', ar: 'أنا طالب.', user: '@sakura' },
+  { jp: 'ミラーさんも かいしゃいん です。', ar: 'السيد ميرا أيضاً موظف شركة.', user: '@nihongo' },
+]
+
 const quizSets = { hiragana, katakana, kanji: kanjiN5 }
 
 function shuffle(items) {
@@ -303,6 +393,10 @@ function normalizeUsername(value, fallback = 'nihongo') {
   return clean || fallback
 }
 
+function hasJapanese(value) {
+  return /[\u3040-\u30ff\u3400-\u9fff]/.test(value)
+}
+
 function readGuestState() {
   try {
     const saved = JSON.parse(localStorage.getItem(GUEST_KEY) || 'null')
@@ -334,6 +428,379 @@ function JapaneseTerm({ item, className = 'jp' }) {
       {kanji}
       <rt>{kana}</rt>
     </ruby>
+  )
+}
+
+function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, onStartDaily, onNotice }) {
+  const [sentence, setSentence] = useState('')
+  const [shareSentence, setShareSentence] = useState('')
+  const [shareMeaning, setShareMeaning] = useState('')
+  const [questionText, setQuestionText] = useState('')
+  const [partnerMessage, setPartnerMessage] = useState('')
+  const [correction, setCorrection] = useState('')
+  const [partnerReply, setPartnerReply] = useState('')
+  const [liveQuestions, setLiveQuestions] = useState([])
+  const [liveSentences, setLiveSentences] = useState([])
+  const [publicProfiles, setPublicProfiles] = useState([])
+  const [followingIds, setFollowingIds] = useState(new Set())
+  const [followerIds, setFollowerIds] = useState(new Set())
+  const [selectedProfile, setSelectedProfile] = useState(null)
+  const text = communityText[lang] || communityText.en
+  const isAr = lang === 'ar'
+  const displayName = userName || (isAr ? 'أنت' : 'You')
+  const canPost = Boolean(userId && !isGuest)
+  const visibleFollowingIds = canPost ? followingIds : new Set()
+  const visibleFollowerIds = canPost ? followerIds : new Set()
+  const visibleQuestions = liveQuestions.length ? liveQuestions : communityQuestions.map((item) => ({
+    id: item.en,
+    text: item[isAr ? 'ar' : 'en'],
+    answers: item.answers,
+  }))
+  const visibleSentences = liveSentences.length ? liveSentences : sharedSentences.map((item) => ({
+    id: item.jp,
+    jp: item.jp,
+    meaning: item.ar,
+    authorHandle: item.user,
+  }))
+  const fallbackProfile = {
+    id: userId || 'guest',
+    userId: userId || 'guest',
+    userName: displayName,
+    userUsername: userHandle.replace('@', ''),
+    userHandle,
+    xp,
+    streak,
+    totalQuizzes,
+    masteredCount,
+    completedLessons: 0,
+    current: true,
+  }
+  const leaderboard = (publicProfiles.length ? publicProfiles : [fallbackProfile])
+    .map((profile) => ({
+      ...profile,
+      userHandle: profile.userHandle || `@${profile.userUsername || 'nihongo'}`,
+      current: profile.id === userId || profile.userId === userId,
+    }))
+    .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+
+  useEffect(() => {
+    const questionQuery = query(collection(db, 'communityQuestions'), orderBy('createdAt', 'desc'), limit(20))
+    const sentenceQuery = query(collection(db, 'communitySentences'), orderBy('createdAt', 'desc'), limit(20))
+    const profileQuery = query(collection(db, 'publicProfiles'), orderBy('xp', 'desc'), limit(30))
+
+    const stopQuestions = onSnapshot(questionQuery, (snapshot) => {
+      setLiveQuestions(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    }, (error) => {
+      console.warn('Community questions unavailable', error)
+    })
+
+    const stopSentences = onSnapshot(sentenceQuery, (snapshot) => {
+      setLiveSentences(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    }, (error) => {
+      console.warn('Community sentences unavailable', error)
+    })
+
+    const stopProfiles = onSnapshot(profileQuery, (snapshot) => {
+      setPublicProfiles(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })))
+    }, (error) => {
+      console.warn('Public profiles unavailable', error)
+    })
+
+    return () => {
+      stopQuestions()
+      stopSentences()
+      stopProfiles()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!userId || isGuest) {
+      return undefined
+    }
+
+    const followingQuery = query(collection(db, 'follows'), where('followerId', '==', userId), limit(500))
+    const followersQuery = query(collection(db, 'follows'), where('followingId', '==', userId), limit(500))
+
+    const stopFollowing = onSnapshot(followingQuery, (snapshot) => {
+      setFollowingIds(new Set(snapshot.docs.map((item) => item.data().followingId)))
+    }, (error) => {
+      console.warn('Following list unavailable', error)
+    })
+
+    const stopFollowers = onSnapshot(followersQuery, (snapshot) => {
+      setFollowerIds(new Set(snapshot.docs.map((item) => item.data().followerId)))
+    }, (error) => {
+      console.warn('Follower list unavailable', error)
+    })
+
+    return () => {
+      stopFollowing()
+      stopFollowers()
+    }
+  }, [userId, isGuest])
+
+  const requireCommunityAccount = () => {
+    if (canPost) return true
+    onNotice(text.loginRequired)
+    return false
+  }
+
+  const askQuestion = async () => {
+    const next = questionText.trim()
+    if (!next) return onNotice(text.questionPlaceholder)
+    if (!requireCommunityAccount()) return
+    try {
+      await addDoc(collection(db, 'communityQuestions'), {
+        text: next,
+        lang,
+        authorName: displayName,
+        authorHandle: userHandle,
+        answers: 0,
+        userId,
+        createdAt: serverTimestamp(),
+      })
+      setQuestionText('')
+      onNotice(text.saved)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const shareCommunitySentence = async () => {
+    const next = shareSentence.trim()
+    if (!next) return onNotice(text.sentencePlaceholder)
+    if (!hasJapanese(next)) return onNotice(text.needsJapanese)
+    if (!requireCommunityAccount()) return
+    try {
+      await addDoc(collection(db, 'communitySentences'), {
+        jp: next,
+        meaning: shareMeaning.trim(),
+        lang,
+        authorName: displayName,
+        authorHandle: userHandle,
+        userId,
+        createdAt: serverTimestamp(),
+      })
+      setShareSentence('')
+      setShareMeaning('')
+      onNotice(text.saved)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const joinGroup = async (group) => {
+    if (!requireCommunityAccount()) return
+    try {
+      await addDoc(collection(db, 'studyGroupJoins'), {
+        groupId: group.en,
+        groupName: group[isAr ? 'ar' : 'en'],
+        authorName: displayName,
+        authorHandle: userHandle,
+        userId,
+        createdAt: serverTimestamp(),
+      })
+      onNotice(`${text.join}: ${group[isAr ? 'ar' : 'en']}`)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const followProfile = async (profile) => {
+    if (!requireCommunityAccount()) return
+    const targetId = profile.id || profile.userId
+    if (!targetId || targetId === userId) return
+    try {
+      await setDoc(doc(db, 'follows', `${userId}_${targetId}`), {
+        followerId: userId,
+        followingId: targetId,
+        followerHandle: userHandle,
+        followingHandle: profile.userHandle || `@${profile.userUsername || 'nihongo'}`,
+        createdAt: serverTimestamp(),
+      }, { merge: true })
+      onNotice(text.following)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const messageProfile = (profile) => {
+    const targetId = profile.id || profile.userId
+    if (!targetId || targetId === userId) return
+    const friends = visibleFollowingIds.has(targetId) && visibleFollowerIds.has(targetId)
+    onNotice(friends ? text.messageSoon : text.friendsOnly)
+  }
+
+  const checkSentence = () => {
+    const next = sentence.trim()
+    if (!next) return setCorrection(text.emptyCorrection)
+    setCorrection(hasJapanese(next) ? text.goodJapanese : text.needsJapanese)
+  }
+
+  const talkToPartner = () => {
+    const next = partnerMessage.trim()
+    if (!next) return setPartnerReply(text.emptyCorrection)
+    setPartnerReply(hasJapanese(next) ? text.partnerReply : text.needsJapanese)
+  }
+
+  return (
+    <section className="content community">
+      <div className="community-hero">
+        <div>
+          <p className="eyebrow">Study Hub</p>
+          <h1>{text.title}</h1>
+          <p>{text.subtitle}</p>
+        </div>
+        <div className="community-score">
+          <strong>{streak}</strong>
+          <span>Streak</span>
+          <small>{totalQuizzes} Quiz</small>
+        </div>
+      </div>
+
+      <div className="community-grid">
+        <article className="community-card daily-card">
+          <div className="card-heading">
+            <span>⚡</span>
+            <div>
+              <h2>{text.daily}</h2>
+              <p>{isAr ? 'خمس دقائق: حرف، مفردة، وجملة قصيرة.' : 'Five minutes: character, word, and short sentence.'}</p>
+            </div>
+          </div>
+          <div className="challenge-meter">
+            <span style={{ width: `${Math.min(100, masteredCount * 4)}%` }} />
+          </div>
+          <Button variant="small" onClick={onStartDaily}>{text.start}</Button>
+        </article>
+
+        <article className="community-card">
+          <div className="card-heading">
+            <span>🏆</span>
+            <h2>{text.leaderboard}</h2>
+          </div>
+          <div className="leaderboard-list">
+            {leaderboard.map((item, index) => (
+              <button key={item.id || item.userHandle} className={item.current ? 'current' : ''} onClick={() => setSelectedProfile(item)}>
+                <strong>{index + 1}</strong>
+                <span>{item.userName || item.name}<small>{item.userHandle}</small></span>
+                <b>{item.xp || 0} XP</b>
+              </button>
+            ))}
+          </div>
+        </article>
+
+        <article className="community-card wide">
+          <div className="card-heading">
+            <span>👥</span>
+            <h2>{text.groups}</h2>
+          </div>
+          <div className="study-group-list">
+            {studyGroups.map((group) => (
+              <button key={group.en} onClick={() => joinGroup(group)}>
+                <i>{group.icon}</i>
+                <span>
+                  <strong>{group[isAr ? 'ar' : 'en']}</strong>
+                  <small>{group[isAr ? 'metaAr' : 'metaEn']}</small>
+                </span>
+                <b>{text.join}</b>
+              </button>
+            ))}
+          </div>
+        </article>
+
+        <article className="community-card">
+          <div className="card-heading">
+            <span>💬</span>
+            <h2>{text.questions}</h2>
+          </div>
+          <div className="question-list">
+            {visibleQuestions.map((question) => (
+              <button key={question.id} onClick={() => onNotice(text.locked)}>
+                <strong>{question.text}</strong>
+                <small>{question.answers || 0} {isAr ? 'إجابات' : 'answers'}{question.authorHandle ? ` · ${question.authorHandle}` : ''}</small>
+              </button>
+            ))}
+          </div>
+          <div className="community-input">
+            <input value={questionText} onChange={(event) => setQuestionText(event.target.value)} placeholder={text.questionPlaceholder} />
+            <Button variant="secondary" onClick={askQuestion}>{text.ask}</Button>
+          </div>
+        </article>
+
+        <article className="community-card">
+          <div className="card-heading">
+            <span>✍</span>
+            <h2>{text.sentences}</h2>
+          </div>
+          <div className="sentence-feed">
+            {visibleSentences.map((item) => (
+              <button key={item.id} onClick={() => speakJapanese(item.jp)}>
+                <span>{item.jp}</span>
+                <small>{item.meaning || '—'} · {item.authorHandle}</small>
+              </button>
+            ))}
+          </div>
+          <div className="community-input">
+            <input value={shareSentence} onChange={(event) => setShareSentence(event.target.value)} placeholder={text.sentencePlaceholder} />
+            <Button variant="small" onClick={shareCommunitySentence}>{text.share}</Button>
+          </div>
+          <input className="community-meaning" value={shareMeaning} onChange={(event) => setShareMeaning(event.target.value)} placeholder={text.meaningPlaceholder} />
+        </article>
+
+        <article className="community-card ai-card">
+          <div className="card-heading">
+            <span>✨</span>
+            <h2>{text.corrector}</h2>
+          </div>
+          <textarea value={sentence} onChange={(event) => setSentence(event.target.value)} placeholder={text.sentencePlaceholder} />
+          <Button variant="small" onClick={checkSentence}>{text.correct}</Button>
+          {correction && <p className="ai-reply">{correction}</p>}
+        </article>
+
+        <article className="community-card ai-card wide">
+          <div className="card-heading">
+            <span>友</span>
+            <h2>{text.aiPartner}</h2>
+          </div>
+          <textarea value={partnerMessage} onChange={(event) => setPartnerMessage(event.target.value)} placeholder={text.partnerPlaceholder} />
+          <Button variant="small" onClick={talkToPartner}>{text.send}</Button>
+          {partnerReply && <p className="ai-reply">{partnerReply}</p>}
+        </article>
+      </div>
+
+      {selectedProfile && (
+        <div className="profile-modal" role="dialog" aria-modal="true">
+          <button className="modal-backdrop" onClick={() => setSelectedProfile(null)} aria-label="Close" />
+          <article className="public-profile-card">
+            <button className="icon-btn modal-close" onClick={() => setSelectedProfile(null)}>×</button>
+            <div className="avatar large">
+              {selectedProfile.userAvatar ? <img src={selectedProfile.userAvatar} alt="" /> : (selectedProfile.userName || 'N').slice(0, 1).toUpperCase()}
+            </div>
+            <h2>{selectedProfile.userName || 'Nihongo learner'}</h2>
+            <p className="user-handle">{selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`}</p>
+            {selectedProfile.userBio && <p>{selectedProfile.userBio}</p>}
+            <div className="public-stat-grid">
+              <Stat label="XP" value={selectedProfile.xp || 0} />
+              <Stat label="Streak" value={selectedProfile.streak || 0} />
+              <Stat label={isAr ? 'حروف' : 'Chars'} value={selectedProfile.masteredCount || 0} />
+              <Stat label={isAr ? 'دروس' : 'Lessons'} value={selectedProfile.completedLessons || 0} />
+            </div>
+            <div className="split-actions">
+              {(selectedProfile.id || selectedProfile.userId) !== userId && (
+                <Button variant="small" onClick={() => followProfile(selectedProfile)}>
+                  {visibleFollowingIds.has(selectedProfile.id || selectedProfile.userId) ? text.following : text.follow}
+                </Button>
+              )}
+              {(selectedProfile.id || selectedProfile.userId) !== userId && (
+                <Button variant="secondary" onClick={() => messageProfile(selectedProfile)}>{text.message}</Button>
+              )}
+            </div>
+          </article>
+        </div>
+      )}
+
+      <p className="community-footnote">{text.locked}</p>
+    </section>
   )
 }
 
@@ -773,6 +1240,22 @@ export default function App() {
     startingGemsGranted,
   }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, emailVerified, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang, startingGemsGranted])
 
+  const publicProfilePayload = useMemo(() => ({
+    userId,
+    userName: userName || 'Nihongo learner',
+    userUsername: normalizeUsername(userUsername || userName || userEmail?.split('@')[0] || 'nihongo'),
+    userHandle,
+    userAvatar,
+    userBio,
+    xp,
+    streak,
+    masteredCount,
+    completedLessons,
+    totalQuizzes,
+    lang,
+    updatedAt: new Date().toISOString(),
+  }), [userId, userName, userUsername, userEmail, userHandle, userAvatar, userBio, xp, streak, masteredCount, completedLessons, totalQuizzes, lang])
+
   const saveUserDataNow = async (id = userId, extra = {}) => {
     if (!id || isGuest || !dataReady) return
     const payload = {
@@ -783,6 +1266,17 @@ export default function App() {
     }
     lastSavedCloudJsonRef.current = JSON.stringify(userPayload)
     await setDoc(doc(db, 'users', id), payload, { merge: true })
+    await setDoc(doc(db, 'publicProfiles', id), {
+      ...publicProfilePayload,
+      ...('userName' in extra ? { userName: extra.userName || 'Nihongo learner' } : {}),
+      ...('userUsername' in extra ? {
+        userUsername: normalizeUsername(extra.userUsername),
+        userHandle: `@${normalizeUsername(extra.userUsername)}`,
+      } : {}),
+      ...('userAvatar' in extra ? { userAvatar: extra.userAvatar } : {}),
+      ...('userBio' in extra ? { userBio: extra.userBio } : {}),
+      updatedAt: new Date().toISOString(),
+    }, { merge: true })
   }
 
   const reserveUsername = async (nextUsername) => {
@@ -932,11 +1426,18 @@ export default function App() {
 
     if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
     cloudSaveTimerRef.current = window.setTimeout(() => {
-      setDoc(doc(db, 'users', userId), {
-        ...payload,
-        email: userEmail,
-        updatedAt: new Date().toISOString(),
-      }, { merge: true }).then(() => {
+      const updatedAt = new Date().toISOString()
+      Promise.all([
+        setDoc(doc(db, 'users', userId), {
+          ...payload,
+          email: userEmail,
+          updatedAt,
+        }, { merge: true }),
+        setDoc(doc(db, 'publicProfiles', userId), {
+          ...publicProfilePayload,
+          updatedAt,
+        }, { merge: true }),
+      ]).then(() => {
         lastSavedCloudJsonRef.current = cloudJson
       }).catch((error) => {
         console.error('Failed to sync user data', error)
@@ -946,7 +1447,7 @@ export default function App() {
     return () => {
       if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
     }
-  }, [userId, userEmail, isGuest, dataReady, userPayload])
+  }, [userId, userEmail, isGuest, dataReady, userPayload, publicProfilePayload])
 
   useEffect(() => {
     if (!dataReady) return
@@ -1457,6 +1958,22 @@ export default function App() {
           </section>
         )}
 
+        {tab === 'community' && (
+          <CommunityHub
+            lang={lang}
+            userId={userId}
+            isGuest={isGuest}
+            userName={userName}
+            userHandle={userHandle}
+            xp={xp}
+            streak={streak}
+            totalQuizzes={totalQuizzes}
+            masteredCount={masteredCount}
+            onStartDaily={() => startQuiz('hiragana')}
+            onNotice={setNotice}
+          />
+        )}
+
         {tab === 'profile' && (
           <section className="content profile">
             <div className="profile-toolbar">
@@ -1532,6 +2049,7 @@ export default function App() {
         {[
           ['home', '🏠', t.home],
           ['letters', 'あ', t.letters],
+          ['community', '会', lang === 'ar' ? 'المجتمع' : 'Community'],
           ['profile', '👤', t.profile],
         ].map(([id, icon, label]) => (
           <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
