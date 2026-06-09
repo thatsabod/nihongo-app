@@ -780,6 +780,38 @@ meter {
   padding: 8px clamp(14px, 4vw, 26px) 28px;
 }
 
+.vocab-group-list {
+  display: grid;
+  gap: 18px;
+}
+
+.vocab-group {
+  display: grid;
+  gap: 10px;
+}
+
+.vocab-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 clamp(14px, 4vw, 26px);
+}
+
+.vocab-group-head strong,
+.vocab-group-head small {
+  display: block;
+}
+
+.vocab-group-head strong {
+  color: var(--primary-2);
+}
+
+.vocab-group-head small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .char-grid button,
 .study-card {
   min-height: 92px;
@@ -1070,6 +1102,23 @@ meter {
   direction: ltr;
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.vocab-progress {
+  display: block;
+  width: 100%;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+}
+
+.vocab-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
 }
 
 ruby.jp,
@@ -1632,6 +1681,7 @@ rt {
 
 .community-input input,
 .community-meaning,
+.settings-panel select,
 .ai-card textarea {
   width: 100%;
   border: 1px solid var(--border);
@@ -2352,6 +2402,21 @@ input[type='checkbox'] {
   line-height: 1;
 }
 
+.quiz-ruby-main {
+  font-size: clamp(76px, 26vw, 130px);
+  line-height: 1;
+}
+
+.quiz-ruby-main rt,
+.answer-grid rt,
+.matching-board rt,
+.letter-group-card rt,
+.char-sections rt {
+  color: var(--muted);
+  font-size: 0.28em;
+  font-weight: 800;
+}
+
 .kana-focus small {
   color: var(--muted);
 }
@@ -2390,6 +2455,46 @@ input[type='checkbox'] {
   border-color: var(--red);
   background: color-mix(in srgb, var(--red) 18%, var(--panel));
   color: var(--red);
+}
+
+.matching-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.matching-board > div {
+  display: grid;
+  gap: 9px;
+}
+
+.matching-board strong {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.matching-board button {
+  min-height: 52px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 10px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.matching-board button.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 18%, var(--panel));
+}
+
+.matching-board button.matched {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 16%, var(--panel));
+  color: var(--green);
+  opacity: 0.15;
 }
 
 .next-note {

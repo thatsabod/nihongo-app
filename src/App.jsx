@@ -14,6 +14,7 @@ const sectionCount = 3
 const STARTING_GEMS = 2000
 const MAX_HEARTS = 10
 const HEART_REFILL_MS = 90 * 1000
+const VOCAB_MASTERY_TARGET = 5
 const GUEST_KEY = 'nihongo-guest-state'
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
 const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
@@ -102,6 +103,9 @@ const copy = {
     sound: 'الأصوات',
     fontSize: 'حجم الخط',
     cozyMode: 'وضع مريح',
+    kanjiReading: 'صوت الكانجي داخل التطبيق',
+    kanjiReadingHiragana: 'هيراغانا',
+    kanjiReadingRomaji: 'روماجي',
     profilePhoto: 'صورة الحساب',
     uploadPhoto: 'اختيار صورة',
     subscriptionText: 'اشتراكك الحالي مجاني. الباقات المدفوعة ستفتح لاحقا مزايا مثل دروس أكثر وتمارين متقدمة.',
@@ -190,6 +194,9 @@ const copy = {
     sound: 'Sounds',
     fontSize: 'Font size',
     cozyMode: 'Cozy mode',
+    kanjiReading: 'Kanji reading',
+    kanjiReadingHiragana: 'Hiragana',
+    kanjiReadingRomaji: 'Romaji',
     profilePhoto: 'Profile photo',
     uploadPhoto: 'Choose photo',
     subscriptionText: 'Your current plan is free. Paid plans will later unlock more lessons and advanced practice.',
@@ -377,20 +384,24 @@ function makeOptionPool(items, key) {
 function makeGroupQuiz(items) {
   const readingPool = makeOptionPool(items, 'answer')
   const kanaPool = makeOptionPool(items, 'kana')
+  const kanaReadings = items.reduce((acc, item) => ({ ...acc, [item.kana]: item.answer }), {})
 
   return shuffle(items.flatMap((item) => [
     {
       type: 'reading',
       kana: item.kana,
+      kanaReading: item.answer,
       answer: item.answer,
       options: [...new Set(shuffle([item.answer, ...readingPool.filter((value) => value !== item.answer)]))].slice(0, 4),
     },
     {
       type: 'reverse',
       kana: item.kana,
+      kanaReading: item.answer,
       answer: item.kana,
       answerLabel: item.answer,
       options: [...new Set(shuffle([item.kana, ...kanaPool.filter((value) => value !== item.kana)]))].slice(0, 4),
+      optionReadings: kanaReadings,
     },
     {
       type: 'draw',
@@ -399,6 +410,140 @@ function makeGroupQuiz(items) {
       options: [],
     },
   ])).slice(0, 12)
+}
+
+function vocabKey(lessonId, item) {
+  return `lesson:${lessonId}:vocab:${item.reading || item.jp}`
+}
+
+function vocabLabel(item) {
+  return item.kanji || item.jp || item.hiragana
+}
+
+function vocabReading(item, mode = 'hiragana') {
+  return mode === 'romaji' ? item.reading : item.hiragana || item.reading
+}
+
+function speakableVocab(item) {
+  return item.hiragana || item.jp || item.kanji
+}
+
+function optionReadingsFor(items, mode = 'hiragana') {
+  return items.reduce((acc, item) => ({
+    ...acc,
+    [vocabLabel(item)]: vocabReading(item, mode),
+  }), {})
+}
+
+function makeVocabOptions(items, item, key) {
+  const answer = key === 'label' ? vocabLabel(item) : item[key]
+  const distractors = items
+    .filter((candidate) => candidate !== item)
+    .map((candidate) => key === 'label' ? vocabLabel(candidate) : candidate[key])
+    .filter(Boolean)
+  return shuffle([answer, ...shuffle(distractors).slice(0, 5)])
+    .filter((value, index, arr) => arr.indexOf(value) === index)
+    .slice(0, 4)
+}
+
+function sentenceForVocab(item) {
+  const occupationReadings = new Set(['sensei', 'kyoushi', 'gakusei', 'kaishain', 'shain', 'ginkouin', 'isha', 'kenkyuusha', 'enjinia'])
+  const personReadings = new Set(['watashi', 'watashitachi', 'anata', 'ano hito', 'ano kata', 'minna-san'])
+  const placeReadings = new Set(['daigaku', 'byouin'])
+  const questionReadings = new Set(['dare', 'donata'])
+  if (occupationReadings.has(item.reading)) return 'わたし は ____ です。'
+  if (personReadings.has(item.reading)) return '____ は がくせい です。'
+  if (item.reading === '~san') return 'ミラー____ は せんせい です。'
+  if (item.reading === '~chan') return 'さくら____ は こども です。'
+  if (item.reading === '~kun') return 'たろう____ は がくせい です。'
+  if (item.reading === '~jin') return 'イラク____ です。'
+  if (placeReadings.has(item.reading)) return 'ここ は ____ です。'
+  if (item.reading === 'denki') return 'これは ____ です。'
+  if (questionReadings.has(item.reading)) return 'あの ひと は ____ ですか。'
+  if (item.reading === 'nan-sai desu ka') return '____。'
+  if (item.reading === 'sai') return '18 ____ です。'
+  if (item.reading === 'hai') return '____、がくせい です。'
+  if (item.reading === 'iie') return '____、がくせい じゃありません。'
+  return `____ = ${item.meaning}`
+}
+
+function makeMatchingQuestion(lesson, items, kanjiReadingMode = 'hiragana') {
+  const pairs = items.slice(0, 6).map((item, index) => ({
+    id: `${lesson.id}-${item.reading}-${index}`,
+    left: vocabLabel(item),
+    leftReading: vocabReading(item, kanjiReadingMode),
+    right: item.meaning,
+    progressKey: vocabKey(lesson.id, item),
+  }))
+  let rightOptions = shuffle(pairs)
+  const samePositions = rightOptions.every((pair, index) => pair.id === pairs[index]?.id)
+  if (samePositions && rightOptions.length > 1) {
+    rightOptions = [...rightOptions.slice(1), rightOptions[0]]
+  }
+  return {
+    type: 'matching',
+    kana: pairs.map((pair) => pair.left).join(' / '),
+    answer: '__matching_done__',
+    pairs,
+    rightOptions,
+    kanjiReadingMode,
+    progressKeys: pairs.map((pair) => pair.progressKey),
+    progressMax: VOCAB_MASTERY_TARGET,
+    soundEnabled: false,
+  }
+}
+
+function makeSentenceQuestion(lesson, item, items, kanjiReadingMode = 'hiragana') {
+  const label = vocabLabel(item)
+  const sentence = sentenceForVocab(item)
+  return {
+    type: 'sentence',
+    kana: label,
+    kanaReading: vocabReading(item, kanjiReadingMode),
+    speakText: speakableVocab(item),
+    sentence,
+    answer: label,
+    options: makeVocabOptions(items, item, 'label'),
+    optionReadings: optionReadingsFor(items, kanjiReadingMode),
+    kanjiReadingMode,
+    progressKeys: [vocabKey(lesson.id, item)],
+    progressMax: VOCAB_MASTERY_TARGET,
+  }
+}
+
+function makeLessonVocabQuiz(lesson, groupItems = lesson.vocab, kanjiReadingMode = 'hiragana') {
+  const items = groupItems.length ? groupItems : lesson.vocab
+  const base = shuffle(items)
+  const meaningQuestions = base.map((item) => ({
+    type: 'vocab_meaning',
+    kana: vocabLabel(item),
+    kanaReading: vocabReading(item, kanjiReadingMode),
+    speakText: speakableVocab(item),
+    answer: item.meaning,
+    options: makeVocabOptions(items, item, 'meaning'),
+    kanjiReadingMode,
+    progressKeys: [vocabKey(lesson.id, item)],
+    progressMax: VOCAB_MASTERY_TARGET,
+  }))
+  const audioQuestions = shuffle(items).map((item) => ({
+    type: 'audio_word',
+    kana: '聞く',
+    speakText: speakableVocab(item),
+    answer: vocabLabel(item),
+    options: makeVocabOptions(items, item, 'label'),
+    optionReadings: optionReadingsFor(items, kanjiReadingMode),
+    kanjiReadingMode,
+    progressKeys: [vocabKey(lesson.id, item)],
+    progressMax: VOCAB_MASTERY_TARGET,
+  }))
+  const sentenceQuestions = shuffle(items).map((item) => makeSentenceQuestion(lesson, item, items, kanjiReadingMode))
+  const matching = items.length >= 4 ? [makeMatchingQuestion(lesson, shuffle(items), kanjiReadingMode)] : []
+  return shuffle([
+    ...meaningQuestions.slice(0, 4),
+    ...audioQuestions.slice(0, 4),
+    ...sentenceQuestions.slice(0, 3),
+    ...matching,
+  ]).slice(0, 12)
 }
 
 function todayKey() {
@@ -440,6 +585,7 @@ function defaultState() {
     soundEnabled: true,
     fontScale: 1,
     cozyMode: true,
+    kanjiReadingMode: 'hiragana',
     isPaid: false,
     startingGemsGranted: true,
   }
@@ -482,14 +628,25 @@ function Stat({ label, value }) {
   )
 }
 
-function JapaneseTerm({ item, className = 'jp' }) {
+function JapaneseTerm({ item, className = 'jp', readingMode = 'hiragana' }) {
   const kana = item.hiragana || item.jp
   const kanji = item.kanji && item.kanji !== '—' ? item.kanji : kana
+  const reading = readingMode === 'romaji' ? item.reading || kana : kana
   if (kanji === kana) return <span className={className}>{kana}</span>
   return (
     <ruby className={className}>
       {kanji}
-      <rt>{kana}</rt>
+      <rt>{reading}</rt>
+    </ruby>
+  )
+}
+
+function CharacterSymbol({ item, readingMode = 'hiragana' }) {
+  if (!/[\u3400-\u9fff]/.test(item.kana)) return <>{item.kana}</>
+  return (
+    <ruby>
+      {item.kana}
+      <rt>{readingMode === 'romaji' ? item.answer : item.hiragana || item.answer}</rt>
     </ruby>
   )
 }
@@ -1505,10 +1662,11 @@ function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
   )
 }
 
-function LessonView({ lesson, lang, onBack, onQuiz }) {
+function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }) {
   const [section, setSection] = useState('vocabulary')
   const [flipped, setFlipped] = useState({})
   const t = copy[lang]
+  const vocabGroups = chunk(lesson.vocab, 8)
 
   return (
     <main className="screen">
@@ -1518,11 +1676,11 @@ function LessonView({ lesson, lang, onBack, onQuiz }) {
           <p>{t.lesson} {lesson.id}</p>
           <h1>{lesson.title[lang]}</h1>
         </div>
-        <Button variant="small" onClick={onQuiz}>{t.quiz}</Button>
+        <Button variant="small" onClick={() => onQuiz()}>{t.quiz}</Button>
       </header>
 
       <div className="lesson-toolbar">
-        <Button variant="small" onClick={onQuiz}>{t.practice}</Button>
+        <Button variant="small" onClick={() => onQuiz()}>{t.practice}</Button>
         <div className="tabs lesson-tabs">
           {['vocabulary', 'grammar', 'exercises', 'videos', 'review'].map((id) => (
             <button key={id} className={section === id ? 'active' : ''} onClick={() => setSection(id)}>
@@ -1534,17 +1692,35 @@ function LessonView({ lesson, lang, onBack, onQuiz }) {
 
       {section === 'vocabulary' && (
         <>
-          <div className="card-grid">
-            {lesson.vocab.map((item, index) => {
-              const shown = flipped[index]
-              return (
-                <button className="study-card" key={item.jp} onClick={() => setFlipped((f) => ({ ...f, [index]: !shown }))}>
-                  {shown ? <span className="jp">{item.reading}</span> : <JapaneseTerm item={item} />}
-                  <strong>{shown ? item.meaning : t.tapHear}</strong>
-                  <small>{shown ? (item.hiragana || item.jp) : item.reading}</small>
-                </button>
-              )
-            })}
+          <div className="vocab-group-list">
+            {vocabGroups.map((group, groupIndex) => (
+              <section className="vocab-group" key={`vocab-group-${groupIndex + 1}`}>
+                <div className="vocab-group-head">
+                  <div>
+                    <strong>{lang === 'ar' ? `مجموعة ${groupIndex + 1}` : `Group ${groupIndex + 1}`}</strong>
+                    <small>{lang === 'ar' ? 'كل مجموعة 8 مفردات' : '8 words per group'}</small>
+                  </div>
+                  <Button variant="small" onClick={() => onQuiz(group)}>{t.practice}</Button>
+                </div>
+                <div className="card-grid">
+                  {group.map((item, index) => {
+                    const itemIndex = groupIndex * 8 + index
+                    const shown = flipped[itemIndex]
+                    const amount = Math.min(progress[vocabKey(lesson.id, item)] || 0, VOCAB_MASTERY_TARGET)
+                    return (
+                      <button className="study-card" key={`${item.jp}-${item.reading}`} onClick={() => setFlipped((f) => ({ ...f, [itemIndex]: !shown }))}>
+                        {shown ? <span className="jp">{item.reading}</span> : <JapaneseTerm item={item} readingMode={kanjiReadingMode} />}
+                        <strong>{shown ? item.meaning : t.tapHear}</strong>
+                        <small>{shown ? (item.hiragana || item.jp) : item.reading}</small>
+                        <span className="vocab-progress" aria-label={`${amount}/${VOCAB_MASTERY_TARGET}`}>
+                          <i style={{ width: `${(amount / VOCAB_MASTERY_TARGET) * 100}%` }} />
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
           </div>
         </>
       )}
@@ -1575,12 +1751,12 @@ function LessonView({ lesson, lang, onBack, onQuiz }) {
           <div className="mini-list">
             {lesson.vocab.map((item) => (
               <button key={item.jp} onClick={() => speakJapanese(item.hiragana || item.jp)}>
-                <JapaneseTerm item={item} className="jp-line" />
+                <JapaneseTerm item={item} className="jp-line" readingMode={kanjiReadingMode} />
                 <small>{item.reading} · {item.meaning}</small>
               </button>
             ))}
           </div>
-          <Button onClick={onQuiz}>{t.practice}</Button>
+          <Button onClick={() => onQuiz()}>{t.practice}</Button>
         </section>
       )}
 
@@ -1593,7 +1769,7 @@ function LessonView({ lesson, lang, onBack, onQuiz }) {
               <small>{exercise.hint || exercise.ar}</small>
             </button>
           ))}
-          <Button onClick={onQuiz}>{t.practice}</Button>
+          <Button onClick={() => onQuiz()}>{t.practice}</Button>
         </div>
       )}
 
@@ -1612,7 +1788,7 @@ function LessonView({ lesson, lang, onBack, onQuiz }) {
           ) : (
             <p>{t.noVideos}</p>
           )}
-          <Button onClick={onQuiz}>{t.practice}</Button>
+          <Button onClick={() => onQuiz()}>{t.practice}</Button>
         </section>
       )}
 
@@ -1624,12 +1800,12 @@ function LessonView({ lesson, lang, onBack, onQuiz }) {
           <div className="mini-list">
             {lesson.vocab.slice(0, 4).map((item) => (
               <button key={item.jp} onClick={() => speakJapanese(item.hiragana || item.jp)}>
-                <JapaneseTerm item={item} className="jp-line" />
+                <JapaneseTerm item={item} className="jp-line" readingMode={kanjiReadingMode} />
                 <small>{item.reading} · {item.meaning}</small>
               </button>
             ))}
           </div>
-          <Button onClick={onQuiz}>{t.practice}</Button>
+          <Button onClick={() => onQuiz()}>{t.practice}</Button>
         </section>
       )}
     </main>
@@ -1776,6 +1952,13 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
               <span>{t.cozyMode}</span>
               <input type="checkbox" checked={values.cozyMode} onChange={(e) => onUpdatePrefs({ cozyMode: e.target.checked })} />
             </label>
+            <label>
+              {t.kanjiReading}
+              <select value={values.kanjiReadingMode} onChange={(e) => onUpdatePrefs({ kanjiReadingMode: e.target.value })}>
+                <option value="hiragana">{t.kanjiReadingHiragana}</option>
+                <option value="romaji">{t.kanjiReadingRomaji}</option>
+              </select>
+            </label>
           </div>
         )}
 
@@ -1814,6 +1997,7 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [fontScale, setFontScale] = useState(1)
   const [cozyMode, setCozyMode] = useState(true)
+  const [kanjiReadingMode, setKanjiReadingMode] = useState('hiragana')
   const [isPaid, setIsPaid] = useState(false)
   const [startingGemsGranted, setStartingGemsGranted] = useState(true)
   const [xp, setXp] = useState(0)
@@ -1876,6 +2060,7 @@ export default function App() {
     setSoundEnabled(state.soundEnabled ?? true)
     setFontScale(state.fontScale ?? 1)
     setCozyMode(state.cozyMode ?? true)
+    setKanjiReadingMode(state.kanjiReadingMode ?? 'hiragana')
     setIsPaid(state.isPaid ?? false)
     setStartingGemsGranted(true)
     if (state.theme) setTheme(state.theme)
@@ -1904,11 +2089,12 @@ export default function App() {
     soundEnabled,
     fontScale,
     cozyMode,
+    kanjiReadingMode,
     isPaid,
     theme,
     lang,
     startingGemsGranted,
-  }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, emailVerified, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang, startingGemsGranted])
+  }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, emailVerified, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang, startingGemsGranted])
 
   const publicProfilePayload = useMemo(() => ({
     userId,
@@ -1995,9 +2181,10 @@ export default function App() {
     document.documentElement.dir = dir
     document.documentElement.style.setProperty('--font-scale', String(fontScale))
     document.documentElement.dataset.cozy = cozyMode ? 'true' : 'false'
+    document.documentElement.dataset.kanjiReading = kanjiReadingMode
     localStorage.setItem('nihongo-lang', lang)
     localStorage.setItem('nihongo-theme', theme)
-  }, [lang, theme, dir, fontScale, cozyMode])
+  }, [lang, theme, dir, fontScale, cozyMode, kanjiReadingMode])
 
   useEffect(() => {
     if (!verificationRetryAt) return
@@ -2083,10 +2270,10 @@ export default function App() {
     localStorage.setItem(GUEST_KEY, JSON.stringify({
       xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress,
       totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday,
-      userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang,
+      userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang,
       startingGemsGranted,
     }))
-  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, isPaid, theme, lang, startingGemsGranted])
+  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang, startingGemsGranted])
 
   useEffect(() => {
     if (!userId || !dataReady || isGuest) return
@@ -2149,13 +2336,12 @@ export default function App() {
     setScreen('quiz')
   }
 
-  const startLessonQuiz = (lesson) => {
-    const lessonQuestions = lesson.vocab.map((item) => ({
-      kana: item.jp,
-      answer: item.reading,
-      options: shuffle([item.reading, ...lesson.vocab.filter((v) => v.reading !== item.reading).map((v) => v.reading)]).slice(0, 4),
-    }))
-    setQuestions(shuffle(lessonQuestions).slice(0, 8))
+  const startLessonQuiz = (lesson, groupItems = null) => {
+    if (hearts <= 0) {
+      setNotice(t.noHearts)
+      return
+    }
+    setQuestions(makeLessonVocabQuiz(lesson, groupItems || lesson.vocab, kanjiReadingMode).map((q) => ({ ...q, soundEnabled })))
     setQIndex(0)
     setSelected(null)
     setScore(0)
@@ -2181,7 +2367,14 @@ export default function App() {
     if (opt === current.answer) {
       setScore((s) => s + 1)
       setXp((value) => value + 10)
-      setProgress((p) => ({ ...p, [current.kana]: Math.min((p[current.kana] || 0) + 1, 8) }))
+      setProgress((p) => {
+        const keys = current.progressKeys?.length ? current.progressKeys : [current.kana]
+        const max = current.progressMax || 8
+        return keys.reduce((next, key) => ({
+          ...next,
+          [key]: Math.min((next[key] || 0) + 1, max),
+        }), { ...p })
+      })
     } else {
       setHearts((value) => Math.max(value - 1, 0))
       setLastHeartRefillAt((value) => value || Date.now())
@@ -2374,7 +2567,7 @@ export default function App() {
   }
 
   if (screen === 'lesson' && activeLesson) {
-    return <LessonView lesson={activeLesson} lang={lang} onBack={() => setScreen('main')} onQuiz={() => startLessonQuiz(activeLesson)} />
+    return <LessonView lesson={activeLesson} lang={lang} progress={progress} kanjiReadingMode={kanjiReadingMode} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
   }
 
   if (screen === 'character-group' && activeCharGroup) {
@@ -2398,7 +2591,7 @@ export default function App() {
               const active = currentDrawChar === item.kana
               return (
                 <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
-                  <span>{item.kana}</span>
+                  <span><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></span>
                   <strong>{item.answer}</strong>
                   <small>{t.listen}</small>
                   <meter min="0" max="8" value={progress[item.kana] || 0} />
@@ -2470,7 +2663,7 @@ export default function App() {
         lang={lang}
         theme={theme}
         setTheme={setTheme}
-        values={{ userAvatar, soundEnabled, fontScale, cozyMode, isPaid, isGuest }}
+        values={{ userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, isGuest }}
         onBack={() => setScreen('main')}
         onEditProfile={() => setScreen('edit-profile')}
         onAccountAction={() => setScreen('login')}
@@ -2478,6 +2671,7 @@ export default function App() {
           if ('soundEnabled' in prefs) setSoundEnabled(prefs.soundEnabled)
           if ('fontScale' in prefs) setFontScale(prefs.fontScale)
           if ('cozyMode' in prefs) setCozyMode(prefs.cozyMode)
+          if ('kanjiReadingMode' in prefs) setKanjiReadingMode(prefs.kanjiReadingMode)
         }}
       />
     )
@@ -2615,7 +2809,7 @@ export default function App() {
                     <div className="group-preview">
                       {group.map((item) => (
                         <span key={item.kana}>
-                          <b>{item.kana}</b>
+                          <b><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></b>
                           <meter min="0" max="8" value={progress[item.kana] || 0} />
                         </span>
                       ))}
