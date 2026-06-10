@@ -1844,7 +1844,6 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
                         <strong>{lang === 'ar' ? `مجموعة ${groupIndex + 1}` : `Group ${groupIndex + 1}`}</strong>
                         <small>{lang === 'ar' ? 'كل مجموعة 8 مفردات' : '8 words per group'}</small>
                       </div>
-                      <Button variant="small" onClick={() => onQuiz(group)}>{t.practice}</Button>
                     </div>
                     <div className="card-grid">
                       {group.map((item, index) => {
@@ -1923,7 +1922,6 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
               </button>
             ))}
           </div>
-          <Button onClick={() => onQuiz()}>{t.practice}</Button>
         </section>
       )}
 
@@ -1946,7 +1944,6 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
           ) : (
             <p>{t.noVideos}</p>
           )}
-          <Button onClick={() => onQuiz()}>{t.practice}</Button>
         </section>
       )}
 

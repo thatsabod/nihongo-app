@@ -212,7 +212,7 @@ function OrderExercise({ ex, lang, onAnswer }) {
 }
 
 // ── SECTION: Interactive Exercises ───────────────────────────────────────────
-export function ExercisesSection({ lesson, lang, kanjiReadingMode, onQuiz }) {
+export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
@@ -233,9 +233,6 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode, onQuiz }) {
             </button>
           ))}
         </div>
-        <button className="btn btn-primary" style={{ margin: '16px 20px 0' }} onClick={onQuiz}>
-          {isAr ? 'ابدأ الاختبار' : 'Start Quiz'}
-        </button>
       </div>
     )
   }
@@ -255,9 +252,6 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode, onQuiz }) {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
             <button className="btn btn-primary" onClick={() => { setIdx(0); setScore(0); setDone(false) }}>
               {isAr ? 'إعادة التمارين' : 'Retry exercises'}
-            </button>
-            <button className="btn btn-secondary" onClick={onQuiz}>
-              {isAr ? 'اختبار كامل' : 'Full quiz'}
             </button>
           </div>
         </div>
@@ -314,7 +308,7 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode, onQuiz }) {
 }
 
 // ── SECTION: Review ───────────────────────────────────────────────────────────
-export function ReviewSection({ lesson, lang, kanjiReadingMode, onQuiz }) {
+export function ReviewSection({ lesson, lang, kanjiReadingMode }) {
   const [showAll, setShowAll] = useState(false)
   const isAr = lang === 'ar'
   const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
@@ -409,10 +403,6 @@ export function ReviewSection({ lesson, lang, kanjiReadingMode, onQuiz }) {
           </div>
         </section>
       )}
-
-      <button className="btn btn-primary" style={{ margin: '8px 20px 0' }} onClick={onQuiz}>
-        {isAr ? '🎯 ابدأ الاختبار' : '🎯 Start Quiz'}
-      </button>
     </div>
   )
 }
