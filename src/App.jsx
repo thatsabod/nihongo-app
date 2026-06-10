@@ -6,6 +6,8 @@ import { hiragana, katakana, kanjiN5, lessons } from './data.js'
 import { speakJapanese } from './sounds.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
 import { ExercisesSection, ReviewSection } from './components/LessonSections.jsx'
+import VocabExercises from './components/VocabExercises.jsx'
+import CharacterExercises from './components/CharacterExercises.jsx'
 import Login from './screens/Login.jsx'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
@@ -442,6 +444,14 @@ function optionReadingsFor(options, items, mode = 'hiragana') {
   }), {})
 }
 
+function optionSpeakTextsFor(options, items) {
+  return options.reduce((acc, option) => {
+    const item = items.find((candidate) => vocabLabel(candidate) === option)
+    if (!item) return acc
+    return { ...acc, [option]: speakableVocab(item) }
+  }, {})
+}
+
 function comparableVocabItems(items, item) {
   const sameType = items.filter((candidate) => candidate.type && candidate.type === item.type)
   if (sameType.length >= 2) return sameType
@@ -516,11 +526,22 @@ function sentenceSpeakText(item, sentence) {
   return sentence.replace('____', speakableVocab(item))
 }
 
+function isMatchableVocabItem(item) {
+  const label = vocabLabel(item)
+  const reading = item.reading || ''
+  if (!item?.meaning || !label) return false
+  if (/[。！？?]/.test(label) || /です|ます/.test(label)) return false
+  if (/\bdesu\b|\bmasu\b|\bka\b/.test(reading)) return false
+  return true
+}
+
 function makeMatchingQuestion(lesson, items, kanjiReadingMode = 'hiragana') {
-  const pairs = items.slice(0, 6).map((item, index) => ({
+  const vocabOnlyItems = items.filter(isMatchableVocabItem)
+  const pairs = vocabOnlyItems.slice(0, 6).map((item, index) => ({
     id: `${lesson.id}-${item.reading}-${index}`,
     left: vocabLabel(item),
     leftReading: vocabReading(item, kanjiReadingMode),
+    leftSpeak: speakableVocab(item),
     right: item.meaning,
     progressKey: vocabKey(lesson.id, item),
   }))
@@ -556,6 +577,7 @@ function makeSentenceQuestion(lesson, item, items, kanjiReadingMode = 'hiragana'
     answer: label,
     options,
     optionReadings: optionReadingsFor(options, optionItems, kanjiReadingMode),
+    optionSpeakTexts: optionSpeakTextsFor(options, optionItems),
     kanjiReadingMode,
     progressKeys: [vocabKey(lesson.id, item)],
     progressMax: VOCAB_MASTERY_TARGET,
@@ -572,6 +594,7 @@ function makeLessonVocabQuiz(lesson, groupItems = lesson.vocab, kanjiReadingMode
     speakText: speakableVocab(item),
     answer: item.meaning,
     options: makeVocabOptions(items, item, 'meaning'),
+    optionSpeakTexts: {},
     kanjiReadingMode,
     progressKeys: [vocabKey(lesson.id, item)],
     progressMax: VOCAB_MASTERY_TARGET,
@@ -585,13 +608,15 @@ function makeLessonVocabQuiz(lesson, groupItems = lesson.vocab, kanjiReadingMode
       answer: vocabLabel(item),
       options,
       optionReadings: optionReadingsFor(options, items, kanjiReadingMode),
+      optionSpeakTexts: optionSpeakTextsFor(options, items),
       kanjiReadingMode,
       progressKeys: [vocabKey(lesson.id, item)],
       progressMax: VOCAB_MASTERY_TARGET,
     }
   })
   const sentenceQuestions = shuffle(items).map((item) => makeSentenceQuestion(lesson, item, items, kanjiReadingMode))
-  const matching = items.length >= 4 ? [makeMatchingQuestion(lesson, shuffle(items), kanjiReadingMode)] : []
+  const matchableItems = items.filter(isMatchableVocabItem)
+  const matching = matchableItems.length >= 4 ? [makeMatchingQuestion(lesson, shuffle(matchableItems), kanjiReadingMode)] : []
   return shuffle([
     ...meaningQuestions.slice(0, 4),
     ...audioQuestions.slice(0, 4),
@@ -642,6 +667,23 @@ function defaultState() {
     kanjiReadingMode: 'hiragana',
     isPaid: false,
     startingGemsGranted: true,
+  }
+}
+
+function fullyUnlockedLessonProgress(level = 'N5') {
+  return Object.fromEntries(
+    Array.from({ length: TOTAL_LESSONS }, (_, index) => [`${level}-${index + 1}`, sectionCount]),
+  )
+}
+
+function applyAccountUnlocks(state, username) {
+  if (normalizeUsername(username) !== 'abdol') return state
+  return {
+    ...state,
+    lessonProgress: {
+      ...(state.lessonProgress || {}),
+      ...fullyUnlockedLessonProgress('N5'),
+    },
   }
 }
 
@@ -1752,6 +1794,7 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
   const [section, setSection] = useState('vocabulary')
   const [flipped, setFlipped] = useState({})
   const [activeGrammarEx, setActiveGrammarEx] = useState(null)
+  const [vocabExOpen, setVocabExOpen] = useState(false)
   const t = copy[lang]
   const vocabGroups = chunk(lesson.vocab, 8)
   const grammarReadingMap = useMemo(() => {
@@ -1788,36 +1831,45 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
 
       {section === 'vocabulary' && (
         <>
-          <div className="vocab-group-list">
-            {vocabGroups.map((group, groupIndex) => (
-              <section className="vocab-group" key={`vocab-group-${groupIndex + 1}`}>
-                <div className="vocab-group-head">
-                  <div>
-                    <strong>{lang === 'ar' ? `مجموعة ${groupIndex + 1}` : `Group ${groupIndex + 1}`}</strong>
-                    <small>{lang === 'ar' ? 'كل مجموعة 8 مفردات' : '8 words per group'}</small>
-                  </div>
-                  <Button variant="small" onClick={() => onQuiz(group)}>{t.practice}</Button>
-                </div>
-                <div className="card-grid">
-                  {group.map((item, index) => {
-                    const itemIndex = groupIndex * 8 + index
-                    const shown = flipped[itemIndex]
-                    const amount = Math.min(progress[vocabKey(lesson.id, item)] || 0, VOCAB_MASTERY_TARGET)
-                    return (
-                      <button className="study-card" key={`${item.jp}-${item.reading}`} onClick={() => setFlipped((f) => ({ ...f, [itemIndex]: !shown }))}>
-                        {shown ? <span className="jp">{item.reading}</span> : <JapaneseTerm item={item} readingMode={kanjiReadingMode} />}
-                        <strong>{shown ? item.meaning : t.tapHear}</strong>
-                        <small>{shown ? (item.hiragana || item.jp) : item.reading}</small>
-                        <span className="vocab-progress" aria-label={`${amount}/${VOCAB_MASTERY_TARGET}`}>
-                          <i style={{ width: `${(amount / VOCAB_MASTERY_TARGET) * 100}%` }} />
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
+          {vocabExOpen ? (
+            <VocabExercises vocab={lesson.vocab} lang={lang} onClose={() => setVocabExOpen(false)} />
+          ) : (
+            <>
+              <button className="btn btn-primary vocab-ex-open" onClick={() => setVocabExOpen(true)}>
+                {lang === 'ar' ? '🎯 تمارين المفردات' : '🎯 Vocabulary exercises'}
+              </button>
+              <div className="vocab-group-list">
+                {vocabGroups.map((group, groupIndex) => (
+                  <section className="vocab-group" key={`vocab-group-${groupIndex + 1}`}>
+                    <div className="vocab-group-head">
+                      <div>
+                        <strong>{lang === 'ar' ? `مجموعة ${groupIndex + 1}` : `Group ${groupIndex + 1}`}</strong>
+                        <small>{lang === 'ar' ? 'كل مجموعة 8 مفردات' : '8 words per group'}</small>
+                      </div>
+                      <Button variant="small" onClick={() => onQuiz(group)}>{t.practice}</Button>
+                    </div>
+                    <div className="card-grid">
+                      {group.map((item, index) => {
+                        const itemIndex = groupIndex * 8 + index
+                        const shown = flipped[itemIndex]
+                        const amount = Math.min(progress[vocabKey(lesson.id, item)] || 0, VOCAB_MASTERY_TARGET)
+                        return (
+                          <button className="study-card" key={`${item.jp}-${item.reading}`} onClick={() => { speakJapanese(speakableVocab(item)); setFlipped((f) => ({ ...f, [itemIndex]: !shown })) }}>
+                            {shown ? <span className="jp">{item.reading}</span> : <JapaneseTerm item={item} readingMode={kanjiReadingMode} />}
+                            <strong>{shown ? item.meaning : t.tapHear}</strong>
+                            <small>{shown ? (item.hiragana || item.jp) : item.reading}</small>
+                            <span className="vocab-progress" aria-label={`${amount}/${VOCAB_MASTERY_TARGET}`}>
+                              <i style={{ width: `${(amount / VOCAB_MASTERY_TARGET) * 100}%` }} />
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
 
@@ -2078,6 +2130,7 @@ export default function App() {
   const [activeLesson, setActiveLesson] = useState(null)
   const [activeCharGroup, setActiveCharGroup] = useState(null)
   const [drawChar, setDrawChar] = useState(null)
+  const [charSection, setCharSection] = useState('practice')
   const [dataReady, setDataReady] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
   const [userId, setUserId] = useState(null)
@@ -2329,21 +2382,23 @@ export default function App() {
       if (snap.exists()) {
         const d = snap.data()
         const activity = nextStreakValue(d.lastActiveDate ?? null, d.streak ?? 0)
-        applyState({
+        const loadedUsername = d.userUsername || d.username || normalizeUsername(d.userName || d.name || user.displayName || user.email?.split('@')[0] || 'nihongo')
+        applyState(applyAccountUnlocks({
           ...d,
           ...activity,
           userName: d.userName || d.name || user.displayName || '',
-          userUsername: d.userUsername || d.username || normalizeUsername(d.userName || d.name || user.displayName || user.email?.split('@')[0] || 'nihongo'),
+          userUsername: loadedUsername,
           emailVerified: Boolean(user.emailVerified),
           gems: d.gems ?? STARTING_GEMS,
           hearts: d.hearts ?? MAX_HEARTS,
-        })
+        }, loadedUsername))
       } else {
         const base = defaultState()
         const userUsername = normalizeUsername(user.displayName || user.email?.split('@')[0] || 'nihongo')
-        applyState({ ...base, userName: user.displayName || '', userUsername })
+        const initialState = applyAccountUnlocks({ ...base, userName: user.displayName || '', userUsername }, userUsername)
+        applyState(initialState)
         await setDoc(doc(db, 'users', user.uid), {
-          ...base,
+          ...initialState,
           userName: user.displayName || '',
           userUsername,
           email: user.email || '',
@@ -2668,6 +2723,7 @@ export default function App() {
   if (screen === 'character-group' && activeCharGroup) {
     const title = `${activeCharGroup.label} ${activeCharGroup.index + 1}`
     const currentDrawChar = drawChar || activeCharGroup.items[0]?.kana
+    const renderChar = (item) => <CharacterSymbol item={item} readingMode={kanjiReadingMode} />
 
     return (
       <main className="screen">
@@ -2681,27 +2737,50 @@ export default function App() {
         </header>
 
         <section className="content">
-          <div className="group-character-grid">
-            {activeCharGroup.items.map((item) => {
-              const active = currentDrawChar === item.kana
-              return (
-                <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
-                  <span><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></span>
-                  <strong>{item.answer}</strong>
-                  <small>{t.listen}</small>
-                  <meter min="0" max="8" value={progress[item.kana] || 0} />
-                </button>
-              )
-            })}
+          <div className="char-section-tabs">
+            <button className={charSection === 'practice' ? 'active' : ''} onClick={() => setCharSection('practice')}>
+              {lang === 'ar' ? '🎯 تمارين' : '🎯 Practice'}
+            </button>
+            <button className={charSection === 'write' ? 'active' : ''} onClick={() => setCharSection('write')}>
+              {lang === 'ar' ? '✍️ الكتابة' : '✍️ Writing'}
+            </button>
           </div>
 
-          <section className="drawing-section">
-            <div>
-              <p className="eyebrow">{t.drawPractice}</p>
-              <h2>{t.chooseCharacter}</h2>
-            </div>
-            <DrawingPad char={currentDrawChar} lang={lang} />
-          </section>
+          {charSection === 'practice' && (
+            <CharacterExercises
+              key={activeCharGroup.label + activeCharGroup.index}
+              items={activeCharGroup.items}
+              lang={lang}
+              renderChar={renderChar}
+              onClose={() => setScreen('main')}
+            />
+          )}
+
+          {charSection === 'write' && (
+            <>
+              <div className="group-character-grid">
+                {activeCharGroup.items.map((item) => {
+                  const active = currentDrawChar === item.kana
+                  return (
+                    <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
+                      <span><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></span>
+                      <strong>{item.answer}</strong>
+                      <small>{t.listen}</small>
+                      <meter min="0" max="8" value={progress[item.kana] || 0} />
+                    </button>
+                  )
+                })}
+              </div>
+
+              <section className="drawing-section">
+                <div>
+                  <p className="eyebrow">{t.drawPractice}</p>
+                  <h2>{t.chooseCharacter}</h2>
+                </div>
+                <DrawingPad char={currentDrawChar} lang={lang} />
+              </section>
+            </>
+          )}
 
           <Button onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
         </section>
@@ -2777,8 +2856,11 @@ export default function App() {
       <main className="app-shell">
         <header className="topbar app-topbar">
           <div className="toolbar top-stats">
+            <div className="ring ring-mini" style={{ '--value': `${lessonPercent}%` }}>
+              <span>{lessonPercent}%</span>
+            </div>
             <span className="stat-chip gems"><i>◆</i>{gems}</span>
-            <span className="stat-chip streak"><i>✦</i>{streak}</span>
+            <span className="stat-chip streak"><i>🔥</i>{streak}</span>
             <span className="stat-chip battery">
               <i>
                 <span style={{ width: `${Math.max(0, (hearts / MAX_HEARTS) * 100)}%` }} />
@@ -2803,7 +2885,6 @@ export default function App() {
                   <Stat label={t.quiz} value={totalQuizzes} />
                 </div>
               </div>
-              <div className="ring" style={{ '--value': `${lessonPercent}%` }}>{lessonPercent}%</div>
             </div>
 
             <div className="level-strip">
@@ -2888,6 +2969,7 @@ export default function App() {
                     onClick={() => {
                       setActiveCharGroup({ type: lettersTab, index, label: t.group, items: group })
                       setDrawChar(group[0]?.kana)
+                      setCharSection('practice')
                       setScreen('character-group')
                     }}
                   >

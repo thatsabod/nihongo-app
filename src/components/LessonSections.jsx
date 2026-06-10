@@ -155,12 +155,14 @@ function OrderExercise({ ex, lang, onAnswer }) {
 
   const add = (item) => {
     if (result) return
+    speakJapanese(item.w, { rate: 0.56 })
     setSelected((s) => [...s, item])
     setPool((p) => p.filter((x) => x.key !== item.key))
   }
 
   const remove = (item) => {
     if (result) return
+    speakJapanese(item.w, { rate: 0.56 })
     setPool((p) => [...p, item])
     setSelected((s) => s.filter((x) => x.key !== item.key))
   }

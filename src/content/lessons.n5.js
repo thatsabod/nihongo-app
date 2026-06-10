@@ -11,6 +11,17 @@ import { lessonEleven } from './lessons/lesson11.js'
 import { lessonTwelve } from './lessons/lesson12.js'
 import { lessonThirteen } from './lessons/lesson13.js'
 import { lessonFourteen } from './lessons/lesson14.js'
+import { lessonFifteen } from './lessons/lesson15.js'
+import { lessonSixteen } from './lessons/lesson16.js'
+import { lessonSeventeen } from './lessons/lesson17.js'
+import { lessonEighteen } from './lessons/lesson18.js'
+import { lessonNineteen } from './lessons/lesson19.js'
+import { lessonTwenty } from './lessons/lesson20.js'
+import { lessonTwentyOne } from './lessons/lesson21.js'
+import { lessonTwentyTwo } from './lessons/lesson22.js'
+import { lessonTwentyThree } from './lessons/lesson23.js'
+import { lessonTwentyFour } from './lessons/lesson24.js'
+import { lessonTwentyFive } from './lessons/lesson25.js'
 
 export const lessonOne = {
   id: 1,
@@ -306,4 +317,4 @@ export const lessonOne = {
   videos: [],
 }
 
-export const n5Lessons = [lessonOne, lessonTwo, lessonThree, lessonFour, lessonFive, lessonSix, lessonSeven, lessonEight, lessonNine, lessonTen, lessonEleven, lessonTwelve, lessonThirteen, lessonFourteen]
+export const n5Lessons = [lessonOne, lessonTwo, lessonThree, lessonFour, lessonFive, lessonSix, lessonSeven, lessonEight, lessonNine, lessonTen, lessonEleven, lessonTwelve, lessonThirteen, lessonFourteen, lessonFifteen, lessonSixteen, lessonSeventeen, lessonEighteen, lessonNineteen, lessonTwenty, lessonTwentyOne, lessonTwentyTwo, lessonTwentyThree, lessonTwentyFour, lessonTwentyFive]

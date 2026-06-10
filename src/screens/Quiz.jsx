@@ -52,6 +52,15 @@ function RubyText({ text, reading, className = '' }) {
   )
 }
 
+function hasJapaneseText(value = '') {
+  return /[\u3040-\u30ff\u3400-\u9fff]/.test(String(value || ''))
+}
+
+function speakQuizText(value, options = {}) {
+  if (!hasJapaneseText(value)) return
+  speakJapanese(value, options)
+}
+
 const text = {
   ar: {
     question: 'السؤال',
@@ -123,6 +132,11 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
   const isCorrect = selected === q.answer
   const showRuaa = isAudioWord || (isSentence && String(q.sentence || '').length <= 30)
   const mascotMode = ruaaMode({ q, selected, isCorrect })
+  const quizClass = [
+    'quiz-body',
+    `quiz-type-${q.type}`,
+    showRuaa ? 'has-ruaa' : 'no-ruaa',
+  ].join(' ')
 
   const answer = (opt) => {
     if (selected) return
@@ -131,8 +145,14 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
     onAnswer(opt)
   }
 
+  const speakOption = (opt) => {
+    const textToSpeak = q.optionSpeakTexts?.[opt] || q.optionReadings?.[opt] || opt
+    speakQuizText(textToSpeak, { rate: 0.54, voiceIndex })
+  }
+
   const chooseMatch = (side, pair) => {
     if (selected || matchedIds.includes(pair.id)) return
+    speakQuizText(side === 'left' ? (pair.leftSpeak || pair.leftReading || pair.left) : (pair.rightSpeak || pair.right), { rate: 0.54, voiceIndex })
     if (!matchingSelected || matchingSelected.side === side) {
       setMatchingState({ qIndex, selected: { side, id: pair.id }, matched: matchedIds })
       return
@@ -175,7 +195,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
         <span style={{ width: `${((qIndex + 1) / questions.length) * 100}%` }} />
       </div>
 
-      <section className="quiz-body">
+      <section className={quizClass}>
         <p className="eyebrow">{t.question} {qIndex + 1} {t.of} {questions.length} · {score} ✓</p>
         {isDraw ? (
           <>
@@ -229,7 +249,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
             <h1>{prompt}</h1>
             <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
               <RuaaMascot mode={mascotMode} visible={showRuaa} />
-              <button className={`kana-focus ruaa-speech ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakJapanese(q.speakText || q.kana, { rate: 0.54, voiceIndex })}>
+              <button className={`kana-focus ruaa-speech ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakQuizText(q.speakText || q.kana, { rate: 0.54, voiceIndex })}>
                 {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus">♪</span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
                 <small>{t.hear}</small>
                 {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
@@ -241,7 +261,16 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
                 if (selected && opt === q.answer) state = 'correct'
                 if (selected && opt === selected && opt !== q.answer) state = 'wrong'
                 return (
-                  <button key={opt} dir="ltr" className={state} disabled={Boolean(selected)} onClick={() => answer(opt)}>
+                  <button
+                    key={opt}
+                    dir="ltr"
+                    className={state}
+                    disabled={Boolean(selected)}
+                    onClick={() => {
+                      speakOption(opt)
+                      answer(opt)
+                    }}
+                  >
                     <RubyText text={opt} reading={q.optionReadings?.[opt]} />
                   </button>
                 )

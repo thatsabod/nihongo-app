@@ -186,7 +186,8 @@ button {
 .top-stats {
   width: min(100%, 920px);
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
   justify-items: center;
 }
 
@@ -213,12 +214,13 @@ button {
 .stat-chip i {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 9px;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
   color: white;
   font-style: normal;
-  box-shadow: inset 0 -3px rgba(0, 0, 0, 0.12);
+  font-size: 14px;
+  box-shadow: inset 0 -3px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .stat-chip.hearts i {
@@ -238,30 +240,30 @@ button {
 }
 
 .stat-chip.streak i {
-  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  background: linear-gradient(135deg, #fb923c, #ef4444);
 }
 
 .stat-chip.battery i {
   position: relative;
-  width: 54px;
-  height: 26px;
+  width: 50px;
+  height: 28px;
   display: block;
   overflow: visible;
-  border: 2px solid color-mix(in srgb, var(--text) 70%, transparent);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--panel-2) 85%, transparent);
-  box-shadow: none;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #a78bfa, #6366f1);
+  box-shadow: inset 0 -3px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .stat-chip.battery i::after {
   content: "";
   position: absolute;
-  right: -8px;
-  top: 7px;
-  width: 5px;
+  right: -5px;
+  top: 9px;
+  width: 4px;
   height: 10px;
   border-radius: 0 3px 3px 0;
-  background: color-mix(in srgb, var(--text) 70%, transparent);
+  background: #6366f1;
 }
 
 .stat-chip.battery i span {
@@ -270,7 +272,7 @@ button {
   top: 3px;
   bottom: 3px;
   max-width: calc(100% - 6px);
-  border-radius: 4px;
+  border-radius: 7px;
   background: linear-gradient(90deg, #fff7df, #f3ead1);
   transition: width 0.25s ease;
 }
@@ -281,7 +283,7 @@ button {
   display: grid;
   place-items: center;
   color: #3b225f;
-  font-size: 13px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 950;
   line-height: 1;
@@ -452,7 +454,7 @@ button {
 
 .dashboard {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   align-items: center;
   gap: 18px;
   padding: 22px;
@@ -498,6 +500,30 @@ button {
 .score-ring::before {
   content: "";
   position: absolute;
+}
+
+.ring-mini {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  font-weight: 900;
+}
+
+.ring-mini::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--panel);
+}
+
+.ring-mini span {
+  position: relative;
+  z-index: 1;
+  color: var(--text);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .stats-grid,
@@ -1485,6 +1511,139 @@ rt {
 .meaning-btn.correct       { border-color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--panel)); color: var(--green); font-weight: 700; }
 .meaning-btn.wrong         { border-color: var(--red);   background: color-mix(in srgb, var(--red)   12%, var(--panel)); color: var(--red); }
 .meaning-btn.reveal-correct { border-color: var(--green); opacity: 0.75; }
+
+/* ── Vocabulary exercises ── */
+.vocab-ex-open {
+  margin: 16px 20px 0;
+  width: calc(100% - 40px);
+}
+
+.vocab-display {
+  justify-content: center !important;
+  font-size: 1.6rem;
+}
+
+.vocab-audio-btn {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+  padding: 22px 16px;
+}
+
+.vocab-audio-icon {
+  font-size: 2.4rem;
+}
+
+.vocab-audio-btn small {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.vocab-option-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.vocab-option-grid .meaning-btn {
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.vocab-meaning-prompt {
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 10px;
+}
+
+.kana-chip {
+  font-size: 1.3rem;
+  min-width: 44px;
+  text-align: center;
+}
+
+.vocab-match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.vocab-match-col {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.vocab-match-card {
+  padding: 12px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.vocab-match-card.selected { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--panel)); }
+.vocab-match-card.matched  { border-color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--panel)); color: var(--green); opacity: 0.7; }
+.vocab-match-card.wrong    { border-color: var(--red); background: color-mix(in srgb, var(--red) 12%, var(--panel)); }
+
+/* ── Character practice exercises ── */
+.char-display {
+  flex-direction: column;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+  padding: 22px 16px;
+}
+
+.char-big {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.char-option-grid .meaning-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.char-option-grid .char-big {
+  font-size: 2rem;
+}
+
+.char-tf-reading {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.char-section-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.char-section-tabs button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--panel);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.char-section-tabs button.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--panel));
+  color: var(--primary);
+}
 
 /* ── Error detection exercise ── */
 .error-options {
@@ -2881,6 +3040,14 @@ input[type='checkbox'] {
   padding-bottom: 32px;
 }
 
+.quiz-screen h1 {
+  margin: 0 0 16px;
+  text-align: center;
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
 .quiz-head strong {
   color: var(--primary-2);
 }
@@ -2909,6 +3076,12 @@ input[type='checkbox'] {
   width: min(720px, 100%);
   margin: 0 auto;
   padding: 16px clamp(16px, 5vw, 28px);
+}
+
+.quiz-type-audio_word,
+.quiz-type-vocab_meaning,
+.quiz-type-sentence {
+  width: min(760px, 100%);
 }
 
 .quiz-character-scene {
@@ -3035,6 +3208,7 @@ input[type='checkbox'] {
   white-space: nowrap;
   line-height: 1.12;
   letter-spacing: 0;
+  font-size: clamp(30px, 7vw, 58px) !important;
 }
 
 .quiz-ruby-main {
@@ -3101,6 +3275,7 @@ input[type='checkbox'] {
   min-height: 62px;
   border: 1px solid var(--border);
   border-radius: 16px;
+  padding: 10px 14px;
   background: var(--panel);
   font-size: 20px;
   font-weight: 900;
@@ -3121,12 +3296,13 @@ input[type='checkbox'] {
 
 .matching-board {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
 }
 
 .matching-board > div {
   display: grid;
+  min-width: 0;
   gap: 9px;
 }
 
@@ -3144,6 +3320,7 @@ input[type='checkbox'] {
   color: var(--text);
   font-size: 18px;
   font-weight: 850;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
@@ -3359,6 +3536,50 @@ select:focus {
 }
 
 @media (max-width: 620px) {
+  .lesson-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 10px;
+    padding-block: 10px;
+  }
+
+  .lesson-toolbar .btn {
+    justify-self: start;
+    min-width: 132px;
+  }
+
+  .lesson-tabs {
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0 0 2px;
+  }
+
+  .lesson-tabs button {
+    flex: 0 0 auto;
+    min-width: max-content;
+  }
+
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .study-card {
+    min-height: 132px;
+    padding: 12px 10px;
+  }
+
+  .study-card .jp,
+  .study-card .jp-line,
+  .study-card ruby {
+    font-size: clamp(24px, 9vw, 34px);
+  }
+
+  .vocab-group-head {
+    align-items: start;
+  }
+
   .dashboard {
     grid-template-columns: 1fr;
   }
@@ -3393,33 +3614,113 @@ select:focus {
   }
 
   .answer-grid,
-  .matching-board,
   .settings-grid,
   .community-grid {
     grid-template-columns: 1fr;
+  }
+
+  .quiz-screen {
+    min-height: 100svh;
+    padding-bottom: 12px;
+  }
+
+  .quiz-head {
+    padding: 10px 28px;
+  }
+
+  .quiz-screen h1 {
+    margin-bottom: 12px;
+    font-size: clamp(27px, 8vw, 38px);
+  }
+
+  .quiz-body {
+    padding: 10px clamp(18px, 5vw, 28px) 16px;
+  }
+
+  .quiz-body .eyebrow {
+    margin: 0 0 8px;
+    text-align: center;
   }
 
   .quiz-character-scene {
     grid-template-columns: 1fr;
     justify-items: center;
     gap: 6px;
-    margin-block: 4px 12px;
+    margin-block: 2px 10px;
+  }
+
+  .quiz-type-vocab_meaning .quiz-character-scene.no-mascot,
+  .quiz-type-audio_word .quiz-character-scene,
+  .quiz-type-sentence .quiz-character-scene {
+    margin-bottom: 10px;
   }
 
   .ruaa-mascot {
-    width: min(118px, 34vw);
+    width: min(96px, 28vw);
   }
 
   .ruaa-speech {
     width: 100%;
-    min-height: 96px;
-    padding: 14px 16px;
+    min-height: 84px;
+    padding: 12px 14px;
+    border-radius: 24px;
   }
 
   .ruaa-speech::before {
     left: 50%;
     top: -14px;
     transform: translateX(-50%) rotate(135deg);
+  }
+
+  .kana-focus {
+    min-height: 126px;
+  }
+
+  .quiz-type-audio_word .kana-focus {
+    min-height: 142px;
+  }
+
+  .quiz-type-sentence .kana-focus {
+    min-height: 112px;
+    overflow: hidden;
+  }
+
+  .kana-focus .sentence-focus-text {
+    font-size: clamp(30px, 10vw, 48px) !important;
+    max-width: 96%;
+  }
+
+  .listen-focus {
+    width: clamp(74px, 22vw, 104px);
+    font-size: clamp(48px, 15vw, 76px);
+  }
+
+  .answer-grid {
+    gap: 9px;
+  }
+
+  .answer-grid button {
+    min-height: 58px;
+    border-radius: 16px;
+    font-size: clamp(19px, 6vw, 25px);
+  }
+
+  .matching-board {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .matching-board > div {
+    min-width: 0;
+    gap: 7px;
+  }
+
+  .matching-board button {
+    min-height: 48px;
+    padding: 8px 6px;
+    border-radius: 13px;
+    font-size: clamp(14px, 4.5vw, 18px);
   }
 
   .community-hero,
