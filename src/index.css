@@ -454,18 +454,42 @@ button {
 
 .dashboard {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 116px minmax(0, 1fr);
+  grid-template-areas:
+    "progress copy"
+    "stats stats";
   align-items: center;
   gap: 18px;
   padding: 22px;
 }
 
-.dashboard > div:first-child {
+.dashboard-copy {
+  grid-area: copy;
   display: grid;
   gap: 10px;
 }
 
+.dashboard-progress-ring {
+  grid-area: progress;
+  justify-self: center;
+  position: relative;
+}
+
+.dashboard-progress-ring::after {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border-radius: 50%;
+  background: var(--panel);
+}
+
+.dashboard-progress-ring span {
+  position: relative;
+  z-index: 1;
+}
+
 .dashboard-stats {
+  grid-area: stats;
   display: grid;
   grid-template-columns: repeat(3, minmax(92px, 1fr));
   gap: 10px;
@@ -3536,6 +3560,25 @@ select:focus {
 }
 
 @media (max-width: 620px) {
+  .dashboard {
+    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-areas:
+      "progress copy"
+      "stats stats";
+    align-items: start;
+    gap: 14px 12px;
+    padding: 18px;
+  }
+
+  .dashboard-progress-ring {
+    margin-top: 2px;
+  }
+
+  .dashboard-copy {
+    justify-items: end;
+    text-align: end;
+  }
+
   .lesson-toolbar {
     display: grid;
     grid-template-columns: 1fr;
@@ -3578,14 +3621,6 @@ select:focus {
 
   .vocab-group-head {
     align-items: start;
-  }
-
-  .dashboard {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard .ring {
-    justify-self: start;
   }
 
   .hero-actions,

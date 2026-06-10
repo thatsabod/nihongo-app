@@ -1815,11 +1815,9 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
           <p>{t.lesson} {lesson.id}</p>
           <h1>{lesson.title[lang]}</h1>
         </div>
-        <Button variant="small" onClick={() => onQuiz()}>{t.quiz}</Button>
       </header>
 
       <div className="lesson-toolbar">
-        <Button variant="small" onClick={() => onQuiz()}>{t.practice}</Button>
         <div className="tabs lesson-tabs">
           {['vocabulary', 'grammar', 'exercises', 'videos', 'review'].map((id) => (
             <button key={id} className={section === id ? 'active' : ''} onClick={() => setSection(id)}>
@@ -2875,15 +2873,18 @@ export default function App() {
         {tab === 'home' && (
           <section className="content">
             <div className="dashboard">
-              <div>
+              <div className="dashboard-progress-ring ring" style={{ '--value': `${lessonPercent}%` }}>
+                <span>{lessonPercent}%</span>
+              </div>
+              <div className="dashboard-copy">
                 <p className="eyebrow">{t.continue}</p>
                 <h1>{t.level}</h1>
                 <p>{levels.find((level) => level.id === currentLevel)?.[lang]} · {lessonPercent}%</p>
-                <div className="dashboard-stats">
-                  <Stat label={t.xp} value={xp} />
-                  <Stat label={t.mastered} value={masteredCount} />
-                  <Stat label={t.quiz} value={totalQuizzes} />
-                </div>
+              </div>
+              <div className="dashboard-stats">
+                <Stat label={t.xp} value={xp} />
+                <Stat label={t.mastered} value={masteredCount} />
+                <Stat label={t.quiz} value={totalQuizzes} />
               </div>
             </div>
 
