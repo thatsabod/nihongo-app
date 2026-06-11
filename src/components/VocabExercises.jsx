@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import RuaaMascot from './RuaaMascot.jsx'
+import IconCircle from './IconCircle.jsx'
+import {
+  ExerciseContainer,
+  ExercisePane,
+  ProgressHeader,
+  QuestionCard,
+  SentenceDisplay,
+  AnswerOption,
+  getOptionState,
+  ResultCard,
+  ActionButton,
+} from './exercise-ui/index.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -85,28 +97,27 @@ function VocabMeaningExercise({ ex, lang, onAnswer }) {
   const mascotMode = picked ? (picked === item.meaning ? 'cheer' : 'skeptical') : 'calm'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'ما معنى هذه الكلمة؟' : 'What does this word mean?'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'ما معنى هذه الكلمة؟' : 'What does this word mean?'} />
 
-      <button className="sentence-display vocab-display" dir="ltr" onClick={() => speakJapanese(speakableVocab(item))}>
+      <SentenceDisplay className="vocab-display" onClick={() => speakJapanese(speakableVocab(item))}>
         <VocabTerm item={item} />
-        <small>🔊</small>
-      </button>
+      </SentenceDisplay>
 
       <div className="meaning-options">
         {ex.options.map((opt) => (
-          <button
+          <AnswerOption
             key={opt}
             disabled={Boolean(picked)}
-            className={`meaning-btn ${picked === opt ? (opt === item.meaning ? 'correct' : 'wrong') : ''} ${picked && opt === item.meaning && picked !== opt ? 'reveal-correct' : ''}`}
+            state={getOptionState(picked, opt, item.meaning)}
             onClick={() => pick(opt)}
           >
             {opt}
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -125,29 +136,29 @@ function VocabAudioExercise({ ex, lang, onAnswer }) {
   const mascotMode = picked ? (picked === item ? 'cheer' : 'skeptical') : 'thinking'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'استمع واختر الكلمة الصحيحة:' : 'Listen and choose the matching word:'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'استمع واختر الكلمة الصحيحة:' : 'Listen and choose the matching word:'} />
 
       <button className="sentence-display vocab-audio-btn" onClick={() => speakJapanese(speakableVocab(item))}>
-        <span className="vocab-audio-icon">🔊</span>
+        <IconCircle name="sound" size={38} className="vocab-audio-icon" />
         <small>{lang === 'ar' ? 'اضغط للاستماع' : 'Tap to listen'}</small>
       </button>
 
       <div className="meaning-options vocab-option-grid">
         {ex.optionItems.map((opt, i) => (
-          <button
+          <AnswerOption
             key={i}
             dir="ltr"
             disabled={Boolean(picked)}
-            className={`meaning-btn ${picked === opt ? (opt === item ? 'correct' : 'wrong') : ''} ${picked && opt === item && picked !== opt ? 'reveal-correct' : ''}`}
+            state={getOptionState(picked, opt, item)}
             onClick={() => pick(opt)}
           >
             <VocabTerm item={opt} />
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -166,25 +177,25 @@ function VocabReverseExercise({ ex, lang, onAnswer }) {
   const mascotMode = picked ? (picked === item ? 'cheer' : 'skeptical') : 'thinking'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'أيّ كلمة تعني هذا؟' : 'Which word means this?'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'أيّ كلمة تعني هذا؟' : 'Which word means this?'} />
       <p className="ex-hint vocab-meaning-prompt">{item.meaning}</p>
 
       <div className="meaning-options vocab-option-grid">
         {ex.optionItems.map((opt, i) => (
-          <button
+          <AnswerOption
             key={i}
             dir="ltr"
             disabled={Boolean(picked)}
-            className={`meaning-btn ${picked === opt ? (opt === item ? 'correct' : 'wrong') : ''} ${picked && opt === item && picked !== opt ? 'reveal-correct' : ''}`}
+            state={getOptionState(picked, opt, item)}
             onClick={() => pick(opt)}
           >
             <VocabTerm item={opt} />
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -228,13 +239,12 @@ function VocabBuildExercise({ ex, lang, onAnswer }) {
   const mascotMode = result ? (result === 'correct' ? 'cheer' : 'skeptical') : 'thinking'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'رتّب الحروف لتهجئة الكلمة:' : 'Tap the kana to spell the word:'}</p>
-      <button className="sentence-display" onClick={() => speakJapanese(speakableVocab(item))}>
+      <QuestionCard prompt={lang === 'ar' ? 'رتّب الحروف لتهجئة الكلمة:' : 'Tap the kana to spell the word:'} />
+      <SentenceDisplay onClick={() => speakJapanese(speakableVocab(item))}>
         <span>{item.meaning}{item.kanji ? ` · ${item.kanji}` : ''}</span>
-        <small>🔊</small>
-      </button>
+      </SentenceDisplay>
 
       <div className={`build-answer ${result || ''}`}>
         {selected.length === 0
@@ -252,13 +262,13 @@ function VocabBuildExercise({ ex, lang, onAnswer }) {
       </div>
 
       {selected.length === target.length && !result && (
-        <button className="btn btn-primary" onClick={check}>{lang === 'ar' ? 'تحقق' : 'Check'}</button>
+        <ActionButton onClick={check}>{lang === 'ar' ? 'تحقق' : 'Check'}</ActionButton>
       )}
 
       {result === 'wrong' && (
         <p className="iex-result wrong">{lang === 'ar' ? `الجواب: ${target.join('')}` : `Answer: ${target.join('')}`}</p>
       )}
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -300,37 +310,39 @@ function VocabMatchExercise({ ex, lang, onAnswer }) {
   }
 
   return (
-    <div className="grammar-ex">
-      <p className="ex-prompt">{lang === 'ar' ? 'وصّل كل كلمة بمعناها:' : 'Match each word to its meaning:'}</p>
+    <ExercisePane>
+      <QuestionCard prompt={lang === 'ar' ? 'وصّل كل كلمة بمعناها:' : 'Match each word to its meaning:'} />
       <div className="vocab-match-grid">
         <div className="vocab-match-col">
           {leftItems.map((it) => (
-            <button
+            <AnswerOption
               key={it.pairId}
+              variant="plain"
               dir="ltr"
               disabled={matched.includes(it.pairId)}
               className={`vocab-match-card ${matched.includes(it.pairId) ? 'matched' : ''} ${selectedLeft?.pairId === it.pairId ? 'selected' : ''}`}
               onClick={() => pickLeft(it)}
             >
               <VocabTerm item={it} />
-            </button>
+            </AnswerOption>
           ))}
         </div>
         <div className="vocab-match-col">
           {rightItems.map((it) => (
-            <button
+            <AnswerOption
               key={it.pairId}
+              variant="plain"
               disabled={matched.includes(it.pairId)}
               className={`vocab-match-card ${matched.includes(it.pairId) ? 'matched' : ''} ${wrongPair === it.pairId ? 'wrong' : ''}`}
               onClick={() => pickRight(it)}
             >
               {it.meaning}
-            </button>
+            </AnswerOption>
           ))}
         </div>
       </div>
       <p className="iex-counter">{matched.length}/{total}</p>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -362,37 +374,35 @@ export default function VocabExercises({ vocab, lang, onClose }) {
     const perfect = score === total
     const good = score >= Math.ceil(total / 2)
     return (
-      <div className="grammar-ex-wrap">
-        <div className="grammar-finish">
-          <span className="finish-icon">{perfect ? '🌟' : good ? '👍' : '💪'}</span>
-          <strong>{score}/{total}</strong>
-          <p>{isAr
-            ? (perfect ? 'ممتاز! أتقنت مفردات هذا الدرس.' : good ? 'جيد! راجع الكلمات مرة ثانية.' : 'حاول مرة ثانية — راجع المفردات.')
-            : (perfect ? 'Perfect! You mastered this vocab set.' : good ? 'Good! Review the words once more.' : 'Keep practicing the vocabulary!')
-          }</p>
-          <button className="btn btn-primary" onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</button>
-        </div>
-      </div>
+      <ResultCard
+        icon={perfect ? 'star' : good ? 'correct' : 'goal'}
+        score={score}
+        total={total}
+        message={isAr
+          ? (perfect ? 'ممتاز! أتقنت مفردات هذا الدرس.' : good ? 'جيد! راجع الكلمات مرة ثانية.' : 'حاول مرة ثانية — راجع المفردات.')
+          : (perfect ? 'Perfect! You mastered this vocab set.' : good ? 'Good! Review the words once more.' : 'Keep practicing the vocabulary!')
+        }
+      >
+        <ActionButton onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</ActionButton>
+      </ResultCard>
     )
   }
 
   const ex = exercises[idx]
 
   return (
-    <div className="grammar-ex-wrap">
-      <div className="grammar-ex-header">
-        <button className="icon-btn" onClick={onClose}>×</button>
-        <div className="ex-progress-bar">
-          <span style={{ width: `${(idx / exercises.length) * 100}%` }} />
-        </div>
-        <span>{idx + 1}/{exercises.length}</span>
-      </div>
+    <ExerciseContainer>
+      <ProgressHeader
+        onClose={onClose}
+        progress={(idx / exercises.length) * 100}
+        counter={`${idx + 1}/${exercises.length}`}
+      />
 
       {ex.type === 'meaning' && <VocabMeaningExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'audio' && <VocabAudioExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'reverse' && <VocabReverseExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'build' && <VocabBuildExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'match' && <VocabMatchExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-    </div>
+    </ExerciseContainer>
   )
 }

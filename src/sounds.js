@@ -84,7 +84,7 @@ export const speakJapanese = (text, options = {}) => {
 
   u.lang = 'ja-JP'
   if (voice) u.voice = voice
-  u.rate = config.rate ?? 0.58
+  u.rate = config.rate ?? 0.6728
   u.pitch = config.pitch ?? 0.96
   u.volume = 1
 

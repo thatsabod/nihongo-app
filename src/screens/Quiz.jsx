@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import DrawingPad from '../components/DrawingPad.jsx'
 import RuaaMascot from '../components/RuaaMascot.jsx'
+import AppIcon from '../components/AppIcon.jsx'
+import { ProgressHeader, AnswerOption, getOptionState } from '../components/exercise-ui/index.jsx'
 
 const MAX_HEARTS = 10
 
@@ -117,8 +119,8 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
   const matchedIds = matchingState.qIndex === qIndex ? matchingState.matched : []
 
   useEffect(() => {
-    if (q?.soundEnabled !== false && q?.speakText) speakJapanese(q.speakText, { rate: 0.56, voiceIndex })
-    else if (q?.soundEnabled !== false && q?.kana && q?.type !== 'matching') speakJapanese(q.kana, { rate: 0.56, voiceIndex })
+    if (q?.soundEnabled !== false && q?.speakText) speakJapanese(q.speakText, { rate: 0.6496, voiceIndex })
+    else if (q?.soundEnabled !== false && q?.kana && q?.type !== 'matching') speakJapanese(q.kana, { rate: 0.6496, voiceIndex })
   }, [q, voiceIndex])
 
   if (!q) return null
@@ -147,12 +149,12 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
 
   const speakOption = (opt) => {
     const textToSpeak = q.optionSpeakTexts?.[opt] || q.optionReadings?.[opt] || opt
-    speakQuizText(textToSpeak, { rate: 0.54, voiceIndex })
+    speakQuizText(textToSpeak, { rate: 0.6264, voiceIndex })
   }
 
   const chooseMatch = (side, pair) => {
     if (selected || matchedIds.includes(pair.id)) return
-    speakQuizText(side === 'left' ? (pair.leftSpeak || pair.leftReading || pair.left) : (pair.rightSpeak || pair.right), { rate: 0.54, voiceIndex })
+    speakQuizText(side === 'left' ? (pair.leftSpeak || pair.leftReading || pair.left) : (pair.rightSpeak || pair.right), { rate: 0.6264, voiceIndex })
     if (!matchingSelected || matchingSelected.side === side) {
       setMatchingState({ qIndex, selected: { side, id: pair.id }, matched: matchedIds })
       return
@@ -182,18 +184,12 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
 
   return (
     <main className="quiz-screen">
-      <header className="quiz-head">
-        <button className="icon-btn" onClick={onBack}>×</button>
-        <div className="quiz-battery" style={{ '--battery-fill': `${Math.max(0, (hearts / MAX_HEARTS) * 100)}%` }}>
-          <span />
-          <b>{hearts}</b>
+      <ProgressHeader onClose={onBack} progress={((qIndex + 1) / questions.length) * 100}>
+        <div className="quiz-stats">
+          <span className="quiz-stat quiz-stat-hearts"><AppIcon name="life" size={20} /> {hearts}</span>
+          <span className="quiz-stat quiz-stat-xp">{xp} XP</span>
         </div>
-        <strong>{xp} XP</strong>
-      </header>
-
-      <div className="progress-line">
-        <span style={{ width: `${((qIndex + 1) / questions.length) * 100}%` }} />
-      </div>
+      </ProgressHeader>
 
       <section className={quizClass}>
         <p className="eyebrow">{t.question} {qIndex + 1} {t.of} {questions.length} · {score} ✓</p>
@@ -219,27 +215,29 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
               <div>
                 <strong>{t.leftColumn}</strong>
                 {q.pairs.map((pair) => (
-                  <button
+                  <AnswerOption
                     key={pair.id}
-                    className={`${matchingSelected?.side === 'left' && matchingSelected.id === pair.id ? 'active' : ''} ${matchedIds.includes(pair.id) ? 'matched' : ''}`}
+                    variant="plain"
+                    state={`${matchingSelected?.side === 'left' && matchingSelected.id === pair.id ? 'active' : ''} ${matchedIds.includes(pair.id) ? 'matched' : ''}`.trim()}
                     disabled={matchedIds.includes(pair.id)}
                     onClick={() => chooseMatch('left', pair)}
                   >
                     <RubyText text={pair.left} reading={pair.leftReading} />
-                  </button>
+                  </AnswerOption>
                 ))}
               </div>
               <div>
                 <strong>{t.rightColumn}</strong>
                 {q.rightOptions.map((pair) => (
-                  <button
+                  <AnswerOption
                     key={pair.id}
-                    className={`${matchingSelected?.side === 'right' && matchingSelected.id === pair.id ? 'active' : ''} ${matchedIds.includes(pair.id) ? 'matched' : ''}`}
+                    variant="plain"
+                    state={`${matchingSelected?.side === 'right' && matchingSelected.id === pair.id ? 'active' : ''} ${matchedIds.includes(pair.id) ? 'matched' : ''}`.trim()}
                     disabled={matchedIds.includes(pair.id)}
                     onClick={() => chooseMatch('right', pair)}
                   >
                     {pair.right}
-                  </button>
+                  </AnswerOption>
                 ))}
               </div>
             </div>
@@ -249,32 +247,28 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
             <h1>{prompt}</h1>
             <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
               <RuaaMascot mode={mascotMode} visible={showRuaa} />
-              <button className={`kana-focus ruaa-speech ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakQuizText(q.speakText || q.kana, { rate: 0.54, voiceIndex })}>
-                {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus">♪</span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
+              <button className={`kana-focus ruaa-speech ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakQuizText(q.speakText || q.kana, { rate: 0.6264, voiceIndex })}>
+                {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus"><AppIcon name="sound" size={82} /></span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
                 <small>{t.hear}</small>
                 {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
               </button>
             </div>
             <div className="answer-grid">
-              {q.options.map((opt) => {
-                let state = ''
-                if (selected && opt === q.answer) state = 'correct'
-                if (selected && opt === selected && opt !== q.answer) state = 'wrong'
-                return (
-                  <button
-                    key={opt}
-                    dir="ltr"
-                    className={state}
-                    disabled={Boolean(selected)}
-                    onClick={() => {
-                      speakOption(opt)
-                      answer(opt)
-                    }}
-                  >
-                    <RubyText text={opt} reading={q.optionReadings?.[opt]} />
-                  </button>
-                )
-              })}
+              {q.options.map((opt) => (
+                <AnswerOption
+                  key={opt}
+                  variant="plain"
+                  dir="ltr"
+                  state={getOptionState(selected, opt, q.answer)}
+                  disabled={Boolean(selected)}
+                  onClick={() => {
+                    speakOption(opt)
+                    answer(opt)
+                  }}
+                >
+                  <RubyText text={opt} reading={q.optionReadings?.[opt]} />
+                </AnswerOption>
+              ))}
             </div>
           </>
         )}

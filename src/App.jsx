@@ -8,10 +8,16 @@ import GrammarExercises, { HighlightSentence } from './components/GrammarExercis
 import { ExercisesSection, ReviewSection } from './components/LessonSections.jsx'
 import VocabExercises from './components/VocabExercises.jsx'
 import CharacterExercises from './components/CharacterExercises.jsx'
+import AppIcon from './components/AppIcon.jsx'
+import IconCircle from './components/IconCircle.jsx'
 import Login from './screens/Login.jsx'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
+import Exam from './screens/Exam.jsx'
+import ExamIntro from './screens/ExamIntro.jsx'
+import ExamResult from './screens/ExamResult.jsx'
 import DrawingPad from './components/DrawingPad.jsx'
+import { EXAM_CONFIG, LEVEL_ORDER } from './content/examConfig.js'
 
 const TOTAL_LESSONS = 25
 const sectionCount = 3
@@ -211,11 +217,11 @@ const copy = {
 }
 
 const levels = [
-  { id: 'N5', ar: 'مبتدئ', en: 'Beginner', unlocked: true },
-  { id: 'N4', ar: 'أساسي', en: 'Elementary', unlocked: false },
-  { id: 'N3', ar: 'متوسط', en: 'Intermediate', unlocked: false },
-  { id: 'N2', ar: 'متقدم', en: 'Advanced', unlocked: false },
-  { id: 'N1', ar: 'احترافي', en: 'Professional', unlocked: false },
+  { id: 'N5', ar: 'مبتدئ', en: 'Beginner' },
+  { id: 'N4', ar: 'أساسي', en: 'Elementary' },
+  { id: 'N3', ar: 'متوسط', en: 'Intermediate' },
+  { id: 'N2', ar: 'متقدم', en: 'Advanced' },
+  { id: 'N1', ar: 'احترافي', en: 'Professional' },
 ]
 
 const communityText = {
@@ -526,6 +532,18 @@ function sentenceSpeakText(item, sentence) {
   return sentence.replace('____', speakableVocab(item))
 }
 
+function hasSentenceTemplate(item) {
+  return !sentenceForVocab(item).includes('=')
+}
+
+function collectBuildExercises(sourceLessons) {
+  return sourceLessons.flatMap((lesson) => (
+    Array.isArray(lesson.grammar)
+      ? lesson.grammar.flatMap((pattern) => (pattern.exercises || []).filter((ex) => ex.type === 'build' && ex.words?.length && ex.answer))
+      : []
+  ))
+}
+
 function isMatchableVocabItem(item) {
   const label = vocabLabel(item)
   const reading = item.reading || ''
@@ -625,6 +643,134 @@ function makeLessonVocabQuiz(lesson, groupItems = lesson.vocab, kanjiReadingMode
   ]).slice(0, 12)
 }
 
+function splitCount(total, parts) {
+  const base = Math.floor(total / parts)
+  const rem = total % parts
+  return Array.from({ length: parts }, (_, i) => base + (i < rem ? 1 : 0))
+}
+
+function levelSourceLessons(levelId) {
+  return levelId === 'N5' ? lessons : []
+}
+
+function buildExamQuestions(levelId, examType, kanjiReadingMode = 'hiragana') {
+  const config = EXAM_CONFIG[levelId]?.[examType]
+  if (!config || config.contentReady === false) return null
+  const sourceLevel = config.sourceLevel || levelId
+  const sourceLessons = levelSourceLessons(sourceLevel)
+  if (!sourceLessons.length) return null
+
+  const allVocab = sourceLessons.flatMap((lesson) => lesson.vocab || [])
+  const examLesson = { id: `exam-${levelId}-${examType}`, vocab: allVocab }
+  const matchable = allVocab.filter(isMatchableVocabItem)
+  const wordItems = matchable.filter((item) => item.type !== 'expression')
+  const sentenceItems = allVocab.filter(hasSentenceTemplate)
+  const buildExercises = collectBuildExercises(sourceLessons)
+
+  const sections = config.sections.map((section) => {
+    const built = []
+    const hasMatching = section.types.includes('matching') && matchable.length >= 4
+    const otherTypes = section.types.filter((type) => {
+      if (type === 'matching') return false
+      if (type === 'sentence_build') return buildExercises.length > 0
+      return true
+    })
+    const remaining = section.count - (hasMatching ? 1 : 0)
+    const counts = splitCount(Math.max(remaining, 0), otherTypes.length || 1)
+    const pool = shuffle(allVocab)
+    const wordPool = shuffle(wordItems.length ? wordItems : matchable.length ? matchable : allVocab)
+    const sentencePool = shuffle(sentenceItems.length ? sentenceItems : allVocab)
+    const buildPool = shuffle(buildExercises)
+    let cursor = 0
+    let wordCursor = 0
+    let sentenceCursor = 0
+    let buildCursor = 0
+
+    otherTypes.forEach((type, typeIndex) => {
+      for (let n = 0; n < counts[typeIndex]; n++) {
+        if (type === 'vocab_meaning') {
+          const item = pool[cursor % pool.length]
+          cursor++
+          built.push({
+            type: 'vocab_meaning',
+            kana: vocabLabel(item),
+            kanaReading: vocabReading(item, kanjiReadingMode),
+            speakText: speakableVocab(item),
+            answer: item.meaning,
+            options: makeVocabOptions(allVocab, item, 'meaning'),
+            optionSpeakTexts: {},
+            kanjiReadingMode,
+          })
+        } else if (type === 'audio_word') {
+          const item = pool[cursor % pool.length]
+          cursor++
+          const options = makeVocabOptions(allVocab, item, 'label')
+          built.push({
+            type: 'audio_word',
+            kana: '聞く',
+            speakText: speakableVocab(item),
+            answer: vocabLabel(item),
+            options,
+            optionReadings: optionReadingsFor(options, allVocab, kanjiReadingMode),
+            optionSpeakTexts: optionSpeakTextsFor(options, allVocab),
+            kanjiReadingMode,
+          })
+        } else if (type === 'sentence') {
+          const item = sentencePool[sentenceCursor % sentencePool.length]
+          sentenceCursor++
+          built.push(makeSentenceQuestion(examLesson, item, sentenceItems.length ? sentenceItems : allVocab, kanjiReadingMode))
+        } else if (type === 'word_production') {
+          const item = wordPool[wordCursor % wordPool.length]
+          wordCursor++
+          const options = makeVocabOptions(wordPool, item, 'label')
+          built.push({
+            type: 'word_production',
+            kana: item.meaning,
+            answer: vocabLabel(item),
+            options,
+            optionReadings: optionReadingsFor(options, wordPool, kanjiReadingMode),
+            optionSpeakTexts: optionSpeakTextsFor(options, wordPool),
+            kanjiReadingMode,
+          })
+        } else if (type === 'audio_sentence') {
+          const item = sentencePool[sentenceCursor % sentencePool.length]
+          sentenceCursor++
+          const sentence = sentenceForVocab(item)
+          built.push({
+            type: 'audio_sentence',
+            kana: '聞く',
+            speakText: sentenceSpeakText(item, sentence),
+            sentence,
+            answer: item.meaning,
+            options: makeVocabOptions(sentenceItems.length ? sentenceItems : allVocab, item, 'meaning'),
+            optionSpeakTexts: {},
+            kanjiReadingMode,
+          })
+        } else if (type === 'sentence_build') {
+          const ex = buildPool[buildCursor % buildPool.length]
+          buildCursor++
+          built.push({
+            type: 'sentence_build',
+            prompt: ex.ar,
+            words: ex.words,
+            particles: ex.particles || [],
+            answer: ex.answer,
+            soundEnabled: false,
+          })
+        }
+      }
+    })
+
+    if (hasMatching) {
+      built.push(makeMatchingQuestion(examLesson, shuffle(matchable), kanjiReadingMode))
+    }
+
+    return { key: section.key, label: section.label, minutes: section.minutes, questions: shuffle(built) }
+  })
+
+  return { levelId, examType, sections, totalScore: config.totalScore, passScore: config.passScore }
+}
+
 function todayKey() {
   return new Date().toISOString().slice(0, 10)
 }
@@ -715,10 +861,10 @@ function Button({ children, variant = 'primary', ...props }) {
   return <button className={`btn btn-${variant}`} {...props}>{children}</button>
 }
 
-function Stat({ label, value }) {
+function Stat({ label, value, icon }) {
   return (
     <div className="stat">
-      <strong>{value}</strong>
+      <strong>{icon && <AppIcon name={icon} size={18} />}{value}</strong>
       <span>{label}</span>
     </div>
   )
@@ -1416,15 +1562,15 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         <div className="community-hero-side">
           <div className="community-inbox-actions">
             <button onClick={() => openInbox('messages')} aria-label={text.inbox}>
-              <span>✉</span>
+              <span><AppIcon name="messages" size={30} /></span>
               {unreadMessages > 0 && <b>{unreadMessages}</b>}
             </button>
             <button onClick={() => setActiveInbox(activeInbox === 'requests' ? null : 'requests')} aria-label={text.requests}>
-              <span>＋</span>
+              <span className="friend-request-icon"><AppIcon name="profile" size={28} /><em>+</em></span>
               {friendRequests.length > 0 && <b>{friendRequests.length}</b>}
             </button>
             <button onClick={() => openInbox('notifications')} aria-label={text.notifications}>
-              <span>🔔</span>
+              <span><AppIcon name="notifications" size={30} /></span>
               {unreadNotifications > 0 && <b>{unreadNotifications}</b>}
             </button>
           </div>
@@ -1439,7 +1585,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       {activeInbox && activeInbox !== 'compose' && (
         <article className="community-card inbox-panel">
           <div className="card-heading">
-            <span>{activeInbox === 'messages' ? '✉' : activeInbox === 'requests' ? '＋' : '🔔'}</span>
+            <span className={activeInbox === 'requests' ? 'friend-request-icon' : ''}>
+              <AppIcon name={activeInbox === 'messages' ? 'messages' : activeInbox === 'requests' ? 'profile' : 'notifications'} size={activeInbox === 'requests' ? 30 : 32} />
+              {activeInbox === 'requests' && <em>+</em>}
+            </span>
             <h2>{activeInbox === 'messages' ? text.inbox : activeInbox === 'requests' ? text.requests : text.notifications}</h2>
           </div>
           {activeInbox === 'messages' && (
@@ -1481,7 +1630,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       <div className="community-grid">
         <article className="community-card daily-card">
           <div className="card-heading">
-            <span>⚡</span>
+            <IconCircle name="calendar" size={38} />
             <div>
               <h2>{text.daily}</h2>
               <p>{isAr ? 'خمس دقائق: حرف، مفردة، وجملة قصيرة.' : 'Five minutes: character, word, and short sentence.'}</p>
@@ -1495,7 +1644,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
         <article className="community-card">
           <div className="card-heading">
-            <span>🏆</span>
+            <IconCircle name="ranking" size={38} />
             <h2>{text.leaderboard}</h2>
           </div>
           <div className="leaderboard-list">
@@ -1511,7 +1660,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
         <article className="community-card wide">
           <div className="card-heading">
-            <span>👥</span>
+            <IconCircle name="culture" size={38} />
             <h2>{text.groups}</h2>
           </div>
           <div className="study-group-list">
@@ -1530,7 +1679,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
         <article className="community-card">
           <div className="card-heading">
-            <span>💬</span>
+            <IconCircle name="speaking" size={38} />
             <h2>{text.questions}</h2>
           </div>
           <div className="question-list">
@@ -1558,7 +1707,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
                     <button onClick={() => likeQuestion(question)}>♡ {text.like}</button>
                     <button onClick={() => setActiveReplyId(activeReplyId === question.id ? null : question.id)}>↩ {text.reply}</button>
                     <button onClick={() => repostQuestion(question)}>↻ {text.repost}</button>
-                    <button onClick={() => shareQuestion(question)}>⤴ {text.shareComment}</button>
+                    <button onClick={() => shareQuestion(question)}><AppIcon name="share" size={18} /> {text.shareComment}</button>
                   </div>
                   {(repliesForQuestion(question.id).length > 0 || activeReplyId === question.id) && (
                     <div className="reply-panel">
@@ -1640,7 +1789,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
         <article className="community-card ai-card">
           <div className="card-heading">
-            <span>✨</span>
+            <IconCircle name="correct" size={38} />
             <h2>{text.corrector}</h2>
           </div>
           <textarea value={sentence} onChange={(event) => setSentence(event.target.value)} placeholder={text.sentencePlaceholder} />
@@ -1650,7 +1799,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
         <article className="community-card ai-card wide">
           <div className="card-heading">
-            <span>友</span>
+            <IconCircle name="sound" size={38} />
             <h2>{text.aiPartner}</h2>
           </div>
           <textarea value={partnerMessage} onChange={(event) => setPartnerMessage(event.target.value)} placeholder={text.partnerPlaceholder} />
@@ -1677,7 +1826,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
                   <p className="user-handle">{selectedProfile.userHandle || `@${selectedProfile.userUsername || 'nihongo'}`}</p>
                   {!selectedProfile.current && (
                     <div className="profile-inline-actions">
-                      <button onClick={() => messageProfile(selectedProfile)} aria-label={text.message}>✉</button>
+                      <button onClick={() => messageProfile(selectedProfile)} aria-label={text.message}><AppIcon name="messages" size={28} /></button>
                       <span className="friend-action-wrap">
                         <button
                           onClick={() => {
@@ -1689,7 +1838,8 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
                           }}
                           aria-label={text.followRequest}
                         >
-                          {friendshipState(selectedProfile) === 'friends' ? '✓' : friendshipState(selectedProfile) === 'pending' ? '⌛' : '👤+'}
+                          <AppIcon name={friendshipState(selectedProfile) === 'friends' ? 'correct' : friendshipState(selectedProfile) === 'pending' ? 'timer' : 'profile'} size={28} />
+                          {friendshipState(selectedProfile) === 'none' && <em>+</em>}
                         </button>
                         {friendMenuOpen && friendshipState(selectedProfile) === 'friends' && (
                           <button className="friend-menu" onClick={() => { setFriendMenuOpen(false); removeFriend(selectedProfile) }}>
@@ -1810,7 +1960,7 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
   return (
     <main className="screen">
       <header className="page-head">
-        <button className="icon-btn" onClick={onBack}>←</button>
+        <button className="icon-btn" onClick={onBack}><AppIcon name="back" size={22} /></button>
         <div>
           <p>{t.lesson} {lesson.id}</p>
           <h1>{lesson.title[lang]}</h1>
@@ -1833,8 +1983,12 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
             <VocabExercises vocab={lesson.vocab} lang={lang} onClose={() => setVocabExOpen(false)} />
           ) : (
             <>
+              <p className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <AppIcon name="vocabulary" size={18} />{t.vocabulary}
+              </p>
               <button className="btn btn-primary vocab-ex-open" onClick={() => setVocabExOpen(true)}>
-                {lang === 'ar' ? '🎯 تمارين المفردات' : '🎯 Vocabulary exercises'}
+                <AppIcon name="quiz" size={28} />
+                {lang === 'ar' ? 'تمارين المفردات' : 'Vocabulary exercises'}
               </button>
               <div className="vocab-group-list">
                 {vocabGroups.map((group, groupIndex) => (
@@ -1872,7 +2026,9 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
 
       {section === 'grammar' && (
         <section className="lesson-card">
-          <p className="eyebrow">{t.grammar}</p>
+          <p className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <AppIcon name="grammar" size={18} />{t.grammar}
+          </p>
           {activeGrammarEx && (
             <GrammarExercises
               exercises={activeGrammarEx.exercises}
@@ -1984,7 +2140,7 @@ function ProfileEditor({ lang, values, onCancel, onSave }) {
   return (
     <main className="screen">
       <header className="page-head">
-        <button className="icon-btn" onClick={onCancel}>←</button>
+        <button className="icon-btn" onClick={onCancel}><AppIcon name="back" size={22} /></button>
         <div>
           <p>{t.settings}</p>
           <h1>{t.editProfile}</h1>
@@ -1993,7 +2149,8 @@ function ProfileEditor({ lang, values, onCancel, onSave }) {
       <section className="auth-panel">
         <div className="photo-picker">
           <div className="avatar large">{draft.userAvatar ? <img src={draft.userAvatar} alt="" /> : (draft.userName || 'G').slice(0, 1).toUpperCase()}</div>
-          <label className="file-btn">
+          <label className="file-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <AppIcon name="gallery" size={22} />
             {t.uploadPhoto}
             <input type="file" accept="image/*" onChange={updatePhoto} />
           </label>
@@ -2026,18 +2183,18 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
   const [panel, setPanel] = useState('menu')
   const isDark = theme === 'dark'
   const items = [
-    { id: 'account', icon: '👤', title: t.account },
-    { id: 'customization', icon: '✨', title: t.customization },
-    { id: 'subscription', icon: '◆', title: t.subscription },
-    { id: 'policy', icon: '📜', title: t.policy },
-    { id: 'support', icon: '☎', title: t.support },
-    { id: 'donate', icon: '♡', title: t.donate },
+    { id: 'account', icon: 'achievement', title: t.account },
+    { id: 'customization', icon: 'filter', title: t.customization },
+    { id: 'subscription', icon: 'coins', title: t.subscription },
+    { id: 'policy', icon: 'info', title: t.policy },
+    { id: 'support', icon: 'help', title: t.support },
+    { id: 'donate', icon: 'gift', title: t.donate },
   ]
 
   return (
     <main className="screen">
       <header className="page-head">
-        <button className="icon-btn" onClick={panel === 'menu' ? onBack : () => setPanel('menu')}>←</button>
+        <button className="icon-btn" onClick={panel === 'menu' ? onBack : () => setPanel('menu')}><AppIcon name="back" size={22} /></button>
         <div>
           <p>にほんごGO</p>
           <h1>{panel === 'menu' ? t.settings : items.find((item) => item.id === panel)?.title}</h1>
@@ -2049,7 +2206,7 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
           <div className="settings-list">
             {items.map((item) => (
               <button key={item.id} onClick={() => setPanel(item.id)}>
-                <span className="settings-icon">{item.icon}</span>
+                <IconCircle name={item.icon} size={44} className="settings-icon" />
                 <strong>{item.title}</strong>
                 <small>›</small>
               </button>
@@ -2061,12 +2218,12 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
           <div className="settings-panel">
             {values.isGuest ? (
               <button className="settings-row" onClick={onAccountAction}>
-                <span>{t.create}</span>
+                <span><AppIcon name="unlocked" size={30} />{t.create}</span>
                 <strong>›</strong>
               </button>
             ) : (
               <button className="settings-row" onClick={onEditProfile}>
-                <span>{t.editProfile}</span>
+                <span><AppIcon name="camera" size={30} />{t.editProfile}</span>
                 <strong>›</strong>
               </button>
             )}
@@ -2076,14 +2233,14 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
         {panel === 'customization' && (
           <div className="settings-panel">
             <div className="theme-switch-row">
-              <span>☀</span>
+              <span><AppIcon name="calendar" size={30} /></span>
               <button className={`theme-switch ${isDark ? 'dark' : 'light'}`} onClick={() => setTheme(isDark ? 'light' : 'dark')} aria-label={t.theme}>
                 <span />
               </button>
-              <span>☾</span>
+              <span><AppIcon name="night-mode" size={30} /></span>
             </div>
             <label className="toggle-row">
-              <span>{t.sound}</span>
+              <span><AppIcon name={values.soundEnabled ? 'sound' : 'mute'} size={30} />{t.sound}</span>
               <input type="checkbox" checked={values.soundEnabled} onChange={(e) => onUpdatePrefs({ soundEnabled: e.target.checked })} />
             </label>
             <label>
@@ -2095,7 +2252,7 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
               <input type="checkbox" checked={values.cozyMode} onChange={(e) => onUpdatePrefs({ cozyMode: e.target.checked })} />
             </label>
             <label>
-              {t.kanjiReading}
+              <span className="settings-label-inline"><AppIcon name="language" size={30} />{t.kanjiReading}</span>
               <select value={values.kanjiReadingMode} onChange={(e) => onUpdatePrefs({ kanjiReadingMode: e.target.value })}>
                 <option value="hiragana">{t.kanjiReadingHiragana}</option>
                 <option value="romaji">{t.kanjiReadingRomaji}</option>
@@ -2125,7 +2282,6 @@ export default function App() {
   const [activeLesson, setActiveLesson] = useState(null)
   const [activeCharGroup, setActiveCharGroup] = useState(null)
   const [drawChar, setDrawChar] = useState(null)
-  const [charSection, setCharSection] = useState('practice')
   const [dataReady, setDataReady] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
   const [userId, setUserId] = useState(null)
@@ -2151,6 +2307,9 @@ export default function App() {
   const [lastHeartRefillAt, setLastHeartRefillAt] = useState(() => Date.now())
   const [progress, setProgress] = useState({})
   const [lessonProgress, setLessonProgress] = useState({})
+  const [unlockedLevels, setUnlockedLevels] = useState(['N5'])
+  const [levelExams, setLevelExams] = useState({})
+  const [examState, setExamState] = useState(null)
   const [totalQuizzes, setTotalQuizzes] = useState(0)
   const [perfectScores, setPerfectScores] = useState(0)
   const [questions, setQuestions] = useState([])
@@ -2190,6 +2349,8 @@ export default function App() {
     setLastHeartRefillAt(state.lastHeartRefillAt ?? Date.now())
     setProgress(state.progress ?? {})
     setLessonProgress(state.lessonProgress ?? {})
+    setUnlockedLevels(state.unlockedLevels?.length ? state.unlockedLevels : ['N5'])
+    setLevelExams(state.levelExams ?? {})
     setTotalQuizzes(state.totalQuizzes ?? 0)
     setPerfectScores(state.perfectScores ?? 0)
     setLastScore(state.lastScore ?? 0)
@@ -2219,6 +2380,8 @@ export default function App() {
     lastHeartRefillAt,
     progress,
     lessonProgress,
+    unlockedLevels,
+    levelExams,
     totalQuizzes,
     perfectScores,
     lastScore,
@@ -2237,7 +2400,7 @@ export default function App() {
     theme,
     lang,
     startingGemsGranted,
-  }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, emailVerified, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang, startingGemsGranted])
+  }), [xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, unlockedLevels, levelExams, totalQuizzes, perfectScores, lastScore, userName, userUsername, emailVerified, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang, startingGemsGranted])
 
   const publicProfilePayload = useMemo(() => ({
     userId,
@@ -2549,6 +2712,89 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [screen, selected, questions, qIndex, score, activeLesson, currentLevel])
 
+  const isLevelLessonsComplete = (levelId) => {
+    if (levelSourceLessons(levelId).length < TOTAL_LESSONS) return false
+    return Array.from({ length: TOTAL_LESSONS }, (_, index) => index + 1)
+      .every((lessonNumber) => (lessonProgress[`${levelId}-${lessonNumber}`] || 0) >= sectionCount)
+  }
+
+  const startExitExam = (levelId) => {
+    const exam = buildExamQuestions(levelId, 'exit', kanjiReadingMode)
+    setExamState({ levelId, examType: 'exit', exam, sectionIndex: 0, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: [], phase: 'section-intro' })
+    setScreen('exam-intro')
+  }
+
+  const startEntranceExam = (levelId) => {
+    const exam = buildExamQuestions(levelId, 'entrance', kanjiReadingMode)
+    setExamState({ levelId, examType: 'entrance', exam, sectionIndex: 0, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: [], phase: 'section-intro' })
+    setScreen('exam-intro')
+  }
+
+  const finalizeExam = (sectionScores) => {
+    const total = sectionScores.reduce((a, b) => a + b, 0)
+    const passed = total >= examState.exam.passScore
+    const { levelId, examType } = examState
+    setLevelExams((prev) => ({
+      ...prev,
+      [levelId]: {
+        ...prev[levelId],
+        ...(examType === 'exit' ? { exitScore: total, exitPassed: passed } : { entranceScore: total, entrancePassed: passed }),
+      },
+    }))
+    if (passed) {
+      if (examType === 'exit') {
+        const next = LEVEL_ORDER[LEVEL_ORDER.indexOf(levelId) + 1]
+        if (next) setUnlockedLevels((prev) => prev.includes(next) ? prev : [...prev, next])
+      } else {
+        setUnlockedLevels((prev) => prev.includes(levelId) ? prev : [...prev, levelId])
+      }
+    }
+    setExamState((prev) => ({ ...prev, sectionScores, totalScore: total, passed, phase: 'finished' }))
+    setScreen('exam-result')
+  }
+
+  const handleExamAnswer = (opt) => {
+    setExamState((prev) => (prev && prev.selected === null ? { ...prev, selected: opt } : prev))
+  }
+
+  const handleSectionStart = () => {
+    setExamState((prev) => (prev ? { ...prev, phase: 'active' } : prev))
+  }
+
+  const forceFinishSection = () => {
+    if (!examState) return
+    const section = examState.exam.sections[examState.sectionIndex]
+    const sectionScore = Math.round((examState.sectionCorrect / section.questions.length) * (examState.exam.totalScore / examState.exam.sections.length))
+    const newSectionScores = [...examState.sectionScores, sectionScore]
+    if (examState.sectionIndex + 1 < examState.exam.sections.length) {
+      setExamState((prev) => ({ ...prev, sectionIndex: prev.sectionIndex + 1, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: newSectionScores, phase: 'section-intro' }))
+    } else {
+      finalizeExam(newSectionScores)
+    }
+  }
+
+  useEffect(() => {
+    if (screen !== 'exam' || !examState || examState.phase !== 'active' || examState.selected === null) return
+    const section = examState.exam.sections[examState.sectionIndex]
+    const q = section.questions[examState.qIndex]
+    const isCorrect = examState.selected === q.answer
+    const timer = setTimeout(() => {
+      const nextCorrect = examState.sectionCorrect + (isCorrect ? 1 : 0)
+      if (examState.qIndex + 1 < section.questions.length) {
+        setExamState((prev) => ({ ...prev, qIndex: prev.qIndex + 1, selected: null, sectionCorrect: nextCorrect }))
+        return
+      }
+      const sectionScore = Math.round((nextCorrect / section.questions.length) * (examState.exam.totalScore / examState.exam.sections.length))
+      const newSectionScores = [...examState.sectionScores, sectionScore]
+      if (examState.sectionIndex + 1 < examState.exam.sections.length) {
+        setExamState((prev) => ({ ...prev, sectionIndex: prev.sectionIndex + 1, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: newSectionScores, phase: 'section-intro' }))
+        return
+      }
+      finalizeExam(newSectionScores)
+    }, isCorrect ? 700 : 1300)
+    return () => clearTimeout(timer)
+  }, [screen, examState])
+
   const openLesson = (lesson) => {
     setQuestions([])
     setQIndex(0)
@@ -2711,19 +2957,39 @@ export default function App() {
     return <Result score={lastScore} total={questions.length} xpEarned={lastScore * 10} lang={lang} onHome={() => { setActiveLesson(null); setScreen('main') }} onRetry={() => startQuiz(lettersTab)} />
   }
 
+  if (screen === 'exam-intro' && examState) {
+    return <ExamIntro examState={examState} lang={lang} onStart={() => setScreen('exam')} onBack={() => { setExamState(null); setScreen('main') }} />
+  }
+
+  if (screen === 'exam' && examState?.exam) {
+    return <Exam examState={examState} lang={lang} onAnswer={handleExamAnswer} onSectionStart={handleSectionStart} onTimeUp={forceFinishSection} onBack={() => { setExamState(null); setScreen('main') }} />
+  }
+
+  if (screen === 'exam-result' && examState) {
+    return <ExamResult examState={examState} lang={lang} nextLevelId={LEVEL_ORDER[LEVEL_ORDER.indexOf(examState.levelId) + 1] || null} onHome={() => { setExamState(null); setScreen('main') }} />
+  }
+
   if (screen === 'lesson' && activeLesson) {
     return <LessonView lesson={activeLesson} lang={lang} progress={progress} kanjiReadingMode={kanjiReadingMode} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
   }
 
   if (screen === 'character-group' && activeCharGroup) {
     const title = `${activeCharGroup.label} ${activeCharGroup.index + 1}`
-    const currentDrawChar = drawChar || activeCharGroup.items[0]?.kana
+    const currentDrawItem = activeCharGroup.items.find((item) => item.kana === drawChar) || activeCharGroup.items[0]
+    const currentDrawChar = currentDrawItem?.kana
     const renderChar = (item) => <CharacterSymbol item={item} readingMode={kanjiReadingMode} />
+    const markDrawPractice = ({ correct }) => {
+      if (!correct || !currentDrawChar) return
+      setProgress((state) => ({
+        ...state,
+        [currentDrawChar]: Math.min((state[currentDrawChar] || 0) + 1, 8),
+      }))
+    }
 
     return (
       <main className="screen">
         <header className="page-head">
-          <button className="icon-btn" onClick={() => setScreen('main')}>←</button>
+          <button className="icon-btn" onClick={() => setScreen('main')}><AppIcon name="back" size={22} /></button>
           <div>
             <p>{t.groups}</p>
             <h1>{title}</h1>
@@ -2732,51 +2998,35 @@ export default function App() {
         </header>
 
         <section className="content">
-          <div className="char-section-tabs">
-            <button className={charSection === 'practice' ? 'active' : ''} onClick={() => setCharSection('practice')}>
-              {lang === 'ar' ? '🎯 تمارين' : '🎯 Practice'}
-            </button>
-            <button className={charSection === 'write' ? 'active' : ''} onClick={() => setCharSection('write')}>
-              {lang === 'ar' ? '✍️ الكتابة' : '✍️ Writing'}
-            </button>
+          <div className="group-character-grid">
+            {activeCharGroup.items.map((item) => {
+              const active = currentDrawChar === item.kana
+              return (
+                <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
+                  <span><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></span>
+                  <strong>{item.answer}</strong>
+                  <small>{t.listen}</small>
+                  <meter min="0" max="8" value={progress[item.kana] || 0} />
+                </button>
+              )
+            })}
           </div>
 
-          {charSection === 'practice' && (
-            <CharacterExercises
-              key={activeCharGroup.label + activeCharGroup.index}
-              items={activeCharGroup.items}
-              lang={lang}
-              renderChar={renderChar}
-              onClose={() => setScreen('main')}
-            />
-          )}
+          <section className="drawing-section">
+            <div>
+              <p className="eyebrow">{t.drawPractice}</p>
+              <h2>{currentDrawItem ? <CharacterSymbol item={currentDrawItem} readingMode={kanjiReadingMode} /> : t.chooseCharacter}</h2>
+            </div>
+            <DrawingPad char={currentDrawChar} lang={lang} autoGrade onDone={markDrawPractice} />
+          </section>
 
-          {charSection === 'write' && (
-            <>
-              <div className="group-character-grid">
-                {activeCharGroup.items.map((item) => {
-                  const active = currentDrawChar === item.kana
-                  return (
-                    <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
-                      <span><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></span>
-                      <strong>{item.answer}</strong>
-                      <small>{t.listen}</small>
-                      <meter min="0" max="8" value={progress[item.kana] || 0} />
-                    </button>
-                  )
-                })}
-              </div>
-
-              <section className="drawing-section">
-                <div>
-                  <p className="eyebrow">{t.drawPractice}</p>
-                  <h2>{t.chooseCharacter}</h2>
-                </div>
-                <DrawingPad char={currentDrawChar} lang={lang} />
-              </section>
-            </>
-          )}
-
+          <CharacterExercises
+            key={activeCharGroup.label + activeCharGroup.index}
+            items={activeCharGroup.items}
+            lang={lang}
+            renderChar={renderChar}
+            onClose={() => setScreen('main')}
+          />
           <Button onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
         </section>
       </main>
@@ -2851,17 +3101,9 @@ export default function App() {
       <main className="app-shell">
         <header className="topbar app-topbar">
           <div className="toolbar top-stats">
-            <div className="ring ring-mini" style={{ '--value': `${lessonPercent}%` }}>
-              <span>{lessonPercent}%</span>
-            </div>
-            <span className="stat-chip gems"><i>◆</i>{gems}</span>
-            <span className="stat-chip streak"><i>🔥</i>{streak}</span>
-            <span className="stat-chip battery">
-              <i>
-                <span style={{ width: `${Math.max(0, (hearts / MAX_HEARTS) * 100)}%` }} />
-                <b>{hearts}</b>
-              </i>
-            </span>
+            <span className="stat-chip life"><i className="icon-shell life-shell"><AppIcon name="life" size={42} /><b>{hearts}</b></i></span>
+            <span className="stat-chip streak"><i className="icon-shell"><AppIcon name="streak" size={34} /></i>{streak}</span>
+            <span className="stat-chip gems"><i className="icon-shell"><AppIcon name="gems" size={34} /></i>{gems}</span>
           </div>
         </header>
 
@@ -2886,12 +3128,28 @@ export default function App() {
             </div>
 
             <div className="level-strip">
-              {levels.map((level) => (
-                <button key={level.id} className={currentLevel === level.id ? 'active' : ''} disabled={!level.unlocked} onClick={() => setCurrentLevel(level.id)}>
-                  <strong>{level.id}</strong>
-                  <span>{level[lang]}</span>
-                </button>
-              ))}
+              {levels.map((level) => {
+                const unlocked = unlockedLevels.includes(level.id)
+                const highestUnlockedIdx = Math.max(...unlockedLevels.map((id) => LEVEL_ORDER.indexOf(id)))
+                const isNextLocked = !unlocked && LEVEL_ORDER.indexOf(level.id) === highestUnlockedIdx + 1
+                const passed = levelExams[level.id]?.exitPassed
+                return (
+                  <button
+                    key={level.id}
+                    className={`${currentLevel === level.id ? 'active' : ''} ${!unlocked ? 'locked' : ''}`}
+                    disabled={!unlocked && !isNextLocked}
+                    onClick={() => {
+                      if (unlocked) setCurrentLevel(level.id)
+                      else if (isNextLocked) startEntranceExam(level.id)
+                    }}
+                  >
+                    {!unlocked && <AppIcon name="locked" size={16} />}
+                    {passed && <span className="level-passed-badge"><AppIcon name="correct" size={14} /></span>}
+                    <strong>{level.id}</strong>
+                    <span>{level[lang]}</span>
+                  </button>
+                )
+              })}
             </div>
 
             <div className="unit-card">
@@ -2899,7 +3157,7 @@ export default function App() {
                 <p>SECTION 1, N5</p>
                 <h2>{t.lessons}</h2>
               </div>
-              <span>▤</span>
+              <span><AppIcon name="lessons" size={38} /></span>
             </div>
 
             <div className="path-caption">
@@ -2936,6 +3194,20 @@ export default function App() {
                 )
               })}
             </div>
+
+            {isLevelLessonsComplete(currentLevel) && (
+              <button
+                className={`exam-banner ${levelExams[currentLevel]?.exitPassed ? 'passed' : ''}`}
+                onClick={() => startExitExam(currentLevel)}
+              >
+                <AppIcon name={levelExams[currentLevel]?.exitPassed ? 'correct' : 'quiz'} size={28} />
+                <span>
+                  {levelExams[currentLevel]?.exitPassed
+                    ? (lang === 'ar' ? `إعادة اختبار نهاية المستوى ${currentLevel}` : `Retake ${currentLevel} Final Exam`)
+                    : (lang === 'ar' ? `اختبار نهاية المستوى ${currentLevel}` : `${currentLevel} Final Exam`)}
+                </span>
+              </button>
+            )}
           </section>
         )}
 
@@ -2967,7 +3239,6 @@ export default function App() {
                     onClick={() => {
                       setActiveCharGroup({ type: lettersTab, index, label: t.group, items: group })
                       setDrawChar(group[0]?.kana)
-                      setCharSection('practice')
                       setScreen('character-group')
                     }}
                   >
@@ -3058,7 +3329,7 @@ export default function App() {
 
             <h2 className="section-title">{t.settings}</h2>
             <button className="settings-entry" onClick={() => setScreen('settings')}>
-              <span>⚙</span>
+              <IconCircle name="settings" size={44} />
               <strong>{t.settings}</strong>
               <small>›</small>
             </button>
@@ -3067,7 +3338,7 @@ export default function App() {
             <div className="achievement-grid">
               {achievements.map((item) => (
                 <div key={item.label} className={item.active ? 'active' : ''}>
-                  <span>{item.active ? '★' : '☆'}</span>
+                  <span><AppIcon name={item.active ? 'star' : 'locked'} size={30} /></span>
                   <small>{item.label}</small>
                 </div>
               ))}
@@ -3080,13 +3351,17 @@ export default function App() {
 
       <nav className="bottom-nav">
         {[
-          ['home', '🏠', t.home],
-          ['letters', 'あ', t.letters],
-          ['community', '会', lang === 'ar' ? 'المجتمع' : 'Community'],
-          ['profile', '👤', t.profile],
+          ['home', 'home', t.home],
+          ['letters', 'writing', t.letters],
+          ['community', 'speaking', lang === 'ar' ? 'المجتمع' : 'Community'],
+          ['profile', 'profile', t.profile],
         ].map(([id, icon, label]) => (
           <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
-            <span>{icon}</span>
+            <span className={icon === 'profile' ? 'nav-avatar' : ''}>
+              {icon === 'profile'
+                ? (userAvatar ? <img src={userAvatar} alt="" /> : (userName || (lang === 'ar' ? 'أ' : 'N')).slice(0, 1).toUpperCase())
+                : <AppIcon name={icon} size={26} />}
+            </span>
             <small>{label}</small>
           </button>
         ))}

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
+import AppIcon from './AppIcon.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -243,7 +244,7 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
     return (
       <div className="iex-wrap">
         <div className="grammar-finish">
-          <span className="finish-icon">{perfect ? '🌟' : good ? '👍' : '💪'}</span>
+          <span className="finish-icon"><AppIcon name={perfect ? 'star' : good ? 'correct' : 'goal'} size={54} /></span>
           <strong>{score}/{exercises.length}</strong>
           <p>{isAr
             ? (perfect ? 'ممتاز! أكملت جميع التمارين.' : good ? 'جيد! راجع الدرس مرة ثانية.' : 'حاول مرة ثانية، أنت تتطور.')

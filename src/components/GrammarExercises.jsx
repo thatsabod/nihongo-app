@@ -1,6 +1,17 @@
 import { useState } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import RuaaMascot from './RuaaMascot.jsx'
+import {
+  ExerciseContainer,
+  ExercisePane,
+  ProgressHeader,
+  QuestionCard,
+  SentenceDisplay,
+  AnswerOption,
+  getOptionState,
+  ResultCard,
+  ActionButton,
+} from './exercise-ui/index.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -79,10 +90,12 @@ function BuildExercise({ ex, lang, onAnswer }) {
   const mascotMode = result ? (result === 'correct' ? 'cheer' : 'skeptical') : 'thinking'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'رتّب الكلمات لتكوين الجملة:' : 'Arrange the words to form the sentence:'}</p>
-      <p className="ex-hint">{ex.ar}</p>
+      <QuestionCard
+        prompt={lang === 'ar' ? 'رتّب الكلمات لتكوين الجملة:' : 'Arrange the words to form the sentence:'}
+        hint={ex.ar}
+      />
 
       <div className={`build-answer ${result || ''}`}>
         {selected.length === 0
@@ -104,9 +117,9 @@ function BuildExercise({ ex, lang, onAnswer }) {
       </div>
 
       {selected.length === ex.words.length && !result && (
-        <button className="btn btn-primary" onClick={check}>{lang === 'ar' ? 'تحقق' : 'Check'}</button>
+        <ActionButton onClick={check}>{lang === 'ar' ? 'تحقق' : 'Check'}</ActionButton>
       )}
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -124,9 +137,9 @@ function FillExercise({ ex, lang, onAnswer }) {
   const mascotMode = picked ? (picked === ex.answer ? 'cheer' : 'skeptical') : 'thinking'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'اختر الأداة القواعدية الصحيحة:' : 'Choose the correct particle:'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'اختر الأداة القواعدية الصحيحة:' : 'Choose the correct particle:'} />
 
       <div className="fill-sentence" dir="ltr">
         <span>{parts[0]}</span>
@@ -139,18 +152,20 @@ function FillExercise({ ex, lang, onAnswer }) {
 
       <div className="fill-options">
         {ex.options.map((opt) => (
-          <button
+          <AnswerOption
             key={opt}
+            variant="plain"
             dir="ltr"
             disabled={Boolean(picked)}
-            className={`particle-btn ${picked === opt ? opt === ex.answer ? 'correct' : 'wrong' : ''} ${picked && opt === ex.answer && picked !== opt ? 'reveal-correct' : ''}`}
+            className="particle-btn"
+            state={getOptionState(picked, opt, ex.answer)}
             onClick={() => pick(opt)}
           >
             {opt}
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -167,28 +182,27 @@ function MeaningExercise({ ex, lang, onAnswer }) {
   const mascotMode = picked ? (picked === ex.answer ? 'cheer' : 'skeptical') : 'calm'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'ما معنى هذه الجملة؟' : 'What does this sentence mean?'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'ما معنى هذه الجملة؟' : 'What does this sentence mean?'} />
 
-      <button className="sentence-display" dir="ltr" onClick={() => speakJapanese(ex.sentence)}>
+      <SentenceDisplay onClick={() => speakJapanese(ex.sentence)}>
         <HighlightSentence text={ex.sentence} particle={ex.particle} />
-        <small>🔊</small>
-      </button>
+      </SentenceDisplay>
 
       <div className="meaning-options">
         {ex.options.map((opt) => (
-          <button
+          <AnswerOption
             key={opt}
             disabled={Boolean(picked)}
-            className={`meaning-btn ${picked === opt ? opt === ex.answer ? 'correct' : 'wrong' : ''} ${picked && opt === ex.answer && picked !== opt ? 'reveal-correct' : ''}`}
+            state={getOptionState(picked, opt, ex.answer)}
             onClick={() => pick(opt)}
           >
             {opt}
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -203,24 +217,25 @@ function ErrorExercise({ ex, lang, onAnswer }) {
   }
 
   return (
-    <div className="grammar-ex">
-      <p className="ex-prompt">{lang === 'ar' ? 'أيّ جملة صحيحة؟' : 'Which sentence is correct?'}</p>
-      {ex.ar && <p className="ex-hint">{ex.ar}</p>}
+    <ExercisePane>
+      <QuestionCard prompt={lang === 'ar' ? 'أيّ جملة صحيحة؟' : 'Which sentence is correct?'} hint={ex.ar} />
 
       <div className="error-options">
         {ex.options.map((opt) => (
-          <button
+          <AnswerOption
             key={opt}
+            variant="plain"
             dir="ltr"
             disabled={Boolean(picked)}
-            className={`error-btn jp-line ${picked === opt ? opt === ex.answer ? 'correct' : 'wrong' : ''} ${picked && opt === ex.answer && picked !== opt ? 'reveal-correct' : ''}`}
+            className="error-btn jp-line"
+            state={getOptionState(picked, opt, ex.answer)}
             onClick={() => pick(opt)}
           >
             {opt}
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -249,33 +264,31 @@ export default function GrammarExercises({ exercises, lang, onClose }) {
     const perfect = score === total
     const good = score >= Math.ceil(total / 2)
     return (
-      <div className="grammar-ex-wrap">
-        <div className="grammar-finish">
-          <span className="finish-icon">{perfect ? '🌟' : good ? '👍' : '💪'}</span>
-          <strong>{score}/{total}</strong>
-          <p>{isAr ? (perfect ? 'ممتاز! أتقنت القاعدة.' : good ? 'جيد! راجع الأمثلة مرة ثانية.' : 'حاول مرة ثانية — القاعدة تحتاج مراجعة.') : (perfect ? 'Perfect mastery!' : good ? 'Good! Review the examples once more.' : 'Keep practicing!')}</p>
-          <button className="btn btn-primary" onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</button>
-        </div>
-      </div>
+      <ResultCard
+        icon={perfect ? 'star' : good ? 'correct' : 'goal'}
+        score={score}
+        total={total}
+        message={isAr ? (perfect ? 'ممتاز! أتقنت القاعدة.' : good ? 'جيد! راجع الأمثلة مرة ثانية.' : 'حاول مرة ثانية — القاعدة تحتاج مراجعة.') : (perfect ? 'Perfect mastery!' : good ? 'Good! Review the examples once more.' : 'Keep practicing!')}
+      >
+        <ActionButton onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</ActionButton>
+      </ResultCard>
     )
   }
 
   const ex = exercises[idx]
 
   return (
-    <div className="grammar-ex-wrap">
-      <div className="grammar-ex-header">
-        <button className="icon-btn" onClick={onClose}>×</button>
-        <div className="ex-progress-bar">
-          <span style={{ width: `${(idx / exercises.length) * 100}%` }} />
-        </div>
-        <span>{idx + 1}/{exercises.length}</span>
-      </div>
+    <ExerciseContainer>
+      <ProgressHeader
+        onClose={onClose}
+        progress={(idx / exercises.length) * 100}
+        counter={`${idx + 1}/${exercises.length}`}
+      />
 
       {ex.type === 'build' && <BuildExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'fill' && <FillExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'meaning' && <MeaningExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'error' && <ErrorExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-    </div>
+    </ExerciseContainer>
   )
 }

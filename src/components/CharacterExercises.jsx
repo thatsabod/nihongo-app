@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import RuaaMascot from './RuaaMascot.jsx'
+import IconCircle from './IconCircle.jsx'
+import {
+  ExerciseContainer,
+  ExercisePane,
+  ProgressHeader,
+  QuestionCard,
+  SentenceDisplay,
+  AnswerOption,
+  getOptionState,
+  ResultCard,
+  ActionButton,
+} from './exercise-ui/index.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -59,29 +71,28 @@ function ReadingExercise({ ex, lang, renderChar, onAnswer }) {
   const mascotMode = picked ? (picked === item.answer ? 'cheer' : 'skeptical') : 'calm'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'ما قراءة هذا الحرف؟' : 'What is the reading of this character?'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'ما قراءة هذا الحرف؟' : 'What is the reading of this character?'} />
 
-      <button className="sentence-display char-display" onClick={() => speakJapanese(item.kana)}>
+      <SentenceDisplay className="char-display" onClick={() => speakJapanese(item.kana)}>
         <span className="char-big">{renderChar(item)}</span>
-        <small>🔊</small>
-      </button>
+      </SentenceDisplay>
 
       <div className="meaning-options vocab-option-grid">
         {ex.options.map((opt) => (
-          <button
+          <AnswerOption
             key={opt}
             dir="ltr"
             disabled={Boolean(picked)}
-            className={`meaning-btn ${picked === opt ? (opt === item.answer ? 'correct' : 'wrong') : ''} ${picked && opt === item.answer && picked !== opt ? 'reveal-correct' : ''}`}
+            state={getOptionState(picked, opt, item.answer)}
             onClick={() => pick(opt)}
           >
             {opt}
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -100,24 +111,24 @@ function ReverseExercise({ ex, lang, renderChar, onAnswer }) {
   const mascotMode = picked ? (picked === item ? 'cheer' : 'skeptical') : 'thinking'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'أيّ حرف يُقرأ هكذا؟' : 'Which character is read like this?'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'أيّ حرف يُقرأ هكذا؟' : 'Which character is read like this?'} />
       <p className="ex-hint vocab-meaning-prompt" dir="ltr">{item.answer}</p>
 
       <div className="meaning-options vocab-option-grid char-option-grid">
         {ex.optionItems.map((opt, i) => (
-          <button
+          <AnswerOption
             key={i}
             disabled={Boolean(picked)}
-            className={`meaning-btn ${picked === opt ? (opt === item ? 'correct' : 'wrong') : ''} ${picked && opt === item && picked !== opt ? 'reveal-correct' : ''}`}
+            state={getOptionState(picked, opt, item)}
             onClick={() => pick(opt)}
           >
             <span className="char-big">{renderChar(opt)}</span>
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -135,28 +146,28 @@ function AudioExercise({ ex, lang, renderChar, onAnswer }) {
   const mascotMode = picked ? (picked === item ? 'cheer' : 'skeptical') : 'thinking'
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'استمع واختر الحرف الصحيح:' : 'Listen and choose the matching character:'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'استمع واختر الحرف الصحيح:' : 'Listen and choose the matching character:'} />
 
       <button className="sentence-display vocab-audio-btn" onClick={() => speakJapanese(item.kana)}>
-        <span className="vocab-audio-icon">🔊</span>
+        <IconCircle name="sound" size={38} className="vocab-audio-icon" />
         <small>{lang === 'ar' ? 'اضغط للاستماع' : 'Tap to listen'}</small>
       </button>
 
       <div className="meaning-options vocab-option-grid char-option-grid">
         {ex.optionItems.map((opt, i) => (
-          <button
+          <AnswerOption
             key={i}
             disabled={Boolean(picked)}
-            className={`meaning-btn ${picked === opt ? (opt === item ? 'correct' : 'wrong') : ''} ${picked && opt === item && picked !== opt ? 'reveal-correct' : ''}`}
+            state={getOptionState(picked, opt, item)}
             onClick={() => pick(opt)}
           >
             <span className="char-big">{renderChar(opt)}</span>
-          </button>
+          </AnswerOption>
         ))}
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -174,33 +185,32 @@ function TrueFalseExercise({ ex, lang, renderChar, onAnswer }) {
   const mascotMode = picked === null ? 'thinking' : (picked === ex.isTrue ? 'cheer' : 'skeptical')
 
   return (
-    <div className="grammar-ex">
+    <ExercisePane>
       <RuaaMascot mode={mascotMode} />
-      <p className="ex-prompt">{lang === 'ar' ? 'هل هذا صحيح؟' : 'Is this correct?'}</p>
+      <QuestionCard prompt={lang === 'ar' ? 'هل هذا صحيح؟' : 'Is this correct?'} />
 
-      <button className="sentence-display char-display" onClick={() => speakJapanese(item.kana)}>
+      <SentenceDisplay className="char-display" onClick={() => speakJapanese(item.kana)}>
         <span className="char-big">{renderChar(item)}</span>
         <span className="char-tf-reading" dir="ltr">{ex.shown}</span>
-        <small>🔊</small>
-      </button>
+      </SentenceDisplay>
 
       <div className="meaning-options vocab-option-grid">
-        <button
+        <AnswerOption
           disabled={picked !== null}
-          className={`meaning-btn ${picked === true ? (ex.isTrue ? 'correct' : 'wrong') : ''} ${picked !== null && ex.isTrue && picked !== true ? 'reveal-correct' : ''}`}
+          state={picked === true ? (ex.isTrue ? 'correct' : 'wrong') : (picked !== null && ex.isTrue && picked !== true ? 'reveal-correct' : '')}
           onClick={() => pick(true)}
         >
           {lang === 'ar' ? '✓ صحيح' : '✓ Correct'}
-        </button>
-        <button
+        </AnswerOption>
+        <AnswerOption
           disabled={picked !== null}
-          className={`meaning-btn ${picked === false ? (!ex.isTrue ? 'correct' : 'wrong') : ''} ${picked !== null && !ex.isTrue && picked !== false ? 'reveal-correct' : ''}`}
+          state={picked === false ? (!ex.isTrue ? 'correct' : 'wrong') : (picked !== null && !ex.isTrue && picked !== false ? 'reveal-correct' : '')}
           onClick={() => pick(false)}
         >
           {lang === 'ar' ? '✗ خطأ' : '✗ Wrong'}
-        </button>
+        </AnswerOption>
       </div>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -242,37 +252,39 @@ function MatchExercise({ ex, lang, renderChar, onAnswer }) {
   }
 
   return (
-    <div className="grammar-ex">
-      <p className="ex-prompt">{lang === 'ar' ? 'وصّل كل حرف بقراءته:' : 'Match each character to its reading:'}</p>
+    <ExercisePane>
+      <QuestionCard prompt={lang === 'ar' ? 'وصّل كل حرف بقراءته:' : 'Match each character to its reading:'} />
       <div className="vocab-match-grid">
         <div className="vocab-match-col">
           {leftItems.map((it) => (
-            <button
+            <AnswerOption
               key={it.pairId}
+              variant="plain"
               disabled={matched.includes(it.pairId)}
               className={`vocab-match-card ${matched.includes(it.pairId) ? 'matched' : ''} ${selectedLeft?.pairId === it.pairId ? 'selected' : ''}`}
               onClick={() => pickLeft(it)}
             >
               <span className="char-big">{renderChar(it)}</span>
-            </button>
+            </AnswerOption>
           ))}
         </div>
         <div className="vocab-match-col">
           {rightItems.map((it) => (
-            <button
+            <AnswerOption
               key={it.pairId}
+              variant="plain"
               dir="ltr"
               disabled={matched.includes(it.pairId)}
               className={`vocab-match-card ${matched.includes(it.pairId) ? 'matched' : ''} ${wrongPair === it.pairId ? 'wrong' : ''}`}
               onClick={() => pickRight(it)}
             >
               {it.answer}
-            </button>
+            </AnswerOption>
           ))}
         </div>
       </div>
       <p className="iex-counter">{matched.length}/{total}</p>
-    </div>
+    </ExercisePane>
   )
 }
 
@@ -304,39 +316,35 @@ export default function CharacterExercises({ items, lang, renderChar, onClose })
     const perfect = score === total
     const good = score >= Math.ceil(total / 2)
     return (
-      <div className="grammar-ex-wrap">
-        <div className="grammar-finish">
-          <span className="finish-icon">{perfect ? '🌟' : good ? '👍' : '💪'}</span>
-          <strong>{score}/{total}</strong>
-          <p>{isAr
-            ? (perfect ? 'ممتاز! أتقنت هذه المجموعة.' : good ? 'جيد! راجع الحروف مرة ثانية.' : 'حاول مرة ثانية — راجع الحروف.')
-            : (perfect ? 'Perfect! You mastered this group.' : good ? 'Good! Review the characters once more.' : 'Keep practicing these characters!')
-          }</p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button className="btn btn-primary" onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</button>
-          </div>
-        </div>
-      </div>
+      <ResultCard
+        icon={perfect ? 'star' : good ? 'correct' : 'goal'}
+        score={score}
+        total={total}
+        message={isAr
+          ? (perfect ? 'ممتاز! أتقنت هذه المجموعة.' : good ? 'جيد! راجع الحروف مرة ثانية.' : 'حاول مرة ثانية — راجع الحروف.')
+          : (perfect ? 'Perfect! You mastered this group.' : good ? 'Good! Review the characters once more.' : 'Keep practicing these characters!')
+        }
+      >
+        <ActionButton onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</ActionButton>
+      </ResultCard>
     )
   }
 
   const ex = exercises[idx]
 
   return (
-    <div className="grammar-ex-wrap">
-      <div className="grammar-ex-header">
-        <button className="icon-btn" onClick={onClose}>×</button>
-        <div className="ex-progress-bar">
-          <span style={{ width: `${(idx / exercises.length) * 100}%` }} />
-        </div>
-        <span>{idx + 1}/{exercises.length}</span>
-      </div>
+    <ExerciseContainer>
+      <ProgressHeader
+        onClose={onClose}
+        progress={(idx / exercises.length) * 100}
+        counter={`${idx + 1}/${exercises.length}`}
+      />
 
       {ex.type === 'reading' && <ReadingExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
       {ex.type === 'reverse' && <ReverseExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
       {ex.type === 'audio' && <AudioExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
       {ex.type === 'truefalse' && <TrueFalseExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
       {ex.type === 'match' && <MatchExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
-    </div>
+    </ExerciseContainer>
   )
 }

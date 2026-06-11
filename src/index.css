@@ -186,9 +186,11 @@ button {
 .top-stats {
   width: min(100%, 920px);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
   justify-items: center;
+  gap: 18px;
+  direction: ltr;
 }
 
 .chip {
@@ -204,11 +206,14 @@ button {
 .stat-chip {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
+  direction: ltr;
   color: var(--text);
   font-weight: 900;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
+  min-width: 0;
 }
 
 .stat-chip i {
@@ -223,58 +228,49 @@ button {
   box-shadow: inset 0 -3px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.stat-chip.hearts i {
-  background: linear-gradient(135deg, #ff78b6, #ec4899);
-}
-
-.stat-chip.gems i {
-  clip-path: polygon(50% 5%, 90% 30%, 78% 82%, 50% 96%, 22% 82%, 10% 30%);
-  background: linear-gradient(135deg, #67e8f9, #38bdf8 42%, #7c3aed);
-}
-
-.stat-chip.xp i {
-  width: 30px;
-  background: linear-gradient(135deg, #f59e0b, #a855f7);
-  font-size: 10px;
-  letter-spacing: 0;
-}
-
-.stat-chip.streak i {
-  background: linear-gradient(135deg, #fb923c, #ef4444);
-}
-
-.stat-chip.battery i {
+.stat-chip i.icon-shell {
   position: relative;
-  width: 50px;
-  height: 28px;
-  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
   overflow: visible;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #a78bfa, #6366f1);
-  box-shadow: inset 0 -3px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.stat-chip.battery i::after {
-  content: "";
-  position: absolute;
-  right: -5px;
-  top: 9px;
-  width: 4px;
-  height: 10px;
-  border-radius: 0 3px 3px 0;
-  background: #6366f1;
+.stat-chip i.life-shell {
+  width: 58px;
+  height: 34px;
 }
 
-.stat-chip.battery i span {
+.stat-chip i.life-shell b {
   position: absolute;
-  left: 3px;
-  top: 3px;
-  bottom: 3px;
-  max-width: calc(100% - 6px);
-  border-radius: 7px;
-  background: linear-gradient(90deg, #fff7df, #f3ead1);
-  transition: width 0.25s ease;
+  top: 50%;
+  left: 43%;
+  transform: translate(-50%, -52%);
+  min-width: 22px;
+  padding: 1px 4px;
+  border-radius: 999px;
+  background: #fff5dc;
+  color: #2d2248;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 0 0 1px rgba(45, 34, 72, 0.08);
+}
+
+.stat-chip i.icon-shell .app-icon {
+  width: calc(var(--icon-size, 34px) * 0.9);
+  height: calc(var(--icon-size, 34px) * 0.9);
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.22));
+}
+
+.stat-chip i.life-shell .app-icon {
+  width: 54px;
+  height: 28px;
 }
 
 .stat-chip.battery i b {
@@ -290,37 +286,29 @@ button {
   text-shadow: 0 1px 0 color-mix(in srgb, var(--panel) 75%, transparent);
 }
 
+.stat-chip.battery i.life-icon b {
+  color: #2d2248;
+  font-size: 12px;
+  text-shadow: 0 1px 0 #fff7df;
+}
+
 .quiz-battery {
   position: relative;
-  display: block;
-  width: 54px;
-  height: 26px;
-  border: 2px solid color-mix(in srgb, var(--text) 70%, transparent);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--panel-2) 85%, transparent);
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 34px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .quiz-battery::after {
-  content: "";
-  position: absolute;
-  right: -8px;
-  top: 7px;
-  width: 5px;
-  height: 10px;
-  border-radius: 0 3px 3px 0;
-  background: color-mix(in srgb, var(--text) 70%, transparent);
+  content: none;
 }
 
 .quiz-battery span {
-  position: absolute;
-  left: 3px;
-  top: 3px;
-  bottom: 3px;
-  width: var(--battery-fill);
-  max-width: calc(100% - 6px);
-  border-radius: 4px;
-  background: linear-gradient(90deg, #fff7df, #f3ead1);
-  transition: width 0.25s ease;
+  display: none;
 }
 
 .quiz-battery b {
@@ -331,6 +319,14 @@ button {
   color: #3b225f;
   font-size: 13px;
   font-weight: 950;
+  text-shadow: 0 1px 0 #fff7df;
+  z-index: 1;
+}
+
+.quiz-battery .app-icon {
+  width: 60px !important;
+  height: 30px !important;
+  margin: 0;
 }
 
 .hero-panel {
@@ -435,6 +431,47 @@ button {
   color: var(--red);
 }
 
+.app-icon {
+  width: var(--icon-size, 28px);
+  height: var(--icon-size, 28px);
+  object-fit: contain;
+  object-position: center;
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: middle;
+  overflow: visible;
+  filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--text) 18%, transparent));
+}
+
+.btn .app-icon,
+.settings-row .app-icon,
+.settings-entry .app-icon {
+  margin-inline-end: 8px;
+}
+
+.icon-btn .app-icon,
+.community-inbox-actions .app-icon,
+.profile-inline-actions .app-icon,
+.card-heading .app-icon,
+.bottom-nav .app-icon,
+.stat-chip .app-icon,
+.vocab-audio-icon .app-icon,
+.listen-focus .app-icon,
+.icon-circle .app-icon {
+  margin: 0;
+}
+
+.icon-circle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: var(--icon-circle-size, 38px);
+  height: var(--icon-circle-size, 38px);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary) 16%, var(--panel-2));
+  overflow: hidden;
+}
+
 .content {
   width: min(980px, 100%);
   margin: 0 auto;
@@ -526,30 +563,6 @@ button {
   position: absolute;
 }
 
-.ring-mini {
-  position: relative;
-  width: 30px;
-  height: 30px;
-  font-weight: 900;
-}
-
-.ring-mini::after {
-  content: "";
-  position: absolute;
-  inset: 4px;
-  border-radius: 50%;
-  background: var(--panel);
-}
-
-.ring-mini span {
-  position: relative;
-  z-index: 1;
-  color: var(--text);
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
-
 .stats-grid,
 .achievement-grid,
 .settings-grid {
@@ -616,6 +629,104 @@ button {
   display: block;
   margin-top: 4px;
   font-size: 11px;
+}
+
+.level-strip button.locked {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.level-strip button.locked img {
+  opacity: 0.7;
+}
+
+.level-strip button {
+  position: relative;
+}
+
+.level-passed-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2bb673;
+  border: 2px solid var(--bg, #fff);
+}
+
+.exam-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 16px 0 4px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exam-banner.passed {
+  background: linear-gradient(135deg, #2bb673, #1f9d63);
+}
+
+.exam-screen .exam-section-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  flex: 1;
+  padding: 24px;
+}
+
+.exam-section-list {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exam-section-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.exam-score-info {
+  display: flex;
+  gap: 24px;
+  margin: 8px 0;
+}
+
+.exam-score-info div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.exam-score-info strong {
+  font-size: 1.4rem;
+}
+
+.exam-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
 }
 
 .section-title {
@@ -1376,6 +1487,36 @@ rt {
   transition: width 0.3s ease;
 }
 
+.quiz-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.quiz-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.quiz-stat-hearts {
+  color: var(--red);
+}
+
+.quiz-stat-hearts .app-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.quiz-stat-xp {
+  color: var(--primary-2);
+}
+
 /* ── Individual exercise ── */
 .grammar-ex {
   padding: 24px 20px;
@@ -1554,10 +1695,6 @@ rt {
   justify-content: center !important;
   gap: 6px;
   padding: 22px 16px;
-}
-
-.vocab-audio-icon {
-  font-size: 2.4rem;
 }
 
 .vocab-audio-btn small {
@@ -2001,6 +2138,30 @@ rt {
   color: var(--text);
   font-weight: 900;
   cursor: pointer;
+  overflow: visible;
+}
+
+.friend-request-icon {
+  position: relative;
+}
+
+.friend-request-icon em,
+.profile-inline-actions button em {
+  position: absolute;
+  right: 5px;
+  bottom: 4px;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--panel);
+  border-radius: 999px;
+  background: var(--primary-2);
+  color: white;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 950;
+  line-height: 1;
 }
 
 .community-inbox-actions b {
@@ -2049,10 +2210,13 @@ rt {
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-content: flex-start;
+  min-width: 0;
 }
 
 .card-heading > span,
 .study-group-list i {
+  flex: 0 0 auto;
   display: grid;
   place-items: center;
   width: 38px;
@@ -2062,10 +2226,16 @@ rt {
   color: var(--primary-2);
   font-style: normal;
   font-weight: 900;
+  overflow: visible;
+}
+
+.card-heading > div {
+  min-width: 0;
 }
 
 .card-heading h2 {
   font-size: 18px;
+  line-height: 1.25;
 }
 
 .daily-card {
@@ -2754,16 +2924,53 @@ rt {
 .bottom-nav span {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 14px;
-  background: var(--panel-2);
+  background: transparent;
   font-size: 19px;
+  overflow: visible;
 }
 
 .bottom-nav button.active span {
   background: rgba(255, 255, 255, 0.18);
   color: white;
+}
+
+.bottom-nav .app-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+.bottom-nav button.active .app-icon {
+  opacity: 1;
+}
+
+.bottom-nav span.nav-avatar {
+  overflow: hidden;
+  font-weight: 900;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+}
+
+.bottom-nav span.nav-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.settings-row > span,
+.toggle-row > span,
+.settings-label-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .profile-card {
@@ -2832,18 +3039,6 @@ rt {
   color: var(--text);
   text-align: start;
   cursor: pointer;
-}
-
-.settings-entry > span,
-.settings-icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 15px;
-  background: color-mix(in srgb, var(--primary) 13%, var(--panel-2));
-  color: var(--primary);
-  font-size: 22px;
 }
 
 .settings-list {
@@ -3265,6 +3460,12 @@ input[type='checkbox'] {
   font-size: clamp(64px, 18vw, 112px);
   line-height: 1;
   box-shadow: 0 14px 0 color-mix(in srgb, var(--primary) 35%, #000);
+  overflow: visible;
+}
+
+.listen-focus .app-icon {
+  width: min(58%, 82px) !important;
+  height: min(58%, 82px) !important;
 }
 
 .quiz-ruby-main rt,
@@ -3730,6 +3931,11 @@ select:focus {
     font-size: clamp(48px, 15vw, 76px);
   }
 
+  .listen-focus .app-icon {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
   .answer-grid {
     gap: 9px;
   }
@@ -3796,9 +4002,14 @@ select:focus {
   }
 
   .bottom-nav span {
-    width: 30px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
     font-size: 17px;
+  }
+
+  .bottom-nav .app-icon {
+    width: 24px;
+    height: 24px;
   }
 
   .bottom-nav small {
