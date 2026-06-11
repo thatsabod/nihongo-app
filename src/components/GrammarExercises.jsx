@@ -11,6 +11,7 @@ import {
   getOptionState,
   ResultCard,
   ActionButton,
+  SpeakingPracticeQuiz,
 } from './exercise-ui/index.jsx'
 
 function shuffle(arr) {
@@ -206,6 +207,19 @@ function MeaningExercise({ ex, lang, onAnswer }) {
   )
 }
 
+// ── Exercise 5: Repeat the sentence out loud ──────────────────────
+function SpeakExercise({ ex, lang, onAnswer }) {
+  return (
+    <SpeakingPracticeQuiz
+      sentence={ex.sentence}
+      speakText={ex.sentence}
+      lang={lang}
+      onAnswer={(passed) => onAnswer(passed)}
+      onSkip={() => onAnswer(true)}
+    />
+  )
+}
+
 // ── Exercise 4: Error detection ──────────────────────────────────
 function ErrorExercise({ ex, lang, onAnswer }) {
   const [picked, setPicked] = useState(null)
@@ -239,8 +253,24 @@ function ErrorExercise({ ex, lang, onAnswer }) {
   )
 }
 
+// Insert a "repeat the sentence" speaking exercise after the first
+// sentence-meaning exercise, reusing its sentence (spaces stripped).
+function withSpeakingExercise(exercises) {
+  const out = []
+  let added = false
+  exercises.forEach((ex) => {
+    out.push(ex)
+    if (!added && ex.type === 'meaning' && ex.sentence) {
+      out.push({ type: 'speak', sentence: ex.sentence.replace(/\s+/g, '') })
+      added = true
+    }
+  })
+  return out
+}
+
 // ── Main wrapper ─────────────────────────────────────────────────
-export default function GrammarExercises({ exercises, lang, onClose }) {
+export default function GrammarExercises({ exercises: rawExercises, lang, onClose }) {
+  const [exercises] = useState(() => withSpeakingExercise(rawExercises))
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
   const [finished, setFinished] = useState(false)
@@ -289,6 +319,7 @@ export default function GrammarExercises({ exercises, lang, onClose }) {
       {ex.type === 'fill' && <FillExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'meaning' && <MeaningExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'error' && <ErrorExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'speak' && <SpeakExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
     </ExerciseContainer>
   )
 }

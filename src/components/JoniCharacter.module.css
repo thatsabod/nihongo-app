@@ -1,0 +1,53 @@
+.wrapper {
+  display: inline-grid;
+  justify-items: center;
+  gap: 4px;
+  animation: joniPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.image {
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.14));
+}
+
+.wrapper.animate .image {
+  animation: joniBounce 2.6s ease-in-out infinite;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.labelEn {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+@keyframes joniBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes joniPop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

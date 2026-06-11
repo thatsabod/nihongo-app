@@ -9,10 +9,14 @@ import {
   QuestionCard,
   SentenceDisplay,
   AnswerOption,
+  ImageOption,
   getOptionState,
   ResultCard,
   ActionButton,
+  TranslationChoiceQuiz,
+  SpeakingPracticeQuiz,
 } from './exercise-ui/index.jsx'
+import { getVocabImage } from '../constants/vocabImages.js'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -66,6 +70,25 @@ function generateVocabExercises(vocab = []) {
 
   if (pool.length >= 4) {
     exs.push({ type: 'match', pairs: shuffle(pool).slice(0, 4) })
+  }
+
+  const imageable = pool.filter((v) => getVocabImage(v))
+  if (imageable.length >= 4) {
+    shuffle(imageable).slice(0, Math.min(2, imageable.length)).forEach((item) => {
+      const distractors = shuffle(imageable.filter((p) => p !== item)).slice(0, 3)
+      if (distractors.length < 3) return
+      exs.push({ type: 'image', item, optionItems: shuffle([item, ...distractors]) })
+    })
+  }
+
+  shuffle(pool).slice(0, Math.min(2, pool.length)).forEach((item) => {
+    const distractors = shuffle(pool.filter((p) => p !== item)).slice(0, 2)
+    if (distractors.length < 2) return
+    exs.push({ type: 'translate', item, optionItems: shuffle([item, ...distractors]) })
+  })
+
+  if (pool.length >= 1) {
+    exs.push({ type: 'speak', item: shuffle(pool)[0] })
   }
 
   return shuffle(exs)
@@ -145,6 +168,10 @@ function VocabAudioExercise({ ex, lang, onAnswer }) {
         <small>{lang === 'ar' ? 'اضغط للاستماع' : 'Tap to listen'}</small>
       </button>
 
+      <button type="button" className="muted-link" onClick={() => speakJapanese(speakableVocab(item))}>
+        {lang === 'ar' ? 'لا أستطيع الاستماع الآن' : "Can't listen now"}
+      </button>
+
       <div className="meaning-options vocab-option-grid">
         {ex.optionItems.map((opt, i) => (
           <AnswerOption
@@ -199,6 +226,86 @@ function VocabReverseExercise({ ex, lang, onAnswer }) {
   )
 }
 
+// ── Exercise: listen/read and pick the matching image ────────────────────────
+function VocabImageExercise({ ex, lang, onAnswer }) {
+  const [picked, setPicked] = useState(null)
+  const item = ex.item
+
+  const pick = (opt) => {
+    if (picked) return
+    setPicked(opt)
+    setTimeout(() => onAnswer(opt === item), 1100)
+  }
+
+  const mascotMode = picked ? (picked === item ? 'cheer' : 'skeptical') : 'calm'
+
+  return (
+    <ExercisePane>
+      <RuaaMascot mode={mascotMode} />
+      <span className="vocab-new-word-badge">
+        <IconCircle name="lessons" size={20} />
+        {lang === 'ar' ? 'كلمة جديدة' : 'NEW WORD'}
+      </span>
+      <QuestionCard prompt={lang === 'ar' ? 'اختر الصورة الصحيحة' : 'Select the correct image'} />
+
+      <button className="sentence-display vocab-word-chip" onClick={() => speakJapanese(speakableVocab(item))}>
+        <IconCircle name="sound" size={32} className="vocab-audio-icon" />
+        <VocabTerm item={item} />
+      </button>
+
+      <div className="meaning-options vocab-option-grid">
+        {ex.optionItems.map((opt, i) => (
+          <ImageOption
+            key={i}
+            emoji={getVocabImage(opt)}
+            label={opt.meaning}
+            disabled={Boolean(picked)}
+            state={getOptionState(picked, opt, item)}
+            onClick={() => pick(opt)}
+          />
+        ))}
+      </div>
+    </ExercisePane>
+  )
+}
+
+// ── Exercise: pick the correct Japanese translation of the meaning ──────────
+function VocabTranslateExercise({ ex, lang, onAnswer }) {
+  const item = ex.item
+  const options = ex.optionItems.map((opt, i) => ({
+    value: String(i),
+    label: opt.kanji || opt.jp,
+    reading: opt.hiragana || opt.reading,
+  }))
+  const answer = String(ex.optionItems.indexOf(item))
+
+  return (
+    <TranslationChoiceQuiz
+      prompt={item.meaning}
+      speakText={speakableVocab(item)}
+      options={options}
+      answer={answer}
+      lang={lang}
+      onAnswer={onAnswer}
+    />
+  )
+}
+
+// ── Exercise: repeat the word out loud ───────────────────────────────────────
+function VocabSpeakExercise({ ex, lang, onAnswer }) {
+  const item = ex.item
+  return (
+    <SpeakingPracticeQuiz
+      sentence={item.kanji || item.jp}
+      reading={item.hiragana || item.reading}
+      speakText={speakableVocab(item)}
+      lang={lang}
+      onAnswer={(passed) => onAnswer(passed)}
+      onSkip={() => onAnswer(true)}
+    />
+  )
+}
+
 // ── Exercise: spell the word by tapping kana in order ────────────────────────
 function VocabBuildExercise({ ex, lang, onAnswer }) {
   const item = ex.item
@@ -228,6 +335,7 @@ function VocabBuildExercise({ ex, lang, onAnswer }) {
   }
 
   const check = () => {
+    if (selected.length === 0) return
     const built = selected.map((x) => x.c).join('')
     const correct = built === target.join('')
     setResult(correct ? 'correct' : 'wrong')
@@ -240,7 +348,7 @@ function VocabBuildExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={item._mascot || 'joni'} />
       <QuestionCard prompt={lang === 'ar' ? 'رتّب الحروف لتهجئة الكلمة:' : 'Tap the kana to spell the word:'} />
       <SentenceDisplay onClick={() => speakJapanese(speakableVocab(item))}>
         <span>{item.meaning}{item.kanji ? ` · ${item.kanji}` : ''}</span>
@@ -261,7 +369,7 @@ function VocabBuildExercise({ ex, lang, onAnswer }) {
         ))}
       </div>
 
-      {selected.length === target.length && !result && (
+      {selected.length > 0 && !result && (
         <ActionButton onClick={check}>{lang === 'ar' ? 'تحقق' : 'Check'}</ActionButton>
       )}
 
@@ -403,6 +511,9 @@ export default function VocabExercises({ vocab, lang, onClose }) {
       {ex.type === 'reverse' && <VocabReverseExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'build' && <VocabBuildExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
       {ex.type === 'match' && <VocabMatchExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'image' && <VocabImageExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'translate' && <VocabTranslateExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'speak' && <VocabSpeakExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
     </ExerciseContainer>
   )
 }

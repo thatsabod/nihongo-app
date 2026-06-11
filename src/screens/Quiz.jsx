@@ -3,9 +3,8 @@ import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import DrawingPad from '../components/DrawingPad.jsx'
 import RuaaMascot from '../components/RuaaMascot.jsx'
 import AppIcon from '../components/AppIcon.jsx'
+import IconCircle from '../components/IconCircle.jsx'
 import { ProgressHeader, AnswerOption, getOptionState } from '../components/exercise-ui/index.jsx'
-
-const MAX_HEARTS = 10
 
 function hasKanji(value = '') {
   return /[\u3400-\u9fff]/.test(value)
@@ -80,6 +79,7 @@ const text = {
     correct: 'صحيح',
     wrong: 'الصحيح',
     next: 'ينتقل تلقائيا...',
+    cantListen: 'لا أستطيع الاستماع الآن',
   },
   en: {
     question: 'Question',
@@ -97,6 +97,7 @@ const text = {
     correct: 'Correct',
     wrong: 'Correct answer',
     next: 'Moving on...',
+    cantListen: "Can't listen now",
   },
 }
 
@@ -134,6 +135,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
   const isCorrect = selected === q.answer
   const showRuaa = isAudioWord || (isSentence && String(q.sentence || '').length <= 30)
   const mascotMode = ruaaMode({ q, selected, isCorrect })
+  const mascotCharacter = qIndex % 2 === 0 ? 'joni' : 'ruaa'
   const quizClass = [
     'quiz-body',
     `quiz-type-${q.type}`,
@@ -196,7 +198,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
         {isDraw ? (
           <>
             <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
-              <RuaaMascot mode={mascotMode} visible={showRuaa} />
+              <RuaaMascot mode={mascotMode} visible={showRuaa} character={mascotCharacter} />
               <div className="ruaa-speech">
                 <h1>{t.drawPrompt}</h1>
               </div>
@@ -206,7 +208,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
         ) : isMatching ? (
           <>
             <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
-              <RuaaMascot mode={mascotMode} visible={showRuaa} />
+              <RuaaMascot mode={mascotMode} visible={showRuaa} character={mascotCharacter} />
               <div className="ruaa-speech">
                 <h1>{prompt}</h1>
               </div>
@@ -246,14 +248,20 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
           <>
             <h1>{prompt}</h1>
             <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
-              <RuaaMascot mode={mascotMode} visible={showRuaa} />
+              <RuaaMascot mode={mascotMode} visible={showRuaa} character={mascotCharacter} />
               <button className={`kana-focus ruaa-speech ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakQuizText(q.speakText || q.kana, { rate: 0.6264, voiceIndex })}>
                 {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus"><AppIcon name="sound" size={82} /></span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
                 <small>{t.hear}</small>
                 {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
+                {!isAudioWord && q.soundEnabled !== false && <IconCircle name="sound" size={38} className="stage-sound-badge" />}
               </button>
             </div>
-            <div className="answer-grid">
+            {isAudioWord && (
+              <button type="button" className="muted-link" onClick={() => speakQuizText(q.speakText || q.kana, { rate: 0.6264, voiceIndex })}>
+                {t.cantListen}
+              </button>
+            )}
+            <div className={`answer-grid ${q.options.length <= 3 ? 'pill-row' : ''}`}>
               {q.options.map((opt) => (
                 <AnswerOption
                   key={opt}

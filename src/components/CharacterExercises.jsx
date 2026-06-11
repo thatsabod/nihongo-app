@@ -155,6 +155,10 @@ function AudioExercise({ ex, lang, renderChar, onAnswer }) {
         <small>{lang === 'ar' ? 'اضغط للاستماع' : 'Tap to listen'}</small>
       </button>
 
+      <button type="button" className="muted-link" onClick={() => speakJapanese(item.kana)}>
+        {lang === 'ar' ? 'لا أستطيع الاستماع الآن' : "Can't listen now"}
+      </button>
+
       <div className="meaning-options vocab-option-grid char-option-grid">
         {ex.optionItems.map((opt, i) => (
           <AnswerOption

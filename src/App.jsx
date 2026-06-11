@@ -3,6 +3,7 @@ import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/aut
 import { addDoc, collection, deleteDoc, doc, getDoc, increment, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons } from './data.js'
+import LessonProgressCard from './components/LessonProgressCard.jsx'
 import { speakJapanese } from './sounds.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
 import { ExercisesSection, ReviewSection } from './components/LessonSections.jsx'
@@ -3167,7 +3168,7 @@ export default function App() {
             </div>
 
             <div className="lesson-path map-path">
-              {lessonSlots.map((lesson, index) => {
+                {lessonSlots.map((lesson, index) => {
                 const lessonNumber = index + 1
                 const prevKey = `${currentLevel}-${lessonNumber - 1}`
                 const key = `${currentLevel}-${lessonNumber}`
@@ -3192,7 +3193,35 @@ export default function App() {
                     <span className="lesson-number">{amount >= sectionCount ? '★' : lessonNumber}</span>
                   </button>
                 )
-              })}
+                })}
+              {(() => {
+                const currentIndex = lessonSlots.findIndex((lesson, index) => {
+                  const lessonNumber = index + 1
+                  const prevKey = `${currentLevel}-${lessonNumber - 1}`
+                  const key = `${currentLevel}-${lessonNumber}`
+                  const prevDone = lessonNumber === 1 || (lessonProgress[prevKey] || 0) >= sectionCount
+                  const amount = Math.min(lessonProgress[key] || 0, sectionCount)
+                  return Boolean(lesson) && prevDone && amount < sectionCount
+                })
+                if (currentIndex === -1) return null
+                const lesson = lessonSlots[currentIndex]
+                const lessonNumber = currentIndex + 1
+                const amount = Math.min(lessonProgress[`${currentLevel}-${lessonNumber}`] || 0, sectionCount)
+                return (
+                  <LessonProgressCard
+                    title={lesson.title?.[lang] || lesson.title}
+                    current={amount + 1}
+                    total={sectionCount}
+                    xpReward={sectionCount * 10}
+                    lang={lang}
+                    onContinue={() => openLesson(lesson)}
+                    style={{
+                      '--path-row': lessonNumber,
+                      '--path-x': `${LESSON_PATH_X[currentIndex % LESSON_PATH_X.length]}%`,
+                    }}
+                  />
+                )
+              })()}
             </div>
 
             {isLevelLessonsComplete(currentLevel) && (
