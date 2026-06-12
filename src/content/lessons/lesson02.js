@@ -2,6 +2,33 @@ export const lessonTwo = {
   id: 2,
   title: { ar: 'الإشارة إلى الأشياء', en: 'Pointing at Things' },
   focus: 'استخدام これ・それ・あれ و この・その・あの و の للملكية، والتأكيد بـ そうです',
+  dialogue: {
+    titleAr: 'ما هذا؟ — ميلر يسأل عن الأشياء',
+    lines: [
+      { speaker: 'ميلر', jp: 'それは 何ですか。', romaji: 'Sore wa nan desu ka.', ar: 'ما ذلك الذي معك؟' },
+      { speaker: 'ساتو', jp: 'これは 辞書です。', romaji: 'Kore wa jisho desu.', ar: 'هذا قاموس.' },
+      { speaker: 'ميلر', jp: 'あなたの 辞書ですか。', romaji: 'Anata no jisho desu ka.', ar: 'هل هو قاموسك؟' },
+      { speaker: 'ساتو', jp: 'いいえ、違います。先生の 辞書です。', romaji: 'Iie, chigaimasu. Sensei no jisho desu.', ar: 'لا، ليس قاموسي. إنه قاموس المعلم.' },
+      { speaker: 'ميلر', jp: 'あれは 何ですか。', romaji: 'Are wa nan desu ka.', ar: 'وما ذلك هناك؟' },
+      { speaker: 'ساتو', jp: 'あれは 私の 傘です。', romaji: 'Are wa watashi no kasa desu.', ar: 'تلك مظلتي.' },
+      { speaker: 'ميلر', jp: 'そうですか。', romaji: 'Sou desu ka.', ar: 'فهمت.' },
+    ],
+  },
+  reading: {
+    titleAr: 'أشيائي — على مكتبي',
+    sentences: [
+      { jp: 'これは 私の 鞄です。', romaji: 'Kore wa watashi no kaban desu.', ar: 'هذه حقيبتي.' },
+      { jp: 'これは 本です。', romaji: 'Kore wa hon desu.', ar: 'وهذا كتاب.' },
+      { jp: 'その 本は 先生の 本です。', romaji: 'Sono hon wa sensei no hon desu.', ar: 'ذلك الكتاب كتاب المعلم.' },
+      { jp: 'それは 私の 時計じゃありません。', romaji: 'Sore wa watashi no tokei ja arimasen.', ar: 'تلك ليست ساعتي.' },
+      { jp: 'あの 傘は 私の 傘です。', romaji: 'Ano kasa wa watashi no kasa desu.', ar: 'تلك المظلة هناك مظلتي.' },
+    ],
+    questions: [
+      { q: 'لمن الكتاب المذكور في النص؟', options: ['للمعلم', 'للكاتب', 'لساتو'], answer: 'للمعلم' },
+      { q: 'هل الساعة ساعة الكاتب؟', options: ['لا', 'نعم', 'غير مذكور'], answer: 'لا' },
+      { q: 'ماذا يملك الكاتب؟', options: ['حقيبة ومظلة', 'ساعة وقاموس', 'لا شيء'], answer: 'حقيبة ومظلة' },
+    ],
+  },
   vocab: [
     { id: 'kore', type: 'pronoun', jp: 'これ', hiragana: 'これ', reading: 'kore', meaning: 'هذا (شيء قريب من المتكلم)' },
     { id: 'sore', type: 'pronoun', jp: 'それ', hiragana: 'それ', reading: 'sore', meaning: 'ذلك (شيء قريب من المستمع)' },

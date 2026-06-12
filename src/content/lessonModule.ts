@@ -49,6 +49,17 @@ interface RawExercise {
   answer?: string
   hint?: string
 }
+interface RawDialogueLine {
+  speaker?: string
+  jp?: string
+  romaji?: string
+  ar?: string
+}
+interface RawReadingQuestion {
+  q?: string
+  options?: string[]
+  answer?: string
+}
 export interface RawLesson {
   id: number | string
   title?: { ar?: string; en?: string; ja?: string }
@@ -58,6 +69,15 @@ export interface RawLesson {
   grammar?: RawGrammar[]
   exercises?: RawExercise[]
   examples?: { jp?: string; romaji?: string; ar?: string }[]
+  dialogue?: {
+    titleAr?: string
+    lines?: RawDialogueLine[]
+  }
+  reading?: {
+    titleAr?: string
+    sentences?: { jp?: string; romaji?: string; ar?: string }[]
+    questions?: RawReadingQuestion[]
+  }
 }
 
 // ── Section metadata (single source of truth for the lesson path) ───────────
@@ -74,8 +94,8 @@ const SECTION_META: Record<LessonSectionType, SectionMeta> = {
   vocabulary: { ar: 'المفردات', en: 'Vocabulary', icon: 'vocabulary', minutes: 5, tab: 'vocabulary' },
   grammar: { ar: 'القواعد', en: 'Grammar', icon: 'grammar', minutes: 5, tab: 'grammar' },
   examples: { ar: 'أمثلة', en: 'Examples', icon: 'hint', minutes: 3, tab: 'examples' },
-  dialogue: { ar: 'حوار', en: 'Dialogue', icon: 'quiz', minutes: 4, tab: 'examples' },
-  reading: { ar: 'قراءة', en: 'Reading', icon: 'grammar', minutes: 4, tab: 'examples' },
+  dialogue: { ar: 'حوار', en: 'Dialogue', icon: 'quiz', minutes: 4, tab: 'dialogue' },
+  reading: { ar: 'قراءة', en: 'Reading', icon: 'grammar', minutes: 4, tab: 'reading' },
   listening: { ar: 'استماع', en: 'Listening', icon: 'quiz', minutes: 3, tab: 'examples' },
   speaking: { ar: 'محادثة', en: 'Speaking', icon: 'quiz', minutes: 3, tab: 'practice' },
   practice: { ar: 'تدريب', en: 'Practice', icon: 'quiz', minutes: 5, tab: 'practice' },
@@ -85,7 +105,7 @@ const SECTION_META: Record<LessonSectionType, SectionMeta> = {
 
 // Order the sections appear in the guided lesson path.
 const SECTION_ORDER: LessonSectionType[] = [
-  'warmup', 'vocabulary', 'grammar', 'examples', 'practice', 'review', 'masteryCheck',
+  'warmup', 'vocabulary', 'grammar', 'examples', 'dialogue', 'reading', 'practice', 'review', 'masteryCheck',
 ]
 
 // A LessonSection plus UI-only display fields (icon/tab/titleEn). The strict
@@ -106,8 +126,8 @@ function sectionPresence(lesson: RawLesson): Record<LessonSectionType, boolean> 
     vocabulary: (lesson.vocab?.length || 0) > 0,
     grammar: hasGrammar,
     examples: (lesson.examples?.length || 0) > 0 || hasGrammar,
-    dialogue: false, // TODO(Phase 6): populate when dialogue content exists
-    reading: false, // TODO(Phase 6): populate when reading passages exist
+    dialogue: (lesson.dialogue?.lines?.length || 0) > 0,
+    reading: (lesson.reading?.sentences?.length || 0) > 0,
     listening: false, // TODO(Phase 6)
     speaking: false, // folded into practice for now
     practice: (lesson.exercises?.length || 0) > 0,

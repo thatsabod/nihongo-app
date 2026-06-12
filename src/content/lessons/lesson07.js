@@ -2,6 +2,34 @@ export const lessonSeven = {
   id: 7,
   title: { ar: 'الوسيلة والهدايا والفهم', en: 'Means, Giving/Receiving, and Understanding' },
   focus: 'استخدام で للوسيلة/الأداة، を ください للطلب، あげます/もらいます للهدايا، が わかります/あります للفهم والامتلاك',
+  dialogue: {
+    titleAr: 'هدية عيد الميلاد',
+    lines: [
+      { speaker: 'ساتو', jp: 'ミラーさん、それは 何ですか。', romaji: 'Miraa-san, sore wa nan desu ka.', ar: 'سيد ميلر، ما ذلك؟' },
+      { speaker: 'ميلر', jp: '辞書です。友達の 誕生日に あげます。', romaji: 'Jisho desu. Tomodachi no tanjoubi ni agemasu.', ar: 'قاموس. سأعطيه لصديقي في عيد ميلاده.' },
+      { speaker: 'ساتو', jp: '英語の 辞書ですか。', romaji: 'Eigo no jisho desu ka.', ar: 'قاموس إنجليزي؟' },
+      { speaker: 'ميلر', jp: 'はい。友達は 英語を 習います。', romaji: 'Hai. Tomodachi wa eigo o naraimasu.', ar: 'نعم، صديقي يتعلم الإنجليزية.' },
+      { speaker: 'ساتو', jp: 'ミラーさんは フランス語が わかりますか。', romaji: 'Miraa-san wa furansugo ga wakarimasu ka.', ar: 'وهل تفهم أنت الفرنسية؟' },
+      { speaker: 'ميلر', jp: 'いいえ、わかりません。英語が わかります。', romaji: 'Iie, wakarimasen. Eigo ga wakarimasu.', ar: 'لا، لا أفهمها. أفهم الإنجليزية.' },
+      { speaker: 'ساتو', jp: 'すみません、ボールペンを ください。', romaji: 'Sumimasen, boorupen o kudasai.', ar: 'من فضلك، أعطني قلم حبر.' },
+      { speaker: 'ميلر', jp: 'はい、どうぞ。', romaji: 'Hai, douzo.', ar: 'تفضلي.' },
+    ],
+  },
+  reading: {
+    titleAr: 'الهدايا في عائلتي',
+    sentences: [
+      { jp: '私は 自転車が あります。', romaji: 'Watashi wa jitensha ga arimasu.', ar: 'عندي دراجة هوائية.' },
+      { jp: '誕生日に 家族に 花を あげます。', romaji: 'Tanjoubi ni kazoku ni hana o agemasu.', ar: 'في عيد الميلاد أُهدي عائلتي زهورًا.' },
+      { jp: 'お母さんに チョコレートを もらいます。', romaji: 'Okaasan ni chokoreeto o moraimasu.', ar: 'وأستلم من أمي شوكولاتة.' },
+      { jp: '私は コンピューターで 勉強します。', romaji: 'Watashi wa konpyuutaa de benkyou shimasu.', ar: 'أدرس باستخدام الحاسوب.' },
+      { jp: '英語が わかります。', romaji: 'Eigo ga wakarimasu.', ar: 'أفهم اللغة الإنجليزية.' },
+    ],
+    questions: [
+      { q: 'ماذا يُهدي الكاتب لعائلته؟', options: ['زهورًا', 'قلمًا', 'كتابًا'], answer: 'زهورًا' },
+      { q: 'ماذا يستلم من أمه؟', options: ['شوكولاتة', 'محفظة', 'ساعة'], answer: 'شوكولاتة' },
+      { q: 'بماذا يدرس؟', options: ['بالحاسوب', 'بالقلم', 'بالتلفاز'], answer: 'بالحاسوب' },
+    ],
+  },
   vocab: [
     { id: 'agemasu', type: 'verb', jp: 'あげます', kanji: 'あげます', hiragana: 'あげます', reading: 'agemasu', meaning: 'يعطي (لشخص آخر)' },
     { id: 'moraimasu', type: 'verb', jp: 'もらいます', kanji: 'もらいます', hiragana: 'もらいます', reading: 'moraimasu', meaning: 'يستلم / يحصل على' },

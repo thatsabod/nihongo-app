@@ -27,6 +27,33 @@ export const lessonOne = {
   id: 1,
   title: { ar: 'تحية وتعارف', en: 'Greetings and Introductions' },
   focus: 'بناء جمل اسمية بسيطة للتعريف عن النفس والآخرين',
+  dialogue: {
+    titleAr: 'اللقاء الأول — ساتو تتعرف على ميلر',
+    lines: [
+      { speaker: 'ساتو', jp: 'はじめまして。さとうです。', romaji: 'Hajimemashite. Satou desu.', ar: 'تشرّفت بلقائك. أنا ساتو.' },
+      { speaker: 'ميلر', jp: 'はじめまして。マイク・ミラーです。', romaji: 'Hajimemashite. Maiku Miraa desu.', ar: 'تشرّفت بلقائك. أنا مايك ميلر.' },
+      { speaker: 'ساتو', jp: 'ミラーさんは 学生ですか。', romaji: 'Miraa-san wa gakusei desu ka.', ar: 'سيد ميلر، هل أنت طالب؟' },
+      { speaker: 'ميلر', jp: 'いいえ、学生じゃありません。会社員です。', romaji: 'Iie, gakusei ja arimasen. Kaishain desu.', ar: 'لا، لست طالبًا. أنا موظف شركة.' },
+      { speaker: 'ساتو', jp: '私は 銀行員です。', romaji: 'Watashi wa ginkouin desu.', ar: 'أنا موظفة بنك.' },
+      { speaker: 'ميلر', jp: 'どうぞよろしく。', romaji: 'Douzo yoroshiku.', ar: 'سررت بمعرفتك.' },
+      { speaker: 'ساتو', jp: 'どうぞよろしく。', romaji: 'Douzo yoroshiku.', ar: 'وأنا كذلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'تعريف ذاتي — كريم يقدّم نفسه',
+    sentences: [
+      { jp: '私は カリムです。', romaji: 'Watashi wa Karimu desu.', ar: 'أنا كريم.' },
+      { jp: 'イラク人です。', romaji: 'Irakujin desu.', ar: 'أنا عراقي.' },
+      { jp: '学生じゃありません。', romaji: 'Gakusei ja arimasen.', ar: 'لست طالبًا.' },
+      { jp: 'エンジニアです。', romaji: 'Enjinia desu.', ar: 'أنا مهندس.' },
+      { jp: '先生は 日本人です。', romaji: 'Sensei wa nihonjin desu.', ar: 'المعلم ياباني.' },
+    ],
+    questions: [
+      { q: 'من أي بلد كريم؟', options: ['من العراق', 'من اليابان', 'من أمريكا'], answer: 'من العراق' },
+      { q: 'ما مهنة كريم؟', options: ['مهندس', 'طالب', 'طبيب'], answer: 'مهندس' },
+      { q: 'من هو الياباني في النص؟', options: ['المعلم', 'كريم', 'لا أحد'], answer: 'المعلم' },
+    ],
+  },
   vocab: [
     { id: 'watashi', type: 'pronoun', jp: '私', kanji: '私', hiragana: 'わたし', reading: 'watashi', meaning: 'أنا' },
     { id: 'watashitachi', type: 'pronoun', jp: '私たち', kanji: '私たち', hiragana: 'わたしたち', reading: 'watashitachi', meaning: 'نحن' },

@@ -2,6 +2,34 @@ export const lessonFour = {
   id: 4,
   title: { ar: 'الوقت والروتين اليومي', en: 'Time and Daily Routine' },
   focus: 'قول الوقت بالساعة والدقيقة، والتعبير عن الروتين اليومي بـ に و から〜まで و それから',
+  dialogue: {
+    titleAr: 'كم الساعة؟ — ميلر يسأل عن مواعيد العمل',
+    lines: [
+      { speaker: 'ميلر', jp: 'すみません。今 何時ですか。', romaji: 'Sumimasen. Ima nanji desu ka.', ar: 'عفوًا، كم الساعة الآن؟' },
+      { speaker: 'ساتو', jp: '9時半です。', romaji: 'Ku-ji han desu.', ar: 'التاسعة والنصف.' },
+      { speaker: 'ميلر', jp: '会社は 何時に 始まりますか。', romaji: 'Kaisha wa nanji ni hajimarimasu ka.', ar: 'متى يبدأ دوام الشركة؟' },
+      { speaker: 'ساتو', jp: '10時に 始まります。', romaji: 'Juu-ji ni hajimarimasu.', ar: 'يبدأ الساعة العاشرة.' },
+      { speaker: 'ميلر', jp: '何時に 終わりますか。', romaji: 'Nanji ni owarimasu ka.', ar: 'ومتى ينتهي؟' },
+      { speaker: 'ساتو', jp: '午後 6時に 終わります。', romaji: 'Gogo roku-ji ni owarimasu.', ar: 'ينتهي السادسة مساءً.' },
+      { speaker: 'ميلر', jp: '毎日 働きますか。', romaji: 'Mainichi hatarakimasu ka.', ar: 'هل تعملين كل يوم؟' },
+      { speaker: 'ساتو', jp: 'いいえ、日曜日は 休みです。', romaji: 'Iie, nichiyoubi wa yasumi desu.', ar: 'لا، يوم الأحد عطلة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يومي — روتين موظف',
+    sentences: [
+      { jp: '私は 毎日 6時に 起きます。', romaji: 'Watashi wa mainichi roku-ji ni okimasu.', ar: 'أستيقظ كل يوم الساعة السادسة.' },
+      { jp: '午前 9時から 午後 5時まで 働きます。', romaji: 'Gozen ku-ji kara gogo go-ji made hatarakimasu.', ar: 'أعمل من التاسعة صباحًا إلى الخامسة مساءً.' },
+      { jp: 'それから、7時に 晩ご飯です。', romaji: 'Sorekara, shichi-ji ni bangohan desu.', ar: 'بعد ذلك، العشاء الساعة السابعة.' },
+      { jp: '今晩も 勉強します。', romaji: 'Konban mo benkyou shimasu.', ar: 'هذا المساء أيضًا سأدرس.' },
+      { jp: '12時に 寝ます。', romaji: 'Juuni-ji ni nemasu.', ar: 'أنام الساعة الثانية عشرة.' },
+    ],
+    questions: [
+      { q: 'متى يستيقظ الكاتب؟', options: ['الساعة السادسة', 'الساعة التاسعة', 'الساعة العاشرة'], answer: 'الساعة السادسة' },
+      { q: 'من أي ساعة إلى أي ساعة يعمل؟', options: ['من 9 إلى 5', 'من 10 إلى 6', 'من 6 إلى 12'], answer: 'من 9 إلى 5' },
+      { q: 'متى ينام؟', options: ['الثانية عشرة', 'السابعة', 'الخامسة'], answer: 'الثانية عشرة' },
+    ],
+  },
   vocab: [
     { id: 'ima', type: 'time', jp: '今', kanji: '今', hiragana: 'いま', reading: 'ima', meaning: 'الآن' },
     { id: 'nanji', type: 'question-word', jp: '何時', kanji: '何時', hiragana: 'なんじ', reading: 'nan-ji', meaning: 'أي ساعة / كم الساعة' },

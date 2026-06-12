@@ -2,6 +2,33 @@ export const lessonThree = {
   id: 3,
   title: { ar: 'الأماكن والاتجاهات والأسعار', en: 'Places, Directions and Prices' },
   focus: 'استخدام ここ・そこ・あそこ و こちら・そちら・あちら، و の للانتماء/المنشأ، والسؤال عن السعر بـ いくら',
+  dialogue: {
+    titleAr: 'في المجمع التجاري — ميلر يسأل عن الأقسام',
+    lines: [
+      { speaker: 'ميلر', jp: 'すみません。靴売り場は どこですか。', romaji: 'Sumimasen. Kutsu uriba wa doko desu ka.', ar: 'عفوًا، أين قسم الأحذية؟' },
+      { speaker: 'الموظفة', jp: '靴売り場は 2階です。', romaji: 'Kutsu uriba wa ni-kai desu.', ar: 'قسم الأحذية في الطابق الثاني.' },
+      { speaker: 'ميلر', jp: 'お手洗いは どこですか。', romaji: 'Otearai wa doko desu ka.', ar: 'وأين دورة المياه؟' },
+      { speaker: 'الموظفة', jp: 'あそこです。', romaji: 'Asoko desu.', ar: 'هناك.' },
+      { speaker: 'ميلر', jp: 'この財布は いくらですか。', romaji: 'Kono saifu wa ikura desu ka.', ar: 'كم سعر هذه المحفظة؟' },
+      { speaker: 'الموظفة', jp: '3000円です。', romaji: 'Sanzen-en desu.', ar: 'ثلاثة آلاف ين.' },
+      { speaker: 'ميلر', jp: 'どうもありがとうございます。', romaji: 'Doumo arigatou gozaimasu.', ar: 'شكرًا جزيلًا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'شركتي — جولة في المبنى',
+    sentences: [
+      { jp: 'ここは 私の 会社です。', romaji: 'Koko wa watashi no kaisha desu.', ar: 'هنا شركتي.' },
+      { jp: '受付は 1階です。', romaji: 'Uketsuke wa ik-kai desu.', ar: 'الاستقبال في الطابق الأول.' },
+      { jp: '会議室は 3階です。', romaji: 'Kaigishitsu wa san-gai desu.', ar: 'قاعة الاجتماعات في الطابق الثالث.' },
+      { jp: '食堂は あそこです。', romaji: 'Shokudou wa asoko desu.', ar: 'الكافتيريا هناك.' },
+      { jp: '銀行は あちらです。', romaji: 'Ginkou wa achira desu.', ar: 'البنك في تلك الجهة.' },
+    ],
+    questions: [
+      { q: 'في أي طابق يقع الاستقبال؟', options: ['الطابق الأول', 'الطابق الثاني', 'الطابق الثالث'], answer: 'الطابق الأول' },
+      { q: 'في أي طابق قاعة الاجتماعات؟', options: ['الثالث', 'الأول', 'الثاني'], answer: 'الثالث' },
+      { q: 'أين الكافتيريا؟', options: ['هناك', 'في الطابق الثاني', 'في البنك'], answer: 'هناك' },
+    ],
+  },
   vocab: [
     { id: 'koko', type: 'place', jp: 'ここ', hiragana: 'ここ', reading: 'koko', meaning: 'هنا' },
     { id: 'soko', type: 'place', jp: 'そこ', hiragana: 'そこ', reading: 'soko', meaning: 'هناك (قريب منك)' },

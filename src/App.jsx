@@ -8,14 +8,15 @@ import LessonPreviewModal from './components/LessonPreviewModal.jsx'
 import TodayWidget from './components/dashboard/TodayWidget.jsx'
 import SmartReview from './components/SmartReview.jsx'
 import AiSenseiPanel from './components/ai/AiSenseiPanel.jsx'
-import { readProgressState, markSectionVisited, getVisitedSections, getReviewStreak } from './progress/progressStorage.js'
+import AdminDashboard from './components/admin/AdminDashboard.jsx'
+import { readProgressState, writeProgressState, mergeProgressState, markSectionVisited, getVisitedSections, getReviewStreak, PROGRESS_CHANGED_EVENT } from './progress/progressStorage.js'
 import { getLessonMastery } from './progress/masteryModel.js'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
 import { speakJapanese, unlockAudio } from './sounds.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
-import { ExercisesSection, WarmupSection, ExamplesSection, MistakeReviewSection, MasteryCheckSection } from './components/LessonSections.jsx'
+import { ExercisesSection, WarmupSection, ExamplesSection, MistakeReviewSection, MasteryCheckSection, DialogueSection, ReadingSection } from './components/LessonSections.jsx'
 import VocabExercises, { VocabPracticeAll } from './components/VocabExercises.jsx'
 import CharacterExercises from './components/CharacterExercises.jsx'
 import AppIcon from './components/AppIcon.jsx'
@@ -76,6 +77,8 @@ const copy = {
     vocabulary: 'مفردات',
     grammar: 'قواعد',
     examples: 'أمثلة',
+    dialogue: 'حوار',
+    reading: 'قراءة',
     practice: 'تدريب',
     mistakeReview: 'مراجعة الأخطاء',
     masteryCheck: 'اختبار الإتقان',
@@ -190,6 +193,8 @@ const copy = {
     vocabulary: 'Vocabulary',
     grammar: 'Grammar',
     examples: 'Examples',
+    dialogue: 'Dialogue',
+    reading: 'Reading',
     practice: 'Practice',
     mistakeReview: 'Mistake Review',
     masteryCheck: 'Mastery Check',
@@ -723,6 +728,19 @@ function levelSourceLessons(levelId) {
   if (levelId === 'N4') return n4Lessons
   if (levelId === 'N3') return n3Lessons
   return []
+}
+
+function applyLessonOverrides(levelId, sourceLessons, overrides = {}) {
+  return sourceLessons.map((lesson, index) => {
+    const lessonId = lesson?.id ?? index + 1
+    const override = overrides[`${levelId}-${lessonId}`]
+    if (override?.published !== true || !override.lesson) return lesson
+    return {
+      ...lesson,
+      ...override.lesson,
+      id: lessonId,
+    }
+  })
 }
 
 // Flat list of every lesson across levels — used by Smart Review to resolve
@@ -2057,10 +2075,21 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
     vocabulary: 'vocabulary',
     grammar: 'grammar',
     examples: 'examples',
+    dialogue: 'dialogue',
+    reading: 'reading',
     practice: 'practice',
     mistakeReview: 'review',
     masteryCheck: 'masteryCheck',
   }
+
+  // Tab bar mirrors the lesson-path sections exactly — dialogue/reading appear
+  // only for lessons that actually have that content.
+  const lessonTabs = [
+    'overview', 'warmup', 'vocabulary', 'grammar', 'examples',
+    ...(lesson.dialogue?.lines?.length ? ['dialogue'] : []),
+    ...(lesson.reading?.sentences?.length ? ['reading'] : []),
+    'practice', 'mistakeReview', 'masteryCheck',
+  ]
   const goToSection = (tabId) => {
     const type = tabToSection[tabId]
     if (type) {
@@ -2099,7 +2128,7 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
       <div className="lesson-toolbar">
         <div className="tabs lesson-tabs">
           {/* Mirrors the lesson-path sections exactly, in the same order. */}
-          {['overview', 'warmup', 'vocabulary', 'grammar', 'examples', 'practice', 'mistakeReview', 'masteryCheck'].map((id) => (
+          {lessonTabs.map((id) => (
             <button key={id} className={section === id ? 'active' : ''} onClick={() => goToSection(id)}>
               {t[id]}
             </button>
@@ -2127,6 +2156,14 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
 
       {section === 'examples' && (
         <ExamplesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} />
+      )}
+
+      {section === 'dialogue' && (
+        <DialogueSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} />
+      )}
+
+      {section === 'reading' && (
+        <ReadingSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} />
       )}
 
       {section === 'vocabulary' && (
@@ -2431,6 +2468,7 @@ function SettingsScreen({ lang, theme, setTheme, values, onBack, onEditProfile, 
 export default function App() {
   const cloudSaveTimerRef = useRef(null)
   const lastSavedCloudJsonRef = useRef('')
+  const lastSavedProgressJsonRef = useRef('')
   const [screen, setScreen] = useState('loading')
   const [tab, setTab] = useState('home')
   const [lang, setLang] = useState(localStorage.getItem('nihongo-lang') || 'ar')
@@ -2447,6 +2485,7 @@ export default function App() {
   const [userName, setUserName] = useState('')
   const [userUsername, setUserUsername] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [userRole, setUserRole] = useState('')
   const [emailVerified, setEmailVerified] = useState(false)
   const [userBio, setUserBio] = useState('')
   const [userPhone, setUserPhone] = useState('')
@@ -2477,16 +2516,18 @@ export default function App() {
   const [score, setScore] = useState(0)
   const [lastScore, setLastScore] = useState(0)
   const [notice, setNotice] = useState('')
+  const [lessonOverrides, setLessonOverrides] = useState({})
   const [verificationRetryAt, setVerificationRetryAt] = useState(() => Number(localStorage.getItem('nihongo-verification-retry-at') || 0))
   const [nowTick, setNowTick] = useState(() => Date.now())
 
   const t = copy[lang]
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
+  const lessonsByLevel = useMemo(() => ({ N5: lessons, N4: n4Lessons, N3: n3Lessons }), [])
   const masteredCount = Object.values(progress).filter((v) => v >= 8).length
   const completedLessons = Object.entries(lessonProgress)
     .filter(([key, value]) => key.startsWith(`${currentLevel}-`) && value >= sectionCount).length
   const lessonPercent = Math.round((completedLessons / TOTAL_LESSONS) * 100)
-  const currentLevelLessons = levelSourceLessons(currentLevel)
+  const currentLevelLessons = applyLessonOverrides(currentLevel, levelSourceLessons(currentLevel), lessonOverrides)
   const lessonSlots = Array.from({ length: TOTAL_LESSONS }, (_, index) => currentLevelLessons[index] || null)
   // Per-lesson accuracy stats for path-node mastery indicators. Re-read each
   // render so mastery reflects the latest practice when returning to the map.
@@ -2516,6 +2557,11 @@ export default function App() {
   const userHandle = isGuest
     ? '@guest'
     : `@${normalizeUsername(userUsername || userName || userEmail?.split('@')[0] || 'nihongo')}`
+  const isAdmin = !isGuest && Boolean(userId) && (
+    userRole === 'admin'
+    || normalizeUsername(userUsername || '') === 'abdol'
+    || normalizeUsername(userEmail?.split('@')[0] || '') === 'abdol'
+  )
   const verificationWaitMs = Math.max(0, verificationRetryAt - nowTick)
   const verificationWaitSeconds = Math.ceil(verificationWaitMs / 1000)
   const verificationWaitLabel = `${Math.floor(verificationWaitSeconds / 60)}:${String(verificationWaitSeconds % 60).padStart(2, '0')}`
@@ -2536,6 +2582,7 @@ export default function App() {
     setLastScore(state.lastScore ?? 0)
     setUserName(state.userName || state.name || '')
     setUserUsername(state.userUsername || state.username || '')
+    setUserRole(state.role || '')
     setEmailVerified(state.emailVerified ?? false)
     setUserBio(state.userBio ?? '')
     setUserPhone(state.userPhone || state.phone || '')
@@ -2656,6 +2703,7 @@ export default function App() {
     applyState({ ...saved, ...activity })
     setUserId(null)
     setUserEmail('')
+    setUserRole('')
     setIsGuest(true)
     setEmailVerified(false)
     setDataReady(true)
@@ -2718,8 +2766,10 @@ export default function App() {
       if (!user) {
         setUserId(null)
         setIsGuest(false)
+        setUserRole('')
         setEmailVerified(false)
         lastSavedCloudJsonRef.current = ''
+        lastSavedProgressJsonRef.current = ''
         setDataReady(true)
         setScreen('welcome')
         return
@@ -2733,6 +2783,16 @@ export default function App() {
       if (auth.currentUser?.uid !== user.uid) return
       if (snap.exists()) {
         const d = snap.data()
+        // Hydrate the learning-progress store (SRS / mistakes / mastery) from
+        // the account, merged with anything practised locally on this device.
+        try {
+          const cloudProgress = d.learningProgress ? JSON.parse(d.learningProgress) : null
+          if (cloudProgress) {
+            writeProgressState(mergeProgressState(readProgressState(), cloudProgress), { silent: true })
+          }
+        } catch (error) {
+          console.error('Failed to hydrate learning progress', error)
+        }
         const activity = nextStreakValue(d.lastActiveDate ?? null, d.streak ?? 0)
         const loadedUsername = d.userUsername || d.username || normalizeUsername(d.userName || d.name || user.displayName || user.email?.split('@')[0] || 'nihongo')
         applyState(applyAccountUnlocks({
@@ -2763,6 +2823,22 @@ export default function App() {
       setUserId(user.uid)
       setDataReady(true)
       setScreen('main')
+    })
+    return () => unsub()
+  }, [])
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, 'lessonOverrides'), (snapshot) => {
+      const next = {}
+      snapshot.docs.forEach((lessonDoc) => {
+        const data = lessonDoc.data()
+        if (data?.lesson) {
+          next[lessonDoc.id] = data
+        }
+      })
+      setLessonOverrides(next)
+    }, (error) => {
+      console.warn('Lesson overrides unavailable', error)
     })
     return () => unsub()
   }, [])
@@ -2808,6 +2884,31 @@ export default function App() {
       if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
     }
   }, [userId, userEmail, isGuest, dataReady, userPayload, publicProfilePayload])
+
+  // Sync the learning-progress store (SRS / mistakes / mastery) to the account.
+  // The store is written directly to localStorage by child components, which
+  // dispatch PROGRESS_CHANGED_EVENT; we debounce-save the whole blob as a JSON
+  // string (sidesteps Firestore map-key limits and deep-merge surprises).
+  useEffect(() => {
+    if (!userId || !dataReady || isGuest) return
+    let timer = null
+    const flush = () => {
+      if (timer) window.clearTimeout(timer)
+      timer = window.setTimeout(() => {
+        const json = JSON.stringify(readProgressState())
+        if (json === lastSavedProgressJsonRef.current) return
+        setDoc(doc(db, 'users', userId), { learningProgress: json, updatedAt: new Date().toISOString() }, { merge: true })
+          .then(() => { lastSavedProgressJsonRef.current = json })
+          .catch((error) => console.error('Failed to sync learning progress', error))
+      }, 800)
+    }
+    window.addEventListener(PROGRESS_CHANGED_EVENT, flush)
+    flush() // initial push (e.g. carry a guest's local progress up after sign-in)
+    return () => {
+      window.removeEventListener(PROGRESS_CHANGED_EVENT, flush)
+      if (timer) window.clearTimeout(timer)
+    }
+  }, [userId, dataReady, isGuest])
 
   useEffect(() => {
     if (!dataReady) return
@@ -3357,6 +3458,21 @@ export default function App() {
     )
   }
 
+  if (screen === 'admin') {
+    return (
+      <AdminDashboard
+        lang={lang}
+        levels={levels}
+        lessonsByLevel={lessonsByLevel}
+        overrides={lessonOverrides}
+        initialLevel={currentLevel}
+        adminHandle={userHandle}
+        onBack={() => setScreen('main')}
+        onNotice={setNotice}
+      />
+    )
+  }
+
   return (
     <>
       <main className="app-shell">
@@ -3645,6 +3761,13 @@ export default function App() {
             </div>
 
             <h2 className="section-title">{t.settings}</h2>
+            {isAdmin && (
+              <button className="settings-entry admin-entry" onClick={() => setScreen('admin')}>
+                <IconCircle name="files" size={44} />
+                <strong>{lang === 'ar' ? 'لوحة الأدمن' : 'Admin Dashboard'}</strong>
+                <small>›</small>
+              </button>
+            )}
             <button className="settings-entry" onClick={() => setScreen('settings')}>
               <IconCircle name="settings" size={44} />
               <strong>{t.settings}</strong>

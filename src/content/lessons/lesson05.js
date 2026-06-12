@@ -2,6 +2,34 @@ export const lessonFive = {
   id: 5,
   title: { ar: 'الذهاب والإياب ووسائل النقل', en: 'Going, Coming and Transportation' },
   focus: 'استخدام 行きます・来ます・帰ります مع へ، ووسيلة النقل بـ で، والمرافقة بـ と، والسؤال بـ いつ',
+  dialogue: {
+    titleAr: 'إلى أين تذهب؟ — خطة رحلة ميلر',
+    lines: [
+      { speaker: 'ساتو', jp: 'ミラーさん、明日 どこへ 行きますか。', romaji: 'Miraa-san, ashita doko e ikimasu ka.', ar: 'سيد ميلر، إلى أين تذهب غدًا؟' },
+      { speaker: 'ميلر', jp: '京都へ 行きます。', romaji: 'Kyouto e ikimasu.', ar: 'أذهب إلى كيوتو.' },
+      { speaker: 'ساتو', jp: '何で 行きますか。', romaji: 'Nan de ikimasu ka.', ar: 'بماذا تذهب؟' },
+      { speaker: 'ميلر', jp: '電車で 行きます。', romaji: 'Densha de ikimasu.', ar: 'أذهب بالقطار.' },
+      { speaker: 'ساتو', jp: '一人で 行きますか。', romaji: 'Hitori de ikimasu ka.', ar: 'هل تذهب وحدك؟' },
+      { speaker: 'ميلر', jp: 'いいえ、友達と 行きます。', romaji: 'Iie, tomodachi to ikimasu.', ar: 'لا، أذهب مع صديق.' },
+      { speaker: 'ساتو', jp: 'いつ 帰りますか。', romaji: 'Itsu kaerimasu ka.', ar: 'ومتى تعود؟' },
+      { speaker: 'ميلر', jp: '日曜日に 帰ります。', romaji: 'Nichiyoubi ni kaerimasu.', ar: 'أعود يوم الأحد.' },
+    ],
+  },
+  reading: {
+    titleAr: 'رحلتي — سفر مع العائلة',
+    sentences: [
+      { jp: '来週、家族と 東京へ 行きます。', romaji: 'Raishuu, kazoku to Toukyou e ikimasu.', ar: 'الأسبوع القادم أذهب مع عائلتي إلى طوكيو.' },
+      { jp: '飛行機で 行きます。', romaji: 'Hikouki de ikimasu.', ar: 'نذهب بالطائرة.' },
+      { jp: '友達は 電車で 来ます。', romaji: 'Tomodachi wa densha de kimasu.', ar: 'صديقي يأتي بالقطار.' },
+      { jp: '私たちは バスで 駅へ 行きます。', romaji: 'Watashitachi wa basu de eki e ikimasu.', ar: 'نذهب إلى المحطة بالحافلة.' },
+      { jp: '来月、家へ 帰ります。', romaji: 'Raigetsu, uchi e kaerimasu.', ar: 'نعود إلى البيت الشهر القادم.' },
+    ],
+    questions: [
+      { q: 'إلى أين يذهب الكاتب الأسبوع القادم؟', options: ['إلى طوكيو', 'إلى كيوتو', 'إلى المدرسة'], answer: 'إلى طوكيو' },
+      { q: 'بماذا يذهب؟', options: ['بالطائرة', 'بالقطار', 'بالسيارة'], answer: 'بالطائرة' },
+      { q: 'متى يعودون إلى البيت؟', options: ['الشهر القادم', 'غدًا', 'يوم الأحد'], answer: 'الشهر القادم' },
+    ],
+  },
   vocab: [
     { id: 'ikimasu', type: 'verb', jp: '行きます', kanji: '行きます', hiragana: 'いきます', reading: 'ikimasu', meaning: 'يذهب' },
     { id: 'kimasu', type: 'verb', jp: '来ます', kanji: '来ます', hiragana: 'きます', reading: 'kimasu', meaning: 'يأتي' },

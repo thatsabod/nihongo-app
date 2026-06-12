@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import AppIcon from '../AppIcon.jsx'
 import { buildSenseiContext } from '../../ai/senseiContext.ts'
 import { buildPrompt, SENSEI_FEATURES } from '../../ai/promptTemplates.ts'
-import { requestSensei, isSenseiEnabled, remainingDailyQuota } from '../../ai/senseiClient.ts'
+import { requestSensei, senseiMode, remainingDailyQuota } from '../../ai/senseiClient.ts'
+import SenseiCallScreen from './SenseiCallScreen.jsx'
 import { lookupGrammar } from '../../content/stores.ts'
 
 // AI Sensei entry UI (Phase 7 — design only). Shows the grounded learner
@@ -18,7 +19,8 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
   const [active, setActive] = useState(null) // { feature, prompt }
   const [response, setResponse] = useState(null)
   const [busy, setBusy] = useState(false)
-  const enabled = isSenseiEnabled()
+  const [inCall, setInCall] = useState(false)
+  const mode = senseiMode()
 
   const runFeature = (feature) => {
     let params
@@ -49,6 +51,10 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
     }
   }
 
+  if (inCall) {
+    return <SenseiCallScreen ctx={ctx} lang={lang} onClose={() => setInCall(false)} />
+  }
+
   return (
     <div className="sensei-overlay" dir={isAr ? 'rtl' : 'ltr'}>
       <header className="sensei-head">
@@ -57,6 +63,12 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
           <p className="eyebrow">{isAr ? 'مساعد التعلّم' : 'Learning assistant'}</p>
           <h1>{isAr ? 'عبدول سينسيه 先生' : 'Abdoul Sensei 先生'}</h1>
         </div>
+        {mode !== 'off' && (
+          <button className="sensei-call-btn" onClick={() => setInCall(true)}>
+            <span aria-hidden="true">📞</span>
+            {isAr ? 'مكالمة' : 'Call'}
+          </button>
+        )}
       </header>
 
       {/* Grounded context — what Sensei "knows" */}
@@ -74,13 +86,17 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
 
       <div className="sensei-notice">
         <AppIcon name="hint" size={16} />
-        <span>{enabled
+        <span>{mode === 'direct'
           ? (isAr
             ? `سينسيه مفعّل ويعتمد على بياناتك فقط. المتبقي اليوم: ${remainingDailyQuota()} طلبًا.`
             : `Sensei is live and grounded in your data. ${remainingDailyQuota()} requests left today.`)
-          : (isAr
-            ? 'عبدول سينسيه مصمَّم ليعتمد على بياناتك فقط. لم يتم تفعيل أي خدمة ذكاء اصطناعي بعد.'
-            : 'Abdoul Sensei is grounded in your data only. No AI service is connected yet.')}</span>
+          : mode === 'cloud'
+            ? (isAr
+              ? 'سينسيه مفعّل عبر الخادم الآمن ويعتمد على بياناتك فقط. الحد اليومي 20 طلبًا.'
+              : 'Sensei is live via the secure server, grounded in your data. Daily limit: 20 requests.')
+            : (isAr
+              ? 'عبدول سينسيه يتطلب تسجيل الدخول بحسابك ليعمل.'
+              : 'Abdoul Sensei requires signing in to your account.')}</span>
       </div>
 
       {!active ? (

@@ -2,6 +2,33 @@ export const lessonNine = {
   id: 9,
   title: { ar: 'الوجود والمواقع', en: 'Existence and Location' },
   focus: 'あります/います لوصف الوجود، に للمكان، や〜など للتعداد غير الشامل، وكلمات الموقع',
+  dialogue: {
+    titleAr: 'أين القطة؟ — البحث عن الأشياء',
+    lines: [
+      { speaker: 'ميلر', jp: 'さとうさん、猫は どこに いますか。', romaji: 'Satou-san, neko wa doko ni imasu ka.', ar: 'ساتو، أين القطة؟' },
+      { speaker: 'ساتو', jp: 'ベッドの 上に います。', romaji: 'Beddo no ue ni imasu.', ar: 'إنها فوق السرير.' },
+      { speaker: 'ميلر', jp: '私の 財布は どこに ありますか。', romaji: 'Watashi no saifu wa doko ni arimasu ka.', ar: 'وأين محفظتي؟' },
+      { speaker: 'ساتو', jp: '机の 下に あります。', romaji: 'Tsukue no shita ni arimasu.', ar: 'تحت المكتب.' },
+      { speaker: 'ميلر', jp: 'この 近くに コンビニが ありますか。', romaji: 'Kono chikaku ni konbini ga arimasu ka.', ar: 'هل يوجد متجر قريب من هنا؟' },
+      { speaker: 'ساتو', jp: 'はい、銀行の 隣に あります。', romaji: 'Hai, ginkou no tonari ni arimasu.', ar: 'نعم، بجانب البنك.' },
+      { speaker: 'ميلر', jp: 'どうもありがとうございます。', romaji: 'Doumo arigatou gozaimasu.', ar: 'شكرًا جزيلًا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'ما حولي — وصف المكان',
+    sentences: [
+      { jp: '机の 上に コンピューターが あります。', romaji: 'Tsukue no ue ni konpyuutaa ga arimasu.', ar: 'فوق المكتب حاسوب.' },
+      { jp: '机の 下に 箱が あります。', romaji: 'Tsukue no shita ni hako ga arimasu.', ar: 'وتحت المكتب صندوق.' },
+      { jp: '箱の 中に 本や 写真などが あります。', romaji: 'Hako no naka ni hon ya shashin nado ga arimasu.', ar: 'في داخل الصندوق كتب وصور وغيرها.' },
+      { jp: '窓の 前に 鳥が います。', romaji: 'Mado no mae ni tori ga imasu.', ar: 'أمام النافذة طائر.' },
+      { jp: 'ドアの 後ろに 猫が います。', romaji: 'Doa no ushiro ni neko ga imasu.', ar: 'وخلف الباب قطة.' },
+    ],
+    questions: [
+      { q: 'ماذا يوجد فوق المكتب؟', options: ['حاسوب', 'صندوق', 'قطة'], answer: 'حاسوب' },
+      { q: 'ماذا في داخل الصندوق؟', options: ['كتب وصور', 'ثلاجة', 'طائر'], answer: 'كتب وصور' },
+      { q: 'أين القطة؟', options: ['خلف الباب', 'فوق السرير', 'أمام النافذة'], answer: 'خلف الباب' },
+    ],
+  },
   vocab: [
     { id: 'arimasu2', type: 'verb', jp: 'あります', kanji: 'あります', hiragana: 'あります', reading: 'arimasu', meaning: 'يوجد (لغير الحي)' },
     { id: 'imasu', type: 'verb', jp: 'います', kanji: 'います', hiragana: 'います', reading: 'imasu', meaning: 'يوجد (للحي)' },

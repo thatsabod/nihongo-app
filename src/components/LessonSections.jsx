@@ -1050,3 +1050,120 @@ export function MasteryCheckSection({ lesson, lang, kanjiReadingMode, sectionsDo
     </div>
   )
 }
+
+// ── SECTION: Dialogue — a real conversation using this lesson's grammar ──────
+export function DialogueSection({ lesson, lang, kanjiReadingMode }) {
+  const isAr = lang === 'ar'
+  const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
+  const dialogue = lesson.dialogue
+  if (!dialogue?.lines?.length) return <div className="review-wrap" />
+
+  const speakers = [...new Set(dialogue.lines.map((l) => l.speaker))]
+
+  return (
+    <div className="review-wrap">
+      <div className="review-focus">
+        <span className="review-focus-label">{isAr ? 'حوار الدرس' : 'Lesson dialogue'}</span>
+        <p>{dialogue.titleAr}</p>
+      </div>
+
+      <section className="review-block">
+        <h3 className="review-block-title">{isAr ? 'اضغط أي جملة للاستماع، وكرّرها بصوتك 🔊' : 'Tap a line to hear it, then repeat 🔊'}</h3>
+        <div className="dialogue-thread">
+          {dialogue.lines.map((line, i) => (
+            <button
+              key={i}
+              className={`dialogue-bubble ${speakers.indexOf(line.speaker) % 2 === 0 ? 'side-a' : 'side-b'}`}
+              onClick={() => speakJapanese(line.jp)}
+            >
+              <span className="dialogue-speaker">{line.speaker}</span>
+              <LessonJP text={line.jp} readingMap={readingMap} />
+              {line.romaji && <small dir="ltr" className="dialogue-romaji">{line.romaji}</small>}
+              <span className="dialogue-ar">{line.ar}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+// ── SECTION: Reading — short passage + comprehension questions ───────────────
+export function ReadingSection({ lesson, lang, kanjiReadingMode }) {
+  const isAr = lang === 'ar'
+  const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
+  const reading = lesson.reading
+  const [picked, setPicked] = useState({}) // questionIndex -> chosen option
+  if (!reading?.sentences?.length) return <div className="review-wrap" />
+
+  const questions = reading.questions || []
+
+  const choose = (qi, opt, answer) => {
+    if (picked[qi] != null) return
+    const correct = opt === answer
+    if (correct) playCorrect()
+    else playWrong()
+    // Reading comprehension feeds lesson accuracy (mastery system).
+    recordLessonStat(readProgressState(), String(lesson.id), correct)
+    setPicked((p) => ({ ...p, [qi]: opt }))
+  }
+
+  return (
+    <div className="review-wrap">
+      <div className="review-focus">
+        <span className="review-focus-label">{isAr ? 'نص القراءة' : 'Reading passage'}</span>
+        <p>{reading.titleAr}</p>
+      </div>
+
+      {/* The passage, sentence by sentence (tap to hear) */}
+      <section className="review-block">
+        <h3 className="review-block-title">{isAr ? 'اقرأ ثم اضغط للاستماع 🔊' : 'Read, then tap to listen 🔊'}</h3>
+        <div className="reading-passage">
+          {reading.sentences.map((s, i) => (
+            <button key={i} className="reading-sentence" onClick={() => speakJapanese(s.jp)}>
+              <LessonJP text={s.jp} readingMap={readingMap} />
+              {s.romaji && <small dir="ltr">{s.romaji}</small>}
+              <span>{s.ar}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Comprehension questions */}
+      {questions.length > 0 && (
+        <section className="review-block">
+          <h3 className="review-block-title">{isAr ? `أسئلة الفهم (${questions.length})` : `Comprehension (${questions.length})`}</h3>
+          <div className="reading-questions">
+            {questions.map((q, qi) => (
+              <div key={qi} className="reading-question">
+                <p className="reading-question-text">{q.q}</p>
+                <div className="reading-options">
+                  {q.options.map((opt) => {
+                    const chosen = picked[qi]
+                    const state = chosen == null
+                      ? ''
+                      : opt === q.answer
+                        ? 'correct'
+                        : opt === chosen
+                          ? 'wrong'
+                          : 'dimmed'
+                    return (
+                      <button
+                        key={opt}
+                        disabled={chosen != null}
+                        className={`reading-option ${state}`}
+                        onClick={() => choose(qi, opt, q.answer)}
+                      >
+                        {opt}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}

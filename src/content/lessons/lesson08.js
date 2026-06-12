@@ -2,6 +2,33 @@ export const lessonEight = {
   id: 8,
   title: { ar: 'الصفات والإعجاب', en: 'Adjectives and Likes/Dislikes' },
   focus: 'الصفات من نوع い والصفات من نوع な، とても/あまり، どんな، وأفعال الإعجاب مع が',
+  dialogue: {
+    titleAr: 'كيف هي مدينتك؟',
+    lines: [
+      { speaker: 'ميلر', jp: 'さとうさんの 町は どんな 町ですか。', romaji: 'Satou-san no machi wa donna machi desu ka.', ar: 'ساتو، ما نوع مدينتك؟' },
+      { speaker: 'ساتو', jp: 'とても きれいな 町です。', romaji: 'Totemo kirei na machi desu.', ar: 'مدينة جميلة جدًا.' },
+      { speaker: 'ميلر', jp: 'にぎやかですか。', romaji: 'Nigiyaka desu ka.', ar: 'هل هي صاخبة؟' },
+      { speaker: 'ساتو', jp: 'いいえ、あまり にぎやかじゃありません。静かです。', romaji: 'Iie, amari nigiyaka ja arimasen. Shizuka desu.', ar: 'لا، ليست صاخبة. إنها هادئة.' },
+      { speaker: 'ميلر', jp: '私の 町は 大きいです。', romaji: 'Watashi no machi wa ookii desu.', ar: 'مدينتي كبيرة.' },
+      { speaker: 'ساتو', jp: 'ミラーさんは どんな 映画が 好きですか。', romaji: 'Miraa-san wa donna eiga ga suki desu ka.', ar: 'وأي نوع من الأفلام تحب؟' },
+      { speaker: 'ميلر', jp: '面白い 映画が 好きです。', romaji: 'Omoshiroi eiga ga suki desu.', ar: 'أحب الأفلام الممتعة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'مدينتي الهادئة',
+    sentences: [
+      { jp: '私の 町は 古い 町です。', romaji: 'Watashi no machi wa furui machi desu.', ar: 'مدينتي مدينة قديمة.' },
+      { jp: 'とても 静かです。', romaji: 'Totemo shizuka desu.', ar: 'وهادئة جدًا.' },
+      { jp: 'デパートは あまり 大きくないです。', romaji: 'Depaato wa amari ookikunai desu.', ar: 'المجمع التجاري ليس كبيرًا.' },
+      { jp: '駅の 食堂は 安いです。', romaji: 'Eki no shokudou wa yasui desu.', ar: 'مطعم المحطة رخيص.' },
+      { jp: '私は この 町が とても 好きです。', romaji: 'Watashi wa kono machi ga totemo suki desu.', ar: 'أحب هذه المدينة كثيرًا.' },
+    ],
+    questions: [
+      { q: 'كيف يصف الكاتب مدينته؟', options: ['قديمة وهادئة', 'كبيرة وصاخبة', 'جديدة ومشهورة'], answer: 'قديمة وهادئة' },
+      { q: 'كيف مطعم المحطة؟', options: ['رخيص', 'غالٍ', 'كبير'], answer: 'رخيص' },
+      { q: 'هل يحب الكاتب مدينته؟', options: ['نعم، كثيرًا', 'لا', 'قليلًا فقط'], answer: 'نعم، كثيرًا' },
+    ],
+  },
   vocab: [
     { id: 'ookii', type: 'i-adjective', jp: '大きい', kanji: '大きい', hiragana: 'おおきい', reading: 'ookii', meaning: 'كبير' },
     { id: 'chiisai', type: 'i-adjective', jp: '小さい', kanji: '小さい', hiragana: 'ちいさい', reading: 'chiisai', meaning: 'صغير' },

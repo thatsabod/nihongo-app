@@ -10,12 +10,26 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userUsername == 'abdol'
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == 'abdol'
+        );
+    }
+
     function isParticipant(a, b) {
       return signedIn() && (request.auth.uid == a || request.auth.uid == b);
     }
 
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && !('role' in request.resource.data);
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
+      allow delete: if isOwner(userId);
     }
 
     match /usernames/{username} {
@@ -96,6 +110,16 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create, update: if signedIn() && request.resource.data.userId == request.auth.uid;
       allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /lessonOverrides/{lessonId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /adminLogs/{logId} {
+      allow read, create: if isAdmin();
+      allow update, delete: if false;
     }
   }
 }

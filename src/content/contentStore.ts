@@ -148,14 +148,46 @@ export function buildExerciseStore(lessons: RawLesson[], level: JLPTLevel): Stor
   return store
 }
 
-// ── Dialogues / Reading passages (no source data yet) ───────────────────────
-// TODO(Phase 6): populate once dialogue/reading content is authored. Returned
-// empty so consumers can rely on the stores existing regardless.
-export function buildDialogueStore(_lessons: RawLesson[], _level: JLPTLevel): Store<Dialogue> {
-  return {}
+// ── Dialogues ────────────────────────────────────────────────────────────────
+export function buildDialogueStore(lessons: RawLesson[], level: JLPTLevel): Store<Dialogue> {
+  const store: Store<Dialogue> = {}
+  for (const lesson of lessons) {
+    const d = lesson.dialogue
+    if (!d?.lines?.length) continue
+    const id = `${lesson.id}-dialogue`
+    store[id] = {
+      id,
+      titleAr: d.titleAr || '',
+      level,
+      lessonId: String(lesson.id),
+      lines: d.lines.map((line) => ({
+        speaker: line.speaker || '',
+        japanese: line.jp || '',
+        romaji: line.romaji,
+        arabic: line.ar || '',
+      })),
+    }
+  }
+  return store
 }
-export function buildReadingStore(_lessons: RawLesson[], _level: JLPTLevel): Store<ReadingPassage> {
-  return {}
+
+// ── Reading passages ─────────────────────────────────────────────────────────
+export function buildReadingStore(lessons: RawLesson[], level: JLPTLevel): Store<ReadingPassage> {
+  const store: Store<ReadingPassage> = {}
+  for (const lesson of lessons) {
+    const r = lesson.reading
+    if (!r?.sentences?.length) continue
+    const id = `${lesson.id}-reading`
+    store[id] = {
+      id,
+      titleAr: r.titleAr || '',
+      japanese: r.sentences.map((s) => s.jp || '').join(''),
+      arabic: r.sentences.map((s) => s.ar || '').join(' '),
+      level,
+      lessonId: String(lesson.id),
+    }
+  }
+  return store
 }
 
 // ── Combined store ──────────────────────────────────────────────────────────

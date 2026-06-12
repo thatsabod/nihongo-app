@@ -8,6 +8,10 @@ import { recordMistake } from './mistakeLog.js'
 
 const STORAGE_KEY = 'nihongo-learning-progress'
 
+// Fired after every write so App.jsx can debounce-sync the store to the cloud
+// without lifting all progress state into React.
+export const PROGRESS_CHANGED_EVENT = 'nihongo-progress-changed'
+
 function emptyState() {
   return { srs: {}, mistakes: {}, lessons: {} }
 }
@@ -22,8 +26,39 @@ export function readProgressState() {
   }
 }
 
-export function writeProgressState(state) {
+export function writeProgressState(state, { silent = false } = {}) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  // `silent` is used when hydrating from the cloud on login, so we don't echo
+  // a freshly-loaded state straight back up to the server.
+  if (!silent && typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(PROGRESS_CHANGED_EVENT))
+  }
+}
+
+// Pick the more-recently-touched of two records (timestamp field varies by type).
+function pickNewer(a, b, tsField) {
+  if (!a) return b
+  if (!b) return a
+  return (b[tsField] || 0) >= (a[tsField] || 0) ? b : a
+}
+
+// Merge two progress states: union of keys, latest-write-wins per key. Used to
+// reconcile a device's local store with the account's cloud copy at login so
+// neither side loses data (e.g. a guest who practised, then signed in).
+export function mergeProgressState(a = emptyState(), b = emptyState()) {
+  const out = emptyState()
+  const buckets = [
+    ['srs', 'lastReviewedAt'],
+    ['mistakes', 'lastWrongAt'],
+    ['lessons', 'lastPracticedAt'],
+  ]
+  for (const [bucket, ts] of buckets) {
+    const keys = new Set([...Object.keys(a[bucket] || {}), ...Object.keys(b[bucket] || {})])
+    for (const key of keys) {
+      out[bucket][key] = pickNewer(a[bucket]?.[key], b[bucket]?.[key], ts)
+    }
+  }
+  return out
 }
 
 // Convenience helper: call this from quiz/exercise answer-checking code

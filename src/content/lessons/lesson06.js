@@ -2,6 +2,33 @@ export const lessonSix = {
   id: 6,
   title: { ar: 'الأفعال والمفعول به', en: 'Verbs and Direct Objects' },
   focus: 'استخدام を مع أفعال الأكل والشرب والقراءة وغيرها، والسؤال بـ 何を، والدعوة بـ ませんか و ましょう',
+  dialogue: {
+    titleAr: 'دعوة لمشاهدة فيلم',
+    lines: [
+      { speaker: 'ساتو', jp: 'ミラーさん、明日 何を しますか。', romaji: 'Miraa-san, ashita nani o shimasu ka.', ar: 'سيد ميلر، ماذا ستفعل غدًا؟' },
+      { speaker: 'ميلر', jp: '本を 読みます。それから、テレビを 見ます。', romaji: 'Hon o yomimasu. Sorekara, terebi o mimasu.', ar: 'أقرأ كتابًا، ثم أشاهد التلفاز.' },
+      { speaker: 'ساتو', jp: '一緒に 映画を 見ませんか。', romaji: 'Issho ni eiga o mimasen ka.', ar: 'ما رأيك أن نشاهد فيلمًا معًا؟' },
+      { speaker: 'ميلر', jp: 'はい、見ましょう。', romaji: 'Hai, mimashou.', ar: 'نعم، لنشاهده!' },
+      { speaker: 'ساتو', jp: '何を 食べますか。', romaji: 'Nani o tabemasu ka.', ar: 'وماذا نأكل؟' },
+      { speaker: 'ميلر', jp: 'パンを 食べましょう。お茶も 飲みましょう。', romaji: 'Pan o tabemashou. Ocha mo nomimashou.', ar: 'لنأكل خبزًا ولنشرب شايًا أيضًا.' },
+      { speaker: 'ساتو', jp: 'はい！', romaji: 'Hai!', ar: 'اتفقنا!' },
+    ],
+  },
+  reading: {
+    titleAr: 'يومي مع الأفعال',
+    sentences: [
+      { jp: '私は 毎日 パンを 食べます。', romaji: 'Watashi wa mainichi pan o tabemasu.', ar: 'آكل خبزًا كل يوم.' },
+      { jp: 'お茶を 飲みます。', romaji: 'Ocha o nomimasu.', ar: 'وأشرب شايًا.' },
+      { jp: 'それから、音楽を 聞きます。', romaji: 'Sorekara, ongaku o kikimasu.', ar: 'ثم أستمع إلى الموسيقى.' },
+      { jp: '今晩、映画を 見ます。', romaji: 'Konban, eiga o mimasu.', ar: 'هذا المساء أشاهد فيلمًا.' },
+      { jp: '日曜日に 写真を 撮ります。', romaji: 'Nichiyoubi ni shashin o torimasu.', ar: 'يوم الأحد ألتقط صورًا.' },
+    ],
+    questions: [
+      { q: 'ماذا يأكل الكاتب كل يوم؟', options: ['خبزًا', 'أرزًا', 'سمكًا'], answer: 'خبزًا' },
+      { q: 'ماذا يفعل هذا المساء؟', options: ['يشاهد فيلمًا', 'يقرأ كتابًا', 'يكتب رسالة'], answer: 'يشاهد فيلمًا' },
+      { q: 'متى يلتقط الصور؟', options: ['يوم الأحد', 'كل يوم', 'هذا المساء'], answer: 'يوم الأحد' },
+    ],
+  },
   vocab: [
     { id: 'tabemasu', type: 'verb', jp: '食べます', kanji: '食べます', hiragana: 'たべます', reading: 'tabemasu', meaning: 'يأكل' },
     { id: 'nomimasu', type: 'verb', jp: '飲みます', kanji: '飲みます', hiragana: 'のみます', reading: 'nomimasu', meaning: 'يشرب' },

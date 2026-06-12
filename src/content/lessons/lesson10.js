@@ -2,6 +2,33 @@ export const lessonTen = {
   id: 10,
   title: { ar: 'الأرقام وأدوات العد', en: 'Numbers and Counters' },
   focus: 'الأرقام، أدوات العد (つ/人/枚/本/冊)، وأداة الحصر だけ',
+  dialogue: {
+    titleAr: 'في المتجر — الشراء بالعدّ',
+    lines: [
+      { speaker: 'ميلر', jp: 'すみません、パンを ふたつ ください。', romaji: 'Sumimasen, pan o futatsu kudasai.', ar: 'من فضلك، أعطني خبزتين.' },
+      { speaker: 'الموظفة', jp: 'はい。', romaji: 'Hai.', ar: 'حاضر.' },
+      { speaker: 'ميلر', jp: 'お茶も 一本 ください。', romaji: 'Ocha mo ippon kudasai.', ar: 'وزجاجة شاي أيضًا.' },
+      { speaker: 'الموظفة', jp: '全部で 500円です。', romaji: 'Zenbu de gohyaku-en desu.', ar: 'المجموع 500 ين.' },
+      { speaker: 'ميلر', jp: 'それから、切手は ありますか。', romaji: 'Sorekara, kitte wa arimasu ka.', ar: 'وهل عندكم طوابع بريد؟' },
+      { speaker: 'الموظفة', jp: 'はい。何枚ですか。', romaji: 'Hai. Nanmai desu ka.', ar: 'نعم. كم طابعًا تريد؟' },
+      { speaker: 'ميلر', jp: '三枚 ください。', romaji: 'Sanmai kudasai.', ar: 'ثلاثة من فضلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'مشترياتي اليوم',
+    sentences: [
+      { jp: '今日、デパートへ 行きます。', romaji: 'Kyou, depaato e ikimasu.', ar: 'اليوم أذهب إلى المجمع التجاري.' },
+      { jp: '紙を 十枚 買います。', romaji: 'Kami o juumai kaimasu.', ar: 'أشتري عشر ورقات.' },
+      { jp: '本を 二冊 買います。', romaji: 'Hon o nisatsu kaimasu.', ar: 'وكتابين.' },
+      { jp: 'ボールペンを 一本だけ 買います。', romaji: 'Boorupen o ippon dake kaimasu.', ar: 'وقلم حبر واحدًا فقط.' },
+      { jp: '私の 家族は 三人です。', romaji: 'Watashi no kazoku wa sannin desu.', ar: 'عائلتي ثلاثة أشخاص.' },
+    ],
+    questions: [
+      { q: 'كم ورقة يشتري الكاتب؟', options: ['عشر ورقات', 'ثلاث ورقات', 'ورقتين'], answer: 'عشر ورقات' },
+      { q: 'كم قلمًا يشتري؟', options: ['واحدًا فقط', 'اثنين', 'ثلاثة'], answer: 'واحدًا فقط' },
+      { q: 'كم شخصًا في عائلته؟', options: ['ثلاثة', 'أربعة', 'اثنان'], answer: 'ثلاثة' },
+    ],
+  },
   vocab: [
     { id: 'hitotsu', type: 'counter', jp: 'ひとつ', kanji: '一つ', hiragana: 'ひとつ', reading: 'hitotsu', meaning: 'واحد (شيء عام)' },
     { id: 'futatsu', type: 'counter', jp: 'ふたつ', kanji: '二つ', hiragana: 'ふたつ', reading: 'futatsu', meaning: 'اثنان (شيء عام)' },
