@@ -1,29 +1,114 @@
-// Phase 7 — AI Sensei client.
+// AI Sensei client — calls the Anthropic Messages API when a key is present.
 //
-// ⚠️ INERT BY DESIGN. This module performs NO network calls and contacts NO
-// external/paid API. It exists so the UI can be fully built and wired now; the
-// request path returns a 'disabled' response until a provider is explicitly
-// approved and connected.
+// Activation model:
+//   - No VITE_ANTHROPIC_API_KEY in .env.local  → returns a transparent
+//     'disabled' response (the pre-approval design state, unchanged).
+//   - Key present → real call, grounded in the prompt built from the
+//     learner's own data (senseiContext + promptTemplates stay unchanged).
 //
-// TODO(approval): only after the user explicitly approves connecting an AI
-// provider, replace the body of requestSensei() with a real fetch to the
-// approved endpoint, passing request.prompt.system / request.prompt.user.
-// Keep all the grounding (senseiContext + promptTemplates) unchanged.
+// ⚠️ LOCAL/DEV ONLY: a VITE_-prefixed key is embedded in the client bundle —
+// anyone who opens DevTools on a deployed site can read it. Do NOT deploy
+// with this mechanism. TODO(production): move this call into a Firebase
+// Cloud Function holding the key server-side, and have the app call that.
 
+import Anthropic from '@anthropic-ai/sdk'
 import type { SenseiRequest, SenseiResponse } from './aiSensei.types'
 
-export const AI_NOT_ENABLED = 'AI_NOT_ENABLED'
+// Switch to 'claude-haiku-4-5' for the cheapest/fastest option.
+const SENSEI_MODEL = 'claude-opus-4-8'
+const MAX_TOKENS = 4096
+const DAILY_LIMIT = 20
+const USAGE_KEY = 'nihongo-sensei-usage'
 
-// Whether a real provider has been wired. Stays false until approved.
-export const isSenseiEnabled = (): boolean => false
+const apiKey = (import.meta as unknown as { env?: Record<string, string | undefined> }).env
+  ?.VITE_ANTHROPIC_API_KEY
+
+export const isSenseiEnabled = (): boolean => Boolean(apiKey)
+
+// Per-day request counter (resets at local midnight). Protects against a
+// runaway bill from a single enthusiastic study session.
+function consumeDailyQuota(): { ok: boolean; used: number } {
+  const today = new Date().toISOString().slice(0, 10)
+  let usage: { date: string; count: number }
+  try {
+    usage = JSON.parse(localStorage.getItem(USAGE_KEY) || 'null') || { date: today, count: 0 }
+  } catch {
+    usage = { date: today, count: 0 }
+  }
+  if (usage.date !== today) usage = { date: today, count: 0 }
+  if (usage.count >= DAILY_LIMIT) return { ok: false, used: usage.count }
+  usage.count += 1
+  localStorage.setItem(USAGE_KEY, JSON.stringify(usage))
+  return { ok: true, used: usage.count }
+}
+
+export function remainingDailyQuota(): number {
+  const today = new Date().toISOString().slice(0, 10)
+  try {
+    const usage = JSON.parse(localStorage.getItem(USAGE_KEY) || 'null')
+    if (!usage || usage.date !== today) return DAILY_LIMIT
+    return Math.max(0, DAILY_LIMIT - usage.count)
+  } catch {
+    return DAILY_LIMIT
+  }
+}
 
 export async function requestSensei(request: SenseiRequest): Promise<SenseiResponse> {
-  // No external call. Return a transparent 'disabled' result.
-  return {
-    status: 'disabled',
-    feature: request.feature,
-    message:
-      'مساعد «عبدول سينسيه» جاهز من حيث التصميم، لكنه غير مُفعّل بعد. لم يتم الاتصال بأي خدمة ذكاء اصطناعي. ' +
-      'يمكنك معاينة السياق والتلميح (Prompt) الذي سيُرسَل لاحقاً بعد الموافقة على تفعيل الخدمة.',
+  if (!apiKey) {
+    return {
+      status: 'disabled',
+      feature: request.feature,
+      message:
+        'مساعد «عبدول سينسيه» جاهز من حيث التصميم، لكنه غير مُفعّل بعد. لم يتم الاتصال بأي خدمة ذكاء اصطناعي. ' +
+        'أضف مفتاح API في ملف .env.local لتفعيله.',
+    }
+  }
+
+  const quota = consumeDailyQuota()
+  if (!quota.ok) {
+    return {
+      status: 'error',
+      feature: request.feature,
+      message: `وصلت إلى الحد اليومي (${DAILY_LIMIT} طلبًا). عُد غدًا لمتابعة التعلّم مع سينسيه 🌸`,
+    }
+  }
+
+  try {
+    const client = new Anthropic({ apiKey, dangerouslyAllowBrowser: true })
+    const response = await client.messages.create({
+      model: SENSEI_MODEL,
+      max_tokens: MAX_TOKENS,
+      thinking: { type: 'adaptive' },
+      system: request.prompt.system,
+      messages: [{ role: 'user', content: request.prompt.user }],
+    })
+
+    const text = response.content
+      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
+      .map((block) => block.text)
+      .join('\n')
+      .trim()
+
+    return {
+      status: 'ok',
+      feature: request.feature,
+      message: '',
+      content: text || 'لم يصل ردّ نصي. حاول مرة أخرى.',
+    }
+  } catch (err) {
+    let message = 'حدث خطأ أثناء الاتصال بسينسيه. حاول مرة أخرى.'
+    if (err instanceof Anthropic.AuthenticationError) {
+      message = 'مفتاح API غير صالح. تأكد من VITE_ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم.'
+    } else if (err instanceof Anthropic.RateLimitError) {
+      message = 'الخدمة مشغولة الآن (حد المعدّل). انتظر دقيقة ثم حاول مجددًا.'
+    } else if (err instanceof Anthropic.APIConnectionError) {
+      message = 'تعذّر الوصول للإنترنت أو الخدمة. تحقق من اتصالك.'
+    } else if (err instanceof Anthropic.APIError) {
+      message = /credit balance/i.test(err.message)
+        ? 'رصيد حساب Anthropic غير كافٍ. أضف رصيدًا من Console → Plans & Billing ثم حاول مجددًا.'
+        : `خطأ من الخدمة (${err.status}). حاول لاحقًا.`
+    }
+    console.error('Sensei request failed:', err)
+    return { status: 'error', feature: request.feature, message }
   }
 }

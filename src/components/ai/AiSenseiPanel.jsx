@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import AppIcon from '../AppIcon.jsx'
 import { buildSenseiContext } from '../../ai/senseiContext.ts'
 import { buildPrompt, SENSEI_FEATURES } from '../../ai/promptTemplates.ts'
-import { requestSensei } from '../../ai/senseiClient.ts'
+import { requestSensei, isSenseiEnabled, remainingDailyQuota } from '../../ai/senseiClient.ts'
 import { lookupGrammar } from '../../content/stores.ts'
 
 // AI Sensei entry UI (Phase 7 — design only). Shows the grounded learner
@@ -17,6 +17,8 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
   )
   const [active, setActive] = useState(null) // { feature, prompt }
   const [response, setResponse] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const enabled = isSenseiEnabled()
 
   const runFeature = (feature) => {
     let params
@@ -36,9 +38,15 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
   }
 
   const ask = async () => {
-    if (!active) return
-    const res = await requestSensei({ feature: active.feature.id, context: ctx, prompt: active.prompt })
-    setResponse(res)
+    if (!active || busy) return
+    setBusy(true)
+    setResponse(null)
+    try {
+      const res = await requestSensei({ feature: active.feature.id, context: ctx, prompt: active.prompt })
+      setResponse(res)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -66,9 +74,13 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
 
       <div className="sensei-notice">
         <AppIcon name="hint" size={16} />
-        <span>{isAr
-          ? 'عبدول سينسيه مصمَّم ليعتمد على بياناتك فقط. لم يتم تفعيل أي خدمة ذكاء اصطناعي بعد.'
-          : 'Abdoul Sensei is grounded in your data only. No AI service is connected yet.'}</span>
+        <span>{enabled
+          ? (isAr
+            ? `سينسيه مفعّل ويعتمد على بياناتك فقط. المتبقي اليوم: ${remainingDailyQuota()} طلبًا.`
+            : `Sensei is live and grounded in your data. ${remainingDailyQuota()} requests left today.`)
+          : (isAr
+            ? 'عبدول سينسيه مصمَّم ليعتمد على بياناتك فقط. لم يتم تفعيل أي خدمة ذكاء اصطناعي بعد.'
+            : 'Abdoul Sensei is grounded in your data only. No AI service is connected yet.')}</span>
       </div>
 
       {!active ? (
@@ -94,11 +106,21 @@ export default function AiSenseiPanel({ lang, level, currentLessonId, currentLes
             <pre className="sensei-prompt-block sensei-prompt-user" dir="rtl">{active.prompt.user}</pre>
           </div>
 
-          <button className="btn btn-primary" onClick={ask}>{isAr ? 'اسأل سينسي' : 'Ask Sensei'}</button>
+          <button className="btn btn-primary" onClick={ask} disabled={busy}>
+            {busy
+              ? (isAr ? 'سينسيه يفكر…' : 'Sensei is thinking…')
+              : (isAr ? 'اسأل سينسيه' : 'Ask Sensei')}
+          </button>
 
-          {response && (
+          {response && response.status === 'ok' && response.content && (
+            <div className="sensei-answer" dir="rtl">
+              {response.content}
+            </div>
+          )}
+
+          {response && response.status !== 'ok' && (
             <div className={`sensei-response status-${response.status}`}>
-              <AppIcon name={response.status === 'disabled' ? 'hint' : 'correct'} size={18} />
+              <AppIcon name={response.status === 'disabled' ? 'hint' : 'wrong'} size={18} />
               <p>{response.message}</p>
             </div>
           )}
