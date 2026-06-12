@@ -1,31 +1,54 @@
-export const playCorrect = () => {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)()
-  const o = ctx.createOscillator()
-  const g = ctx.createGain()
-  o.connect(g)
-  g.connect(ctx.destination)
-  o.frequency.setValueAtTime(523, ctx.currentTime)
-  o.frequency.setValueAtTime(659, ctx.currentTime + 0.1)
-  o.frequency.setValueAtTime(784, ctx.currentTime + 0.2)
-  g.gain.setValueAtTime(0.3, ctx.currentTime)
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
-  o.start()
-  o.stop(ctx.currentTime + 0.4)
+let sharedCtx = null
+
+function getAudioContext() {
+  if (typeof window === 'undefined') return null
+  const Ctor = window.AudioContext || window.webkitAudioContext
+  if (!Ctor) return null
+  if (!sharedCtx) sharedCtx = new Ctor()
+  if (sharedCtx.state === 'suspended') sharedCtx.resume()
+  return sharedCtx
 }
 
-export const playWrong = () => {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)()
+// Call once on the first user gesture (tap/click) so mobile browsers (iOS
+// Safari in particular) unlock the shared AudioContext and speechSynthesis
+// before any exercise tries to play a sound.
+export function unlockAudio() {
+  const ctx = getAudioContext()
+  if (ctx && ctx.state === 'suspended') ctx.resume()
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    const u = new SpeechSynthesisUtterance('')
+    u.volume = 0
+    window.speechSynthesis.speak(u)
+  }
+}
+
+function tone(ctx, { freq, start, duration, type = 'sine', peakGain = 0.18 }) {
   const o = ctx.createOscillator()
   const g = ctx.createGain()
   o.connect(g)
   g.connect(ctx.destination)
-  o.type = 'sawtooth'
-  o.frequency.setValueAtTime(200, ctx.currentTime)
-  o.frequency.setValueAtTime(150, ctx.currentTime + 0.1)
-  g.gain.setValueAtTime(0.3, ctx.currentTime)
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
-  o.start()
-  o.stop(ctx.currentTime + 0.3)
+  o.type = type
+  o.frequency.setValueAtTime(freq, ctx.currentTime + start)
+  g.gain.setValueAtTime(0, ctx.currentTime + start)
+  g.gain.linearRampToValueAtTime(peakGain, ctx.currentTime + start + 0.02)
+  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration)
+  o.start(ctx.currentTime + start)
+  o.stop(ctx.currentTime + start + duration)
+}
+
+// Gentle two-note "ding" chime.
+export const playCorrect = () => {
+  const ctx = getAudioContext()
+  if (!ctx) return
+  tone(ctx, { freq: 880, start: 0, duration: 0.18, peakGain: 0.16 })
+  tone(ctx, { freq: 1320, start: 0.08, duration: 0.22, peakGain: 0.14 })
+}
+
+// Soft low "pop" — short and unobtrusive.
+export const playWrong = () => {
+  const ctx = getAudioContext()
+  if (!ctx) return
+  tone(ctx, { freq: 320, start: 0, duration: 0.16, type: 'triangle', peakGain: 0.14 })
 }
 
 let cachedJapaneseVoices = []

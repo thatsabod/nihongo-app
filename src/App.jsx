@@ -3,11 +3,12 @@ import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/aut
 import { addDoc, collection, deleteDoc, doc, getDoc, increment, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons } from './data.js'
-import LessonProgressCard from './components/LessonProgressCard.jsx'
-import { speakJapanese } from './sounds.js'
+import LessonNode from './components/LessonNode.jsx'
+import LessonPreviewModal from './components/LessonPreviewModal.jsx'
+import { speakJapanese, unlockAudio } from './sounds.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
 import { ExercisesSection, ReviewSection } from './components/LessonSections.jsx'
-import VocabExercises from './components/VocabExercises.jsx'
+import VocabExercises, { VocabPracticeAll } from './components/VocabExercises.jsx'
 import CharacterExercises from './components/CharacterExercises.jsx'
 import AppIcon from './components/AppIcon.jsx'
 import IconCircle from './components/IconCircle.jsx'
@@ -19,12 +20,13 @@ import ExamIntro from './screens/ExamIntro.jsx'
 import ExamResult from './screens/ExamResult.jsx'
 import DrawingPad from './components/DrawingPad.jsx'
 import { EXAM_CONFIG, LEVEL_ORDER } from './content/examConfig.js'
+import { HeartsContext } from './hearts-context.jsx'
 
 const TOTAL_LESSONS = 25
-const sectionCount = 3
+const sectionCount = 5
 const STARTING_GEMS = 2000
 const MAX_HEARTS = 10
-const HEART_REFILL_MS = 90 * 1000
+const HEART_REFILL_MS = 60 * 1000
 const VOCAB_MASTERY_TARGET = 5
 const GUEST_KEY = 'nihongo-guest-state'
 const USERNAME_RE = /^[a-z][a-z0-9_]{2,23}$/
@@ -43,7 +45,7 @@ const copy = {
     welcomeTitle: 'تعلم اليابانية بخطوات قصيرة',
     welcomeText: 'حروف، مفردات، دروس N5، واختبارات سريعة بتجربة مرتبة وواضحة.',
     continue: 'كمّل من مكانك',
-    level: 'المستوى N5',
+    level: 'المستوى',
     streak: 'ستريك',
     hearts: 'قلوب',
     gems: 'جواهر',
@@ -134,7 +136,7 @@ const copy = {
     welcomeTitle: 'Learn Japanese in short focused steps',
     welcomeText: 'Characters, vocabulary, N5 lessons, and quick quizzes in a cleaner experience.',
     continue: 'Continue learning',
-    level: 'Level N5',
+    level: 'Level',
     streak: 'Streak',
     hearts: 'Hearts',
     gems: 'Gems',
@@ -926,7 +928,7 @@ function CharacterSymbol({ item, readingMode = 'hiragana' }) {
   return <KanjiOnlyRuby text={item.kana} reading={readingMode === 'romaji' ? item.answer : item.hiragana || item.answer} />
 }
 
-function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, onStartDaily, onNotice }) {
+function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, currentLevel, onStartDaily, onNotice }) {
   const [sentence, setSentence] = useState('')
   const [questionText, setQuestionText] = useState('')
   const [activeReplyId, setActiveReplyId] = useState(null)
@@ -1864,7 +1866,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
               <div><span>{isAr ? 'الاختبارات' : 'Quizzes'}</span><strong>{selectedProfile.totalQuizzes || 0}</strong></div>
               <div><span>{isAr ? 'الحروف المتقنة' : 'Mastered chars'}</span><strong>{selectedProfile.masteredCount || 0}</strong></div>
               <div><span>{isAr ? 'الدروس' : 'Lessons'}</span><strong>{selectedProfile.completedLessons || 0}</strong></div>
-              <div><span>{isAr ? 'المستوى' : 'Level'}</span><strong>N5</strong></div>
+              <div><span>{isAr ? 'المستوى' : 'Level'}</span><strong>{selectedProfile.current ? currentLevel : (selectedProfile.level || 'N5')}</strong></div>
             </div>
           </article>
         </div>
@@ -1941,11 +1943,12 @@ function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
   )
 }
 
-function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }) {
+function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz }) {
   const [section, setSection] = useState('vocabulary')
   const [flipped, setFlipped] = useState({})
   const [activeGrammarEx, setActiveGrammarEx] = useState(null)
   const [vocabExOpen, setVocabExOpen] = useState(false)
+  const [vocabPracticeAllOpen, setVocabPracticeAllOpen] = useState(false)
   const t = copy[lang]
   const vocabGroups = chunk(lesson.vocab, 8)
   const grammarReadingMap = useMemo(() => {
@@ -1982,12 +1985,27 @@ function LessonView({ lesson, lang, progress, kanjiReadingMode, onBack, onQuiz }
         <>
           {vocabExOpen ? (
             <VocabExercises vocab={lesson.vocab} lang={lang} onClose={() => setVocabExOpen(false)} />
+          ) : vocabPracticeAllOpen ? (
+            <VocabPracticeAll
+              vocab={lesson.vocab}
+              lesson={lesson}
+              lessonId={lesson.id}
+              progress={progress}
+              setProgress={setProgress}
+              masteryTarget={VOCAB_MASTERY_TARGET}
+              lang={lang}
+              onClose={() => setVocabPracticeAllOpen(false)}
+            />
           ) : (
             <>
               <p className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AppIcon name="vocabulary" size={18} />{t.vocabulary}
               </p>
-              <button className="btn btn-primary vocab-ex-open" onClick={() => setVocabExOpen(true)}>
+              <button className="btn btn-primary vocab-ex-open" onClick={() => setVocabPracticeAllOpen(true)}>
+                <AppIcon name="quiz" size={28} />
+                {lang === 'ar' ? 'تدريب شامل على كل المفردات' : 'Practice all vocabulary'}
+              </button>
+              <button className="btn btn-secondary vocab-ex-open" onClick={() => setVocabExOpen(true)}>
                 <AppIcon name="quiz" size={28} />
                 {lang === 'ar' ? 'تمارين المفردات' : 'Vocabulary exercises'}
               </button>
@@ -2281,6 +2299,7 @@ export default function App() {
   const [lettersTab, setLettersTab] = useState('hiragana')
   const [currentLevel, setCurrentLevel] = useState('N5')
   const [activeLesson, setActiveLesson] = useState(null)
+  const [previewLesson, setPreviewLesson] = useState(null)
   const [activeCharGroup, setActiveCharGroup] = useState(null)
   const [drawChar, setDrawChar] = useState(null)
   const [dataReady, setDataReady] = useState(false)
@@ -2325,9 +2344,11 @@ export default function App() {
   const t = copy[lang]
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
   const masteredCount = Object.values(progress).filter((v) => v >= 8).length
-  const completedLessons = Object.values(lessonProgress).filter((v) => v >= sectionCount).length
+  const completedLessons = Object.entries(lessonProgress)
+    .filter(([key, value]) => key.startsWith(`${currentLevel}-`) && value >= sectionCount).length
   const lessonPercent = Math.round((completedLessons / TOTAL_LESSONS) * 100)
-  const lessonSlots = Array.from({ length: TOTAL_LESSONS }, (_, index) => lessons[index] || null)
+  const currentLevelLessons = levelSourceLessons(currentLevel)
+  const lessonSlots = Array.from({ length: TOTAL_LESSONS }, (_, index) => currentLevelLessons[index] || null)
   const characterSets = { hiragana, katakana, kanji: kanjiN5 }
   const letterGroups = chunk(characterSets[lettersTab] || hiragana, 5)
   const basicCharacterTotal = lettersTab === 'kanji' ? kanjiN5.length : 46
@@ -2482,6 +2503,20 @@ export default function App() {
     setDataReady(true)
     setScreen('main')
   }
+
+  useEffect(() => {
+    const unlock = () => {
+      unlockAudio()
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('keydown', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+  }, [])
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -2813,6 +2848,19 @@ export default function App() {
     setLastHeartRefillAt(Date.now())
   }
 
+  const consumeHeart = () => {
+    setHearts((value) => Math.max(value - 1, 0))
+    setLastHeartRefillAt((value) => value || Date.now())
+  }
+
+  const heartsApi = {
+    hearts,
+    maxHearts: MAX_HEARTS,
+    gems,
+    consumeHeart,
+    refillWithGems: refillHearts,
+  }
+
   const resendVerificationEmail = async () => {
     if (!auth.currentUser || auth.currentUser.emailVerified) return
     if (Date.now() < verificationRetryAt) {
@@ -2971,7 +3019,11 @@ export default function App() {
   }
 
   if (screen === 'lesson' && activeLesson) {
-    return <LessonView lesson={activeLesson} lang={lang} progress={progress} kanjiReadingMode={kanjiReadingMode} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
+    return (
+      <HeartsContext.Provider value={heartsApi}>
+        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
+      </HeartsContext.Provider>
+    )
   }
 
   if (screen === 'character-group' && activeCharGroup) {
@@ -2988,49 +3040,51 @@ export default function App() {
     }
 
     return (
-      <main className="screen">
-        <header className="page-head">
-          <button className="icon-btn" onClick={() => setScreen('main')}><AppIcon name="back" size={22} /></button>
-          <div>
-            <p>{t.groups}</p>
-            <h1>{title}</h1>
-          </div>
-          <Button variant="small" onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
-        </header>
-
-        <section className="content">
-          <div className="group-character-grid">
-            {activeCharGroup.items.map((item) => {
-              const active = currentDrawChar === item.kana
-              return (
-                <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
-                  <span><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></span>
-                  <strong>{item.answer}</strong>
-                  <small>{t.listen}</small>
-                  <meter min="0" max="8" value={progress[item.kana] || 0} />
-                </button>
-              )
-            })}
-          </div>
-
-          <section className="drawing-section">
+      <HeartsContext.Provider value={heartsApi}>
+        <main className="screen">
+          <header className="page-head">
+            <button className="icon-btn" onClick={() => setScreen('main')}><AppIcon name="back" size={22} /></button>
             <div>
-              <p className="eyebrow">{t.drawPractice}</p>
-              <h2>{currentDrawItem ? <CharacterSymbol item={currentDrawItem} readingMode={kanjiReadingMode} /> : t.chooseCharacter}</h2>
+              <p>{t.groups}</p>
+              <h1>{title}</h1>
             </div>
-            <DrawingPad char={currentDrawChar} lang={lang} autoGrade onDone={markDrawPractice} />
-          </section>
+            <Button variant="small" onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
+          </header>
 
-          <CharacterExercises
-            key={activeCharGroup.label + activeCharGroup.index}
-            items={activeCharGroup.items}
-            lang={lang}
-            renderChar={renderChar}
-            onClose={() => setScreen('main')}
-          />
-          <Button onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
-        </section>
-      </main>
+          <section className="content">
+            <div className="group-character-grid">
+              {activeCharGroup.items.map((item) => {
+                const active = currentDrawChar === item.kana
+                return (
+                  <button key={item.kana} className={active ? 'active' : ''} onClick={() => { setDrawChar(item.kana); speakJapanese(item.kana) }}>
+                    <span><CharacterSymbol item={item} readingMode={kanjiReadingMode} /></span>
+                    <strong>{item.answer}</strong>
+                    <small>{t.listen}</small>
+                    <meter min="0" max="8" value={progress[item.kana] || 0} />
+                  </button>
+                )
+              })}
+            </div>
+
+            <section className="drawing-section">
+              <div>
+                <p className="eyebrow">{t.drawPractice}</p>
+                <h2>{currentDrawItem ? <CharacterSymbol item={currentDrawItem} readingMode={kanjiReadingMode} /> : t.chooseCharacter}</h2>
+              </div>
+              <DrawingPad char={currentDrawChar} lang={lang} autoGrade onDone={markDrawPractice} />
+            </section>
+
+            <CharacterExercises
+              key={activeCharGroup.label + activeCharGroup.index}
+              items={activeCharGroup.items}
+              lang={lang}
+              renderChar={renderChar}
+              onClose={() => setScreen('main')}
+            />
+            <Button onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
+          </section>
+        </main>
+      </HeartsContext.Provider>
     )
   }
 
@@ -3118,7 +3172,7 @@ export default function App() {
               </div>
               <div className="dashboard-copy">
                 <p className="eyebrow">{t.continue}</p>
-                <h1>{t.level}</h1>
+                <h1>{t.level} {currentLevel}</h1>
                 <p>{levels.find((level) => level.id === currentLevel)?.[lang]} · {lessonPercent}%</p>
               </div>
               <div className="dashboard-stats">
@@ -3155,12 +3209,22 @@ export default function App() {
 
             <div className="unit-card">
               <div>
-                <p>SECTION 1, N5</p>
+                <p>{`SECTION 1, ${currentLevel}`}</p>
                 <h2>{t.lessons}</h2>
               </div>
               <span><AppIcon name="lessons" size={38} /></span>
             </div>
 
+            {currentLevelLessons.length === 0 ? (
+              <div className="unit-card level-coming-soon">
+                <div>
+                  <p>{currentLevel}</p>
+                  <h2>{lang === 'ar' ? 'المحتوى قريباً' : 'Content coming soon'}</h2>
+                  <p>{lang === 'ar' ? 'دروس هذا المستوى قيد التحضير.' : 'Lessons for this level are being prepared.'}</p>
+                </div>
+              </div>
+            ) : (
+            <>
             <div className="path-caption">
               <span />
               <strong>{t.continue}</strong>
@@ -3175,54 +3239,28 @@ export default function App() {
                 const prevDone = lessonNumber === 1 || (lessonProgress[prevKey] || 0) >= sectionCount
                 const amount = Math.min(lessonProgress[key] || 0, sectionCount)
                 const locked = !prevDone || !lesson
-                const progressPercent = amount > 0 ? Math.round((amount / sectionCount) * 100) : 0
+                const completedSegments = locked ? 0 : Math.min(amount, sectionCount)
                 return (
-                  <button
+                  <LessonNode
                     key={lessonNumber}
-                    disabled={locked}
-                    className={`lesson-node map-node ${locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'} step-${index % 12}`}
+                    lessonNumber={lessonNumber}
+                    index={index}
+                    state={locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'}
+                    completed={completedSegments}
+                    total={sectionCount}
                     style={{
                       '--path-row': lessonNumber,
                       '--path-x': `${LESSON_PATH_X[index % LESSON_PATH_X.length]}%`,
                       '--path-x-mobile': `${LESSON_PATH_X_MOBILE[index % LESSON_PATH_X_MOBILE.length]}%`,
-                      '--lesson-progress': `${locked ? 0 : progressPercent}%`,
                     }}
-                    aria-label={`${t.lesson} ${lessonNumber}`}
-                    onClick={() => openLesson(lesson)}
-                  >
-                    <span className="lesson-number">{amount >= sectionCount ? '★' : lessonNumber}</span>
-                  </button>
-                )
-                })}
-              {(() => {
-                const currentIndex = lessonSlots.findIndex((lesson, index) => {
-                  const lessonNumber = index + 1
-                  const prevKey = `${currentLevel}-${lessonNumber - 1}`
-                  const key = `${currentLevel}-${lessonNumber}`
-                  const prevDone = lessonNumber === 1 || (lessonProgress[prevKey] || 0) >= sectionCount
-                  const amount = Math.min(lessonProgress[key] || 0, sectionCount)
-                  return Boolean(lesson) && prevDone && amount < sectionCount
-                })
-                if (currentIndex === -1) return null
-                const lesson = lessonSlots[currentIndex]
-                const lessonNumber = currentIndex + 1
-                const amount = Math.min(lessonProgress[`${currentLevel}-${lessonNumber}`] || 0, sectionCount)
-                return (
-                  <LessonProgressCard
-                    title={lesson.title?.[lang] || lesson.title}
-                    current={amount + 1}
-                    total={sectionCount}
-                    xpReward={sectionCount * 10}
-                    lang={lang}
-                    onContinue={() => openLesson(lesson)}
-                    style={{
-                      '--path-row': lessonNumber,
-                      '--path-x': `${LESSON_PATH_X[currentIndex % LESSON_PATH_X.length]}%`,
-                    }}
+                    label={`${t.lesson} ${lessonNumber}`}
+                    onClick={() => !locked && setPreviewLesson({ lesson, amount })}
                   />
                 )
-              })()}
+                })}
             </div>
+            </>
+            )}
 
             {isLevelLessonsComplete(currentLevel) && (
               <button
@@ -3236,6 +3274,21 @@ export default function App() {
                     : (lang === 'ar' ? `اختبار نهاية المستوى ${currentLevel}` : `${currentLevel} Final Exam`)}
                 </span>
               </button>
+            )}
+
+            {previewLesson && (
+              <LessonPreviewModal
+                lesson={previewLesson.lesson}
+                lang={lang}
+                completed={previewLesson.amount}
+                total={sectionCount}
+                onStart={() => {
+                  const lesson = previewLesson.lesson
+                  setPreviewLesson(null)
+                  openLesson(lesson)
+                }}
+                onClose={() => setPreviewLesson(null)}
+              />
             )}
           </section>
         )}
@@ -3302,6 +3355,7 @@ export default function App() {
             streak={streak}
             totalQuizzes={totalQuizzes}
             masteredCount={masteredCount}
+            currentLevel={currentLevel}
             onStartDaily={() => startQuiz('hiragana')}
             onNotice={setNotice}
           />

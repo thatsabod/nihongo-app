@@ -42,6 +42,7 @@ export default function SpeakingPracticeQuiz({
   lang = 'en',
   onAnswer,
   onSkip,
+  mascotCharacter = 'joni',
 }) {
   const [state, setState] = useState('idle') // idle | recording | processing | passed | failed
   const [scores, setScores] = useState(null)
@@ -135,7 +136,7 @@ export default function SpeakingPracticeQuiz({
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={isAr ? 'كرر بعد جوني' : 'Repeat after Joni'} />
 
       <SentenceDisplay dir="ltr" onClick={playSentence}>

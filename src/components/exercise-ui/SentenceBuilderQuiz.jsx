@@ -142,9 +142,11 @@ export default function SentenceBuilderQuiz({
             {isAr ? 'تراجع' : 'Undo'}
           </button>
         )}
-        <ActionButton onClick={check} disabled={selected.length === 0 || Boolean(result)}>
+        {selected.length > 0 && !result && (
+          <ActionButton onClick={check}>
           {isAr ? 'تحقّق' : 'CHECK'}
-        </ActionButton>
+          </ActionButton>
+        )}
       </div>
 
       {result === 'wrong' && (

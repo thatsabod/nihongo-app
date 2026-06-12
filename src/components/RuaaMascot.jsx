@@ -38,9 +38,7 @@ const RUAA_POSE_MAP = {
 function RuaaCharacter({ mode = 'calm' }) {
   const pose = RUAA_POSE_MAP[mode] || 'smile'
   return (
-    <div className={`ruaa-character ruaa-character-${pose}`} aria-hidden="true">
-      <img src="/assets/ruaa-full-sprite-transparent.png" alt="" />
-    </div>
+    <span className={`ruaa-full-sprite ruaa-character-${pose}`} aria-hidden="true" />
   )
 }
 

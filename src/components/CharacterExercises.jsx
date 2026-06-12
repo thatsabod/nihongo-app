@@ -12,7 +12,10 @@ import {
   getOptionState,
   ResultCard,
   ActionButton,
+  SpeakingPracticeQuiz,
+  OutOfHeartsCard,
 } from './exercise-ui/index.jsx'
+import { useHearts } from '../hearts-context.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -54,11 +57,15 @@ function generateCharacterExercises(items = []) {
     exs.push({ type: 'match', pairs: shuffle(pool).slice(0, 4) })
   }
 
+  if (pool.length >= 1) {
+    exs.push({ type: 'speak', item: shuffle(pool)[0] })
+  }
+
   return shuffle(exs)
 }
 
 // ── Exercise: see the character, pick its reading ────────────────────────────
-function ReadingExercise({ ex, lang, renderChar, onAnswer }) {
+function ReadingExercise({ ex, lang, renderChar, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -72,7 +79,7 @@ function ReadingExercise({ ex, lang, renderChar, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'ما قراءة هذا الحرف؟' : 'What is the reading of this character?'} />
 
       <SentenceDisplay className="char-display" onClick={() => speakJapanese(item.kana)}>
@@ -97,7 +104,7 @@ function ReadingExercise({ ex, lang, renderChar, onAnswer }) {
 }
 
 // ── Exercise: see the reading, pick the matching character ──────────────────
-function ReverseExercise({ ex, lang, renderChar, onAnswer }) {
+function ReverseExercise({ ex, lang, renderChar, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -112,7 +119,7 @@ function ReverseExercise({ ex, lang, renderChar, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'أيّ حرف يُقرأ هكذا؟' : 'Which character is read like this?'} />
       <p className="ex-hint vocab-meaning-prompt" dir="ltr">{item.answer}</p>
 
@@ -133,7 +140,7 @@ function ReverseExercise({ ex, lang, renderChar, onAnswer }) {
 }
 
 // ── Exercise: listen and pick the matching character ─────────────────────────
-function AudioExercise({ ex, lang, renderChar, onAnswer }) {
+function AudioExercise({ ex, lang, renderChar, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -147,7 +154,7 @@ function AudioExercise({ ex, lang, renderChar, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'استمع واختر الحرف الصحيح:' : 'Listen and choose the matching character:'} />
 
       <button className="sentence-display vocab-audio-btn" onClick={() => speakJapanese(item.kana)}>
@@ -176,7 +183,7 @@ function AudioExercise({ ex, lang, renderChar, onAnswer }) {
 }
 
 // ── Exercise: true / false ────────────────────────────────────────────────────
-function TrueFalseExercise({ ex, lang, renderChar, onAnswer }) {
+function TrueFalseExercise({ ex, lang, renderChar, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -190,7 +197,7 @@ function TrueFalseExercise({ ex, lang, renderChar, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'هل هذا صحيح؟' : 'Is this correct?'} />
 
       <SentenceDisplay className="char-display" onClick={() => speakJapanese(item.kana)}>
@@ -220,6 +227,7 @@ function TrueFalseExercise({ ex, lang, renderChar, onAnswer }) {
 
 // ── Exercise: match characters to their readings ─────────────────────────────
 function MatchExercise({ ex, lang, renderChar, onAnswer }) {
+  const heartsApi = useHearts()
   const pairs = ex.pairs
   const total = pairs.length
   const [leftItems] = useState(() => shuffle(pairs.map((p, i) => ({ ...p, pairId: i }))))
@@ -249,6 +257,7 @@ function MatchExercise({ ex, lang, renderChar, onAnswer }) {
       setSelectedLeft(null)
     } else {
       playWrong()
+      heartsApi?.consumeHeart()
       setWrongPair(it.pairId)
       setTimeout(() => setWrongPair(null), 500)
       setSelectedLeft(null)
@@ -292,6 +301,21 @@ function MatchExercise({ ex, lang, renderChar, onAnswer }) {
   )
 }
 
+// ── Exercise: repeat the character's reading out loud ────────────────────────
+function SpeakExercise({ ex, lang, onAnswer, mascotCharacter }) {
+  const item = ex.item
+  return (
+    <SpeakingPracticeQuiz
+      sentence={item.kana}
+      speakText={item.kana}
+      lang={lang}
+      mascotCharacter={mascotCharacter}
+      onAnswer={(passed) => onAnswer(passed)}
+      onSkip={() => onAnswer(true)}
+    />
+  )
+}
+
 // ── Main wrapper ───────────────────────────────────────────────────────────
 export default function CharacterExercises({ items, lang, renderChar, onClose }) {
   const [exercises] = useState(() => generateCharacterExercises(items))
@@ -299,12 +323,20 @@ export default function CharacterExercises({ items, lang, renderChar, onClose })
   const [score, setScore] = useState(0)
   const [finished, setFinished] = useState(false)
   const isAr = lang === 'ar'
+  const heartsApi = useHearts()
 
   if (!exercises.length) return null
 
+  if (heartsApi && heartsApi.hearts <= 0) {
+    return <OutOfHeartsCard lang={lang} onClose={onClose} />
+  }
+
   const handleAnswer = (correct) => {
     if (correct) playCorrect()
-    else playWrong()
+    else {
+      playWrong()
+      heartsApi?.consumeHeart()
+    }
     const next = score + (correct ? 1 : 0)
     if (idx + 1 >= exercises.length) {
       setScore(next)
@@ -335,6 +367,7 @@ export default function CharacterExercises({ items, lang, renderChar, onClose })
   }
 
   const ex = exercises[idx]
+  const mascotCharacter = idx % 2 === 0 ? 'joni' : 'ruaa'
 
   return (
     <ExerciseContainer>
@@ -344,11 +377,12 @@ export default function CharacterExercises({ items, lang, renderChar, onClose })
         counter={`${idx + 1}/${exercises.length}`}
       />
 
-      {ex.type === 'reading' && <ReadingExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
-      {ex.type === 'reverse' && <ReverseExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
-      {ex.type === 'audio' && <AudioExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
-      {ex.type === 'truefalse' && <TrueFalseExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
+      {ex.type === 'reading' && <ReadingExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} renderChar={renderChar} onAnswer={handleAnswer} />}
+      {ex.type === 'reverse' && <ReverseExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} renderChar={renderChar} onAnswer={handleAnswer} />}
+      {ex.type === 'audio' && <AudioExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} renderChar={renderChar} onAnswer={handleAnswer} />}
+      {ex.type === 'truefalse' && <TrueFalseExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} renderChar={renderChar} onAnswer={handleAnswer} />}
       {ex.type === 'match' && <MatchExercise key={idx} ex={ex} lang={lang} renderChar={renderChar} onAnswer={handleAnswer} />}
+      {ex.type === 'speak' && <SpeakExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
     </ExerciseContainer>
   )
 }

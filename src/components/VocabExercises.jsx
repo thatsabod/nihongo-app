@@ -15,8 +15,11 @@ import {
   ActionButton,
   TranslationChoiceQuiz,
   SpeakingPracticeQuiz,
+  SentenceBuilderQuiz,
+  OutOfHeartsCard,
 } from './exercise-ui/index.jsx'
 import { getVocabImage } from '../constants/vocabImages.js'
+import { useHearts } from '../hearts-context.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -107,7 +110,7 @@ function VocabTerm({ item }) {
 }
 
 // ── Exercise: choose the meaning of a word ───────────────────────────────────
-function VocabMeaningExercise({ ex, lang, onAnswer }) {
+function VocabMeaningExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -121,7 +124,7 @@ function VocabMeaningExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'ما معنى هذه الكلمة؟' : 'What does this word mean?'} />
 
       <SentenceDisplay className="vocab-display" onClick={() => speakJapanese(speakableVocab(item))}>
@@ -145,7 +148,7 @@ function VocabMeaningExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise: listen and pick the matching word ──────────────────────────────
-function VocabAudioExercise({ ex, lang, onAnswer }) {
+function VocabAudioExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -160,7 +163,7 @@ function VocabAudioExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'استمع واختر الكلمة الصحيحة:' : 'Listen and choose the matching word:'} />
 
       <button className="sentence-display vocab-audio-btn" onClick={() => speakJapanese(speakableVocab(item))}>
@@ -190,7 +193,7 @@ function VocabAudioExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise: from meaning, pick the correct Japanese word ───────────────────
-function VocabReverseExercise({ ex, lang, onAnswer }) {
+function VocabReverseExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -205,7 +208,7 @@ function VocabReverseExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'أيّ كلمة تعني هذا؟' : 'Which word means this?'} />
       <p className="ex-hint vocab-meaning-prompt">{item.meaning}</p>
 
@@ -227,7 +230,7 @@ function VocabReverseExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise: listen/read and pick the matching image ────────────────────────
-function VocabImageExercise({ ex, lang, onAnswer }) {
+function VocabImageExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const item = ex.item
 
@@ -241,7 +244,7 @@ function VocabImageExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <span className="vocab-new-word-badge">
         <IconCircle name="lessons" size={20} />
         {lang === 'ar' ? 'كلمة جديدة' : 'NEW WORD'}
@@ -270,7 +273,7 @@ function VocabImageExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise: pick the correct Japanese translation of the meaning ──────────
-function VocabTranslateExercise({ ex, lang, onAnswer }) {
+function VocabTranslateExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const item = ex.item
   const options = ex.optionItems.map((opt, i) => ({
     value: String(i),
@@ -286,13 +289,14 @@ function VocabTranslateExercise({ ex, lang, onAnswer }) {
       options={options}
       answer={answer}
       lang={lang}
+      mascotCharacter={mascotCharacter}
       onAnswer={onAnswer}
     />
   )
 }
 
 // ── Exercise: repeat the word out loud ───────────────────────────────────────
-function VocabSpeakExercise({ ex, lang, onAnswer }) {
+function VocabSpeakExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const item = ex.item
   return (
     <SpeakingPracticeQuiz
@@ -300,6 +304,7 @@ function VocabSpeakExercise({ ex, lang, onAnswer }) {
       reading={item.hiragana || item.reading}
       speakText={speakableVocab(item)}
       lang={lang}
+      mascotCharacter={mascotCharacter}
       onAnswer={(passed) => onAnswer(passed)}
       onSkip={() => onAnswer(true)}
     />
@@ -307,7 +312,7 @@ function VocabSpeakExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise: spell the word by tapping kana in order ────────────────────────
-function VocabBuildExercise({ ex, lang, onAnswer }) {
+function VocabBuildExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const item = ex.item
   const target = (item.hiragana || item.jp).split('')
 
@@ -348,7 +353,7 @@ function VocabBuildExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} character={item._mascot || 'joni'} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'رتّب الحروف لتهجئة الكلمة:' : 'Tap the kana to spell the word:'} />
       <SentenceDisplay onClick={() => speakJapanese(speakableVocab(item))}>
         <span>{item.meaning}{item.kanji ? ` · ${item.kanji}` : ''}</span>
@@ -382,6 +387,7 @@ function VocabBuildExercise({ ex, lang, onAnswer }) {
 
 // ── Exercise: match words to their meanings ──────────────────────────────────
 function VocabMatchExercise({ ex, lang, onAnswer }) {
+  const heartsApi = useHearts()
   const pairs = ex.pairs
   const total = pairs.length
   const [leftItems] = useState(() => shuffle(pairs.map((p, i) => ({ ...p, pairId: i }))))
@@ -411,6 +417,7 @@ function VocabMatchExercise({ ex, lang, onAnswer }) {
       setSelectedLeft(null)
     } else {
       playWrong()
+      heartsApi?.consumeHeart()
       setWrongPair(it.pairId)
       setTimeout(() => setWrongPair(null), 500)
       setSelectedLeft(null)
@@ -461,12 +468,20 @@ export default function VocabExercises({ vocab, lang, onClose }) {
   const [score, setScore] = useState(0)
   const [finished, setFinished] = useState(false)
   const isAr = lang === 'ar'
+  const heartsApi = useHearts()
 
   if (!exercises.length) return null
 
+  if (heartsApi && heartsApi.hearts <= 0) {
+    return <OutOfHeartsCard lang={lang} onClose={onClose} />
+  }
+
   const handleAnswer = (correct) => {
     if (correct) playCorrect()
-    else playWrong()
+    else {
+      playWrong()
+      heartsApi?.consumeHeart()
+    }
     const next = score + (correct ? 1 : 0)
     if (idx + 1 >= exercises.length) {
       setScore(next)
@@ -497,6 +512,7 @@ export default function VocabExercises({ vocab, lang, onClose }) {
   }
 
   const ex = exercises[idx]
+  const mascotCharacter = idx % 2 === 0 ? 'joni' : 'ruaa'
 
   return (
     <ExerciseContainer>
@@ -506,14 +522,171 @@ export default function VocabExercises({ vocab, lang, onClose }) {
         counter={`${idx + 1}/${exercises.length}`}
       />
 
-      {ex.type === 'meaning' && <VocabMeaningExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'audio' && <VocabAudioExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'reverse' && <VocabReverseExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'build' && <VocabBuildExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'meaning' && <VocabMeaningExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'audio' && <VocabAudioExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'reverse' && <VocabReverseExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'build' && <VocabBuildExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
       {ex.type === 'match' && <VocabMatchExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'image' && <VocabImageExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'translate' && <VocabTranslateExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'speak' && <VocabSpeakExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'image' && <VocabImageExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'translate' && <VocabTranslateExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'speak' && <VocabSpeakExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+    </ExerciseContainer>
+  )
+}
+
+// ── "Practice all vocab" mode ────────────────────────────────────────────────
+
+function vocabKey(lessonId, item) {
+  return `lesson:${lessonId}:vocab:${item.reading || item.jp}`
+}
+
+// Pick one exercise for a single vocab item, drawing distractors from the
+// full lesson vocab pool. Always falls back to a `speak` exercise.
+function exerciseForItem(item, allVocab) {
+  const meanings = [...new Set(allVocab.map((v) => v.meaning).filter(Boolean))]
+  const distractorPool = allVocab.filter((v) => v !== item)
+  const candidates = []
+
+  const meaningDistractors = shuffle(meanings.filter((m) => m !== item.meaning)).slice(0, 3)
+  if (meaningDistractors.length >= 1) {
+    candidates.push({ type: 'meaning', item, options: shuffle([item.meaning, ...meaningDistractors]), vocabItem: item })
+  }
+
+  if (distractorPool.length >= 3) {
+    candidates.push({ type: 'audio', item, optionItems: shuffle([item, ...shuffle(distractorPool).slice(0, 3)]), vocabItem: item })
+    candidates.push({ type: 'reverse', item, optionItems: shuffle([item, ...shuffle(distractorPool).slice(0, 3)]), vocabItem: item })
+  }
+
+  if (distractorPool.length >= 2) {
+    candidates.push({ type: 'translate', item, optionItems: shuffle([item, ...shuffle(distractorPool).slice(0, 2)]), vocabItem: item })
+  }
+
+  const kana = item.hiragana || item.jp || ''
+  if (kana.length >= 2 && kana.length <= 5) {
+    candidates.push({ type: 'build', item, vocabItem: item })
+  }
+
+  candidates.push({ type: 'speak', item, vocabItem: item })
+
+  return shuffle(candidates)[0]
+}
+
+// Build a "build the sentence" exercise from a random lesson example,
+// using SentenceBuilderQuiz with the example's characters as the word bank.
+function buildSentenceExercise(lesson) {
+  const examples = lesson?.examples || []
+  if (!examples.length) return null
+  const example = shuffle(examples)[0]
+  const chars = (example.jp || '').replace(/\s+/g, '').split('')
+  if (chars.length < 2 || chars.length > 10) return null
+  const distractors = shuffle(HIRAGANA_POOL.filter((c) => !chars.includes(c))).slice(0, Math.max(2, Math.min(4, chars.length)))
+  return {
+    type: 'sentenceBuilder',
+    prompt: example.ar,
+    sentence: example.jp,
+    reading: example.romaji,
+    bank: shuffle([...chars, ...distractors]),
+    answer: chars,
+  }
+}
+
+function generatePracticeRound(items, allVocab, lesson) {
+  const exs = items.map((item) => exerciseForItem(item, allVocab))
+  const sentenceEx = buildSentenceExercise(lesson)
+  if (sentenceEx && Math.random() < 0.6) exs.push(sentenceEx)
+  return shuffle(exs)
+}
+
+// ── "Practice all vocab" — drills randomly-composed rounds of 5 words
+// until every word's progress counter reaches `masteryTarget`. ───────────────
+export function VocabPracticeAll({ vocab, lessonId, lesson, progress, setProgress, lang, onClose, masteryTarget = 5 }) {
+  const isAr = lang === 'ar'
+  const allVocab = vocab || []
+  const heartsApi = useHearts()
+
+  const [round, setRound] = useState(() => {
+    const remaining = allVocab.filter((v) => (progress[vocabKey(lessonId, v)] || 0) < masteryTarget)
+    return shuffle(remaining).slice(0, 5)
+  })
+  const [exercises, setExercises] = useState(() => generatePracticeRound(round, allVocab, lesson))
+  const [idx, setIdx] = useState(0)
+  const [finished, setFinished] = useState(round.length === 0)
+
+  if (heartsApi && heartsApi.hearts <= 0) {
+    return <OutOfHeartsCard lang={lang} onClose={onClose} />
+  }
+
+  const handleAnswer = (correct) => {
+    if (correct) playCorrect()
+    else {
+      playWrong()
+      heartsApi?.consumeHeart()
+    }
+    const ex = exercises[idx]
+    if (correct && ex.vocabItem) {
+      const key = vocabKey(lessonId, ex.vocabItem)
+      setProgress((p) => ({ ...p, [key]: Math.min((p[key] || 0) + 1, masteryTarget) }))
+    }
+    setIdx((i) => i + 1)
+  }
+
+  useEffect(() => {
+    if (idx < exercises.length) return
+    const remaining = allVocab.filter((v) => (progress[vocabKey(lessonId, v)] || 0) < masteryTarget)
+    if (remaining.length === 0) {
+      setFinished(true)
+      return
+    }
+    const nextRound = shuffle(remaining).slice(0, 5)
+    setRound(nextRound)
+    setExercises(generatePracticeRound(nextRound, allVocab, lesson))
+    setIdx(0)
+  }, [idx, exercises.length, progress, allVocab, lessonId, lesson, masteryTarget])
+
+  if (finished) {
+    return (
+      <ResultCard
+        icon="star"
+        score={masteryTarget}
+        total={masteryTarget}
+        message={isAr ? 'رائع! أتقنت جميع مفردات هذا الدرس.' : 'Awesome! You mastered all the vocabulary in this lesson.'}
+      >
+        <ActionButton onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</ActionButton>
+      </ResultCard>
+    )
+  }
+
+  if (idx >= exercises.length) return null
+
+  const ex = exercises[idx]
+  const mascotCharacter = idx % 2 === 0 ? 'joni' : 'ruaa'
+
+  return (
+    <ExerciseContainer>
+      <ProgressHeader
+        onClose={onClose}
+        progress={exercises.length ? (idx / exercises.length) * 100 : 0}
+        counter={`${idx + 1}/${exercises.length}`}
+      />
+
+      {ex.type === 'meaning' && <VocabMeaningExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'audio' && <VocabAudioExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'reverse' && <VocabReverseExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'build' && <VocabBuildExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'translate' && <VocabTranslateExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'speak' && <VocabSpeakExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'sentenceBuilder' && (
+        <SentenceBuilderQuiz
+          prompt={ex.prompt}
+          sentence={ex.sentence}
+          reading={ex.reading}
+          bank={ex.bank}
+          answer={ex.answer}
+          lang={lang}
+          mascotCharacter={mascotCharacter}
+          onAnswer={handleAnswer}
+        />
+      )}
     </ExerciseContainer>
   )
 }

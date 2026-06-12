@@ -12,7 +12,9 @@ import {
   ResultCard,
   ActionButton,
   SpeakingPracticeQuiz,
+  OutOfHeartsCard,
 } from './exercise-ui/index.jsx'
+import { useHearts } from '../hearts-context.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -62,7 +64,7 @@ export function HighlightSentence({ text, particle, readingMap = {} }) {
 }
 
 // ── Exercise 1: Build the sentence ──────────────────────────────
-function BuildExercise({ ex, lang, onAnswer }) {
+function BuildExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const [selected, setSelected] = useState([])
   const [pool, setPool] = useState(() => shuffle(ex.words.map((w, i) => ({ w, key: i }))))
   const [result, setResult] = useState(null)
@@ -80,6 +82,7 @@ function BuildExercise({ ex, lang, onAnswer }) {
   }
 
   const check = () => {
+    if (selected.length === 0) return
     const built = selected.map((x) => x.w).join(' ')
     const correct = built === ex.answer
     setResult(correct ? 'correct' : 'wrong')
@@ -92,7 +95,7 @@ function BuildExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard
         prompt={lang === 'ar' ? 'رتّب الكلمات لتكوين الجملة:' : 'Arrange the words to form the sentence:'}
         hint={ex.ar}
@@ -117,7 +120,7 @@ function BuildExercise({ ex, lang, onAnswer }) {
         ))}
       </div>
 
-      {selected.length === ex.words.length && !result && (
+      {selected.length > 0 && !result && (
         <ActionButton onClick={check}>{lang === 'ar' ? 'تحقق' : 'Check'}</ActionButton>
       )}
     </ExercisePane>
@@ -125,7 +128,7 @@ function BuildExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise 2: Fill the particle ───────────────────────────────
-function FillExercise({ ex, lang, onAnswer }) {
+function FillExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
   const parts = ex.sentence.split('___')
 
@@ -139,7 +142,7 @@ function FillExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'اختر الأداة القواعدية الصحيحة:' : 'Choose the correct particle:'} />
 
       <div className="fill-sentence" dir="ltr">
@@ -171,7 +174,7 @@ function FillExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise 3: Choose meaning ───────────────────────────────────
-function MeaningExercise({ ex, lang, onAnswer }) {
+function MeaningExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const [picked, setPicked] = useState(null)
 
   const pick = (opt) => {
@@ -184,7 +187,7 @@ function MeaningExercise({ ex, lang, onAnswer }) {
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={lang === 'ar' ? 'ما معنى هذه الجملة؟' : 'What does this sentence mean?'} />
 
       <SentenceDisplay onClick={() => speakJapanese(ex.sentence)}>
@@ -208,12 +211,13 @@ function MeaningExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise 5: Repeat the sentence out loud ──────────────────────
-function SpeakExercise({ ex, lang, onAnswer }) {
+function SpeakExercise({ ex, lang, onAnswer, mascotCharacter }) {
   return (
     <SpeakingPracticeQuiz
       sentence={ex.sentence}
       speakText={ex.sentence}
       lang={lang}
+      mascotCharacter={mascotCharacter}
       onAnswer={(passed) => onAnswer(passed)}
       onSkip={() => onAnswer(true)}
     />
@@ -275,10 +279,18 @@ export default function GrammarExercises({ exercises: rawExercises, lang, onClos
   const [score, setScore] = useState(0)
   const [finished, setFinished] = useState(false)
   const isAr = lang === 'ar'
+  const heartsApi = useHearts()
+
+  if (heartsApi && heartsApi.hearts <= 0) {
+    return <OutOfHeartsCard lang={lang} onClose={onClose} />
+  }
 
   const handleAnswer = (correct) => {
     if (correct) playCorrect()
-    else playWrong()
+    else {
+      playWrong()
+      heartsApi?.consumeHeart()
+    }
     const next = score + (correct ? 1 : 0)
     if (idx + 1 >= exercises.length) {
       setScore(next)
@@ -306,6 +318,7 @@ export default function GrammarExercises({ exercises: rawExercises, lang, onClos
   }
 
   const ex = exercises[idx]
+  const mascotCharacter = idx % 2 === 0 ? 'joni' : 'ruaa'
 
   return (
     <ExerciseContainer>
@@ -315,11 +328,11 @@ export default function GrammarExercises({ exercises: rawExercises, lang, onClos
         counter={`${idx + 1}/${exercises.length}`}
       />
 
-      {ex.type === 'build' && <BuildExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'fill' && <FillExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'meaning' && <MeaningExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'build' && <BuildExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'fill' && <FillExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
+      {ex.type === 'meaning' && <MeaningExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
       {ex.type === 'error' && <ErrorExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
-      {ex.type === 'speak' && <SpeakExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />}
+      {ex.type === 'speak' && <SpeakExercise key={idx} ex={ex} lang={lang} mascotCharacter={mascotCharacter} onAnswer={handleAnswer} />}
     </ExerciseContainer>
   )
 }

@@ -18,6 +18,7 @@ export default function TranslationChoiceQuiz({
   answer,
   lang = 'en',
   onAnswer,
+  mascotCharacter = 'joni',
 }) {
   const [picked, setPicked] = useState(null)
   const [checked, setChecked] = useState(false)
@@ -42,7 +43,7 @@ export default function TranslationChoiceQuiz({
 
   return (
     <ExercisePane>
-      <RuaaMascot mode={mascotMode} />
+      <RuaaMascot mode={mascotMode} character={mascotCharacter} />
       <QuestionCard prompt={isAr ? 'اختر الترجمة الصحيحة' : 'Select the correct translation'} />
 
       <SentenceDisplay dir="ltr" onClick={() => speakText && speakJapanese(speakText)}>

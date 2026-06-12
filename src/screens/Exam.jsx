@@ -218,7 +218,7 @@ export default function Exam({ examState, lang, onAnswer, onSectionStart, onTime
   }
 
   const submitBuild = () => {
-    if (selected) return
+    if (selected || buildSelected.length === 0) return
     const built = buildSelected.map((item) => item.w).join(' ')
     answer(built)
   }
@@ -338,7 +338,7 @@ export default function Exam({ examState, lang, onAnswer, onSectionStart, onTime
               ))}
             </div>
             {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
-            {!selected && buildSelected.length === q.words.length && (
+            {!selected && buildSelected.length > 0 && (
               <ActionButton onClick={submitBuild}>{t.checkBtn}</ActionButton>
             )}
           </>

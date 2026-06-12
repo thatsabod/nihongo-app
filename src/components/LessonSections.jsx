@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import AppIcon from './AppIcon.jsx'
+import { SpeakingPracticeQuiz, ExerciseContainer, ProgressHeader, ResultCard, ActionButton, OutOfHeartsCard } from './exercise-ui/index.jsx'
+import { useHearts } from '../hearts-context.jsx'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -169,6 +171,7 @@ function OrderExercise({ ex, lang, onAnswer }) {
   }
 
   const check = () => {
+    if (selected.length === 0) return
     const built = selected.map((x) => x.w).join('')
     const normal = (s) => s.replace(/\s/g, '')
     const correct = normal(built) === normal(ex.answer)
@@ -197,7 +200,7 @@ function OrderExercise({ ex, lang, onAnswer }) {
         ))}
       </div>
 
-      {selected.length === rawWords.length && !result && (
+      {selected.length > 0 && !result && (
         <button className="btn btn-primary" onClick={check}>{lang === 'ar' ? 'تحقق' : 'Check'}</button>
       )}
 
@@ -212,17 +215,63 @@ function OrderExercise({ ex, lang, onAnswer }) {
   )
 }
 
+// ── Exercise: repeat a sentence out loud ──────────────────────────────────────
+function SpeakSectionExercise({ ex, lang, onAnswer }) {
+  return (
+    <SpeakingPracticeQuiz
+      sentence={ex.sentence}
+      reading={ex.reading}
+      speakText={ex.sentence}
+      lang={lang}
+      onAnswer={(passed) => onAnswer(passed)}
+      onSkip={() => onAnswer(true)}
+    />
+  )
+}
+
+// Insert a "repeat the sentence" speaking exercise after the first
+// choose/complete exercise, reusing the lesson's first example sentence.
+function withSpeakingExercise(exercises, lesson) {
+  const example = lesson.examples?.[0]
+  if (!example?.jp) return exercises
+  const out = []
+  let added = false
+  exercises.forEach((ex) => {
+    out.push(ex)
+    if (!added && ['choose', 'complete'].includes(ex.type)) {
+      out.push({ type: 'speak', sentence: example.jp.replace(/\s+/g, ''), reading: example.romaji })
+      added = true
+    }
+  })
+  if (!added) out.push({ type: 'speak', sentence: example.jp.replace(/\s+/g, ''), reading: example.romaji })
+  return out
+}
+
 // ── SECTION: Interactive Exercises ───────────────────────────────────────────
 export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
   const isAr = lang === 'ar'
+  const heartsApi = useHearts()
 
   const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
-  const exercises = lesson.exercises || []
+  const baseExercises = lesson.exercises || []
+  const exercises = useMemo(() => withSpeakingExercise(baseExercises, lesson), [baseExercises, lesson])
 
-  if (!exercises.length) {
+  if (!baseExercises.length && !lesson.examples?.length) {
+    return <div className="iex-wrap" />
+  }
+
+  if (heartsApi && heartsApi.hearts <= 0) {
+    return (
+      <div className="iex-wrap">
+        <OutOfHeartsCard lang={lang} bare />
+      </div>
+    )
+  }
+
+  if (!baseExercises.length) {
     return (
       <div className="iex-wrap">
         <div className="example-list">
@@ -234,6 +283,11 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
             </button>
           ))}
         </div>
+        {exercises[0]?.type === 'speak' && (
+          <div className="iex-card" style={{ marginTop: 16 }}>
+            <SpeakSectionExercise ex={exercises[0]} lang={lang} onAnswer={() => {}} />
+          </div>
+        )}
       </div>
     )
   }
@@ -265,7 +319,10 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
 
   const handleAnswer = (correct) => {
     if (correct) playCorrect()
-    else playWrong()
+    else {
+      playWrong()
+      heartsApi?.consumeHeart()
+    }
     const next = score + (correct ? 1 : 0)
     if (idx + 1 >= exercises.length) {
       setScore(next)
@@ -294,6 +351,9 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
       {ex.type === 'order' && (
         <OrderExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />
       )}
+      {ex.type === 'speak' && (
+        <SpeakSectionExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />
+      )}
       {!['choose', 'complete', 'order'].includes(ex.type) && (
         // Fallback for unknown types - just show and skip
         <div className="iex-card">
@@ -308,15 +368,92 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
   )
 }
 
+// ── Review speaking-practice session: repeat a handful of sentences/words ────
+function ReviewSpeakingSession({ items, lang, onClose }) {
+  const [idx, setIdx] = useState(0)
+  const [score, setScore] = useState(0)
+  const [finished, setFinished] = useState(false)
+  const isAr = lang === 'ar'
+  const heartsApi = useHearts()
+
+  if (heartsApi && heartsApi.hearts <= 0) {
+    return <OutOfHeartsCard lang={lang} onClose={onClose} />
+  }
+
+  const handleAnswer = (passed) => {
+    if (!passed) heartsApi?.consumeHeart()
+    const next = score + (passed ? 1 : 0)
+    if (idx + 1 >= items.length) {
+      setScore(next)
+      setFinished(true)
+    } else {
+      setScore(next)
+      setIdx((i) => i + 1)
+    }
+  }
+
+  if (finished) {
+    const total = items.length
+    const perfect = score === total
+    return (
+      <ResultCard
+        icon={perfect ? 'star' : 'correct'}
+        score={score}
+        total={total}
+        message={isAr ? 'أحسنت! انتهى تمرين التكرار.' : 'Great! Speaking practice complete.'}
+      >
+        <ActionButton onClick={onClose}>{isAr ? 'إغلاق' : 'Close'}</ActionButton>
+      </ResultCard>
+    )
+  }
+
+  const item = items[idx]
+
+  return (
+    <ExerciseContainer>
+      <ProgressHeader
+        onClose={onClose}
+        progress={(idx / items.length) * 100}
+        counter={`${idx + 1}/${items.length}`}
+      />
+      <SpeakingPracticeQuiz
+        key={idx}
+        sentence={item.sentence}
+        reading={item.reading}
+        speakText={item.sentence}
+        lang={lang}
+        onAnswer={handleAnswer}
+        onSkip={() => handleAnswer(true)}
+      />
+    </ExerciseContainer>
+  )
+}
+
 // ── SECTION: Review ───────────────────────────────────────────────────────────
 export function ReviewSection({ lesson, lang, kanjiReadingMode }) {
   const [showAll, setShowAll] = useState(false)
+  const [speakingSession, setSpeakingSession] = useState(false)
   const isAr = lang === 'ar'
   const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
   const displayVocab = showAll ? lesson.vocab : lesson.vocab?.slice(0, 6)
 
+  const speakingItems = useMemo(() => {
+    const fromExamples = (lesson.examples || []).map((ex) => ({ sentence: ex.jp.replace(/\s+/g, ''), reading: ex.romaji }))
+    const fromVocab = (lesson.vocab || []).map((v) => ({ sentence: v.kanji || v.jp, reading: v.hiragana || v.reading }))
+    return shuffle([...fromExamples, ...fromVocab]).slice(0, 5)
+  }, [lesson])
+
+  if (speakingSession) {
+    return <ReviewSpeakingSession items={speakingItems} lang={lang} onClose={() => setSpeakingSession(false)} />
+  }
+
   return (
     <div className="review-wrap">
+      {speakingItems.length > 0 && (
+        <button className="btn btn-primary" onClick={() => setSpeakingSession(true)}>
+          {isAr ? '🎙️ تمرين التكرار الشفوي' : '🎙️ Speaking review'}
+        </button>
+      )}
       {/* Focus banner */}
       <div className="review-focus">
         <span className="review-focus-label">{isAr ? 'محور الدرس' : 'Lesson focus'}</span>
