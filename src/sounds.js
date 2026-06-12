@@ -1,4 +1,46 @@
 let sharedCtx = null
+let unlocked = false
+let lastRemoteAudio = null
+
+const SINGLE_KANA_SPEECH = {
+  い: 'い',
+  イ: 'イ',
+}
+
+function isProbablyMobile() {
+  if (typeof navigator === 'undefined') return false
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '')
+}
+
+function normalizeSpeechText(text) {
+  const value = String(text || '').trim()
+  return SINGLE_KANA_SPEECH[value] || value
+}
+
+function googleTtsUrl(text) {
+  return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ja&q=${encodeURIComponent(text)}`
+}
+
+function playRemoteJapanese(text) {
+  if (typeof Audio === 'undefined') return false
+  const speechText = normalizeSpeechText(text)
+  if (!speechText) return false
+  try {
+    if (lastRemoteAudio) {
+      lastRemoteAudio.pause()
+      lastRemoteAudio.src = ''
+    }
+    const audio = new Audio(googleTtsUrl(speechText))
+    audio.preload = 'auto'
+    audio.volume = 1
+    lastRemoteAudio = audio
+    const played = audio.play()
+    if (played?.catch) played.catch(() => speakWithWebSpeech(speechText, { force: true }))
+    return true
+  } catch {
+    return false
+  }
+}
 
 function getAudioContext() {
   if (typeof window === 'undefined') return null
@@ -13,12 +55,20 @@ function getAudioContext() {
 // Safari in particular) unlock the shared AudioContext and speechSynthesis
 // before any exercise tries to play a sound.
 export function unlockAudio() {
+  unlocked = true
   const ctx = getAudioContext()
   if (ctx && ctx.state === 'suspended') ctx.resume()
   if (typeof window !== 'undefined' && window.speechSynthesis) {
-    const u = new SpeechSynthesisUtterance('')
-    u.volume = 0
-    window.speechSynthesis.speak(u)
+    try {
+      window.speechSynthesis.cancel()
+      const u = new SpeechSynthesisUtterance('あ')
+      u.lang = 'ja-JP'
+      u.volume = 0.01
+      u.rate = 0.7
+      window.speechSynthesis.speak(u)
+    } catch {
+      // Some mobile browsers throw during the first unlock attempt.
+    }
   }
 }
 
@@ -95,12 +145,12 @@ export function getJapaneseVoices() {
   return cachedJapaneseVoices
 }
 
-export const speakJapanese = (text, options = {}) => {
+function speakWithWebSpeech(text, options = {}) {
   const config = typeof options === 'number' ? { rate: options } : options
   if (typeof window === 'undefined' || !window.speechSynthesis) return
 
   window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(text)
+  const u = new SpeechSynthesisUtterance(normalizeSpeechText(text))
   const voices = getJapaneseVoices()
   const voiceIndex = config.voiceIndex ?? 0
   const voice = voices.length ? voices[Math.abs(voiceIndex) % voices.length] : null
@@ -112,4 +162,17 @@ export const speakJapanese = (text, options = {}) => {
   u.volume = 1
 
   window.speechSynthesis.speak(u)
+}
+
+export const speakJapanese = (text, options = {}) => {
+  const config = typeof options === 'number' ? { rate: options } : options
+  const speechText = normalizeSpeechText(text)
+  if (!speechText) return
+
+  const voices = getJapaneseVoices()
+  const shouldUseRemote = config.remote === true
+    || (isProbablyMobile() && (voices.length === 0 || speechText.length <= 3 || unlocked))
+
+  if (shouldUseRemote && playRemoteJapanese(speechText)) return
+  speakWithWebSpeech(speechText, config)
 }

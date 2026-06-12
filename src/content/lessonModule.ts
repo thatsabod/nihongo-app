@@ -70,17 +70,17 @@ interface SectionMeta {
 }
 
 const SECTION_META: Record<LessonSectionType, SectionMeta> = {
-  warmup: { ar: 'تهيئة', en: 'Warm-up', icon: 'streak', minutes: 2, tab: 'overview' },
+  warmup: { ar: 'تهيئة', en: 'Warm-up', icon: 'streak', minutes: 2, tab: 'warmup' },
   vocabulary: { ar: 'المفردات', en: 'Vocabulary', icon: 'vocabulary', minutes: 5, tab: 'vocabulary' },
   grammar: { ar: 'القواعد', en: 'Grammar', icon: 'grammar', minutes: 5, tab: 'grammar' },
-  examples: { ar: 'أمثلة', en: 'Examples', icon: 'hint', minutes: 3, tab: 'review' },
-  dialogue: { ar: 'حوار', en: 'Dialogue', icon: 'quiz', minutes: 4, tab: 'review' },
-  reading: { ar: 'قراءة', en: 'Reading', icon: 'grammar', minutes: 4, tab: 'review' },
-  listening: { ar: 'استماع', en: 'Listening', icon: 'quiz', minutes: 3, tab: 'review' },
-  speaking: { ar: 'محادثة', en: 'Speaking', icon: 'quiz', minutes: 3, tab: 'exercises' },
-  practice: { ar: 'تدريب', en: 'Practice', icon: 'quiz', minutes: 5, tab: 'exercises' },
-  review: { ar: 'مراجعة الأخطاء', en: 'Mistake Review', icon: 'next', minutes: 3, tab: 'review' },
-  masteryCheck: { ar: 'اختبار الإتقان', en: 'Mastery Check', icon: 'star', minutes: 4, tab: 'exercises' },
+  examples: { ar: 'أمثلة', en: 'Examples', icon: 'hint', minutes: 3, tab: 'examples' },
+  dialogue: { ar: 'حوار', en: 'Dialogue', icon: 'quiz', minutes: 4, tab: 'examples' },
+  reading: { ar: 'قراءة', en: 'Reading', icon: 'grammar', minutes: 4, tab: 'examples' },
+  listening: { ar: 'استماع', en: 'Listening', icon: 'quiz', minutes: 3, tab: 'examples' },
+  speaking: { ar: 'محادثة', en: 'Speaking', icon: 'quiz', minutes: 3, tab: 'practice' },
+  practice: { ar: 'تدريب', en: 'Practice', icon: 'quiz', minutes: 5, tab: 'practice' },
+  review: { ar: 'مراجعة الأخطاء', en: 'Mistake Review', icon: 'next', minutes: 3, tab: 'mistakeReview' },
+  masteryCheck: { ar: 'اختبار الإتقان', en: 'Mastery Check', icon: 'star', minutes: 4, tab: 'masteryCheck' },
 }
 
 // Order the sections appear in the guided lesson path.

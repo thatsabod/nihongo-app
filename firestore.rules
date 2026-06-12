@@ -1,0 +1,101 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isParticipant(a, b) {
+      return signedIn() && (request.auth.uid == a || request.auth.uid == b);
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /usernames/{username} {
+      allow read: if true;
+      allow create, update, delete: if signedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /publicProfiles/{userId} {
+      allow read: if true;
+      allow create, update: if signedIn();
+      allow delete: if isOwner(userId);
+    }
+
+    match /friendRequests/{requestId} {
+      allow read: if signedIn()
+        && (resource.data.fromId == request.auth.uid || resource.data.toId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.fromId == request.auth.uid;
+      allow update, delete: if signedIn()
+        && (resource.data.fromId == request.auth.uid || resource.data.toId == request.auth.uid);
+    }
+
+    match /follows/{followId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && (request.resource.data.followerId == request.auth.uid
+          || request.resource.data.followingId == request.auth.uid);
+      allow delete: if signedIn()
+        && (resource.data.followerId == request.auth.uid
+          || resource.data.followingId == request.auth.uid);
+    }
+
+    match /messages/{messageId} {
+      allow read: if signedIn()
+        && (resource.data.fromId == request.auth.uid || resource.data.toId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.fromId == request.auth.uid;
+      allow update, delete: if signedIn()
+        && (resource.data.fromId == request.auth.uid || resource.data.toId == request.auth.uid);
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn()
+        && (resource.data.fromId == request.auth.uid || resource.data.toId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.fromId == request.auth.uid;
+      allow update, delete: if signedIn()
+        && (resource.data.fromId == request.auth.uid || resource.data.toId == request.auth.uid);
+    }
+
+    match /communityQuestions/{questionId} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /communityQuestionReplies/{replyId} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /communityQuestionLikes/{likeId} {
+      allow read: if true;
+      allow create, update: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /communityQuestionReposts/{repostId} {
+      allow read: if true;
+      allow create, update: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /communityReports/{reportId} {
+      allow create: if signedIn() && request.resource.data.reporterId == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+
+    match /studyGroupJoins/{joinId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+  }
+}

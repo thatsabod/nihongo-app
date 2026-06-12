@@ -15,7 +15,7 @@ import { deriveLessonSections, totalLessonMinutes } from './content/lessonSectio
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
 import { speakJapanese, unlockAudio } from './sounds.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
-import { ExercisesSection, ReviewSection } from './components/LessonSections.jsx'
+import { ExercisesSection, WarmupSection, ExamplesSection, MistakeReviewSection, MasteryCheckSection } from './components/LessonSections.jsx'
 import VocabExercises, { VocabPracticeAll } from './components/VocabExercises.jsx'
 import CharacterExercises from './components/CharacterExercises.jsx'
 import AppIcon from './components/AppIcon.jsx'
@@ -72,9 +72,13 @@ const copy = {
     current: 'نشط',
     comingSoon: 'قريبا',
     overview: 'المسار',
+    warmup: 'تهيئة',
     vocabulary: 'مفردات',
     grammar: 'قواعد',
     examples: 'أمثلة',
+    practice: 'تدريب',
+    mistakeReview: 'مراجعة الأخطاء',
+    masteryCheck: 'اختبار الإتقان',
     exercises: 'تمارين',
     videos: 'فيديوهات',
     review: 'مراجعة',
@@ -182,9 +186,13 @@ const copy = {
     current: 'Current',
     comingSoon: 'Coming soon',
     overview: 'Path',
+    warmup: 'Warm-up',
     vocabulary: 'Vocabulary',
     grammar: 'Grammar',
     examples: 'Examples',
+    practice: 'Practice',
+    mistakeReview: 'Mistake Review',
+    masteryCheck: 'Mastery Check',
     exercises: 'Exercises',
     videos: 'Videos',
     review: 'Review',
@@ -1505,26 +1513,40 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
   const acceptFriendRequest = async (request) => {
     if (!requireCommunityAccount()) return
+    if (!request?.fromId || request.fromId === userId) return
+    const requesterHandle = request.fromHandle || request.followerHandle || '@nihongo'
     try {
-      await setDoc(doc(db, 'follows', `${request.fromId}_${userId}`), {
-        followerId: request.fromId,
-        followingId: userId,
-        followerHandle: request.fromHandle || request.followerHandle,
-        followingHandle: userHandle,
-        createdAt: serverTimestamp(),
-      }, { merge: true })
-      await setDoc(doc(db, 'follows', `${userId}_${request.fromId}`), {
-        followerId: userId,
-        followingId: request.fromId,
-        followerHandle: userHandle,
-        followingHandle: request.fromHandle || request.followerHandle,
-        createdAt: serverTimestamp(),
-      }, { merge: true })
-      await updateDoc(doc(db, 'friendRequests', request.id), {
-        status: 'accepted',
-        acceptedAt: serverTimestamp(),
-      })
       await Promise.all([
+        setDoc(doc(db, 'follows', `${request.fromId}_${userId}`), {
+          followerId: request.fromId,
+          followingId: userId,
+          followerHandle: requesterHandle,
+          followingHandle: userHandle,
+          createdAt: serverTimestamp(),
+        }, { merge: true }),
+        setDoc(doc(db, 'follows', `${userId}_${request.fromId}`), {
+          followerId: userId,
+          followingId: request.fromId,
+          followerHandle: userHandle,
+          followingHandle: requesterHandle,
+          createdAt: serverTimestamp(),
+        }, { merge: true }),
+      ])
+
+      setFollowerIds((ids) => new Set([...ids, request.fromId]))
+      setFollowingIds((ids) => new Set([...ids, request.fromId]))
+      setFriendRequests((items) => items.filter((item) => item.id !== request.id))
+      setSentFriendRequests((items) => {
+        const next = new Set(items)
+        next.delete(request.fromId)
+        return next
+      })
+
+      await Promise.allSettled([
+        setDoc(doc(db, 'friendRequests', request.id), {
+          status: 'accepted',
+          acceptedAt: serverTimestamp(),
+        }, { merge: true }),
         setDoc(doc(db, 'publicProfiles', userId), {
           followersCount: increment(1),
           followingCount: increment(1),
@@ -2010,7 +2032,7 @@ function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
   )
 }
 
-function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz, lessonDone = false }) {
+function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz, lessonDone = false, sectionsDone = 0 }) {
   const [section, setSection] = useState('overview')
   const [flipped, setFlipped] = useState({})
   const [activeGrammarEx, setActiveGrammarEx] = useState(null)
@@ -2030,7 +2052,15 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
 
   // Map a content tab to the primary section type it fulfils, then mark it
   // engaged so the lesson path reflects real progress.
-  const tabToSection = { vocabulary: 'vocabulary', grammar: 'grammar', exercises: 'practice', review: 'review' }
+  const tabToSection = {
+    warmup: 'warmup',
+    vocabulary: 'vocabulary',
+    grammar: 'grammar',
+    examples: 'examples',
+    practice: 'practice',
+    mistakeReview: 'review',
+    masteryCheck: 'masteryCheck',
+  }
   const goToSection = (tabId) => {
     const type = tabToSection[tabId]
     if (type) {
@@ -2068,7 +2098,8 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
 
       <div className="lesson-toolbar">
         <div className="tabs lesson-tabs">
-          {['overview', 'vocabulary', 'grammar', 'exercises', 'videos', 'review'].map((id) => (
+          {/* Mirrors the lesson-path sections exactly, in the same order. */}
+          {['overview', 'warmup', 'vocabulary', 'grammar', 'examples', 'practice', 'mistakeReview', 'masteryCheck'].map((id) => (
             <button key={id} className={section === id ? 'active' : ''} onClick={() => goToSection(id)}>
               {t[id]}
             </button>
@@ -2088,6 +2119,14 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
             goToSection(s.tab)
           }}
         />
+      )}
+
+      {section === 'warmup' && (
+        <WarmupSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onGo={goToSection} />
+      )}
+
+      {section === 'examples' && (
+        <ExamplesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} />
       )}
 
       {section === 'vocabulary' && (
@@ -2208,30 +2247,22 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
         </section>
       )}
 
-      {section === 'exercises' && (
+      {section === 'practice' && (
         <ExercisesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onQuiz={onQuiz} />
       )}
 
-      {section === 'videos' && (
-        <section className="lesson-card">
-          <p className="eyebrow">{t.videos}</p>
-          {lesson.videos?.length ? (
-            <div className="mini-list">
-              {lesson.videos.map((video) => (
-                <a key={video.url} className="video-link" href={video.url} target="_blank" rel="noreferrer">
-                  <span>{video.title?.[lang] || video.title || t.videos}</span>
-                  <small>{video.duration || 'Video'}</small>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p>{t.noVideos}</p>
-          )}
-        </section>
+      {section === 'mistakeReview' && (
+        <MistakeReviewSection lesson={lesson} lang={lang} onGo={goToSection} />
       )}
 
-      {section === 'review' && (
-        <ReviewSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onQuiz={onQuiz} />
+      {section === 'masteryCheck' && (
+        <MasteryCheckSection
+          lesson={lesson}
+          lang={lang}
+          kanjiReadingMode={kanjiReadingMode}
+          sectionsDone={sectionsDone}
+          sectionsTotal={sectionCount}
+        />
       )}
     </main>
   )
@@ -3196,7 +3227,7 @@ export default function App() {
   if (screen === 'lesson' && activeLesson) {
     return (
       <HeartsContext.Provider value={heartsApi}>
-        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} lessonDone={(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0) >= sectionCount} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
+        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} lessonDone={(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0) >= sectionCount} sectionsDone={Math.min(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0, sectionCount)} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
       </HeartsContext.Provider>
     )
   }
