@@ -2,9 +2,17 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/auth'
 import { addDoc, collection, deleteDoc, doc, getDoc, increment, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
-import { hiragana, katakana, kanjiN5, lessons } from './data.js'
+import { hiragana, katakana, kanjiN5, lessons, n4Lessons, n3Lessons } from './data.js'
 import LessonNode from './components/LessonNode.jsx'
 import LessonPreviewModal from './components/LessonPreviewModal.jsx'
+import TodayWidget from './components/dashboard/TodayWidget.jsx'
+import SmartReview from './components/SmartReview.jsx'
+import AiSenseiPanel from './components/ai/AiSenseiPanel.jsx'
+import { readProgressState, markSectionVisited, getVisitedSections, getReviewStreak } from './progress/progressStorage.js'
+import { getLessonMastery } from './progress/masteryModel.js'
+import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
+import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
+import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
 import { speakJapanese, unlockAudio } from './sounds.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
 import { ExercisesSection, ReviewSection } from './components/LessonSections.jsx'
@@ -34,6 +42,12 @@ const VERIFICATION_COOLDOWN_MS = 15 * 60 * 1000
 const LESSON_PATH_X = [18, 32, 50, 70, 88, 80, 62, 40, 22, 10, 24, 44, 66, 86, 92, 76, 54, 30, 12, 8, 26, 50, 74, 90, 72]
 const LESSON_PATH_X_MOBILE = [6, 18, 36, 58, 82, 76, 58, 36, 16, 4, 18, 40, 64, 86, 94, 76, 52, 28, 10, 3, 20, 46, 72, 92, 68]
 
+const lessonDisplayOffsetByLevel = {
+  N5: 0,
+  N4: 25,
+  N3: 50,
+}
+
 const copy = {
   ar: {
     start: 'ابدأ التعلم',
@@ -57,6 +71,7 @@ const copy = {
     done: 'مكتمل',
     current: 'نشط',
     comingSoon: 'قريبا',
+    overview: 'المسار',
     vocabulary: 'مفردات',
     grammar: 'قواعد',
     examples: 'أمثلة',
@@ -125,6 +140,24 @@ const copy = {
     policyText: 'نحفظ تقدمك وبيانات حسابك الأساسية حتى تقدر تكمل التعلم من أي جهاز. بيانات الزائر تبقى على هذا الجهاز فقط.',
     supportText: 'الدعم المباشر قيد التجهيز. حاليا تقدر تبلغنا بالمشكلة من داخل ملاحظاتك وسنضيف قناة تواصل مباشرة.',
     donateText: 'التبرع يساعدنا نطور الدروس والصوت وتجربة الرسم. سنضيف وسيلة دفع آمنة لاحقا.',
+    todayTitle: 'اليوم',
+    dayStreak: 'يوم متتالي',
+    reviewsDue: 'مراجعات جاهزة',
+    noReviewsDue: 'لا توجد مراجعات الآن',
+    weakSpots: 'نقاط تحتاج تدريب',
+    noWeakSpots: 'لا توجد نقاط ضعف الآن',
+    recommendedLesson: 'الدرس المقترح',
+    continueCta: 'استمر',
+    startReview: 'ابدأ المراجعة',
+    reviewWidgetCta: 'راجع نقاط ضعفك اليوم',
+    dailyGoal: 'هدف اليوم',
+    goalReached: 'أحسنت! حققت هدف اليوم 🎉',
+    weakGrammar: 'قواعد ضعيفة',
+    weakVocab: 'مفردات ضعيفة',
+    aiSensei: 'اسأل عبدول سينسيه',
+    aiSenseiSub: 'مساعد تعلّم مبني على بياناتك',
+    reviewStreak: 'سلسلة المراجعة (أيام)',
+    viewProgress: 'عرض التقدّم',
   },
   en: {
     start: 'Start learning',
@@ -148,6 +181,7 @@ const copy = {
     done: 'Done',
     current: 'Current',
     comingSoon: 'Coming soon',
+    overview: 'Path',
     vocabulary: 'Vocabulary',
     grammar: 'Grammar',
     examples: 'Examples',
@@ -216,15 +250,33 @@ const copy = {
     policyText: 'We save learning progress and basic account data so you can continue across devices. Guest data stays on this device.',
     supportText: 'Live support is being prepared. For now, send us the issue in your notes and we will add a direct channel.',
     donateText: 'Donations help improve lessons, audio, and drawing practice. A secure payment method will be added later.',
+    todayTitle: 'Today',
+    dayStreak: 'day streak',
+    reviewsDue: 'reviews ready',
+    noReviewsDue: 'No reviews right now',
+    weakSpots: 'need practice',
+    noWeakSpots: 'No weak spots right now',
+    recommendedLesson: 'Recommended lesson',
+    continueCta: 'Continue',
+    startReview: 'Start review',
+    reviewWidgetCta: 'Review your weak spots today',
+    dailyGoal: 'Daily goal',
+    goalReached: 'Daily goal reached! 🎉',
+    weakGrammar: 'weak grammar',
+    weakVocab: 'weak vocab',
+    aiSensei: 'Ask Abdoul Sensei',
+    aiSenseiSub: 'A tutor grounded in your data',
+    reviewStreak: 'review streak (days)',
+    viewProgress: 'View progress',
   },
 }
 
 const levels = [
-  { id: 'N5', ar: 'مبتدئ', en: 'Beginner' },
-  { id: 'N4', ar: 'أساسي', en: 'Elementary' },
-  { id: 'N3', ar: 'متوسط', en: 'Intermediate' },
-  { id: 'N2', ar: 'متقدم', en: 'Advanced' },
-  { id: 'N1', ar: 'احترافي', en: 'Professional' },
+  { id: 'N5', ar: 'أساسي', en: 'Elementary' },
+  { id: 'N4', ar: 'متوسط', en: 'Intermediate' },
+  { id: 'N3', ar: 'وسط-متقدم', en: 'Upper-Intermediate' },
+  { id: 'N2', ar: 'احترافي', en: 'Advanced' },
+  { id: 'N1', ar: 'محترف', en: 'Expert' },
 ]
 
 const communityText = {
@@ -652,9 +704,22 @@ function splitCount(total, parts) {
   return Array.from({ length: parts }, (_, i) => base + (i < rem ? 1 : 0))
 }
 
-function levelSourceLessons(levelId) {
-  return levelId === 'N5' ? lessons : []
+const getLessonDisplayNumber = (levelId, lessonIndex, lessonId) => {
+  const internalNumber = Number.isFinite(lessonId) ? lessonId : lessonIndex + 1
+  const offset = lessonDisplayOffsetByLevel[levelId] ?? 0
+  return offset + internalNumber
 }
+
+function levelSourceLessons(levelId) {
+  if (levelId === 'N5') return lessons
+  if (levelId === 'N4') return n4Lessons
+  if (levelId === 'N3') return n3Lessons
+  return []
+}
+
+// Flat list of every lesson across levels — used by Smart Review to resolve
+// stored mistake/SRS item IDs back into full vocab/grammar content.
+const ALL_LESSONS = [...lessons, ...n4Lessons, ...n3Lessons]
 
 function buildExamQuestions(levelId, examType, kanjiReadingMode = 'hiragana') {
   const config = EXAM_CONFIG[levelId]?.[examType]
@@ -800,6 +865,8 @@ function defaultState() {
     lastHeartRefillAt: Date.now(),
     progress: {},
     lessonProgress: {},
+    unlockedLevels: ['N5'],
+    levelExams: {},
     totalQuizzes: 0,
     perfectScores: 0,
     lastScore: 0,
@@ -1943,14 +2010,42 @@ function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
   )
 }
 
-function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz }) {
-  const [section, setSection] = useState('vocabulary')
+function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz, lessonDone = false }) {
+  const [section, setSection] = useState('overview')
   const [flipped, setFlipped] = useState({})
   const [activeGrammarEx, setActiveGrammarEx] = useState(null)
   const [vocabExOpen, setVocabExOpen] = useState(false)
   const [vocabPracticeAllOpen, setVocabPracticeAllOpen] = useState(false)
+  // Bump to force a re-read of visited-section state after marking one.
+  const [sectionTick, setSectionTick] = useState(0)
   const t = copy[lang]
   const vocabGroups = chunk(lesson.vocab, 8)
+
+  // Guided lesson path (microlearning chunks) derived from this lesson's content.
+  const lessonSections = useMemo(() => {
+    const visited = getVisitedSections(readProgressState(), lesson.id)
+    return deriveLessonSections(lesson, visited, lessonDone)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson, lessonDone, sectionTick])
+
+  // Map a content tab to the primary section type it fulfils, then mark it
+  // engaged so the lesson path reflects real progress.
+  const tabToSection = { vocabulary: 'vocabulary', grammar: 'grammar', exercises: 'practice', review: 'review' }
+  const goToSection = (tabId) => {
+    const type = tabToSection[tabId]
+    if (type) {
+      markSectionVisited(readProgressState(), lesson.id, type)
+      setSectionTick((n) => n + 1)
+    }
+    setSection(tabId)
+  }
+
+  // Entering the lesson and seeing its path counts as the warm-up chunk.
+  useEffect(() => {
+    markSectionVisited(readProgressState(), lesson.id, 'warmup')
+    setSectionTick((n) => n + 1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson.id])
   const grammarReadingMap = useMemo(() => {
     const map = {}
     ;(lesson.vocab || []).forEach((item) => {
@@ -1966,20 +2061,34 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
       <header className="page-head">
         <button className="icon-btn" onClick={onBack}><AppIcon name="back" size={22} /></button>
         <div>
-          <p>{t.lesson} {lesson.id}</p>
+          <p>{t.lesson} {lesson.displayNumber || lesson.id}</p>
           <h1>{lesson.title[lang]}</h1>
         </div>
       </header>
 
       <div className="lesson-toolbar">
         <div className="tabs lesson-tabs">
-          {['vocabulary', 'grammar', 'exercises', 'videos', 'review'].map((id) => (
-            <button key={id} className={section === id ? 'active' : ''} onClick={() => setSection(id)}>
+          {['overview', 'vocabulary', 'grammar', 'exercises', 'videos', 'review'].map((id) => (
+            <button key={id} className={section === id ? 'active' : ''} onClick={() => goToSection(id)}>
               {t[id]}
             </button>
           ))}
         </div>
       </div>
+
+      {section === 'overview' && (
+        <LessonSectionPath
+          sections={lessonSections}
+          totalMinutes={totalLessonMinutes(lessonSections)}
+          lang={lang}
+          onSelect={(s) => {
+            // Mark the chosen section's own type (e.g. 'examples'), then route.
+            markSectionVisited(readProgressState(), lesson.id, s.type)
+            setSectionTick((n) => n + 1)
+            goToSection(s.tab)
+          }}
+        />
+      )}
 
       {section === 'vocabulary' && (
         <>
@@ -2003,11 +2112,10 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
               </p>
               <button className="btn btn-primary vocab-ex-open" onClick={() => setVocabPracticeAllOpen(true)}>
                 <AppIcon name="quiz" size={28} />
-                {lang === 'ar' ? 'تدريب شامل على كل المفردات' : 'Practice all vocabulary'}
+                {lang === 'ar' ? 'ابدأ التدريب' : 'Start practicing'}
               </button>
-              <button className="btn btn-secondary vocab-ex-open" onClick={() => setVocabExOpen(true)}>
-                <AppIcon name="quiz" size={28} />
-                {lang === 'ar' ? 'تمارين المفردات' : 'Vocabulary exercises'}
+              <button type="button" className="muted-link vocab-alt-link" onClick={() => setVocabExOpen(true)}>
+                {lang === 'ar' ? 'تمارين سريعة بدلاً من ذلك ›' : 'Quick exercises instead ›'}
               </button>
               <div className="vocab-group-list">
                 {vocabGroups.map((group, groupIndex) => (
@@ -2349,6 +2457,25 @@ export default function App() {
   const lessonPercent = Math.round((completedLessons / TOTAL_LESSONS) * 100)
   const currentLevelLessons = levelSourceLessons(currentLevel)
   const lessonSlots = Array.from({ length: TOTAL_LESSONS }, (_, index) => currentLevelLessons[index] || null)
+  // Per-lesson accuracy stats for path-node mastery indicators. Re-read each
+  // render so mastery reflects the latest practice when returning to the map.
+  const learningLessons = readProgressState().lessons
+  const recommendedLesson = (() => {
+    for (let index = 0; index < lessonSlots.length; index += 1) {
+      const lesson = lessonSlots[index]
+      if (!lesson) continue
+      const lessonNumber = index + 1
+      const amount = lessonProgress[`${currentLevel}-${lessonNumber}`] || 0
+      if (amount < sectionCount) {
+        return {
+          lesson,
+          amount,
+          displayLessonNumber: getLessonDisplayNumber(currentLevel, index, lesson?.id ?? lessonNumber),
+        }
+      }
+    }
+    return null
+  })()
   const characterSets = { hiragana, katakana, kanji: kanjiN5 }
   const letterGroups = chunk(characterSets[lettersTab] || hiragana, 5)
   const basicCharacterTotal = lettersTab === 'kanji' ? kanjiN5.length : 46
@@ -2613,11 +2740,12 @@ export default function App() {
     if (!dataReady || !isGuest) return
     localStorage.setItem(GUEST_KEY, JSON.stringify({
       xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress,
+      unlockedLevels, levelExams,
       totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday,
       userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang,
       startingGemsGranted,
     }))
-  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang, startingGemsGranted])
+  }, [isGuest, dataReady, xp, hearts, gems, streak, lastActiveDate, lastHeartRefillAt, progress, lessonProgress, unlockedLevels, levelExams, totalQuizzes, perfectScores, lastScore, userName, userUsername, userBio, userPhone, userBirthday, userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, theme, lang, startingGemsGranted])
 
   useEffect(() => {
     if (!userId || !dataReady || isGuest) return
@@ -2831,12 +2959,13 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [screen, examState])
 
-  const openLesson = (lesson) => {
+  const openLesson = (lesson, lessonNumberOverride = null) => {
     setQuestions([])
     setQIndex(0)
     setSelected(null)
     setScore(0)
-    setActiveLesson(lesson)
+    const internalLessonNumber = lessonNumberOverride ?? lesson.id
+    setActiveLesson({ ...lesson, displayNumber: internalLessonNumber })
     setScreen('lesson')
   }
 
@@ -2942,14 +3071,36 @@ export default function App() {
     }
   }, [userId, isGuest, dataReady, emailVerified, lang])
 
-  const achievements = useMemo(() => [
-    { label: 'First Quiz', active: totalQuizzes >= 1 },
-    { label: '7 Day Streak', active: streak >= 7 },
-    { label: 'Perfect', active: perfectScores >= 1 },
-    { label: '500 XP', active: xp >= 500 },
-    { label: '10 Mastered', active: masteredCount >= 10 },
-    { label: '5 Quizzes', active: totalQuizzes >= 5 },
-  ], [totalQuizzes, streak, perfectScores, xp, masteredCount])
+  // Derived gamification stats (Phase 8): review streak, mastered-lesson count
+  // and overall accuracy — read from the additive learning-progress store.
+  const { reviewStreak, masteredLessons, accuracyPct } = useMemo(() => {
+    const state = readProgressState()
+    const reviewStreak = getReviewStreak(state)
+    const lessonsStats = Object.values(state.lessons || {})
+    const totalAttempts = lessonsStats.reduce((sum, l) => sum + (l.attempts || 0), 0)
+    const totalCorrect = lessonsStats.reduce((sum, l) => sum + (l.correct || 0), 0)
+    const accuracyPct = totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : 0
+    let masteredLessons = 0
+    for (let i = 0; i < currentLevelLessons.length; i += 1) {
+      const lesson = currentLevelLessons[i]
+      if (!lesson) continue
+      const amount = lessonProgress[`${currentLevel}-${lesson.id}`] || 0
+      if (amount >= sectionCount) {
+        const m = getLessonMastery(state.lessons, lesson.id, amount, sectionCount)
+        if (m.status === 'mastered') masteredLessons += 1
+      }
+    }
+    return { reviewStreak, masteredLessons, accuracyPct }
+  }, [currentLevelLessons, lessonProgress, currentLevel, nowTick])
+
+  const achievements = useMemo(
+    () => evaluateAchievements({
+      xp, streak, reviewStreak, totalQuizzes, perfectScores,
+      completedLessons, masteredLessons, masteredVocab: masteredCount, accuracyPct,
+    }),
+    [xp, streak, reviewStreak, totalQuizzes, perfectScores, completedLessons, masteredLessons, masteredCount, accuracyPct],
+  )
+  const unlockedAchievements = countUnlocked(achievements)
 
   const logout = async () => {
     if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
@@ -3018,10 +3169,34 @@ export default function App() {
     return <ExamResult examState={examState} lang={lang} nextLevelId={LEVEL_ORDER[LEVEL_ORDER.indexOf(examState.levelId) + 1] || null} onHome={() => { setExamState(null); setScreen('main') }} />
   }
 
+  if (screen === 'review') {
+    return (
+      <HeartsContext.Provider value={heartsApi}>
+        <SmartReview allLessons={ALL_LESSONS} allKanji={kanjiN5} lang={lang} kanjiReadingMode={kanjiReadingMode} onClose={() => setScreen('main')} />
+      </HeartsContext.Provider>
+    )
+  }
+
+  if (screen === 'sensei') {
+    const completedLessonIds = Object.entries(lessonProgress)
+      .filter(([key, value]) => key.startsWith(`${currentLevel}-`) && value >= sectionCount)
+      .map(([key]) => key.split('-')[1])
+    return (
+      <AiSenseiPanel
+        lang={lang}
+        level={currentLevel}
+        currentLessonId={activeLesson ? String(activeLesson.id) : undefined}
+        currentLessonTitleAr={activeLesson?.title?.ar}
+        completedLessonIds={completedLessonIds}
+        onClose={() => setScreen('main')}
+      />
+    )
+  }
+
   if (screen === 'lesson' && activeLesson) {
     return (
       <HeartsContext.Provider value={heartsApi}>
-        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
+        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} lessonDone={(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0) >= sectionCount} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
       </HeartsContext.Provider>
     )
   }
@@ -3156,7 +3331,11 @@ export default function App() {
       <main className="app-shell">
         <header className="topbar app-topbar">
           <div className="toolbar top-stats">
-            <span className="stat-chip life"><i className="icon-shell life-shell"><AppIcon name="life" size={42} /><b>{hearts}</b></i></span>
+            <span className="stat-chip life">
+              <i className="life-shell" style={{ '--life-fill': `${(hearts / MAX_HEARTS) * 100}%` }}>
+                <b>{hearts}</b>
+              </i>
+            </span>
             <span className="stat-chip streak"><i className="icon-shell"><AppIcon name="streak" size={34} /></i>{streak}</span>
             <span className="stat-chip gems"><i className="icon-shell"><AppIcon name="gems" size={34} /></i>{gems}</span>
           </div>
@@ -3166,21 +3345,32 @@ export default function App() {
 
         {tab === 'home' && (
           <section className="content">
-            <div className="dashboard">
+            <div className="dashboard dashboard-calm">
               <div className="dashboard-progress-ring ring" style={{ '--value': `${lessonPercent}%` }}>
                 <span>{lessonPercent}%</span>
               </div>
               <div className="dashboard-copy">
-                <p className="eyebrow">{t.continue}</p>
                 <h1>{t.level} {currentLevel}</h1>
-                <p>{levels.find((level) => level.id === currentLevel)?.[lang]} · {lessonPercent}%</p>
-              </div>
-              <div className="dashboard-stats">
-                <Stat label={t.xp} value={xp} />
-                <Stat label={t.mastered} value={masteredCount} />
-                <Stat label={t.quiz} value={totalQuizzes} />
+                <p>{levels.find((level) => level.id === currentLevel)?.[lang]}</p>
+                {/* XP / mastered / quiz stats moved to Profile — P3 info, on demand. */}
+                <button className="view-progress-link" onClick={() => setTab('profile')}>
+                  {t.viewProgress} ›
+                </button>
               </div>
             </div>
+
+            <TodayWidget
+              lang={lang}
+              t={t}
+              recommendedLesson={recommendedLesson}
+              onContinue={() => recommendedLesson && setPreviewLesson(recommendedLesson)}
+              onReview={() => setScreen('review')}
+            />
+
+            {/* Abdoul Sensei floats above the bottom nav — out of the content flow. */}
+            <button className="sensei-fab" onClick={() => setScreen('sensei')} aria-label={t.aiSensei} title={t.aiSensei}>
+              <span className="sensei-fab-kanji">先生</span>
+            </button>
 
             <div className="level-strip">
               {levels.map((level) => {
@@ -3225,36 +3415,39 @@ export default function App() {
               </div>
             ) : (
             <>
-            <div className="path-caption">
-              <span />
-              <strong>{t.continue}</strong>
-              <span />
-            </div>
-
             <div className="lesson-path map-path">
                 {lessonSlots.map((lesson, index) => {
                 const lessonNumber = index + 1
+                const displayLessonNumber = getLessonDisplayNumber(currentLevel, index, lesson?.id ?? lessonNumber)
                 const prevKey = `${currentLevel}-${lessonNumber - 1}`
                 const key = `${currentLevel}-${lessonNumber}`
                 const prevDone = lessonNumber === 1 || (lessonProgress[prevKey] || 0) >= sectionCount
                 const amount = Math.min(lessonProgress[key] || 0, sectionCount)
                 const locked = !prevDone || !lesson
                 const completedSegments = locked ? 0 : Math.min(amount, sectionCount)
+                const state = locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'
+                // Mastery only meaningful once a lesson is fully completed.
+                const mastery = state === 'done' && lesson
+                  ? getLessonMastery(learningLessons, lesson.id, amount, sectionCount)
+                  : null
                 return (
                   <LessonNode
                     key={lessonNumber}
                     lessonNumber={lessonNumber}
                     index={index}
-                    state={locked ? 'locked' : amount >= sectionCount ? 'done' : 'current'}
+                    state={state}
                     completed={completedSegments}
                     total={sectionCount}
+                    masteryLevel={mastery?.masteryLevel ?? null}
+                    masteryStatus={mastery?.status ?? null}
                     style={{
-                      '--path-row': lessonNumber,
-                      '--path-x': `${LESSON_PATH_X[index % LESSON_PATH_X.length]}%`,
-                      '--path-x-mobile': `${LESSON_PATH_X_MOBILE[index % LESSON_PATH_X_MOBILE.length]}%`,
-                    }}
-                    label={`${t.lesson} ${lessonNumber}`}
-                    onClick={() => !locked && setPreviewLesson({ lesson, amount })}
+                    '--path-row': lessonNumber,
+                    '--path-x': `${LESSON_PATH_X[index % LESSON_PATH_X.length]}%`,
+                    '--path-x-mobile': `${LESSON_PATH_X_MOBILE[index % LESSON_PATH_X_MOBILE.length]}%`,
+                  }}
+                    lessonNumber={displayLessonNumber}
+                    label={`${t.lesson} ${displayLessonNumber}`}
+                    onClick={() => !locked && setPreviewLesson({ lesson, amount, displayLessonNumber })}
                   />
                 )
                 })}
@@ -3284,8 +3477,9 @@ export default function App() {
                 total={sectionCount}
                 onStart={() => {
                   const lesson = previewLesson.lesson
+                  const displayLessonNumber = previewLesson.displayLessonNumber ?? getLessonDisplayNumber(currentLevel, 0, lesson?.id)
                   setPreviewLesson(null)
-                  openLesson(lesson)
+                  openLesson(lesson, displayLessonNumber)
                 }}
                 onClose={() => setPreviewLesson(null)}
               />
@@ -3410,6 +3604,15 @@ export default function App() {
               <Button variant="small" onClick={refillHearts}>+10</Button>
             </div>
 
+            {/* P3 stats — moved off the home dashboard, on-demand here. */}
+            <h2 className="section-title">{t.viewProgress}</h2>
+            <div className="dashboard-stats profile-stats">
+              <Stat label={t.xp} value={xp} />
+              <Stat label={t.mastered} value={masteredCount} />
+              <Stat label={t.quiz} value={totalQuizzes} />
+              <Stat label={t.reviewStreak} value={reviewStreak} />
+            </div>
+
             <h2 className="section-title">{t.settings}</h2>
             <button className="settings-entry" onClick={() => setScreen('settings')}>
               <IconCircle name="settings" size={44} />
@@ -3417,12 +3620,18 @@ export default function App() {
               <small>›</small>
             </button>
 
-            <h2 className="section-title">{t.achievements}</h2>
+            <h2 className="section-title">
+              {t.achievements}
+              <span className="achievement-count">{unlockedAchievements}/{achievements.length}</span>
+            </h2>
             <div className="achievement-grid">
               {achievements.map((item) => (
-                <div key={item.label} className={item.active ? 'active' : ''}>
-                  <span><AppIcon name={item.active ? 'star' : 'locked'} size={30} /></span>
-                  <small>{item.label}</small>
+                <div key={item.id} className={`achievement-badge ${item.unlocked ? 'active' : ''}`} title={item.descAr}>
+                  <span className="achievement-icon"><AppIcon name={item.unlocked ? item.icon : 'locked'} size={28} /></span>
+                  <small>{lang === 'ar' ? item.titleAr : item.titleEn}</small>
+                  {!item.unlocked && item.progress > 0 && (
+                    <span className="achievement-progress"><i style={{ width: `${item.progress * 100}%` }} /></span>
+                  )}
                 </div>
               ))}
             </div>

@@ -1,0 +1,84 @@
+.lesson-progress-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: default;
+}
+
+button.lesson-progress-badge {
+  cursor: pointer;
+}
+
+.lesson-progress-badge__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.lesson-progress-badge__segment {
+  stroke: #33424a;
+  transition: stroke 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.lesson-progress-badge__segment.is-filled {
+  stroke: #d12b98;
+}
+
+.lesson-progress-badge__segment.is-active {
+  animation: lesson-progress-badge-pulse-segment 1.6s ease-in-out infinite;
+}
+
+.lesson-progress-badge__center {
+  position: relative;
+  width: 64%;
+  height: 64%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #ec4fb1 0%, #d12b98 65%, #b81f86 100%);
+  box-shadow:
+    0 6px 12px rgba(30, 0, 30, 0.45),
+    0 2px 0 rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.35),
+    inset 0 -6px 10px rgba(0, 0, 0, 0.15);
+  transform-origin: center;
+}
+
+.lesson-progress-badge__center.is-complete {
+  animation: lesson-progress-badge-pulse-center 1.8s ease-in-out infinite;
+}
+
+.lesson-progress-badge__star {
+  width: 46%;
+  height: 46%;
+  fill: #ffffff;
+}
+
+@keyframes lesson-progress-badge-pulse-segment {
+  0%, 100% {
+    opacity: 1;
+    stroke-width: 9;
+  }
+  50% {
+    opacity: 0.6;
+    stroke-width: 12;
+  }
+}
+
+@keyframes lesson-progress-badge-pulse-center {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}

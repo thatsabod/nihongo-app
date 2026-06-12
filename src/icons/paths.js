@@ -21,8 +21,10 @@ export const ICON_PATHS = {
     ],
   },
   life: {
-    shapes: [{ type: 'rect', x: 2, y: 6, width: 16, height: 12, rx: 2 }],
-    paths: ['M22 14v-4', 'M11 7 9 11h4l-2 4'],
+    shapes: [
+      { type: 'rect', x: 3, y: 5, width: 15, height: 14, rx: 4 },
+      { type: 'rect', x: 18, y: 9, width: 2.6, height: 6, rx: 1.1 },
+    ],
   },
   coins: {
     shapes: [{ type: 'circle', cx: 12, cy: 12, r: 10 }],

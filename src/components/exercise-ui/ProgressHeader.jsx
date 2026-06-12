@@ -17,7 +17,7 @@ export default function ProgressHeader({ onClose, closeLabel = '', progress = 0,
       </div>
       {heartsApi && (
         <span className="ex-hearts">
-          <AppIcon name="life" size={20} />
+          <AppIcon name="life" size={20} className="life-indicator" />
           {heartsApi.hearts}
         </span>
       )}

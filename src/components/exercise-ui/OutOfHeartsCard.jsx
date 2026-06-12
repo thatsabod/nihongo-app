@@ -16,7 +16,7 @@ export default function OutOfHeartsCard({ lang, onClose, bare = false }) {
 
   const content = (
     <div className="grammar-finish out-of-hearts">
-      <span className="finish-icon"><AppIcon name="life" size={54} /></span>
+      <span className="finish-icon"><AppIcon name="life" size={54} className="life-indicator" /></span>
       <strong>0/{heartsApi?.maxHearts ?? 10}</strong>
       <p>
         {isAr

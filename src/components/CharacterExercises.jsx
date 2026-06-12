@@ -16,9 +16,26 @@ import {
   OutOfHeartsCard,
 } from './exercise-ui/index.jsx'
 import { useHearts } from '../hearts-context.jsx'
+import { readProgressState, trackAnswer } from '../progress/progressStorage.js'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
+}
+
+const KANJI_REGEX = /[㐀-鿿]/
+
+// Record a kanji answer to the weakness/SRS log. Only true kanji glyphs are
+// tracked as 'kanji' — kana drills (hiragana/katakana) are skipped so they
+// don't pollute kanji weak-area detection.
+function trackKanjiAnswer(item, correct) {
+  if (!item?.kana || !KANJI_REGEX.test(item.kana)) return
+  trackAnswer(readProgressState(), {
+    itemId: item.kana,
+    itemType: 'kanji',
+    wasCorrect: correct,
+    exerciseType: 'character',
+    questionAr: item.answer,
+  })
 }
 
 // ── Generate a varied character-practice session from a group's items ───────
@@ -337,6 +354,8 @@ export default function CharacterExercises({ items, lang, renderChar, onClose })
       playWrong()
       heartsApi?.consumeHeart()
     }
+    // Passive kanji weakness/SRS tracking (kana drills are ignored inside).
+    trackKanjiAnswer(exercises[idx]?.item, correct)
     const next = score + (correct ? 1 : 0)
     if (idx + 1 >= exercises.length) {
       setScore(next)

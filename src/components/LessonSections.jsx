@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import AppIcon from './AppIcon.jsx'
-import { SpeakingPracticeQuiz, ExerciseContainer, ProgressHeader, ResultCard, ActionButton, OutOfHeartsCard } from './exercise-ui/index.jsx'
+import { SpeakingPracticeQuiz, ExerciseContainer, ProgressHeader, ResultCard, ActionButton, OutOfHeartsCard, MistakeFeedback } from './exercise-ui/index.jsx'
 import { useHearts } from '../hearts-context.jsx'
+import { readProgressState, trackAnswer, recordLessonStat } from '../progress/progressStorage.js'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -67,19 +68,52 @@ function extractJP(prompt = '') {
 
 const COMMON_PARTICLES = ['は', 'が', 'も', 'の', 'か', 'で', 'に', 'を', 'と', 'へ', 'から', 'まで', 'じゃありません', 'ですか', 'です', 'より']
 
+// Matches hiragana/katakana/kanji — used to keep Japanese sentences out of
+// the Arabic/English meaning-choice options.
+const JP_CHAR_REGEX = /[぀-ヿ㐀-鿿]/
+
+// Find the grammar rule most relevant to an exercise (by particle/answer match,
+// then text substring, then hint label). Returns null when no match found.
+function findGrammarRule(lesson, ex) {
+  const rules = lesson.grammar || []
+  if (!rules.length) return null
+  const byParticle = rules.find((r) => r.particle && r.particle === ex.answer)
+  if (byParticle) return byParticle
+  const inText = rules.find((r) => r.particle && (
+    (ex.prompt || '').includes(r.particle) || (ex.answer || '').includes(r.particle)
+  ))
+  if (inText) return inText
+  if (ex.hint) {
+    const byHint = rules.find((r) => r.title && ex.hint.includes(r.title.split(' ')[0]))
+    if (byHint) return byHint
+  }
+  return rules[0] || null
+}
+
+// Find vocab items whose surface form (kanji or kana) appears in the exercise text.
+function findVocabMatches(lesson, ex) {
+  const vocab = lesson.vocab || []
+  if (!vocab.length) return []
+  const text = (ex.prompt || '') + ' ' + (ex.answer || '')
+  return vocab.filter((item) => {
+    const surface = item.kanji || item.jp
+    return surface && text.includes(surface)
+  }).slice(0, 3)
+}
+
 // ── Exercise: choose meaning ──────────────────────────────────────────────────
 function ChooseExercise({ ex, allAnswers, lang, readingMap, onAnswer }) {
   const [picked, setPicked] = useState(null)
   const jpText = extractJP(ex.prompt)
   const options = useMemo(() => {
-    const distractors = allAnswers.filter((a) => a !== ex.answer && a && !a.includes('/'))
+    const distractors = allAnswers.filter((a) => a !== ex.answer && a && !a.includes('/') && !JP_CHAR_REGEX.test(a))
     return shuffle([ex.answer, ...shuffle(distractors).slice(0, 3)]).slice(0, 4)
   }, [ex.answer, allAnswers])
 
   const pick = (opt) => {
     if (picked) return
     setPicked(opt)
-    setTimeout(() => onAnswer(opt === ex.answer), 1000)
+    setTimeout(() => onAnswer(opt === ex.answer, opt), 1000)
   }
 
   return (
@@ -118,7 +152,7 @@ function CompleteExercise({ ex, lang, readingMap, onAnswer }) {
   const pick = (opt) => {
     if (picked) return
     setPicked(opt)
-    setTimeout(() => onAnswer(opt === ex.answer), 1000)
+    setTimeout(() => onAnswer(opt === ex.answer, opt), 1000)
   }
 
   return (
@@ -178,7 +212,7 @@ function OrderExercise({ ex, lang, onAnswer }) {
     setResult(correct ? 'correct' : 'wrong')
     if (correct) playCorrect()
     else playWrong()
-    setTimeout(() => onAnswer(correct), 1100)
+    setTimeout(() => onAnswer(correct, built), 1100)
   }
 
   return (
@@ -252,6 +286,8 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
+  const [feedback, setFeedback] = useState(null)
+  const [retryNonce, setRetryNonce] = useState(0)
   const isAr = lang === 'ar'
   const heartsApi = useHearts()
 
@@ -263,7 +299,9 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
     return <div className="iex-wrap" />
   }
 
-  if (heartsApi && heartsApi.hearts <= 0) {
+  // Allow feedback panel to remain visible even at 0 hearts — the student
+  // deserves to read the explanation before getting the out-of-hearts screen.
+  if (heartsApi && heartsApi.hearts <= 0 && !feedback) {
     return (
       <div className="iex-wrap">
         <OutOfHeartsCard lang={lang} bare />
@@ -305,7 +343,7 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
             : (perfect ? 'Perfect! All exercises done.' : good ? 'Good! Review the lesson once more.' : 'Keep practicing — you\'re improving!')
           }</p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button className="btn btn-primary" onClick={() => { setIdx(0); setScore(0); setDone(false) }}>
+            <button className="btn btn-primary" onClick={() => { setIdx(0); setScore(0); setDone(false); setFeedback(null) }}>
               {isAr ? 'إعادة التمارين' : 'Retry exercises'}
             </button>
           </div>
@@ -316,53 +354,132 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
 
   const ex = exercises[idx]
   const allAnswers = exercises.map((e) => e.answer).filter(Boolean)
+  const completionPct = Math.round((idx / exercises.length) * 100)
 
-  const handleAnswer = (correct) => {
-    if (correct) playCorrect()
-    else {
+  // Called by child exercise components: correct=bool, picked=the student's answer.
+  const handleAnswer = (correct, picked) => {
+    let state = readProgressState()
+    // One lesson-accuracy tick per question (before the per-item sub-tracking).
+    state = recordLessonStat(state, String(lesson.id), correct)
+    state = trackAnswer(state, {
+      itemId: `${lesson.id}-ex-${idx}`,
+      itemType: 'mistake',
+      wasCorrect: correct,
+      lessonId: String(lesson.id),
+      exerciseType: ex.type,
+      questionAr: ex.prompt,
+    })
+
+    const nextScore = score + (correct ? 1 : 0)
+    const nextIdx = idx + 1
+
+    if (correct) {
+      playCorrect()
+      if (nextIdx >= exercises.length) {
+        setScore(nextScore)
+        setDone(true)
+      } else {
+        setScore(nextScore)
+        setIdx(nextIdx)
+      }
+    } else {
       playWrong()
       heartsApi?.consumeHeart()
+
+      // Track per-grammar and per-vocab mistakes for weak-area detection.
+      const grammarRule = findGrammarRule(lesson, ex)
+      const vocabMatches = findVocabMatches(lesson, ex)
+      if (grammarRule) {
+        state = trackAnswer(state, {
+          itemId: grammarRule.title,
+          itemType: 'grammar',
+          wasCorrect: false,
+          lessonId: String(lesson.id),
+          exerciseType: ex.type,
+          questionAr: grammarRule.title,
+        })
+      }
+      vocabMatches.forEach((item) => {
+        state = trackAnswer(state, {
+          itemId: item.id || item.jp,
+          itemType: 'vocab',
+          wasCorrect: false,
+          lessonId: String(lesson.id),
+          exerciseType: ex.type,
+          questionAr: item.meaning,
+        })
+      })
+
+      setFeedback({ grammarRule, vocabMatches, nextScore, nextIdx })
     }
-    const next = score + (correct ? 1 : 0)
-    if (idx + 1 >= exercises.length) {
-      setScore(next)
+  }
+
+  // Advance to next question after the student reads the feedback panel.
+  const advance = () => {
+    const { nextScore, nextIdx } = feedback
+    setFeedback(null)
+    if (nextIdx >= exercises.length) {
+      setScore(nextScore)
       setDone(true)
     } else {
-      setScore(next)
-      setIdx((i) => i + 1)
+      setScore(nextScore)
+      setIdx(nextIdx)
     }
+  }
+
+  // Re-attempt the SAME question. Score isn't changed (the miss already counted),
+  // but the student gets to apply what the explanation just taught them.
+  const retry = () => {
+    setFeedback(null)
+    setRetryNonce((n) => n + 1)
   }
 
   return (
     <div className="iex-wrap">
       <div className="iex-header">
+        <div className="iex-section-info">
+          <span className="iex-section-label">{isAr ? 'تمارين' : 'Exercises'}</span>
+          <span className="iex-completion">{completionPct}%</span>
+        </div>
         <div className="ex-progress-bar">
-          <span style={{ width: `${(idx / exercises.length) * 100}%` }} />
+          <span style={{ width: `${completionPct}%` }} />
         </div>
         <span className="iex-counter">{idx + 1}/{exercises.length}</span>
       </div>
 
-      {ex.type === 'choose' && (
-        <ChooseExercise key={idx} ex={ex} allAnswers={allAnswers} lang={lang} readingMap={readingMap} onAnswer={handleAnswer} />
-      )}
-      {ex.type === 'complete' && (
-        <CompleteExercise key={idx} ex={ex} lang={lang} readingMap={readingMap} onAnswer={handleAnswer} />
-      )}
-      {ex.type === 'order' && (
-        <OrderExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />
-      )}
-      {ex.type === 'speak' && (
-        <SpeakSectionExercise key={idx} ex={ex} lang={lang} onAnswer={handleAnswer} />
-      )}
-      {!['choose', 'complete', 'order'].includes(ex.type) && (
-        // Fallback for unknown types - just show and skip
-        <div className="iex-card">
-          <p className="ex-prompt">{ex.prompt}</p>
-          <p style={{ color: 'var(--green)', fontWeight: 700 }}>{ex.answer}</p>
-          <button className="btn btn-primary" onClick={() => handleAnswer(true)}>
-            {isAr ? 'التالي' : 'Next'}
-          </button>
-        </div>
+      {feedback ? (
+        <MistakeFeedback
+          isAr={isAr}
+          correctAnswer={ex.answer}
+          grammarRule={feedback.grammarRule}
+          vocabMatches={feedback.vocabMatches}
+          onContinue={advance}
+          onRetry={['choose', 'complete', 'order'].includes(ex.type) ? retry : null}
+        />
+      ) : (
+        <>
+          {ex.type === 'choose' && (
+            <ChooseExercise key={`${idx}-${retryNonce}`} ex={ex} allAnswers={allAnswers} lang={lang} readingMap={readingMap} onAnswer={handleAnswer} />
+          )}
+          {ex.type === 'complete' && (
+            <CompleteExercise key={`${idx}-${retryNonce}`} ex={ex} lang={lang} readingMap={readingMap} onAnswer={handleAnswer} />
+          )}
+          {ex.type === 'order' && (
+            <OrderExercise key={`${idx}-${retryNonce}`} ex={ex} lang={lang} onAnswer={handleAnswer} />
+          )}
+          {ex.type === 'speak' && (
+            <SpeakSectionExercise key={`${idx}-${retryNonce}`} ex={ex} lang={lang} onAnswer={handleAnswer} />
+          )}
+          {!['choose', 'complete', 'order', 'speak'].includes(ex.type) && (
+            <div className="iex-card">
+              <p className="ex-prompt">{ex.prompt}</p>
+              <p style={{ color: 'var(--green)', fontWeight: 700 }}>{ex.answer}</p>
+              <button className="btn btn-primary" onClick={() => handleAnswer(true, ex.answer)}>
+                {isAr ? 'التالي' : 'Next'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

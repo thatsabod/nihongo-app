@@ -1,4 +1,6 @@
 import { n5Lessons } from './content/lessons.n5.js'
+import { n4Lessons } from './content/lessons.n4.js'
+import { n3Lessons } from './content/lessons.n3.js'
 
 const makeQuestions = (items) =>
   items.map(([kana, answer, ...alts]) => ({
@@ -288,3 +290,6 @@ const legacyLessons = [
 ]
 
 export const lessons = [...n5Lessons, ...legacyLessons.slice(n5Lessons.length)]
+
+export { n4Lessons }
+export { n3Lessons }

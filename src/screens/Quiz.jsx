@@ -188,7 +188,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
     <main className="quiz-screen">
       <ProgressHeader onClose={onBack} progress={((qIndex + 1) / questions.length) * 100}>
         <div className="quiz-stats">
-          <span className="quiz-stat quiz-stat-hearts"><AppIcon name="life" size={20} /> {hearts}</span>
+          <span className="quiz-stat quiz-stat-hearts"><AppIcon name="life" size={20} className="life-indicator" /> {hearts}</span>
           <span className="quiz-stat quiz-stat-xp">{xp} XP</span>
         </div>
       </ProgressHeader>
