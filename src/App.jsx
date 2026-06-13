@@ -9,6 +9,10 @@ import LevelSelector from './components/LevelSelector.jsx'
 import CommunityHeader from './components/community/CommunityHeader.jsx'
 import CommunityTabs from './components/community/CommunityTabs.jsx'
 import CommunityFeed from './components/community/CommunityFeed.jsx'
+import DMInboxScreen from './components/community/DMInboxScreen.jsx'
+import DMChatScreen from './components/community/DMChatScreen.jsx'
+import NotificationsScreen from './components/community/NotificationsScreen.jsx'
+import NotificationSettingsScreen from './components/community/NotificationSettingsScreen.jsx'
 import { COMMUNITY_TABS, MOCK_COMMUNITY_POSTS, postMatchesTab } from './data/communityMockData.js'
 import TodayWidget from './components/dashboard/TodayWidget.jsx'
 import RetentionPanel from './components/dashboard/RetentionPanel.jsx'
@@ -813,7 +817,7 @@ function CharacterSymbol({ item, readingMode = 'hiragana' }) {
   return <KanjiOnlyRuby text={item.kana} reading={readingMode === 'romaji' ? item.answer : item.hiragana || item.answer} />
 }
 
-function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, currentLevel, onStartDaily, onNotice }) {
+function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, currentLevel, onStartDaily, onNotice, communityView = 'feed', setCommunityView = () => {} }) {
   const [sentence, setSentence] = useState('')
   const [questionText, setQuestionText] = useState('')
   const [activeReplyId, setActiveReplyId] = useState(null)
@@ -846,6 +850,14 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
   const [communitySearch, setCommunitySearch] = useState('')
   const [savedPostIds, setSavedPostIds] = useState(new Set())
   const [likedPostIds, setLikedPostIds] = useState(new Set())
+  const [notifSettings, setNotifSettings] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('nihongo-notif-settings') || '{}') } catch { return {} }
+  })
+  const toggleNotifSetting = (key) => setNotifSettings((prev) => {
+    const next = { ...prev, [key]: prev[key] === false }
+    try { localStorage.setItem('nihongo-notif-settings', JSON.stringify(next)) } catch { /* ignore */ }
+    return next
+  })
   const text = communityText[lang] || communityText.en
   const isAr = lang === 'ar'
   const displayName = userName || (isAr ? 'أنت' : 'You')
@@ -1399,6 +1411,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     setDmProfile(profile)
     setSelectedProfile(null)
     setActiveInbox(null)
+    setCommunityView('dm-chat')
   }
 
   const openMessageThread = async (message) => {
@@ -1584,17 +1597,98 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     )
   }
 
+  // ── DMs + notifications: derive live data for the dedicated screens ──────────
+  const timeAgo = (createdAt) => {
+    const secs = createdAt?.seconds
+    if (!secs) return ''
+    const diff = Math.max(0, Date.now() / 1000 - secs)
+    if (diff < 60) return isAr ? 'الآن' : 'now'
+    if (diff < 3600) return isAr ? `منذ ${Math.floor(diff / 60)} د` : `${Math.floor(diff / 60)}m`
+    if (diff < 86400) return isAr ? `منذ ${Math.floor(diff / 3600)} س` : `${Math.floor(diff / 3600)}h`
+    if (diff < 172800) return isAr ? 'أمس' : 'yesterday'
+    return isAr ? `منذ ${Math.floor(diff / 86400)} يوم` : `${Math.floor(diff / 86400)}d`
+  }
+
+  const conversations = (() => {
+    const map = new Map()
+    for (const m of [...messages, ...sentMessages]) {
+      const counterpartId = m.fromId === userId ? m.toId : m.fromId
+      if (!counterpartId) continue
+      const t = m.createdAt?.seconds || 0
+      let entry = map.get(counterpartId)
+      if (!entry) { entry = { counterpartId, unread: 0, _t: -1 }; map.set(counterpartId, entry) }
+      if (m.fromId !== userId && !m.read) entry.unread += 1
+      if (t >= entry._t) {
+        entry._t = t
+        entry.counterpartHandle = m.fromId === userId ? m.toHandle : m.fromHandle
+        entry.counterpartName = (m.fromId === userId ? m.toName : m.fromName) || (m.fromId === userId ? m.toHandle : m.fromHandle)
+        entry.lastBody = m.body
+        entry.lastIsMine = m.fromId === userId
+        entry.lastRead = m.read
+        entry.createdAt = m.createdAt
+      }
+    }
+    return [...map.values()].map((c) => ({ ...c, time: timeAgo(c.createdAt) })).sort((a, b) => b._t - a._t)
+  })()
+
+  // Notifications screen = community activity only (DMs excluded by design).
+  const activityNotifications = notifications
+    .filter((n) => n.type !== 'message')
+    .slice()
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+    .map((n) => ({ ...n, time: timeAgo(n.createdAt) }))
+
+  const openConversation = (conv) => {
+    markItemsRead('messages', messages.filter((m) => m.fromId === conv.counterpartId && !m.read))
+    setDmProfile(profileForCommunityItem({ userId: conv.counterpartId, authorHandle: conv.counterpartHandle, authorName: conv.counterpartName }))
+    setCommunityView('dm-chat')
+  }
+
+  // ── Dedicated full screens (chrome hidden by App when communityView!=='feed') ──
+  if (communityView === 'dm-inbox') {
+    return <DMInboxScreen lang={lang} conversations={conversations} onOpenConversation={openConversation} onBack={() => setCommunityView('feed')} />
+  }
+  if (communityView === 'dm-chat') {
+    return (
+      <DMChatScreen
+        lang={lang}
+        profile={dmProfile}
+        messages={dmMessages}
+        currentUserId={userId}
+        draft={messageDraft}
+        onDraftChange={setMessageDraft}
+        onSend={sendMessageToProfile}
+        onBack={() => setCommunityView('dm-inbox')}
+        timeFor={(m) => timeAgo(m.createdAt)}
+      />
+    )
+  }
+  if (communityView === 'notifications') {
+    return (
+      <NotificationsScreen
+        lang={lang}
+        notifications={activityNotifications}
+        onOpenNotification={(n) => markItemsRead('notifications', [n])}
+        onBack={() => setCommunityView('feed')}
+        onOpenSettings={() => setCommunityView('notif-settings')}
+      />
+    )
+  }
+  if (communityView === 'notif-settings') {
+    return <NotificationSettingsScreen lang={lang} settings={notifSettings} onToggle={toggleNotifSetting} onBack={() => setCommunityView('notifications')} />
+  }
+
   return (
     <section className="content community cm-page">
       <CommunityHeader
         lang={lang}
         searchValue={communitySearch}
         onSearchChange={setCommunitySearch}
-        onOpenMessages={() => openInbox('messages')}
+        onOpenMessages={() => setCommunityView('dm-inbox')}
         unreadMessages={unreadMessages}
         onOpenRequests={() => setActiveInbox(activeInbox === 'requests' ? null : 'requests')}
         requestsCount={friendRequests.length}
-        onOpenNotifications={() => openInbox('notifications')}
+        onOpenNotifications={() => { markItemsRead('notifications', notifications); setCommunityView('notifications') }}
         unreadNotifications={unreadNotifications}
         onOpenProfile={() => setSelectedProfile(leaderboard.find((p) => p.current) || fallbackProfile)}
       />
@@ -2242,6 +2336,8 @@ export default function App() {
   const lastSavedProgressJsonRef = useRef('')
   const [screen, setScreen] = useState('loading')
   const [tab, setTab] = useState('home')
+  const [communityView, setCommunityView] = useState('feed') // 'feed'|'dm-inbox'|'dm-chat'|'notifications'|'notif-settings'
+  useEffect(() => { if (tab !== 'community') setCommunityView('feed') }, [tab])
   const [lang, setLang] = useState(localStorage.getItem('nihongo-lang') || 'ar')
   const [theme, setTheme] = useState(localStorage.getItem('nihongo-theme') || 'light')
   const [lettersTab, setLettersTab] = useState('hiragana')
@@ -3260,9 +3356,13 @@ export default function App() {
     )
   }
 
+  // Dedicated community screens (DMs / notifications) hide the app chrome.
+  const inCommunityScreen = tab === 'community' && communityView !== 'feed'
+
   return (
     <>
       <main className="app-shell">
+        {!inCommunityScreen && (
         <header className="topbar app-topbar">
           <LevelSelector
             levels={levels}
@@ -3284,8 +3384,9 @@ export default function App() {
             {/* Gems moved off the topbar — shown only where they're spent (Profile). */}
           </div>
         </header>
+        )}
 
-        {notice && <button className="notice" onClick={() => setNotice('')}>{notice}</button>}
+        {notice && !inCommunityScreen && <button className="notice" onClick={() => setNotice('')}>{notice}</button>}
 
         {tab === 'home' && (
           <section className="content">
@@ -3454,6 +3555,8 @@ export default function App() {
             currentLevel={currentLevel}
             onStartDaily={() => startQuiz('hiragana')}
             onNotice={setNotice}
+            communityView={communityView}
+            setCommunityView={setCommunityView}
           />
         )}
 
@@ -3563,10 +3666,12 @@ export default function App() {
       </main>
 
       {/* Abdoul Sensei FAB — app-shell level so it's available on every main tab
-          (out of the content flow, hidden during lessons/exercises/focus). */}
+          (hidden during lessons/exercises/focus and dedicated community screens). */}
+      {!inCommunityScreen && (
       <button className="sensei-fab" onClick={() => setScreen('sensei')} aria-label={t.aiSensei} title={t.aiSensei}>
         <span className="sensei-fab-kanji">先生</span>
       </button>
+      )}
 
       {achievementToast && (
         <button className="achievement-toast" onClick={() => setAchievementToast(null)} aria-live="polite">
@@ -3578,6 +3683,7 @@ export default function App() {
         </button>
       )}
 
+      {!inCommunityScreen && (
       <nav className="bottom-nav">
         {[
           ['home', 'home', t.home],
@@ -3595,6 +3701,7 @@ export default function App() {
           </button>
         ))}
       </nav>
+      )}
     </>
   )
 }
