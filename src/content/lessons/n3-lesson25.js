@@ -2,6 +2,34 @@ export const n3LessonTwentyFive = {
   id: 25,
   title: { ar: 'مراجعة N3 شاملة', en: 'N3 Integrated Review' },
   focus: 'مراجعة تراكيب N3 داخل جمل أطول تجمع الشرط، الهدف، الدرجة، والتعبير عن الاستمرار.',
+  dialogue: {
+    titleAr: 'محادثة بين الطالب والمعلم',
+    lines: [
+      { speaker: 'الطالب', jp: '先生、試験に失敗しました。', romaji: 'Sensei, shiken ni shippai shimashita.', ar: 'يا معلم، لقد فشلت في الاختبار.' },
+      { speaker: 'المعلم', jp: '失敗しても、あきらめないことが大切ですよ。', romaji: 'Shippai shite mo, akiramenai koto ga taisetsu desu yo.', ar: 'حتى إن فشلت، من المهم ألا تستسلم.' },
+      { speaker: 'الطالب', jp: '自信がつくように、毎日練習しています。', romaji: 'Jishin ga tsuku you ni, mainichi renshuu shite imasu.', ar: 'أتدرب كل يوم لكي تزداد ثقتي بنفسي.' },
+      { speaker: 'المعلم', jp: 'いいですね。努力すればするほど、結果はよくなります。', romaji: 'Ii desu ne. Doryoku sureba suru hodo, kekka wa yoku narimasu.', ar: 'جميل. كلما اجتهدت أكثر، صارت النتيجة أفضل.' },
+      { speaker: 'الطالب', jp: '私の目標は日本語が上手になることです。', romaji: 'Watashi no mokuhyou wa nihongo ga jouzu ni naru koto desu.', ar: 'هدفي أن أتقن اليابانية.' },
+      { speaker: 'المعلم', jp: '目標が達成できるように、続けてくださいね。', romaji: 'Mokuhyou ga tassei dekiru you ni, tsuzukete kudasai ne.', ar: 'واصل من فضلك لكي تتمكن من تحقيق هدفك.' },
+      { speaker: 'الطالب', jp: '習う機会が増えるように、積極的に話します。', romaji: 'Narau kikai ga fueru you ni, sekkyokuteki ni hanashimasu.', ar: 'سأتحدث بفاعلية لكي تزداد فرص التعلم.' },
+      { speaker: 'المعلم', jp: 'その積極的な気持ちが、成長につながります。', romaji: 'Sono sekkyokuteki na kimochi ga, seichou ni tsunagarimasu.', ar: 'هذه الروح الإيجابية تؤدي إلى التطور.' },
+    ],
+  },
+  reading: {
+    titleAr: 'طريق النمو',
+    sentences: [
+      { jp: '私は日本語を習っています。', romaji: 'Watashi wa nihongo wo naratte imasu.', ar: 'أنا أتعلم اللغة اليابانية.' },
+      { jp: '失敗しても、あきらめないことが大切だと思います。', romaji: 'Shippai shite mo, akiramenai koto ga taisetsu da to omoimasu.', ar: 'أعتقد أنه حتى لو فشلت، فمن المهم ألا أستسلم.' },
+      { jp: '自信がつくように、毎日練習を続けています。', romaji: 'Jishin ga tsuku you ni, mainichi renshuu wo tsuzukete imasu.', ar: 'أواصل التدريب كل يوم لكي تزداد ثقتي بنفسي.' },
+      { jp: '努力すればするほど、成長できると分かりました。', romaji: 'Doryoku sureba suru hodo, seichou dekiru to wakarimashita.', ar: 'فهمت أنه كلما اجتهدت أكثر، استطعت أن أتطور أكثر.' },
+      { jp: '目標が達成できるように、これからも工夫します。', romaji: 'Mokuhyou ga tassei dekiru you ni, kore kara mo kufuu shimasu.', ar: 'سأبتكر حلولاً فيما بعد أيضاً لكي أتمكن من تحقيق هدفي.' },
+    ],
+    questions: [
+      { q: 'ماذا يتعلم الكاتب؟', options: ['اللغة اليابانية', 'اللغة العربية', 'التدريب الرياضي'], answer: 'اللغة اليابانية' },
+      { q: 'ما المهم في رأي الكاتب عند الفشل؟', options: ['ألا يستسلم', 'أن يتوقف', 'أن يستريح'], answer: 'ألا يستسلم' },
+      { q: 'لماذا يواصل التدريب كل يوم؟', options: ['لكي تزداد ثقته بنفسه', 'لكي يحصل على مال', 'لكي يرتاح أكثر'], answer: 'لكي تزداد ثقته بنفسه' },
+    ],
+  },
   vocab: [
     { id: 'shippai', type: 'noun', jp: '失敗', kanji: '失敗', hiragana: 'しっぱい', reading: 'shippai', meaning: 'فشل / خطأ' },
     { id: 'akirameru', type: 'verb', jp: 'あきらめる', hiragana: 'あきらめる', reading: 'akirameru', meaning: 'يستسلم' },

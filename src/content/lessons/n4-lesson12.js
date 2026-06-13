@@ -2,6 +2,33 @@ export const n4LessonTwelve = {
   id: 12,
   title: { ar: 'صيغة المبني للمجهول', en: 'The Passive Form' },
   focus: 'تكوين صيغة المبني للمجهول (受身形) للأفعال، واستخدامها للتعبير عن تأثر شخص بفعل شخص آخر، واستخدامها بدون فاعل محدد للأخبار والاختراعات مع によって',
+  dialogue: {
+    titleAr: 'في موقع الحادث',
+    lines: [
+      { speaker: 'ساتو', jp: '昨日、交差点で大きい事故がありました。', romaji: 'Kinou, kousaten de ooki jiko ga arimashita.', ar: 'أمس وقع حادث كبير في تقاطع الطرق.' },
+      { speaker: 'ميلر', jp: 'はい、そのニュースはテレビで報道されました。', romaji: 'Hai, sono nyuusu wa terebi de houdou saremashita.', ar: 'نعم، ذلك الخبر أُذيع في التلفزيون.' },
+      { speaker: 'ساتو', jp: '車が信号を無視して、トラックと衝突しました。', romaji: 'Kuruma ga shingou wo mushi shite, torakku to shoutotsu shimashita.', ar: 'تجاهلت سيارة إشارة المرور وتصادمت مع شاحنة.' },
+      { speaker: 'ミラー', jp: '運転手はけがをしましたか。', romaji: 'Untenshu wa kega wo shimashita ka.', ar: 'هل أُصيب السائق بجرح؟' },
+      { speaker: 'ساتو', jp: 'はい。でも、すぐ現場へ運ばれて、警官に注意されました。', romaji: 'Hai. Demo, sugu genba e hakobarete, keikan ni chuui saremashita.', ar: 'نعم. لكنه نُقل فوراً عند الموقع، وحذّره الشرطي.' },
+      { speaker: 'ميلر', jp: 'この記事は新聞にも載っていますか。', romaji: 'Kono kiji wa shinbun ni mo notte imasu ka.', ar: 'هل هذا المقال موجود في الجريدة أيضاً؟' },
+      { speaker: 'ساتو', jp: 'はい。多くの人に読まれていますよ。', romaji: 'Hai. Ooku no hito ni yomarete imasu yo.', ar: 'نعم. يقرأه كثير من الناس.' },
+    ],
+  },
+  reading: {
+    titleAr: 'اللص والشرطي',
+    sentences: [
+      { jp: '昨日の夜、私の友達の家に泥棒が入りました。', romaji: 'Kinou no yoru, watashi no tomodachi no ie ni dorobou ga hairimashita.', ar: 'ليلة أمس دخل لص إلى بيت صديقي.' },
+      { jp: '友達は財布を盗まれました。', romaji: 'Tomodachi wa saifu wo nusumaremashita.', ar: 'سُرقت محفظة صديقي.' },
+      { jp: '泥棒は警官に追いかけられました。', romaji: 'Dorobou wa keikan ni oikakeraremashita.', ar: 'طارد الشرطي اللص.' },
+      { jp: 'そして、その泥棒は逮捕されました。', romaji: 'Soshite, sono dorobou wa taiho saremashita.', ar: 'وبعد ذلك اعتُقل ذلك اللص.' },
+      { jp: 'この事件はニュースで報道されました。', romaji: 'Kono jiken wa nyuusu de houdou saremashita.', ar: 'أُذيعت هذه الحادثة في الأخبار.' },
+    ],
+    questions: [
+      { q: 'ماذا سُرق من صديق المتحدث؟', options: ['محفظته', 'ساعته', 'سيارته'], answer: 'محفظته' },
+      { q: 'من طارد اللص؟', options: ['الشرطي', 'الصديق', 'السائق'], answer: 'الشرطي' },
+      { q: 'أين أُذيعت الحادثة؟', options: ['في الأخبار', 'في الجريدة فقط', 'لم تُذع'], answer: 'في الأخبار' },
+    ],
+  },
   vocab: [
     { id: 'dorobou', type: 'noun', jp: '泥棒', kanji: '泥棒', hiragana: 'どろぼう', reading: 'dorobou', meaning: 'لص / سارق' },
     { id: 'keikan', type: 'noun', jp: '警官', kanji: '警官', hiragana: 'けいかん', reading: 'keikan', meaning: 'شرطي' },

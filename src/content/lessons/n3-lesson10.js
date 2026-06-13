@@ -2,6 +2,34 @@ export const n3LessonTen = {
   id: 10,
   title: { ar: 'التسبيب والسماح', en: 'Causative and Permission' },
   focus: 'صياغة جعل شخص يفعل شيئاً أو طلب السماح باستخدام させる・させてください.',
+  dialogue: {
+    titleAr: 'طلب الموظف استراحة من رئيسه',
+    lines: [
+      { speaker: 'الموظف', jp: '上司、少し休憩させてください。', romaji: 'Joushi, sukoshi kyuukei sasete kudasai.', ar: 'يا رئيسي، اسمح لي أن أستريح قليلاً.' },
+      { speaker: 'الرئيس', jp: 'いいですが、その前にこの仕事を手伝わせてください。', romaji: 'Ii desu ga, sono mae ni kono shigoto wo tetsudawasete kudasai.', ar: 'حسناً، لكن قبل ذلك اسمح لي أن أجعلك تساعد في هذا العمل.' },
+      { speaker: 'الموظف', jp: '分かりました。今日は早く帰らせてください。', romaji: 'Wakarimashita. Kyou wa hayaku kaerasete kudasai.', ar: 'فهمت. اسمح لي أن أعود مبكراً اليوم.' },
+      { speaker: 'الرئيس', jp: 'その前に、私に意見を考えさせてください。', romaji: 'Sono mae ni, watashi ni iken wo kangaesasete kudasai.', ar: 'قبل ذلك، اسمح لي أن أفكر في رأي.' },
+      { speaker: 'الموظف', jp: '会社は社員を休ませますか。', romaji: 'Kaisha wa shain wo yasumasemasu ka.', ar: 'هل تدع الشركة الموظف يستريح؟' },
+      { speaker: 'الرئيس', jp: 'はい、上司は社員に休憩させます。', romaji: 'Hai, joushi wa shain ni kyuukei sasemasu.', ar: 'نعم، الرئيس يجعل الموظف يأخذ استراحة.' },
+      { speaker: 'الموظف', jp: 'では、質問をさせてください。', romaji: 'Dewa, shitsumon wo sasete kudasai.', ar: 'إذن، اسمح لي أن أسأل سؤالاً.' },
+      { speaker: 'الرئيس', jp: 'どうぞ、早く考えてください。', romaji: 'Douzo, hayaku kangaete kudasai.', ar: 'تفضل، فكر بسرعة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم في الصف',
+    sentences: [
+      { jp: '先生は学生に発表させました。', romaji: 'Sensei wa gakusei ni happyou sasemashita.', ar: 'طلب الأستاذ من الطلاب أن يقدموا عرضاً.' },
+      { jp: '先生は学生に文を書かせました。', romaji: 'Sensei wa gakusei ni bun wo kakasemashita.', ar: 'جعل الأستاذ الطالب يكتب جملة.' },
+      { jp: 'それから、先生は学生に宿題をさせました。', romaji: 'Sorekara, sensei wa gakusei ni shukudai wo sasemashita.', ar: 'بعد ذلك، كلف الأستاذ الطلاب بالواجب المنزلي.' },
+      { jp: '一人の学生は先生に質問をさせてくださいと言いました。', romaji: 'Hitori no gakusei wa sensei ni shitsumon wo sasete kudasai to iimashita.', ar: 'قال أحد الطلاب للأستاذ اسمح لي أن أسأل سؤالاً.' },
+      { jp: '先生は学生に少し休憩させました。', romaji: 'Sensei wa gakusei ni sukoshi kyuukei sasemashita.', ar: 'جعل الأستاذ الطلاب يأخذون استراحة قصيرة.' },
+    ],
+    questions: [
+      { q: 'ماذا جعل الأستاذ الطلاب يفعلون أولاً؟', options: ['قدموا عرضاً', 'نظفوا الغرفة', 'عادوا مبكراً'], answer: 'قدموا عرضاً' },
+      { q: 'ماذا طلب الطالب من الأستاذ؟', options: ['أن يستريح', 'أن يسأل سؤالاً', 'أن يعود إلى البيت'], answer: 'أن يسأل سؤالاً' },
+      { q: 'ماذا فعل الأستاذ في النهاية؟', options: ['جعلهم يكتبون عرضاً', 'جعلهم يأخذون استراحة', 'كلفهم بالتنظيف'], answer: 'جعلهم يأخذون استراحة' },
+    ],
+  },
   vocab: [
     { id: 'souji', type: 'noun', jp: '掃除', kanji: '掃除', hiragana: 'そうじ', reading: 'souji', meaning: 'تنظيف' },
     { id: 'heya', type: 'noun', jp: '部屋', kanji: '部屋', hiragana: 'へや', reading: 'heya', meaning: 'غرفة' },

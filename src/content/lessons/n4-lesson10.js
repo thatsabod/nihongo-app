@@ -2,6 +2,34 @@ export const n4LessonTen = {
   id: 10,
   title: { ar: 'الجملة الشرطية ば', en: 'The ば-Conditional' },
   focus: 'تكوين صيغة الشرط ば للأفعال والصفات والأسماء، واستخدامها في الجملة الرئيسية، والتعبير عن "كلما... زاد..." بـ ~ば~ほど، والسؤال "ماذا أفعل لو...؟" بـ ~ばいいですか.',
+  dialogue: {
+    titleAr: 'قبل تسلق الجبل',
+    lines: [
+      { speaker: 'ميلر', jp: '先生、天気が変われば、登山は危険になりますか。', romaji: 'Sensei, tenki ga kawareba, tozan wa kiken ni narimasu ka.', ar: 'يا معلم، إذا تغيّر الجو، هل يصبح تسلق الجبل خطيراً؟' },
+      { speaker: 'المعلم', jp: 'はい。天気が変われば、すぐに休憩してください。', romaji: 'Hai. Tenki ga kawareba, sugu ni kyuukei shite kudasai.', ar: 'نعم. إذا تغيّر الجو، استرح فوراً من فضلك.' },
+      { speaker: 'ميلر', jp: '道に迷いました。どうすればいいですか。', romaji: 'Michi ni mayoimashita. Dou sureba ii desu ka.', ar: 'ضعت في الطريق. ماذا يجب أن أفعل؟' },
+      { speaker: 'المعلم', jp: '地図とコンパスがあれば、大丈夫です。', romaji: 'Chizu to konpasu ga areba, daijoubu desu.', ar: 'إذا كانت معك خريطة وبوصلة، فلا مشكلة.' },
+      { speaker: 'ميلر', jp: '頂上に着けば、景色はきれいですか。', romaji: 'Choujou ni tsukeba, keshiki wa kirei desu ka.', ar: 'إذا وصلت إلى القمة، هل يكون المنظر جميلاً؟' },
+      { speaker: 'المعلم', jp: '上に登れば登るほど、景色はきれいになりますよ。', romaji: 'Ue ni noboreba noboru hodo, keshiki wa kirei ni narimasu yo.', ar: 'كلما صعدت أكثر، صار المنظر أجمل.' },
+      { speaker: 'ميلر', jp: '登山なら、安全がいちばん大切ですね。', romaji: 'Tozan nara, anzen ga ichiban taisetsu desu ne.', ar: 'إذا كان الأمر عن تسلق الجبال، فالسلامة هي الأهم، أليس كذلك؟' },
+      { speaker: 'المعلم', jp: 'そうです。安全なら、楽しい旅行になります。', romaji: 'Sou desu. Anzen nara, tanoshii ryokou ni narimasu.', ar: 'صحيح. إذا توفرت السلامة، تصبح الرحلة ممتعة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'رحلة إلى الجزيرة',
+    sentences: [
+      { jp: '私は友達と島へ登山に行きました。', romaji: 'Watashi wa tomodachi to shima e tozan ni ikimashita.', ar: 'ذهبت مع صديقي إلى الجزيرة لتسلق الجبل.' },
+      { jp: '港に着けば、すぐに山が見えます。', romaji: 'Minato ni tsukeba, sugu ni yama ga miemasu.', ar: 'عندما تصل إلى الميناء، ترى الجبل فوراً.' },
+      { jp: '地図があれば、道に迷いません。', romaji: 'Chizu ga areba, michi ni mayoimasen.', ar: 'إذا كانت معك خريطة، فلن تضيع الطريق.' },
+      { jp: '上に登れば登るほど、景色はきれいになりました。', romaji: 'Ue ni noboreba noboru hodo, keshiki wa kirei ni narimashita.', ar: 'كلما صعدنا أكثر، صار المنظر أجمل.' },
+      { jp: '頂上に着けば、海が全部見えますよ。', romaji: 'Choujou ni tsukeba, umi ga zenbu miemasu yo.', ar: 'عندما تصل إلى القمة، ترى البحر كله.' },
+    ],
+    questions: [
+      { q: 'أين ذهب الكاتب لتسلق الجبل؟', options: ['إلى الجزيرة', 'إلى الميناء فقط', 'إلى الخارج'], answer: 'إلى الجزيرة' },
+      { q: 'ماذا تحتاج كي لا تضيع الطريق؟', options: ['خريطة', 'خيمة', 'بوصلة'], answer: 'خريطة' },
+      { q: 'ماذا يحدث للمنظر كلما صعدت أكثر؟', options: ['يصبح أجمل', 'يصبح أسوأ', 'لا يتغير'], answer: 'يصبح أجمل' },
+    ],
+  },
   vocab: [
     { id: 'tozan', type: 'noun', jp: '登山', kanji: '登山', hiragana: 'とざん', reading: 'tozan', meaning: 'تسلق الجبال' },
     { id: 'haikingu', type: 'noun', jp: 'ハイキング', hiragana: 'ハイキング', reading: 'haikingu', meaning: 'المشي لمسافات طويلة (هايكنغ)' },

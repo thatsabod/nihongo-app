@@ -2,6 +2,34 @@ export const n3LessonEleven = {
   id: 11,
   title: { ar: 'المساعدة والعطاء', en: 'Giving and Receiving Favors' },
   focus: 'فهم اتجاه الفائدة في てくれる・てもらう・てあげる.',
+  dialogue: {
+    titleAr: 'مساعدة في الواجب',
+    lines: [
+      { speaker: 'ميلر', jp: '友達が宿題を手伝ってくれました。', romaji: 'Tomodachi ga shukudai wo tetsudatte kuremashita.', ar: 'ساعدني صديقي في الواجب.' },
+      { speaker: 'ساتو', jp: 'いいですね。私は先生に作文を直してもらいました。', romaji: 'Ii desu ne. Watashi wa sensei ni sakubun wo naoshite moraimashita.', ar: 'جميل. أنا طلبت من الأستاذ أن يصحح لي الإنشاء.' },
+      { speaker: 'ميلر', jp: '先生が説明してくれましたか。', romaji: 'Sensei ga setsumei shite kuremashita ka.', ar: 'هل شرح لك الأستاذ؟' },
+      { speaker: 'ساتو', jp: 'はい。それから私は妹に日本語を教えてあげました。', romaji: 'Hai. Sorekara watashi wa imouto ni nihongo wo oshiete agemashita.', ar: 'نعم. ثم علّمت أختي الصغيرة اليابانية.' },
+      { speaker: 'ميلر', jp: '本を貸してくれますか。', romaji: 'Hon wo kashite kuremasu ka.', ar: 'هل تعيرني الكتاب؟' },
+      { speaker: 'ساتو', jp: 'はい、貸してあげます。', romaji: 'Hai, kashite agemasu.', ar: 'نعم، سأعيرك إياه.' },
+      { speaker: 'ميلر', jp: 'ありがとう。あとで駅まで送ってもらえますか。', romaji: 'Arigatou. Ato de eki made okutte moraemasu ka.', ar: 'شكراً. هل يمكن أن توصلني إلى المحطة لاحقاً؟' },
+      { speaker: 'ساتو', jp: 'いいですよ。送ってあげます。', romaji: 'Ii desu yo. Okutte agemasu.', ar: 'بالطبع. سأوصلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم مليء بالمساعدة',
+    sentences: [
+      { jp: '友達が宿題を手伝ってくれました。', romaji: 'Tomodachi ga shukudai wo tetsudatte kuremashita.', ar: 'ساعدني صديقي في الواجب.' },
+      { jp: '私は先生に作文を直してもらいました。', romaji: 'Watashi wa sensei ni sakubun wo naoshite moraimashita.', ar: 'طلبت من الأستاذ أن يصحح لي الإنشاء.' },
+      { jp: '先生は使い方を説明してくれました。', romaji: 'Sensei wa tsukaikata wo setsumei shite kuremashita.', ar: 'شرح لي الأستاذ طريقة الاستخدام.' },
+      { jp: '私は妹に日本語を教えてあげました。', romaji: 'Watashi wa imouto ni nihongo wo oshiete agemashita.', ar: 'علّمت أختي الصغيرة اليابانية.' },
+      { jp: '友達が私を駅まで送ってくれました。', romaji: 'Tomodachi ga watashi wo eki made okutte kuremashita.', ar: 'أوصلني صديقي إلى المحطة.' },
+    ],
+    questions: [
+      { q: 'من ساعد المتكلم في الواجب؟', options: ['الصديق', 'الأستاذ', 'الأخت الصغرى'], answer: 'الصديق' },
+      { q: 'ماذا فعل المتكلم لأخته الصغرى؟', options: ['علّمها اليابانية', 'أعارها كتاباً', 'صحح لها الإنشاء'], answer: 'علّمها اليابانية' },
+      { q: 'من أوصل المتكلم إلى المحطة؟', options: ['الصديق', 'الأستاذ', 'الأخت الصغرى'], answer: 'الصديق' },
+    ],
+  },
   vocab: [
     { id: 'shukudai', type: 'noun', jp: '宿題', kanji: '宿題', hiragana: 'しゅくだい', reading: 'shukudai', meaning: 'واجب' },
     { id: 'tetsudau', type: 'verb', jp: '手伝う', kanji: '手伝う', hiragana: 'てつだう', reading: 'tetsudau', meaning: 'يساعد' },

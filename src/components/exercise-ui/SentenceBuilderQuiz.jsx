@@ -5,6 +5,7 @@ import IconCircle from '../IconCircle.jsx'
 import { ExercisePane } from './ExerciseContainer.jsx'
 import QuestionCard, { SentenceDisplay } from './QuestionCard.jsx'
 import ActionButton from './ActionButton.jsx'
+import { answersMatch } from '../../utils/answerMatch.js'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -51,7 +52,9 @@ export default function SentenceBuilderQuiz({
   const check = () => {
     if (result || selected.length === 0) return
     const built = selected.map((item) => item.w)
-    const correct = built.every((w, i) => w === answer[i])
+    // Compare full normalized strings (also guards against a too-short answer
+    // that merely matches a prefix of the target).
+    const correct = answersMatch(built.join(''), answer.join(''))
     setResult(correct ? 'correct' : 'wrong')
     if (correct) playCorrect()
     else playWrong()

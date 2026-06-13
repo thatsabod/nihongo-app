@@ -2,6 +2,33 @@ export const n4LessonTwentyThree = {
   id: 23,
   title: { ar: 'صيغة السببية: せる / させる', en: 'The Causative Form: せる / させる' },
   focus: 'تكوين صيغة السببية (使役形)، واستخدامها مع الأفعال اللازمة (الشخص+を/が)، واستخدامها مع الأفعال المتعدية (المفعول+を، الشخص+に)، ومراجعة ~させていただけませんか.',
+  dialogue: {
+    titleAr: 'طلب الإذن من المدير',
+    lines: [
+      { speaker: 'ميلر', jp: '部長、来月アメリカに留学させていただけませんか。', romaji: 'Buchou, raigetsu Amerika ni ryuugaku sasete itadakemasen ka.', ar: 'سيدي المدير، هل يمكن أن يُسمح لي بالدراسة في أمريكا الشهر القادم؟' },
+      { speaker: 'المدير', jp: '留学ですか。じゃあ、自分でよく考えさせてください。', romaji: 'Ryuugaku desu ka. Jaa, jibun de yoku kangaesasete kudasai.', ar: 'دراسة بالخارج؟ إذن، دعني أفكر في الأمر جيداً بنفسي.' },
+      { speaker: 'ميلر', jp: 'はい。無理にお願いはしません。', romaji: 'Hai. Muri ni onegai wa shimasen.', ar: 'حسناً. لن أطلب الأمر بالقوة.' },
+      { speaker: 'المدير', jp: '会社は社員を自由に選ばせます。心配しないでください。', romaji: 'Kaisha wa shain wo jiyuu ni erabasemasu. Shinpai shinaide kudasai.', ar: 'الشركة تدع الموظفين يختارون بحرية. لا تقلق.' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。この会議にも参加させていただけませんか。', romaji: 'Arigatou gozaimasu. Kono kaigi ni mo sanka sasete itadakemasen ka.', ar: 'شكراً جزيلاً. وهل يمكن أن يُسمح لي بالمشاركة في هذا الاجتماع أيضاً؟' },
+      { speaker: 'المدير', jp: 'もちろんです。でも、今日は早く帰って、十分に休んでください。', romaji: 'Mochiron desu. Demo, kyou wa hayaku kaette, juubun ni yasunde kudasai.', ar: 'بالطبع. لكن اليوم اذهب إلى البيت باكراً واسترح بشكل كافٍ.' },
+      { speaker: 'ميلر', jp: 'はい、必ずそうします。', romaji: 'Hai, kanarazu sou shimasu.', ar: 'حسناً، سأفعل ذلك حتماً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'مدير يحترم حرية موظفيه',
+    sentences: [
+      { jp: '私の部長は、社員を無理に強制しません。', romaji: 'Watashi no buchou wa, shain wo muri ni kyousei shimasen.', ar: 'مديري لا يُجبر الموظفين بالقوة.' },
+      { jp: '部長はいつも社員に自分で考えさせます。', romaji: 'Buchou wa itsumo shain ni jibun de kangaesasemasu.', ar: 'المدير دائماً يجعل الموظفين يفكرون بأنفسهم.' },
+      { jp: '先月、部長は私を一週間休ませました。', romaji: 'Sengetsu, buchou wa watashi wo isshuukan yasumasemashita.', ar: 'الشهر الماضي، جعلني المدير أستريح لمدة أسبوع.' },
+      { jp: '今、私は新しいプロジェクトに参加させていただいています。', romaji: 'Ima, watashi wa atarashii purojekuto ni sanka sasete itadaite imasu.', ar: 'الآن، يُسمح لي بالمشاركة في مشروع جديد.' },
+      { jp: '私はこの自由な会社が大好きです。', romaji: 'Watashi wa kono jiyuu na kaisha ga daisuki desu.', ar: 'أنا أحب هذه الشركة الحرة كثيراً.' },
+    ],
+    questions: [
+      { q: 'هل يُجبر المدير الموظفين بالقوة؟', options: ['لا، لا يُجبرهم بالقوة', 'نعم، يُجبرهم دائماً', 'نعم، أحياناً'], answer: 'لا، لا يُجبرهم بالقوة' },
+      { q: 'ماذا فعل المدير الشهر الماضي للكاتب؟', options: ['جعله يستريح أسبوعاً', 'جعله يسافر في مهمة عمل', 'جعله ينتظر ساعة'], answer: 'جعله يستريح أسبوعاً' },
+      { q: 'ما شعور الكاتب تجاه الشركة؟', options: ['يحبها كثيراً', 'يكرهها', 'يريد تركها'], answer: 'يحبها كثيراً' },
+    ],
+  },
   vocab: [
     { id: 'shuccho-sasemasu', type: 'verb', jp: '出張させます', kanji: '出張させます', hiragana: 'しゅっちょうさせます', reading: 'shucchou sasemasu', meaning: 'يرسله/يجعله في مهمة عمل (سفر عمل)' },
     { id: 'narawasemasu', type: 'verb', jp: '習わせます', kanji: '習わせます', hiragana: 'ならわせます', reading: 'narawasemasu', meaning: 'يجعله يتعلم / يدرّسه' },

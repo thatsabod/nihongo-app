@@ -2,6 +2,33 @@ export const n3LessonTwo = {
   id: 2,
   title: { ar: 'أثناء وضمن فترة', en: 'During and While' },
   focus: 'التفريق بين うちに・間に・中 للتعبير عن الزمن الجاري أو الفترة المناسبة.',
+  dialogue: {
+    titleAr: 'قبل أن تنتهي العطلة',
+    lines: [
+      { speaker: 'المعلم', jp: '夏休みの間に何をしますか。', romaji: 'Natsuyasumi no aida ni nani wo shimasu ka.', ar: 'ماذا ستفعل خلال العطلة الصيفية؟' },
+      { speaker: 'ميلر', jp: '休みの間に日本語を復習します。', romaji: 'Yasumi no aida ni nihongo wo fukushuu shimasu.', ar: 'سأراجع اليابانية خلال العطلة.' },
+      { speaker: 'المعلم', jp: 'いいですね。若いうちにいろいろな経験をしたほうがいいですよ。', romaji: 'Ii desu ne. Wakai uchi ni iroirona keiken wo shita hou ga ii desu yo.', ar: 'جميل. من الأفضل أن تخوض تجارب متنوعة ما دمت شاباً.' },
+      { speaker: 'ميلر', jp: '友達と旅行に行きたいです。', romaji: 'Tomodachi to ryokou ni ikitai desu.', ar: 'أريد أن أذهب في رحلة مع صديق.' },
+      { speaker: 'المعلم', jp: '明るいうちに出発したほうがいいです。', romaji: 'Akarui uchi ni shuppatsu shita hou ga ii desu.', ar: 'من الأفضل أن تنطلق بينما الجو مشرق.' },
+      { speaker: 'ميلر', jp: 'はい。でも授業中に携帯電話が鳴りました。すみません。', romaji: 'Hai. Demo jugyou-chuu ni keitai denwa ga narimashita. Sumimasen.', ar: 'حسناً. لكن رن الهاتف أثناء الحصة. آسف.' },
+      { speaker: 'المعلم', jp: '授業中に電話を使わないでください。', romaji: 'Jugyou-chuu ni denwa wo tsukawanaide kudasai.', ar: 'لا تستخدم الهاتف أثناء الحصة من فضلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'عطلة ميلر الصيفية',
+    sentences: [
+      { jp: 'ミラーさんは若いうちにいろいろな経験をしたいです。', romaji: 'Miraa-san wa wakai uchi ni iroirona keiken wo shitai desu.', ar: 'يريد ميلر أن يخوض تجارب متنوعة ما دام شاباً.' },
+      { jp: '夏休みの間に友達と旅行に行きます。', romaji: 'Natsuyasumi no aida ni tomodachi to ryokou ni ikimasu.', ar: 'سيذهب في رحلة مع صديق خلال العطلة الصيفية.' },
+      { jp: '明るいうちに出発します。', romaji: 'Akarui uchi ni shuppatsu shimasu.', ar: 'سينطلق بينما الجو مشرق.' },
+      { jp: '旅行の間に日本語を復習します。', romaji: 'Ryokou no aida ni nihongo wo fukushuu shimasu.', ar: 'سيراجع اليابانية خلال الرحلة.' },
+      { jp: '会議中に携帯電話を使わないことを覚えました。', romaji: 'Kaigi-chuu ni keitai denwa wo tsukawanai koto wo oboemashita.', ar: 'تعلّم ألا يستخدم الهاتف أثناء الاجتماع.' },
+    ],
+    questions: [
+      { q: 'متى يريد ميلر أن يخوض التجارب؟', options: ['ما دام شاباً', 'بعد أن يكبر', 'أثناء الاجتماع'], answer: 'ما دام شاباً' },
+      { q: 'مع من سيذهب في الرحلة؟', options: ['مع صديق', 'مع المعلم', 'وحده'], answer: 'مع صديق' },
+      { q: 'ماذا سيفعل خلال الرحلة؟', options: ['يراجع اليابانية', 'يشتري هاتفاً', 'ينام طوال الوقت'], answer: 'يراجع اليابانية' },
+    ],
+  },
   vocab: [
     { id: 'wakai', type: 'adjective', jp: '若い', kanji: '若い', hiragana: 'わかい', reading: 'wakai', meaning: 'شاب / صغير السن' },
     { id: 'keiken', type: 'noun', jp: '経験', kanji: '経験', hiragana: 'けいけん', reading: 'keiken', meaning: 'تجربة / خبرة' },

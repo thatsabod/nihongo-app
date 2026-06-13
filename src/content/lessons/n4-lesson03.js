@@ -2,6 +2,34 @@ export const n4LessonThree = {
   id: 3,
   title: { ar: 'أثناء... والعادات اليومية: ながら / ~ています', en: 'While Doing & Habits: ながら / ~ています' },
   focus: 'التعبير عن فعل شيئين في نفس الوقت بـ ながら، واستخدام ~ています للعادات المتكررة، وربط الجمل بـ し وそれに/それで.',
+  dialogue: {
+    titleAr: 'حديث عن العادات الرياضية',
+    lines: [
+      { speaker: 'ساتو', jp: '毎朝、ジョギングしています。', romaji: 'Maiasa, jogingu shite imasu.', ar: 'أمارس الجوجينج كل صباح (كعادة).' },
+      { speaker: 'ميلر', jp: 'いいですね。私は音楽を聞きながら散歩します。', romaji: 'Ii desu ne. Watashi wa ongaku wo kikinagara sanpo shimasu.', ar: 'جميل. أنا أتمشى بينما أستمع إلى الموسيقى.' },
+      { speaker: 'ساトو', jp: '健康のために運動を続けていますか。', romaji: 'Kenkou no tame ni undou wo tsuzukete imasu ka.', ar: 'هل تواصل ممارسة الرياضة من أجل الصحة؟' },
+      { speaker: 'ミラー', jp: 'はい。週に三回、続けています。', romaji: 'Hai. Shuu ni sankai, tsuzukete imasu.', ar: 'نعم. أواصلها ثلاث مرات في الأسبوع.' },
+      { speaker: 'ساتو', jp: '駅の近くの店は安いし、おいしいですよ。', romaji: 'Eki no chikaku no mise wa yasui shi, oishii desu yo.', ar: 'المحل القريب من المحطة رخيص ولذيذ.' },
+      { speaker: 'ميلر', jp: 'それに、便利ですね。今晩行きます。', romaji: 'Sore ni, benri desu ne. Konban ikimasu.', ar: 'وعلاوة على ذلك، عملي. سأذهب الليلة.' },
+      { speaker: 'ساتو', jp: 'ダイエットのために、私はコーヒーをやめました。', romaji: 'Daietto no tame ni, watashi wa koohii wo yamemashita.', ar: 'تركت القهوة من أجل الحمية.' },
+      { speaker: 'ميلر', jp: 'それで、毎晩お茶を飲んでいますか。', romaji: 'Sore de, maiban ocha wo nonde imasu ka.', ar: 'فلهذا تشرب الشاي كل ليلة؟' },
+    ],
+  },
+  reading: {
+    titleAr: 'عادات ساتو اليومية',
+    sentences: [
+      { jp: 'サトウさんは毎朝走っています。', romaji: 'Satou san wa maiasa hashitte imasu.', ar: 'السيد ساتو يجري كل صباح.' },
+      { jp: '健康のために、運動を続けています。', romaji: 'Kenkou no tame ni, undou wo tsuzukete imasu.', ar: 'يواصل ممارسة الرياضة من أجل الصحة.' },
+      { jp: '毎晩、ニュースを見ながらお茶を飲みます。', romaji: 'Maiban, nyuusu wo minagara ocha wo nomimasu.', ar: 'كل ليلة، يشرب الشاي بينما يشاهد الأخبار.' },
+      { jp: '駅の近くの店は安いし、おいしいです。', romaji: 'Eki no chikaku no mise wa yasui shi, oishii desu.', ar: 'المحل القريب من المحطة رخيص ولذيذ.' },
+      { jp: 'それで、サトウさんはよくその店に行きます。', romaji: 'Sore de, Satou san wa yoku sono mise ni ikimasu.', ar: 'لذلك يذهب السيد ساتو إلى ذلك المحل كثيراً.' },
+    ],
+    questions: [
+      { q: 'متى يجري السيد ساتو؟', options: ['كل صباح', 'كل ليلة', 'مرة في الأسبوع'], answer: 'كل صباح' },
+      { q: 'ماذا يفعل بينما يشاهد الأخبار كل ليلة؟', options: ['يشرب الشاي', 'يشرب القهوة', 'يجري'], answer: 'يشرب الشاي' },
+      { q: 'لماذا يذهب إلى المحل القريب من المحطة كثيراً؟', options: ['لأنه رخيص ولذيذ', 'لأنه بعيد', 'لأنه مغلق'], answer: 'لأنه رخيص ولذيذ' },
+    ],
+  },
   vocab: [
     { id: 'jogingu-shimasu', type: 'verb', jp: 'ジョギングします', hiragana: 'ジョギングします', reading: 'jogingu shimasu', meaning: 'يمارس الجوجينج / الركض الخفيف' },
     { id: 'hashirimasu', type: 'verb', jp: '走ります', kanji: '走ります', hiragana: 'はしります', reading: 'hashirimasu', meaning: 'يجري / يركض' },

@@ -21,6 +21,7 @@ import type {
   VocabularyItem,
 } from '../types/learning'
 import type { RawLesson } from './lessonModule.ts'
+import kanjiMeanings from './kanjiMeanings.js'
 
 // ── Raw kanji shape (data.js makeQuestions output) ──────────────────────────
 interface RawKanji {
@@ -91,16 +92,20 @@ export function buildGrammarStore(lessons: RawLesson[], level: JLPTLevel): Store
 }
 
 // ── Kanji ───────────────────────────────────────────────────────────────────
+interface KanjiGloss { meaningAr: string; onyomi?: string[]; kunyomi?: string[] }
+
 export function buildKanjiStore(kanji: RawKanji[], level: JLPTLevel): Store<Kanji> {
   const store: Store<Kanji> = {}
+  const glosses = kanjiMeanings as Record<string, KanjiGloss>
   for (const k of kanji) {
     if (!k.kana || store[k.kana]) continue
+    const g = glosses[k.kana]
     store[k.kana] = {
       id: k.kana,
       character: k.kana,
-      meaningAr: '', // TODO(Phase 6): kanji glosses not in current dataset
-      onyomi: [],
-      kunyomi: [],
+      meaningAr: g?.meaningAr || '',
+      onyomi: g?.onyomi || [],
+      kunyomi: g?.kunyomi || [],
       readingRomaji: k.answer || '',
       level,
       tags: [],

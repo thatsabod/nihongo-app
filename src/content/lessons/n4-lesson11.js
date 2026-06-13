@@ -2,6 +2,34 @@ export const n4LessonEleven = {
   id: 11,
   title: { ar: 'لكي.../أصبح...: ように / ようになります', en: 'So That / Becoming Able: ように / ようになります' },
   focus: 'التعبير عن "لكي يحدث..." بـ ~ように، والتعبير عن "أصبح قادراً على/توقف عن" بـ ~ようになります/~なくなります، واستخدام ~ようにしています/~ようにしてください+とか.',
+  dialogue: {
+    titleAr: 'تحسّن اللغة اليابانية',
+    lines: [
+      { speaker: 'المعلم', jp: '最近、日本語がだんだん上達しましたね。', romaji: 'Saikin, nihongo ga dandan joutatsu shimashita ne.', ar: 'لقد تحسّنت لغتك اليابانية تدريجياً مؤخراً.' },
+      { speaker: 'ميلر', jp: 'はい、漢字が読めるようになりました。', romaji: 'Hai, kanji ga yomeru you ni narimashita.', ar: 'نعم، أصبحت أستطيع قراءة الكانجي.' },
+      { speaker: 'المعلم', jp: 'いいですね。毎日練習していますか。', romaji: 'Ii desu ne. Mainichi renshuu shite imasu ka.', ar: 'جميل. هل تتدرّب كل يوم؟' },
+      { speaker: 'ميلر', jp: 'はい、漢字を忘れないように、毎日覚えるようにしています。', romaji: 'Hai, kanji wo wasurenai you ni, mainichi oboeru you ni shite imasu.', ar: 'نعم، أحاول أن أحفظ كل يوم لكي لا أنسى الكانجي.' },
+      { speaker: 'المعلم', jp: '最初は緊張しましたか。', romaji: 'Saisho wa kinchou shimashita ka.', ar: 'هل كنت تشعر بالتوتر في البداية؟' },
+      { speaker: 'ميلر', jp: 'はい、でも今は緊張しなくなりました。', romaji: 'Hai, demo ima wa kinchou shinaku narimashita.', ar: 'نعم، لكنني الآن لم أعد أشعر بالتوتر.' },
+      { speaker: 'المعلم', jp: '自信がつきましたね。これからも努力するようにしてください。', romaji: 'Jishin ga tsukimashita ne. Korekara mo doryoku suru you ni shite kudasai.', ar: 'لقد اكتسبت ثقة بالنفس. احرص على الاجتهاد من الآن فصاعداً.' },
+      { speaker: 'ميلر', jp: 'はい、毎日努力するとか、本を読むとかします。', romaji: 'Hai, mainichi doryoku suru toka, hon wo yomu toka shimasu.', ar: 'نعم، سأفعل أشياء مثل الاجتهاد كل يوم أو قراءة الكتب.' },
+    ],
+  },
+  reading: {
+    titleAr: 'عادة ميلر الجديدة',
+    sentences: [
+      { jp: 'ミラーさんは最近、毎日日本語を練習するようにしています。', romaji: 'Miraa-san wa saikin, mainichi nihongo wo renshuu suru you ni shite imasu.', ar: 'يحاول السيد ميلر مؤخراً أن يتدرّب على اليابانية كل يوم.' },
+      { jp: '最初は漢字が読めませんでしたが、だんだん読めるようになりました。', romaji: 'Saisho wa kanji ga yomemasen deshita ga, dandan yomeru you ni narimashita.', ar: 'في البداية لم يكن يستطيع قراءة الكانجي، لكنه أصبح يقرؤه تدريجياً.' },
+      { jp: '漢字を忘れないように、毎日覚えています。', romaji: 'Kanji wo wasurenai you ni, mainichi oboete imasu.', ar: 'يحفظ كل يوم لكي لا ينسى الكانجي.' },
+      { jp: 'この習慣を続けて、ミラーさんは自信がつきました。', romaji: 'Kono shuukan wo tsuzukete, Miraa-san wa jishin ga tsukimashita.', ar: 'بمواصلة هذه العادة، اكتسب السيد ميلر ثقة بالنفس.' },
+      { jp: '今は試験のとき、緊張しなくなりました。', romaji: 'Ima wa shiken no toki, kinchou shinaku narimashita.', ar: 'الآن لم يعد يشعر بالتوتر وقت الامتحان.' },
+    ],
+    questions: [
+      { q: 'ماذا يحاول ميلر أن يفعله كل يوم؟', options: ['أن يتدرّب على اليابانية', 'أن ينام مبكراً', 'أن يشرب القهوة'], answer: 'أن يتدرّب على اليابانية' },
+      { q: 'كيف أصبح ميلر يقرأ الكانجي؟', options: ['فجأة', 'تدريجياً', 'لم يعد يقرؤه'], answer: 'تدريجياً' },
+      { q: 'ماذا حدث لتوتر ميلر وقت الامتحان؟', options: ['ازداد توتره', 'لم يعد يشعر بالتوتر', 'بقي متوتراً جداً'], answer: 'لم يعد يشعر بالتوتر' },
+    ],
+  },
   vocab: [
     { id: 'atsumarimasu', type: 'verb', jp: '集まります', kanji: '集まります', hiragana: 'あつまります', reading: 'atsumarimasu', meaning: 'يتجمّع / يجتمع' },
     { id: 'shikarimasu', type: 'verb', jp: '叱ります', kanji: '叱ります', hiragana: 'しかります', reading: 'shikarimasu', meaning: 'يوبّخ / يعنّف' },

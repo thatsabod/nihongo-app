@@ -2,6 +2,32 @@ export const n3LessonTwentyThree = {
   id: 23,
   title: { ar: 'التأكيد والتعجب', en: 'Emphasis and Surprise' },
   focus: 'تراكيب تعطي تركيزاً أو مفاجأة: こそ・さえ・なんて.',
+  dialogue: {
+    titleAr: 'فرصة السفر للخارج',
+    lines: [
+      { speaker: 'ساتو', jp: '友達が一人で海外へ行くなんてすごいです。', romaji: 'Tomodachi ga hitori de kaigai e iku nante sugoi desu.', ar: 'أن يسافر صديقي للخارج وحده، هذا مذهل.' },
+      { speaker: 'ميلر', jp: '今こそ始めるチャンスですよ。', romaji: 'Ima koso hajimeru chansu desu yo.', ar: 'الآن بالذات هي فرصة البدء.' },
+      { speaker: 'ساتو', jp: '私でさえこのチャンスが信じられません。', romaji: 'Watashi de sae kono chansu ga shinjiraremasen.', ar: 'حتى أنا لا أصدق هذه الفرصة.' },
+      { speaker: 'ميلر', jp: '子どもでさえ分かることです。今が運命です。', romaji: 'Kodomo de sae wakaru koto desu. Ima ga unmei desu.', ar: 'إنه أمر يفهمه حتى الطفل. الآن هو القدر.' },
+      { speaker: 'ساتو', jp: 'ここで始めないなんて愚かですね。', romaji: 'Koko de hajimenai nante oroka desu ne.', ar: 'ألا أبدأ هنا، هذا أمر سخيف.' },
+      { speaker: 'ميلر', jp: 'あなたこそ天才です。今こそ始めましょう。', romaji: 'Anata koso tensai desu. Ima koso hajimemashou.', ar: 'أنت بالذات عبقري. لنبدأ الآن بالذات.' },
+    ],
+  },
+  reading: {
+    titleAr: 'الفرصة الآن',
+    sentences: [
+      { jp: '私の友達は今こそ海外へ行くチャンスだと言い出しました。', romaji: 'Watashi no tomodachi wa ima koso kaigai e iku chansu da to iidashimashita.', ar: 'صديقي بدأ يقول إن الآن بالذات هي فرصة السفر للخارج.' },
+      { jp: '一人で行くなんてすごいことです。', romaji: 'Hitori de iku nante sugoi koto desu.', ar: 'أن يذهب وحده، هذا أمر مذهل.' },
+      { jp: '子どもでさえこのチャンスが分かります。', romaji: 'Kodomo de sae kono chansu ga wakarimasu.', ar: 'حتى الطفل يفهم هذه الفرصة.' },
+      { jp: 'でも友達でさえ少し信じられないと言いました。', romaji: 'Demo tomodachi de sae sukoshi shinjirarenai to iimashita.', ar: 'لكن حتى صديقي قال إنه لا يصدق قليلاً.' },
+      { jp: '今こそ始める運命だと私は思います。', romaji: 'Ima koso hajimeru unmei da to watashi wa omoimasu.', ar: 'أعتقد أن الآن بالذات هو قدر البدء.' },
+    ],
+    questions: [
+      { q: 'متى تكون فرصة السفر للخارج حسب الصديق؟', options: ['الآن بالذات', 'العام القادم', 'بعد سنوات'], answer: 'الآن بالذات' },
+      { q: 'كيف وصف الكاتب أن يذهب وحده؟', options: ['أمر مذهل', 'أمر سخيف', 'أمر مستحيل'], answer: 'أمر مذهل' },
+      { q: 'من قال إنه لا يصدق قليلاً؟', options: ['الصديق', 'الطفل', 'المعلم'], answer: 'الصديق' },
+    ],
+  },
   vocab: [
     { id: 'ima', type: 'noun', jp: '今', kanji: '今', hiragana: 'いま', reading: 'ima', meaning: 'الآن' },
     { id: 'chansu', type: 'noun', jp: 'チャンス', hiragana: 'チャンス', reading: 'chansu', meaning: 'فرصة' },

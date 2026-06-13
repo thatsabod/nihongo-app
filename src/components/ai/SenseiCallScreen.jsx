@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { getFunctions, httpsCallable } from 'firebase/functions'
 import AppIcon from '../AppIcon.jsx'
+import { auth } from '../../firebase.js'
 import { requestSensei } from '../../ai/senseiClient.ts'
 import { buildCallPrompt, speakMixed, stopSpeaking } from '../../ai/senseiCall.ts'
 
@@ -51,13 +51,25 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
   const startFallbackCall = () => {
     cleanupRealtime()
     setMode('fallback')
-    setError('')
     const greeting = isAr
       ? 'مرحبًا! أنا عبدول سينسيه. اسألني بالعربية أو جرّب جملة باليابانية، وأنا أسمعك.'
       : 'Hello! I am Abdoul Sensei. Ask me in Arabic or try a Japanese sentence — I am listening.'
     setTurns([{ role: 'sensei', text: greeting }])
     setStatus('speaking')
     speakMixed(greeting, { onEnd: () => mountedRef.current && setStatus('idle') })
+  }
+
+  const encodeContext = (value) => {
+    try {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(value || {}))))
+    } catch {
+      return ''
+    }
+  }
+
+  const realtimeCallEndpoint = () => {
+    const projectId = auth.app?.options?.projectId || 'my-japanese-ar'
+    return `https://us-central1-${projectId}.cloudfunctions.net/createSenseiRealtimeCall`
   }
 
   const handleRealtimeEvent = (event) => {
@@ -109,10 +121,8 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
     setTurns([])
 
     try {
-      const createSecret = httpsCallable(getFunctions(), 'createSenseiRealtimeSecret')
-      const tokenResult = await createSecret({ context: ctx })
-      const ephemeralKey = tokenResult.data?.value
-      if (!ephemeralKey) throw new Error('missing-realtime-token')
+      if (!auth.currentUser) throw new Error('not-signed-in')
+      const idToken = await auth.currentUser.getIdToken()
 
       const peer = new RTCPeerConnection()
       peerRef.current = peer
@@ -153,12 +163,13 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
       const offer = await peer.createOffer()
       await peer.setLocalDescription(offer)
 
-      const sdpResponse = await fetch('https://api.openai.com/v1/realtime/calls', {
+      const sdpResponse = await fetch(realtimeCallEndpoint(), {
         method: 'POST',
         body: offer.sdp,
         headers: {
-          Authorization: `Bearer ${ephemeralKey}`,
+          Authorization: `Bearer ${idToken}`,
           'Content-Type': 'application/sdp',
+          'X-Sensei-Context': encodeContext(ctx),
         },
       })
 
@@ -174,10 +185,12 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
     } catch (err) {
       console.error('Realtime Sensei call failed:', err)
       const message = isAr
-        ? 'تعذر تشغيل المكالمة اللايف حالياً. راح أرجعك لوضع المكالمة العادي إلى أن ننشر إعدادات OpenAI.'
-        : 'Live call could not start. Falling back to regular voice mode until OpenAI settings are deployed.'
+        ? 'تعذر تشغيل المكالمة اللايف حالياً. تأكد أن functions منشورة وأن OPENAI_API_KEY مضبوط. تقدر تستخدم الوضع العادي مؤقتاً.'
+        : 'Live call could not start. Make sure functions are deployed and OPENAI_API_KEY is configured. You can use fallback mode for now.'
       setError(message)
-      startFallbackCall()
+      cleanupRealtime()
+      setMode('setup')
+      setStatus('idle')
     }
   }
 

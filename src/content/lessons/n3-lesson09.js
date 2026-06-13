@@ -2,6 +2,34 @@ export const n3LessonNine = {
   id: 9,
   title: { ar: 'المبني للمجهول', en: 'Passive Voice' },
   focus: 'استخدام صيغة المبني للمجهول للتعبير عن الفعل الواقع على الشخص أو الشيء.',
+  dialogue: {
+    titleAr: 'في الفصل بعد الامتحان',
+    lines: [
+      { speaker: 'المعلم', jp: 'あなたは試験でいい点を取りましたね。みんなにほめられましたよ。', romaji: 'Anata wa shiken de ii ten wo torimashita ne. Minna ni homeraremashita yo.', ar: 'لقد حصلت على درجة جيدة في الامتحان. مُدِحتَ من قبل الجميع.' },
+      { speaker: 'ساتو', jp: '先生にほめられて、とても幸せです。', romaji: 'Sensei ni homerarete, totemo shiawase desu.', ar: 'أنا سعيد جدا لأنني مُدِحتُ من قبل المعلم.' },
+      { speaker: 'المعلم', jp: 'でも、どうして傘を持っていないのですか。', romaji: 'Demo, doushite kasa wo motte inai no desu ka.', ar: 'لكن، لماذا لا تحمل مظلة؟' },
+      { speaker: 'ساتو', jp: '弟に傘を壊されました。', romaji: 'Otouto ni kasa wo kowasaremashita.', ar: 'كسر أخي الصغير مظلتي (وانزعجت).' },
+      { speaker: 'المعلم', jp: 'それは大変ですね。財布は盗まれませんでしたか。', romaji: 'Sore wa taihen desu ne. Saifu wa nusumaremasen deshita ka.', ar: 'هذا أمر صعب. ألم تُسرق محفظتك؟' },
+      { speaker: 'ساتو', jp: 'はい、大丈夫です。でも昨日、父に叱られました。', romaji: 'Hai, daijoubu desu. Demo kinou, chichi ni shikararemashita.', ar: 'نعم، لا بأس. لكن أمس، تم تعنيفي من قبل أبي.' },
+      { speaker: 'المعلم', jp: 'この本は多くの人に読まれています。読んでみてください。', romaji: 'Kono hon wa ooku no hito ni yomarete imasu. Yonde mite kudasai.', ar: 'هذا الكتاب يُقرأ من قبل كثير من الناس. جرب أن تقرأه.' },
+      { speaker: 'ساتو', jp: 'はい、読みます。ありがとうございます、先生。', romaji: 'Hai, yomimasu. Arigatou gozaimasu, sensei.', ar: 'نعم، سأقرأه. شكرا لك يا معلم.' },
+    ],
+  },
+  reading: {
+    titleAr: 'كتاب محبوب',
+    sentences: [
+      { jp: 'この本は多くの人に読まれています。', romaji: 'Kono hon wa ooku no hito ni yomarete imasu.', ar: 'هذا الكتاب يُقرأ من قبل كثير من الناس.' },
+      { jp: 'この本はアメリカで作られました。', romaji: 'Kono hon wa Amerika de tsukuraremashita.', ar: 'هذا الكتاب صُنع في أمريكا.' },
+      { jp: '本の中で、一人の先生が学生に愛されています。', romaji: 'Hon no naka de, hitori no sensei ga gakusei ni aisarete imasu.', ar: 'في الكتاب، يُحَب معلم واحد من قبل الطلاب.' },
+      { jp: 'その先生は学生によくほめられます。', romaji: 'Sono sensei wa gakusei ni yoku homeraremasu.', ar: 'ذلك المعلم يُمدح كثيرا من قبل الطلاب.' },
+      { jp: '私もこの本を読んで、とても幸せになりました。', romaji: 'Watashi mo kono hon wo yonde, totemo shiawase ni narimashita.', ar: 'أنا أيضا قرأت هذا الكتاب وصرت سعيدا جدا.' },
+    ],
+    questions: [
+      { q: 'أين صُنع الكتاب؟', options: ['في أمريكا', 'في اليابان', 'في مصر'], answer: 'في أمريكا' },
+      { q: 'من يُحَب في الكتاب؟', options: ['معلم', 'أخ أصغر', 'أب'], answer: 'معلم' },
+      { q: 'كيف صار القارئ بعد قراءة الكتاب؟', options: ['سعيدا جدا', 'حزينا', 'غاضبا'], answer: 'سعيدا جدا' },
+    ],
+  },
   vocab: [
     { id: 'homeru', type: 'verb', jp: 'ほめる', hiragana: 'ほめる', reading: 'homeru', meaning: 'يمدح' },
     { id: 'homerareru', type: 'verb', jp: 'ほめられる', hiragana: 'ほめられる', reading: 'homerareru', meaning: 'يُمدح' },

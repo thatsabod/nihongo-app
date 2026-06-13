@@ -20,6 +20,23 @@ import {
 } from './exercise-ui/index.jsx'
 import { getVocabImage } from '../constants/vocabImages.js'
 import { useHearts } from '../hearts-context.jsx'
+import { answersMatch } from '../utils/answerMatch.js'
+import { readProgressState, trackAnswer, recordLessonStat } from '../progress/progressStorage.js'
+
+// Feed a vocab drill answer into weakness detection + SRS (shared by both
+// vocab engines). Correct answers enter SRS; wrong answers also log a mistake.
+function trackVocabAnswer(item, correct, lessonId) {
+  if (!item) return
+  const state = lessonId ? recordLessonStat(readProgressState(), String(lessonId), correct) : readProgressState()
+  trackAnswer(state, {
+    itemId: item.id || item.jp,
+    itemType: 'vocab',
+    wasCorrect: correct,
+    lessonId: lessonId ? String(lessonId) : undefined,
+    exerciseType: 'vocab-drill',
+    questionAr: item.meaning,
+  })
+}
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -342,7 +359,7 @@ function VocabBuildExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const check = () => {
     if (selected.length === 0) return
     const built = selected.map((x) => x.c).join('')
-    const correct = built === target.join('')
+    const correct = answersMatch(built, target.join(''))
     setResult(correct ? 'correct' : 'wrong')
     if (correct) playCorrect()
     else playWrong()
@@ -462,7 +479,7 @@ function VocabMatchExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Main wrapper ───────────────────────────────────────────────────────────
-export default function VocabExercises({ vocab, lang, onClose }) {
+export default function VocabExercises({ vocab, lang, onClose, lessonId }) {
   const [exercises] = useState(() => generateVocabExercises(vocab))
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
@@ -482,6 +499,7 @@ export default function VocabExercises({ vocab, lang, onClose }) {
       playWrong()
       heartsApi?.consumeHeart()
     }
+    trackVocabAnswer(exercises[idx]?.item, correct, lessonId)
     const next = score + (correct ? 1 : 0)
     if (idx + 1 >= exercises.length) {
       setScore(next)
@@ -623,6 +641,7 @@ export function VocabPracticeAll({ vocab, lessonId, lesson, progress, setProgres
       heartsApi?.consumeHeart()
     }
     const ex = exercises[idx]
+    trackVocabAnswer(ex.vocabItem, correct, lessonId)
     if (correct && ex.vocabItem) {
       const key = vocabKey(lessonId, ex.vocabItem)
       setProgress((p) => ({ ...p, [key]: Math.min((p[key] || 0) + 1, masteryTarget) }))

@@ -2,6 +2,34 @@ export const n3LessonFourteen = {
   id: 14,
   title: { ar: 'لحظة الفعل والحالة كما هي', en: 'Action Stage and Left State' },
   focus: 'استخدام ところ・ばかり・まま للحديث عن مرحلة الفعل أو ترك الحالة كما هي.',
+  dialogue: {
+    titleAr: 'مكالمة هاتفية الآن',
+    lines: [
+      { speaker: 'ساتو', jp: '今、何をしているところですか。', romaji: 'Ima, nani wo shite iru tokoro desu ka.', ar: 'في أي شيء أنت الآن منشغل؟' },
+      { speaker: 'ميلر', jp: '今、昼ご飯を食べているところです。', romaji: 'Ima, hirugohan wo tabete iru tokoro desu.', ar: 'أنا الآن في وسط تناول الغداء.' },
+      { speaker: 'ساتو', jp: '宿題はもう終えましたか。', romaji: 'Shukudai wa mou oemashita ka.', ar: 'هل أنهيت الواجب بالفعل؟' },
+      { speaker: 'ميلر', jp: 'はい、宿題を終えたばかりです。', romaji: 'Hai, shukudai wo oeta bakari desu.', ar: 'نعم، أنهيت الواجب للتو.' },
+      { speaker: 'ساتو', jp: '昨日、窓を開けたまま寝てしまいました。', romaji: 'Kinou, mado wo aketa mama nete shimaimashita.', ar: 'أمس نمت والنافذة مفتوحة كما هي.' },
+      { speaker: 'ميلر', jp: '私も電気をつけたまま出かけました。', romaji: 'Watashi mo denki wo tsuketa mama dekakemashita.', ar: 'وأنا أيضاً خرجت تاركاً الكهرباء مشتغلة كما هي.' },
+      { speaker: 'ساتو', jp: 'では、すぐに仕事に帰るところです。', romaji: 'Dewa, sugu ni shigoto ni kaeru tokoro desu.', ar: 'إذن، أنا على وشك العودة إلى العمل على الفور.' },
+      { speaker: 'ميلر', jp: '電気を消すのを忘れないでください。', romaji: 'Denki wo kesu no wo wasurenaide kudasai.', ar: 'من فضلك لا تنس أن تطفئ الكهرباء.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم ميلر',
+    sentences: [
+      { jp: '今、私は昼ご飯を食べているところです。', romaji: 'Ima, watashi wa hirugohan wo tabete iru tokoro desu.', ar: 'أنا الآن في وسط تناول الغداء.' },
+      { jp: '宿題は終えたばかりです。', romaji: 'Shukudai wa oeta bakari desu.', ar: 'أنهيت الواجب للتو.' },
+      { jp: '昨日、窓を開けたまま寝てしまいました。', romaji: 'Kinou, mado wo aketa mama nete shimaimashita.', ar: 'أمس نمت والنافذة مفتوحة كما هي.' },
+      { jp: '今朝は電気を消すのを忘れて、つけたまま出かけました。', romaji: 'Kesa wa denki wo kesu no wo wasurete, tsuketa mama dekakemashita.', ar: 'هذا الصباح نسيت أن أطفئ الكهرباء وخرجت تاركاً إياها مشتغلة كما هي.' },
+      { jp: 'これから、すぐに仕事に帰るところです。', romaji: 'Kore kara, sugu ni shigoto ni kaeru tokoro desu.', ar: 'من الآن، أنا على وشك العودة إلى العمل على الفور.' },
+    ],
+    questions: [
+      { q: 'ماذا يفعل ميلر الآن؟', options: ['في وسط تناول الغداء', 'في وسط القيام بالواجب', 'في وسط النوم'], answer: 'في وسط تناول الغداء' },
+      { q: 'ما حالة الواجب؟', options: ['أنهاه للتو', 'لم يبدأه بعد', 'نسيه'], answer: 'أنهاه للتو' },
+      { q: 'لماذا بقيت الكهرباء مشتغلة هذا الصباح؟', options: ['لأنه نسي أن يطفئها', 'لأنه أرادها مشتغلة', 'لأن النافذة كانت مفتوحة'], answer: 'لأنه نسي أن يطفئها' },
+    ],
+  },
   vocab: [
     { id: 'hirugohan', type: 'noun', jp: '昼ご飯', kanji: '昼ご飯', hiragana: 'ひるごはん', reading: 'hirugohan', meaning: 'غداء' },
     { id: 'oeru', type: 'verb', jp: '終える', kanji: '終える', hiragana: 'おえる', reading: 'oeru', meaning: 'ينهي' },

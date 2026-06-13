@@ -2,6 +2,33 @@ export const n4LessonSixteen = {
   id: 16,
   title: { ar: 'العطاء والأخذ المتقدم: あげる・もらう・くれる', en: 'Advanced Giving & Receiving: あげる・もらう・くれる' },
   focus: 'مراجعة وتوسيع أفعال العطاء والأخذ مع درجات الاحترام (さしあげます/くださいます/いただきます)، واستخدام ~てあげます/~ていただきます للأفعال، وطلب التفضل بـ ~てくださいませんか، واستخدام に للمناسبات',
+  dialogue: {
+    titleAr: 'هدية شكر للأستاذ',
+    lines: [
+      { speaker: 'ميلر', jp: '先生、いつもお世話になっています。これはお礼のお土産です。', romaji: 'Sensei, itsumo osewa ni natte imasu. Kore wa orei no omiyage desu.', ar: 'يا أستاذ، أنت تساعدني دائماً. هذه هدية تذكارية للشكر.' },
+      { speaker: 'المعلم', jp: 'まあ、私にさしあげるんですか。ありがとうございます。', romaji: 'Maa, watashi ni sashiageru n desu ka. Arigatou gozaimasu.', ar: 'يا للروعة، أتقدّمها لي؟ شكراً جزيلاً.' },
+      { speaker: 'ميلر', jp: 'はい。先生が漢字を教えてくださいましたから。', romaji: 'Hai. Sensei ga kanji wo oshiete kudasaimashita kara.', ar: 'نعم. لأنك علّمتني الكانجي بلطف.' },
+      { speaker: 'المعلم', jp: 'いいえ。ミラーさんも後輩に日本語を教えてあげましたね。', romaji: 'Iie. Miraa-san mo kouhai ni nihongo wo oshiete agemashita ne.', ar: 'لا عليك. وأنت أيضاً علّمت زميلك الأصغر اليابانية.' },
+      { speaker: 'ميلر', jp: '先生、もう一つお願いがあります。写真を撮ってくださいませんか。', romaji: 'Sensei, mou hitotsu onegai ga arimasu. Shashin wo totte kudasaimasen ka.', ar: 'يا أستاذ، لديّ طلب آخر. ألا تتفضل بأخذ صورة لي؟' },
+      { speaker: 'المعلم', jp: 'いいですよ。記念日にいい思い出になりますね。', romaji: 'Ii desu yo. Kinenbi ni ii omoide ni narimasu ne.', ar: 'بكل سرور. ستصبح ذكرى جميلة في هذا اليوم التذكاري.' },
+      { speaker: 'ميلر', jp: '先生からたくさんのことをいただきました。本当に感謝します。', romaji: 'Sensei kara takusan no koto wo itadakimashita. Hontou ni kansha shimasu.', ar: 'لقد تلقّيت منك أشياء كثيرة يا أستاذ. أشكرك من القلب.' },
+    ],
+  },
+  reading: {
+    titleAr: 'هدية عيد الميلاد',
+    sentences: [
+      { jp: '友達の誕生日にプレゼントを贈りました。', romaji: 'Tomodachi no tanjoubi ni purezento wo okurimashita.', ar: 'أهديت صديقي هدية بمناسبة عيد ميلاده.' },
+      { jp: '私は友達に絵本をあげました。', romaji: 'Watashi wa tomodachi ni ehon wo agemashita.', ar: 'أعطيت صديقي كتاباً مصوّراً.' },
+      { jp: '友達は私にお礼を言ってくれました。', romaji: 'Tomodachi wa watashi ni orei wo itte kuremashita.', ar: 'شكرني صديقي.' },
+      { jp: '先生も私にお祝いをくださいました。', romaji: 'Sensei mo watashi ni oiwai wo kudasaimashita.', ar: 'وأعطاني الأستاذ أيضاً هدية احتفالية بلطف.' },
+      { jp: 'みんなのプレゼントに感動しました。', romaji: 'Minna no purezento ni kandou shimashita.', ar: 'تأثرتُ بهدايا الجميع.' },
+    ],
+    questions: [
+      { q: 'ماذا أهدى المتحدث لصديقه؟', options: ['كتاباً مصوّراً', 'خاتماً', 'لعبة'], answer: 'كتاباً مصوّراً' },
+      { q: 'من أعطى المتحدث هدية احتفالية؟', options: ['الأستاذ', 'الصديق', 'الجدة'], answer: 'الأستاذ' },
+      { q: 'بماذا شعر المتحدث في النهاية؟', options: ['تأثر بالهدايا', 'غضب', 'مرض'], answer: 'تأثر بالهدايا' },
+    ],
+  },
   vocab: [
     { id: 'oiwai', type: 'noun', jp: 'お祝い', kanji: 'お祝い', hiragana: 'おいわい', reading: 'oiwai', meaning: 'هدية/مناسبة احتفالية' },
     { id: 'otoshidama', type: 'noun', jp: 'お年玉', kanji: 'お年玉', hiragana: 'おとしだま', reading: 'otoshidama', meaning: 'هدية نقدية لرأس السنة (للأطفال)' },

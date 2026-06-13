@@ -2,6 +2,34 @@ export const n3LessonEighteen = {
   id: 18,
   title: { ar: 'سرد أمثلة', en: 'Listing Examples' },
   focus: 'استخدام たり・とか・し لسرد أمثلة أو أسباب متعددة دون حصر كامل.',
+  dialogue: {
+    titleAr: 'خطط نهاية الأسبوع',
+    lines: [
+      { speaker: 'ساتو', jp: '週末は何をしますか。', romaji: 'Shuumatsu wa nani wo shimasu ka.', ar: 'ماذا ستفعل في نهاية الأسبوع؟' },
+      { speaker: 'ميلر', jp: '友達と映画を見たり、買い物したりします。', romaji: 'Tomodachi to eiga wo mitari, kaimono shitari shimasu.', ar: 'سأشاهد فيلماً مع صديقي وأتسوق وما شابه.' },
+      { speaker: 'ساتو', jp: '私は暇な時、散歩したり、音楽を聞いたりします。', romaji: 'Watashi wa hima na toki, sanpo shitari, ongaku wo kiitari shimasu.', ar: 'أنا في وقت فراغي أتمشى وأستمع للموسيقى وما شابه.' },
+      { speaker: 'ميلر', jp: '買い物はどの店がいいですか。', romaji: 'Kaimono wa dono mise ga ii desu ka.', ar: 'أي محل أفضل للتسوق؟' },
+      { speaker: 'ساتو', jp: '駅の前の店は安いし、人気があります。', romaji: 'Eki no mae no mise wa yasui shi, ninki ga arimasu.', ar: 'المحل أمام المحطة رخيص وأيضاً مشهور.' },
+      { speaker: 'ميلر', jp: 'そこは料理とか飲み物とかも売っていますか。', romaji: 'Soko wa ryouri toka nomimono toka mo utte imasu ka.', ar: 'هل يبيعون هناك أشياء مثل الطعام والمشروبات أيضاً؟' },
+      { speaker: 'ساتو', jp: 'はい。店員も親切だし、店も綺麗ですよ。', romaji: 'Hai. Ten-in mo shinsetsu da shi, mise mo kirei desu yo.', ar: 'نعم. الموظفون لطفاء وأيضاً المحل نظيف.' },
+      { speaker: 'ميلر', jp: 'いいですね。今度友達と一緒に行きます。', romaji: 'Ii desu ne. Kondo tomodachi to issho ni ikimasu.', ar: 'رائع. سأذهب المرة القادمة مع صديقي.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم العطلة',
+    sentences: [
+      { jp: '休みの日、私は友達と買い物したり、散歩したりします。', romaji: 'Yasumi no hi, watashi wa tomodachi to kaimono shitari, sanpo shitari shimasu.', ar: 'في يوم العطلة، أتسوق مع صديقي وأتمشى وما شابه.' },
+      { jp: '駅の前の店は安いし、人気があります。', romaji: 'Eki no mae no mise wa yasui shi, ninki ga arimasu.', ar: 'المحل أمام المحطة رخيص وأيضاً مشهور.' },
+      { jp: 'その店は料理とか飲み物とかを売っています。', romaji: 'Sono mise wa ryouri toka nomimono toka wo utte imasu.', ar: 'ذلك المحل يبيع أشياء مثل الطعام والمشروبات.' },
+      { jp: '店員は親切だし、店も綺麗です。', romaji: 'Ten-in wa shinsetsu da shi, mise mo kirei desu.', ar: 'الموظفون لطفاء وأيضاً المحل نظيف.' },
+      { jp: '夜は家で音楽を聞いたり、映画を見たりします。', romaji: 'Yoru wa ie de ongaku wo kiitari, eiga wo mitari shimasu.', ar: 'في الليل أستمع للموسيقى في البيت وأشاهد أفلاماً وما شابه.' },
+    ],
+    questions: [
+      { q: 'ماذا يفعل الكاتب مع صديقه في يوم العطلة؟', options: ['يتسوق ويتمشى', 'يدرس في المكتبة', 'يعمل في المحل'], answer: 'يتسوق ويتمشى' },
+      { q: 'لماذا المحل أمام المحطة مشهور؟', options: ['لأنه رخيص', 'لأنه بعيد', 'لأنه مغلق'], answer: 'لأنه رخيص' },
+      { q: 'ماذا يفعل الكاتب في الليل؟', options: ['يستمع للموسيقى ويشاهد أفلاماً', 'يذهب إلى المحطة', 'ينظف المحل'], answer: 'يستمع للموسيقى ويشاهد أفلاماً' },
+    ],
+  },
   vocab: [
     { id: 'eiga', type: 'noun', jp: '映画', kanji: '映画', hiragana: 'えいが', reading: 'eiga', meaning: 'فيلم' },
     { id: 'kaimono', type: 'noun', jp: '買い物', kanji: '買い物', hiragana: 'かいもの', reading: 'kaimono', meaning: 'تسوق' },

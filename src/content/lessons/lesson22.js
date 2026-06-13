@@ -2,6 +2,33 @@ export const lessonTwentyTwo = {
   id: 22,
   title: { ar: 'حتى لو... وأفعال العطاء', en: 'Even If... and Giving/Receiving Verbs' },
   focus: '〜ても للتعبير عن "حتى لو/مهما"، وتوسيع أفعال あげます/もらいます/くれます مع الأفعال الأخرى',
+  dialogue: {
+    titleAr: 'الواجب والمطر',
+    lines: [
+      { speaker: 'ميلر', jp: 'いくら 説明しても、 この 漢字 が わかりません。', romaji: 'Ikura setsumeishitemo, kono kanji ga wakarimasen.', ar: 'مهما شرحت، لا أفهم هذا الكانجي.' },
+      { speaker: 'ساتو', jp: '私 が 手伝って あげます。', romaji: 'Watashi ga tetsudatte agemasu.', ar: 'سأساعدك أنا.' },
+      { speaker: 'ميلر', jp: 'ありがとう。 友達 が 教えて くれて、 うれしい です。', romaji: 'Arigatou. Tomodachi ga oshiete kurete, ureshii desu.', ar: 'شكرا. سعيد لأن صديقا يعلمني.' },
+      { speaker: 'ساتو', jp: '外 は 雨 が 強い です。 急いでも、 間に合いません。', romaji: 'Soto wa ame ga tsuyoi desu. Isoidemo, maniaimasen.', ar: 'في الخارج المطر قوي. حتى لو استعجلنا، لن نصل في الوقت.' },
+      { speaker: 'ميلر', jp: 'じゃあ、 荷物 を 持って くれますか。', romaji: 'Jaa, nimotsu o motte kuremasu ka.', ar: 'إذن، هل تحمل لي الأمتعة؟' },
+      { speaker: 'ساتو', jp: 'はい。 雨 が 降っても、 駅 まで 送って あげます。', romaji: 'Hai. Ame ga futtemo, eki made okutte agemasu.', ar: 'نعم. حتى لو أمطرت، سأوصلك إلى المحطة.' },
+      { speaker: 'ميلر', jp: 'どんなに 頑張っても、 一人 では できません。 ありがとう。', romaji: 'Donna ni ganbattemo, hitori dewa dekimasen. Arigatou.', ar: 'مهما اجتهدت، لا أستطيع وحدي. شكرا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'صديق لطيف',
+    sentences: [
+      { jp: '昨日 は 雨 が 強かった です。', romaji: 'Kinou wa ame ga tsuyokatta desu.', ar: 'أمس كان المطر قويا.' },
+      { jp: 'いくら 急いでも、 間に合いませんでした。', romaji: 'Ikura isoidemo, maniaimasen deshita.', ar: 'مهما استعجلت، لم أصل في الوقت المناسب.' },
+      { jp: '友達 が 駅 まで 送って くれました。', romaji: 'Tomodachi ga eki made okutte kuremashita.', ar: 'أوصلني صديقي إلى المحطة.' },
+      { jp: 'そして、 重い 荷物 も 持って くれました。', romaji: 'Soshite, omoi nimotsu mo motte kuremashita.', ar: 'وأيضا حمل الأمتعة الثقيلة عني.' },
+      { jp: 'どんなに 忙しくても、 友達 は いつも 手伝って くれます。', romaji: 'Donna ni isogashikutemo, tomodachi wa itsumo tetsudatte kuremasu.', ar: 'مهما كان مشغولا، صديقي يساعدني دائما.' },
+    ],
+    questions: [
+      { q: 'كيف كان الطقس أمس؟', options: ['المطر كان قويا.', 'الجو كان مشمسا.', 'الريح كانت هادئة.'], answer: 'المطر كان قويا.' },
+      { q: 'ماذا فعل الصديق بعد التوصيل؟', options: ['حمل الأمتعة الثقيلة.', 'اشترى تذكرة القطار.', 'شرح الكانجي.'], answer: 'حمل الأمتعة الثقيلة.' },
+      { q: 'متى يساعد الصديق؟', options: ['دائما حتى لو كان مشغولا.', 'فقط عندما يكون فارغا.', 'لا يساعد أبدا.'], answer: 'دائما حتى لو كان مشغولا.' },
+    ],
+  },
   vocab: [
     { id: 'isoide', type: 'expression', jp: '急いで', kanji: '急いで', hiragana: 'いそいで', reading: 'isoide', meaning: 'بسرعة / مستعجلا' },
     { id: 'maniaimasu', type: 'verb', jp: '間に合います', kanji: '間に合います', hiragana: 'まにあいます', reading: 'maniaimasu', meaning: 'يصل في الوقت المناسب' },

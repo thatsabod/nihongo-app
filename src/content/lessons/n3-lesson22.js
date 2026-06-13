@@ -2,6 +2,34 @@ export const n3LessonTwentyTwo = {
   id: 22,
   title: { ar: 'فقط ولا شيء غير', en: 'Only and Nothing But' },
   focus: 'استخدام だけ・しかない・ばかり للتحديد والحصر.',
+  dialogue: {
+    titleAr: 'قبل الرحلة',
+    lines: [
+      { speaker: 'ساتو', jp: '旅行に何を持っていきますか。', romaji: 'Ryokou ni nani wo motte ikimasu ka.', ar: 'ماذا ستأخذ معك في الرحلة؟' },
+      { speaker: 'ميلر', jp: '必要な物だけ持っていきます。', romaji: 'Hitsuyouna mono dake motte ikimasu.', ar: 'سآخذ الأشياء الضرورية فقط.' },
+      { speaker: 'ساتو', jp: 'お金は大丈夫ですか。', romaji: 'Okane wa daijoubu desu ka.', ar: 'وماذا عن المال، هل أنت بخير؟' },
+      { speaker: 'ميلر', jp: '財布には千円しかありません。', romaji: 'Saifu ni wa sen-en shika arimasen.', ar: 'لا يوجد في محفظتي إلا ألف ين.' },
+      { speaker: 'ساتو', jp: '時間もあまり残っていませんよ。', romaji: 'Jikan mo amari nokotte imasen yo.', ar: 'كما أنه لم يتبق وقت كثير.' },
+      { speaker: 'ميلر', jp: 'でも友達はゲームばかりしています。', romaji: 'Demo tomodachi wa geemu bakari shite imasu.', ar: 'لكن صديقي لا يفعل إلا اللعب طوال الوقت.' },
+      { speaker: 'ساتو', jp: '彼はスマホをいじってばかりいますね。', romaji: 'Kare wa sumaho wo ijitte bakari imasu ne.', ar: 'هو لا يفعل إلا العبث بهاتفه، صحيح.' },
+      { speaker: 'ميلر', jp: '早く準備しましょう。', romaji: 'Hayaku junbi shimashou.', ar: 'لنستعد بسرعة إذن.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم ميلر',
+    sentences: [
+      { jp: '私は旅行のために必要な物だけ持ってきました。', romaji: 'Watashi wa ryokou no tame ni hitsuyouna mono dake motte kimashita.', ar: 'أحضرت معي الأشياء الضرورية فقط من أجل الرحلة.' },
+      { jp: '財布には千円しかありません。', romaji: 'Saifu ni wa sen-en shika arimasen.', ar: 'لا يوجد في محفظتي إلا ألف ين.' },
+      { jp: '時間もあまり残っていません。', romaji: 'Jikan mo amari nokotte imasen.', ar: 'كما أنه لم يتبق وقت كثير.' },
+      { jp: '友達はゲームばかりしています。', romaji: 'Tomodachi wa geemu bakari shite imasu.', ar: 'صديقي لا يفعل إلا اللعب طوال الوقت.' },
+      { jp: '彼はスマホをいじってばかりいます。', romaji: 'Kare wa sumaho wo ijitte bakari imasu.', ar: 'هو لا يفعل إلا العبث بهاتفه.' },
+    ],
+    questions: [
+      { q: 'ماذا أحضر الكاتب معه؟', options: ['الأشياء الضرورية فقط', 'كل أشيائه', 'لعبة فقط'], answer: 'الأشياء الضرورية فقط' },
+      { q: 'كم من المال في المحفظة؟', options: ['ألف ين فقط', 'لا شيء', 'الكثير من المال'], answer: 'ألف ين فقط' },
+      { q: 'ماذا يفعل الصديق طوال الوقت؟', options: ['لا يفعل إلا اللعب', 'يقرأ كتاباً', 'يستعد للرحلة'], answer: 'لا يفعل إلا اللعب' },
+    ],
+  },
   vocab: [
     { id: 'hitsuyou', type: 'adjective', jp: '必要', kanji: '必要', hiragana: 'ひつよう', reading: 'hitsuyou', meaning: 'ضروري' },
     { id: 'mono', type: 'noun', jp: '物', kanji: '物', hiragana: 'もの', reading: 'mono', meaning: 'شيء' },

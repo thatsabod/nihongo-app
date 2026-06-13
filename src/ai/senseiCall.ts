@@ -7,6 +7,7 @@
 // Japanese TTS splitter.
 
 import type { SenseiContext, SenseiPrompt } from './aiSensei.types'
+import { senseiVoiceIdentity, SENSEI_VOICE_RULES_AR } from './senseiPersona'
 
 export interface CallTurn {
   role: 'student' | 'sensei'
@@ -25,16 +26,11 @@ function weakSummaryShort(ctx: SenseiContext): string {
 // Build the prompt for one call turn: persona tuned for voice + full history.
 export function buildCallPrompt(ctx: SenseiContext, history: CallTurn[]): SenseiPrompt {
   const system = [
-    'أنت «عبدول سينسيه»، معلّم لغة يابانية ودود في مكالمة صوتية مع طالب عربي.',
+    senseiVoiceIdentity(),
     `مستوى الطالب: ${ctx.level}.`,
     ctx.currentLessonTitleAr ? `درسه الحالي: ${ctx.currentLessonTitleAr}.` : '',
     `وضع الطالب: ${weakSummaryShort(ctx)}.`,
-    'قواعد المكالمة الصارمة:',
-    '- ردّك يُنطق صوتيًا، لذا اجعله قصيرًا جدًا: جملة إلى ثلاث جمل فقط.',
-    '- تكلم بعربية بسيطة ودافئة كأنك تتحدث، لا تكتب قوائم ولا عناوين ولا رموز ولا نجوم ولا إيموجي.',
-    '- عند ذكر اليابانية اكتبها بالكانا أو الكانجي مباشرة داخل الجملة (بدون روماجي) لتُنطق صحيحًا.',
-    '- شجّع الطالب على الرد باليابانية وصحّح أخطاءه بلطف.',
-    '- لو طلب الطالب تدريبًا، اطرح سؤالًا واحدًا قصيرًا وانتظر إجابته.',
+    ...SENSEI_VOICE_RULES_AR,
   ].filter(Boolean).join('\n')
 
   const transcript = history

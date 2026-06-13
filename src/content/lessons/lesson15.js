@@ -2,6 +2,32 @@ export const lessonFifteen = {
   id: 15,
   title: { ar: 'الترتيب والإذن والمنع', en: 'Sequence, Permission, and Prohibition' },
   focus: 'てから للترتيب الزمني، てもいいです للإذن، و てはいけません للمنع',
+  dialogue: {
+    titleAr: 'القواعد في المتحف — مسموح وممنوع',
+    lines: [
+      { speaker: 'ميلر', jp: 'すみません、写真を 撮ってもいいですか。', romaji: 'Sumimasen, shashin o totte mo ii desu ka.', ar: 'عفوًا، هل يُسمح بالتصوير؟' },
+      { speaker: 'الموظف', jp: 'いいえ、ここで 写真を 撮っては いけません。', romaji: 'Iie, koko de shashin o totte wa ikemasen.', ar: 'لا، ممنوع التصوير هنا.' },
+      { speaker: 'ميلر', jp: '中に 入ってもいいですか。', romaji: 'Naka ni haitte mo ii desu ka.', ar: 'هل يمكنني الدخول؟' },
+      { speaker: 'الموظف', jp: 'はい。でも、靴を 脱いでから 入ってください。', romaji: 'Hai. Demo, kutsu o nuide kara haitte kudasai.', ar: 'نعم. لكن اخلع حذاءك ثم ادخل.' },
+      { speaker: 'ميلر', jp: 'タバコを 吸ってもいいですか。', romaji: 'Tabako o sutte mo ii desu ka.', ar: 'هل يُسمح بالتدخين؟' },
+      { speaker: 'الموظف', jp: 'いいえ、ここは 禁煙です。', romaji: 'Iie, koko wa kin\'en desu.', ar: 'لا، التدخين ممنوع هنا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'روتيني صباحًا',
+    sentences: [
+      { jp: '私は 毎朝 起きてから シャワーを 浴びます。', romaji: 'Watashi wa maiasa okite kara shawaa o abimasu.', ar: 'كل صباح بعد أن أستيقظ أستحم.' },
+      { jp: '手を 洗ってから 朝ご飯を 食べます。', romaji: 'Te o aratte kara asagohan o tabemasu.', ar: 'أغسل يديّ ثم أتناول الفطور.' },
+      { jp: '部屋で 食べてもいいです。', romaji: 'Heya de tabete mo ii desu.', ar: 'يُسمح بالأكل في الغرفة.' },
+      { jp: 'でも、廊下で 走っては いけません。', romaji: 'Demo, rouka de hashitte wa ikemasen.', ar: 'لكن ممنوع الركض في الممر.' },
+      { jp: '宿題を してから 遊びます。', romaji: 'Shukudai o shite kara asobimasu.', ar: 'أؤدي الواجب ثم ألعب.' },
+    ],
+    questions: [
+      { q: 'ماذا يفعل الكاتب بعد أن يستيقظ؟', options: ['يستحم', 'يأكل', 'يلعب'], answer: 'يستحم' },
+      { q: 'ماذا يفعل قبل الفطور؟', options: ['يغسل يديه', 'يستحم', 'يدرس'], answer: 'يغسل يديه' },
+      { q: 'ما الممنوع في الممر؟', options: ['الركض', 'الأكل', 'التصوير'], answer: 'الركض' },
+    ],
+  },
   vocab: [
     { id: 'suimasu', type: 'verb', jp: '吸います', kanji: '吸います', hiragana: 'すいます', reading: 'suimasu', meaning: 'يدخّن / يستنشق' },
     { id: 'hairimasu', type: 'verb', jp: '入ります', kanji: '入ります', hiragana: 'はいります', reading: 'hairimasu', meaning: 'يدخل' },

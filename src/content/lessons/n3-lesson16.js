@@ -2,6 +2,32 @@ export const n3LessonSixteen = {
   id: 16,
   title: { ar: 'رغم ذلك وحتى لو', en: 'Although and Even If' },
   focus: 'التعبير عن التناقض أو النتيجة غير المتوقعة: のに・ても・くせに.',
+  dialogue: {
+    titleAr: 'نتيجة الاختبار',
+    lines: [
+      { speaker: 'ساتو', jp: '一生懸命勉強したのに、不合格でした。', romaji: 'Isshoukenmei benkyou shita noni, fugoukaku deshita.', ar: 'رغم أنني درست بكل جهد، رسبت.' },
+      { speaker: 'المعلم', jp: '本当に残念ですね。でも結果がすべてではありません。', romaji: 'Hontou ni zannen desu ne. Demo kekka ga subete dewa arimasen.', ar: 'مؤسف حقاً. لكن النتيجة ليست كل شيء.' },
+      { speaker: 'ساتو', jp: '友達は知っているくせに、答えを教えてくれませんでした。', romaji: 'Tomodachi wa shitte iru kuse ni, kotae wo oshiete kuremasen deshita.', ar: 'مع أن صديقي كان يعرف، لم يخبرني بالإجابة (بنبرة لوم).' },
+      { speaker: 'المعلم', jp: '失敗しても、あきらめないことが大切です。', romaji: 'Shippai shite mo, akiramenai koto ga taisetsu desu.', ar: 'حتى لو فشلت، من المهم ألا تستسلم.' },
+      { speaker: 'ساتو', jp: 'はい。努力を続ければ、必ず合格できますか。', romaji: 'Hai. Doryoku wo tsuzukereba, kanarazu goukaku dekimasu ka.', ar: 'نعم. إن واصلت الجهد، فهل سأنجح حتماً؟' },
+      { speaker: 'المعلم', jp: '必ずです。次の試合に向かう気持ちで頑張りましょう。', romaji: 'Kanarazu desu. Tsugi no shiai ni mukau kimochi de ganbarimashou.', ar: 'حتماً. لنجتهد بروح المتوجه إلى المباراة القادمة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'لا تستسلم',
+    sentences: [
+      { jp: '私は一生懸命勉強したのに、結果は不合格でした。', romaji: 'Watashi wa isshoukenmei benkyou shita noni, kekka wa fugoukaku deshita.', ar: 'رغم أنني درست بكل جهد، كانت النتيجة رسوباً.' },
+      { jp: 'とても残念でしたが、あきらめませんでした。', romaji: 'Totemo zannen deshita ga, akiramemasen deshita.', ar: 'كان الأمر مؤسفاً جداً، لكنني لم أستسلم.' },
+      { jp: '失敗しても、努力を続けることが大切だと先生が教えてくれました。', romaji: 'Shippai shite mo, doryoku wo tsuzukeru koto ga taisetsu da to sensei ga oshiete kuremashita.', ar: 'أخبرني المعلم أنه حتى لو فشلت، فالمهم مواصلة الجهد.' },
+      { jp: '風邪をひいても、私は毎日勉強しました。', romaji: 'Kaze wo hiite mo, watashi wa mainichi benkyou shimashita.', ar: 'حتى لو أصابني البرد، درست كل يوم.' },
+      { jp: '次は必ず合格すると先生と約束しました。', romaji: 'Tsugi wa kanarazu goukaku suru to sensei to yakusoku shimashita.', ar: 'وعدت المعلم بأنني سأنجح حتماً في المرة القادمة.' },
+    ],
+    questions: [
+      { q: 'ماذا كانت نتيجة الاختبار الأول؟', options: ['رسوب', 'نجاح', 'مباراة'], answer: 'رسوب' },
+      { q: 'ماذا فعل الطالب بعد الرسوب؟', options: ['لم يستسلم', 'استسلم فوراً', 'توقف عن الدراسة'], answer: 'لم يستسلم' },
+      { q: 'بماذا وعد الطالب المعلم؟', options: ['بأن ينجح حتماً في المرة القادمة', 'بأن يترك الدراسة', 'بأن يلعب مباراة'], answer: 'بأن ينجح حتماً في المرة القادمة' },
+    ],
+  },
   vocab: [
     { id: 'isshoukenmei', type: 'adverb', jp: '一生懸命', kanji: '一生懸命', hiragana: 'いっしょうけんめい', reading: 'isshoukenmei', meaning: 'بكل جهد' },
     { id: 'fugoukaku', type: 'noun', jp: '不合格', kanji: '不合格', hiragana: 'ふごうかく', reading: 'fugoukaku', meaning: 'رسوب' },

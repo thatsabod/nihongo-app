@@ -2,6 +2,33 @@ export const lessonEleven = {
   id: 11,
   title: { ar: 'المدة والسبب وحالة الإنجاز', en: 'Duration, Reason, and Completion' },
   focus: 'مدة الزمن بـ ぐらい، السبب بـ から، الموعد النهائي بـ までに، و もう/まだ',
+  dialogue: {
+    titleAr: 'لماذا غبت؟ — ميلر مريض',
+    lines: [
+      { speaker: 'ساتو', jp: 'ミラーさん、昨日 どうして 休みましたか。', romaji: 'Miraa-san, kinou doushite yasumimashita ka.', ar: 'سيد ميلر، لماذا تغيّبت أمس؟' },
+      { speaker: 'ميلر', jp: '熱が ありましたから。', romaji: 'Netsu ga arimashita kara.', ar: 'لأنه كانت عندي حمى.' },
+      { speaker: 'ساتو', jp: 'もう 元気ですか。', romaji: 'Mou genki desu ka.', ar: 'هل أصبحت بخير الآن؟' },
+      { speaker: 'ميلر', jp: 'はい、もう 大丈夫です。', romaji: 'Hai, mou daijoubu desu.', ar: 'نعم، أصبحت بخير.' },
+      { speaker: 'ساتو', jp: 'レポートは もう 終わりましたか。', romaji: 'Repooto wa mou owarimashita ka.', ar: 'هل انتهيت من التقرير؟' },
+      { speaker: 'ميلر', jp: 'いいえ、まだです。', romaji: 'Iie, mada desu.', ar: 'لا، ليس بعد.' },
+      { speaker: 'ساتو', jp: '金曜日までに 出してください。', romaji: 'Kinyoubi made ni dashite kudasai.', ar: 'سلّمه بحلول يوم الجمعة من فضلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'أسبوع مزدحم',
+    sentences: [
+      { jp: '今週は とても 忙しいです。', romaji: 'Konshuu wa totemo isogashii desu.', ar: 'هذا الأسبوع مزدحم جدًا.' },
+      { jp: '毎日 三時間ぐらい 勉強します。', romaji: 'Mainichi sanjikan gurai benkyou shimasu.', ar: 'أدرس كل يوم حوالي ثلاث ساعات.' },
+      { jp: '宿題は もう 終わりました。', romaji: 'Shukudai wa mou owarimashita.', ar: 'أنهيت الواجب بالفعل.' },
+      { jp: 'でも、レポートは まだです。', romaji: 'Demo, repooto wa mada desu.', ar: 'لكن التقرير لم ينتهِ بعد.' },
+      { jp: '試験が ありますから、休みません。', romaji: 'Shiken ga arimasu kara, yasumimasen.', ar: 'لأن عندي امتحانًا، لن آخذ إجازة.' },
+    ],
+    questions: [
+      { q: 'كم ساعة يدرس الكاتب يوميًا؟', options: ['ثلاث ساعات', 'ساعة واحدة', 'خمس ساعات'], answer: 'ثلاث ساعات' },
+      { q: 'هل أنهى التقرير؟', options: ['لا، لم ينتهِ بعد', 'نعم', 'لم يبدأه'], answer: 'لا، لم ينتهِ بعد' },
+      { q: 'لماذا لن يأخذ إجازة؟', options: ['لأن عنده امتحان', 'لأنه مريض', 'لأنه متعب'], answer: 'لأن عنده امتحان' },
+    ],
+  },
   vocab: [
     { id: 'jikan', type: 'noun', jp: '時間', kanji: '時間', hiragana: 'じかん', reading: 'jikan', meaning: 'وقت / ساعة (مدة)' },
     { id: 'ichijikan', type: 'duration', jp: '一時間', kanji: '一時間', hiragana: 'いちじかん', reading: 'ichijikan', meaning: 'ساعة واحدة (مدة)' },

@@ -2,6 +2,34 @@ export const n4LessonNine = {
   id: 9,
   title: { ar: 'كما... / بعد ذلك: とおり / あとで', en: 'As Instructed / After: とおり / あとで' },
   focus: 'التعبير عن "كما، حسب التعليمات" بـ ~とおりに، والتعبير عن "بعد" بـ ~あとで، وربط جملتين بـ V1てV2 أو V1ないでV2.',
+  dialogue: {
+    titleAr: 'في المطبخ مع المعلم',
+    lines: [
+      { speaker: 'ميلر', jp: '先生、このレシピのとおりに作りますか。', romaji: 'Sensei, kono reshipi no toori ni tsukurimasu ka.', ar: 'يا معلم، هل أطبخ حسب هذه الوصفة؟' },
+      { speaker: 'المعلم', jp: 'はい、レシピのとおりに作ってください。まず、野菜を切ってください。', romaji: 'Hai, reshipi no toori ni tsukutte kudasai. Mazu, yasai wo kitte kudasai.', ar: 'نعم، اطبخ حسب الوصفة من فضلك. أولاً، قطّع الخضار.' },
+      { speaker: 'ميلر', jp: '切ったあとで、フライパンに入れますか。', romaji: 'Kitta ato de, furaipan ni iremasu ka.', ar: 'بعد التقطيع، أضعها في المقلاة؟' },
+      { speaker: 'المعلم', jp: 'はい。油を入れて、野菜を焼いてください。', romaji: 'Hai. Abura wo irete, yasai wo yaite kudasai.', ar: 'نعم. ضع الزيت ثم اشوِ الخضار.' },
+      { speaker: 'ميلر', jp: '塩と砂糖も加えますか。', romaji: 'Shio to satou mo kuwaemasu ka.', ar: 'هل أضيف الملح والسكر أيضاً؟' },
+      { speaker: 'المعلم', jp: 'はい、適当に加えて、よく混ぜてください。', romaji: 'Hai, tekitou ni kuwaete, yoku mazete kudasai.', ar: 'نعم، أضفهما حسب التقدير ثم اخلط جيداً.' },
+      { speaker: 'ميلر', jp: '火を止めないで待ちますか。', romaji: 'Hi wo tomenai de machimasu ka.', ar: 'هل أنتظر بدون أن أطفئ النار؟' },
+      { speaker: 'المعلم', jp: 'いいえ、五分焼いたあとで、火を止めてください。', romaji: 'Iie, gofun yaita ato de, hi wo tomete kudasai.', ar: 'لا، بعد الشي خمس دقائق، أطفئ النار.' },
+    ],
+  },
+  reading: {
+    titleAr: 'وصفة بسيطة',
+    sentences: [
+      { jp: '私は友達とレシピのとおりに料理を作りました。', romaji: 'Watashi wa tomodachi to reshipi no toori ni ryouri wo tsukurimashita.', ar: 'طبختُ مع صديقي الطعام حسب الوصفة.' },
+      { jp: 'まず、野菜の皮をむいて、包丁で切りました。', romaji: 'Mazu, yasai no kawa wo muite, houchou de kirimashita.', ar: 'أولاً، قشّرتُ الخضار وقطّعتها بالسكين.' },
+      { jp: '油を入れたあとで、野菜を焼きました。', romaji: 'Abura wo ireta ato de, yasai wo yakimashita.', ar: 'بعد وضع الزيت، شويتُ الخضار.' },
+      { jp: '塩と砂糖を加えて、よく混ぜました。', romaji: 'Shio to satou wo kuwaete, yoku mazemashita.', ar: 'أضفتُ الملح والسكر ثم خلطتُ جيداً.' },
+      { jp: '味を見ないで火を止めましたが、とてもおいしかったです。', romaji: 'Aji wo minai de hi wo tomemashita ga, totemo oishikatta desu.', ar: 'أطفأتُ النار بدون أن أتذوق الطعم، لكنه كان لذيذاً جداً.' },
+    ],
+    questions: [
+      { q: 'كيف طبخ الطعام؟', options: ['حسب الوصفة', 'حسب الخريطة', 'بدون وصفة'], answer: 'حسب الوصفة' },
+      { q: 'ماذا فعل بالخضار أولاً؟', options: ['قشّرها وقطّعها', 'سلقها', 'برّدها'], answer: 'قشّرها وقطّعها' },
+      { q: 'متى أطفأ النار؟', options: ['بدون أن يتذوق الطعم', 'بعد أن تذوق الطعم', 'قبل أن يخلط'], answer: 'بدون أن يتذوق الطعم' },
+    ],
+  },
   vocab: [
     { id: 'yakimasu', type: 'verb', jp: '焼きます', kanji: '焼きます', hiragana: 'やきます', reading: 'yakimasu', meaning: 'يشوي / يخبز / يحمّر' },
     { id: 'nimasu', type: 'verb', jp: '煮ます', kanji: '煮ます', hiragana: 'にます', reading: 'nimasu', meaning: 'يطبخ بالغلي / يسلق في الصلصة' },

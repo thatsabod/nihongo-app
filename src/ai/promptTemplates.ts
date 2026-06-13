@@ -11,16 +11,12 @@ import type {
   SenseiPrompt,
   SenseiRequestParams,
 } from './aiSensei.types'
+import { senseiTextPersona } from './senseiPersona'
 
-// Shared persona/system instruction, tuned per level.
+// Shared persona/system instruction (text mode), tuned per level.
+// Sourced from the single persona constant in ./senseiPersona.
 function systemPrompt(ctx: SenseiContext): string {
-  return [
-    'أنت «عبدول سينسيه»، معلّم لغة يابانية للناطقين بالعربية.',
-    `مستوى الطالب الحالي: ${ctx.level} (JLPT).`,
-    'اشرح بالعربية الفصحى المبسطة، واستخدم أمثلة قصيرة وواضحة.',
-    'اكتب الجُمل اليابانية مع قراءتها (روماجي) ثم الترجمة العربية.',
-    'كن دقيقاً ولا تختلق معلومات؛ التزم بمستوى الطالب ولا تستخدم كلمات أصعب من اللازم.',
-  ].join(' ')
+  return senseiTextPersona(ctx)
 }
 
 function weakSummary(ctx: SenseiContext): string {

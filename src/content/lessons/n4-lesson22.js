@@ -2,6 +2,34 @@ export const n4LessonTwentyTwo = {
   id: 22,
   title: { ar: 'سمعت أن... ويبدو أن...: そう / よう / がします', en: 'Hearsay & Seeming: そう / よう / がします' },
   focus: 'التعبير عن "سمعت أن..." بـ ~そうです (الخبر المنقول)، والتعبير عن "يبدو أن..." بـ ~ようです (بناء على دليل/مشاهدة)، والتعبير عن الإحساس الحسي بـ 音/声/におい/味+がします.',
+  dialogue: {
+    titleAr: 'أخبار الطقس ورائحة غريبة',
+    lines: [
+      { speaker: 'ميلر', jp: '天気予報によると、明日は晴れるそうです。', romaji: 'Tenki yohou ni yoru to, ashita wa hareru sou desu.', ar: 'وفقاً لنشرة الأحوال الجوية، سمعت أن الجو سيكون صافياً غداً.' },
+      { speaker: 'ساتو', jp: 'そうですか。でも、今、外で変な音がしますね。', romaji: 'Sou desu ka. Demo, ima, soto de hen na oto ga shimasu ne.', ar: 'حقاً؟ لكن الآن يصدر صوت غريب من الخارج، صحيح؟' },
+      { speaker: 'ميلر', jp: '本当ですね。救急車の音のようです。', romaji: 'Hontou desu ne. Kyuukyuusha no oto no you desu.', ar: 'فعلاً. يبدو أنه صوت سيارة إسعاف.' },
+      { speaker: 'ساتو', jp: '道が濡れていますよ。さっき雨が降ったようです。', romaji: 'Michi ga nurete imasu yo. Sakki ame ga futta you desu.', ar: 'الشارع مبلل. يبدو أن الجو أمطر قبل قليل.' },
+      { speaker: 'ميلر', jp: 'あ、いいにおいがしますね。誰かが料理を作っているようです。', romaji: 'A, ii nioi ga shimasu ne. Dareka ga ryouri wo tsukutte iru you desu.', ar: 'آه، تنبعث رائحة طيبة. يبدو أن أحدهم يطبخ.' },
+      { speaker: 'ساتو', jp: 'ニュースによると、この町の人口は増加しているそうですよ。', romaji: 'Nyuusu ni yoru to, kono machi no jinkou wa zouka shite iru sou desu yo.', ar: 'وفقاً للأخبار، سمعت أن عدد سكان هذه المدينة في تزايد.' },
+      { speaker: 'ميلر', jp: 'なるほど。だから、新しいお店も増えているようですね。', romaji: 'Naruhodo. Dakara, atarashii omise mo fuete iru you desu ne.', ar: 'فهمت. لذلك يبدو أن المتاجر الجديدة تتزايد أيضاً.' },
+      { speaker: 'ساتو', jp: 'はい。私もこの町が好きになりました。', romaji: 'Hai. Watashi mo kono machi ga suki ni narimashita.', ar: 'نعم. وأنا أيضاً أصبحت أحب هذه المدينة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'نتائج بحث عن السكان',
+    sentences: [
+      { jp: '調査の結果によると、この町の人口は増加しているそうです。', romaji: 'Chousa no kekka ni yoru to, kono machi no jinkou wa zouka shite iru sou desu.', ar: 'وفقاً لنتائج البحث، سمعت أن عدد سكان هذه المدينة في تزايد.' },
+      { jp: 'ニュースによると、女性の平均寿命は男性より長いそうです。', romaji: 'Nyuusu ni yoru to, josei no heikin jumyou wa dansei yori nagai sou desu.', ar: 'وفقاً للأخبار، سمعت أن متوسط عمر النساء أطول من الرجال.' },
+      { jp: 'この現象の原因は、まだはっきりしないようです。', romaji: 'Kono genshou no gen-in wa, mada hakkiri shinai you desu.', ar: 'يبدو أن سبب هذه الظاهرة لم يتضح بعد.' },
+      { jp: '研究者たちは原因を推測しているようです。', romaji: 'Kenkyuusha-tachi wa gen-in wo suisoku shite iru you desu.', ar: 'يبدو أن الباحثين يخمّنون السبب.' },
+      { jp: '来週、新しい調査の結果を発表するそうです。', romaji: 'Raishuu, atarashii chousa no kekka wo happyou suru sou desu.', ar: 'سمعت أنهم سيعلنون نتائج بحث جديد الأسبوع المقبل.' },
+    ],
+    questions: [
+      { q: 'وفقاً للبحث، ماذا يحدث لعدد سكان المدينة؟', options: ['يتزايد', 'يتناقص', 'لا يتغير'], answer: 'يتزايد' },
+      { q: 'حسب النص، أيهما أطول عمراً في المتوسط؟', options: ['الرجال', 'النساء', 'متساويان'], answer: 'النساء' },
+      { q: 'ما حال سبب هذه الظاهرة حسب النص؟', options: ['اتضح تماماً', 'لم يتضح بعد', 'لا أحد يبحث فيه'], answer: 'لم يتضح بعد' },
+    ],
+  },
   vocab: [
     { id: 'heikin-jumyou', type: 'noun', jp: '平均寿命', kanji: '平均寿命', hiragana: 'へいきんじゅみょう', reading: 'heikin jumyou', meaning: 'متوسط العمر المتوقع' },
     { id: 'jinkou', type: 'noun', jp: '人口', kanji: '人口', hiragana: 'じんこう', reading: 'jinkou', meaning: 'عدد السكان' },

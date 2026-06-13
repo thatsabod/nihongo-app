@@ -2,6 +2,34 @@ export const n4LessonNineteen = {
   id: 19,
   title: { ar: 'أكثر من اللازم وسهل/صعب: すぎる / やすい・にくい', en: 'Too Much / Easy & Hard To: すぎる / やすい・にくい' },
   focus: 'التعبير عن "أكثر من اللازم" بـ ~すぎます، والتعبير عن "سهل/صعب الفعل" بـ ~やすい/~にくい، وتحويل الصفات إلى أفعال للتعبير عن "أجعله..." بـ くします/にします.',
+  dialogue: {
+    titleAr: 'في مكتب استقبال الفندق',
+    lines: [
+      { speaker: 'ميلر', jp: 'シングルを予約しました。チェックインをお願いします。', romaji: 'Shinguru wo yoyaku shimashita. Chekku in wo onegai shimasu.', ar: 'حجزتُ غرفة فردية. تسجيل الدخول من فضلك.' },
+      { speaker: 'موظف الفرونت', jp: 'はい。お部屋は静かですが、少し暗すぎますか。', romaji: 'Hai. Oheya wa shizuka desu ga, sukoshi kurasugimasu ka.', ar: 'حسناً. الغرفة هادئة، لكن هل هي مظلمة أكثر من اللازم قليلاً؟' },
+      { speaker: 'ميلر', jp: 'はい。部屋をもう少し明るくしてください。', romaji: 'Hai. Heya wo mou sukoshi akaruku shite kudasai.', ar: 'نعم. اجعل الغرفة أكثر إضاءة قليلاً من فضلك.' },
+      { speaker: 'موظف الفرونت', jp: 'エアコンの温度も調整しますか。', romaji: 'Eakon no ondo mo chousei shimasu ka.', ar: 'وهل أضبط درجة حرارة المكيف أيضاً؟' },
+      { speaker: 'ميلر', jp: 'はい、温度を低くしてください。それから、シャンプーは使いやすいですか。', romaji: 'Hai, ondo wo hikuku shite kudasai. Sorekara, shanpuu wa tsukaiyasui desu ka.', ar: 'نعم، اخفض درجة الحرارة من فضلك. ثم، هل الشامبو سهل الاستخدام؟' },
+      { speaker: 'موظف الفرونت', jp: 'はい、とても使いやすいです。お部屋は清潔ですから、満足しますよ。', romaji: 'Hai, totemo tsukaiyasui desu. Oheya wa seiketsu desu kara, manzoku shimasu yo.', ar: 'نعم، سهل الاستخدام جداً. الغرفة نظيفة، لذا ستكون راضياً.' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。チェックアウトは何時までですか。', romaji: 'Arigatou gozaimasu. Chekku auto wa nanji made desu ka.', ar: 'شكراً جزيلاً. حتى أي ساعة تسجيل الخروج؟' },
+      { speaker: 'موظف الفرونت', jp: '十時までです。宿泊料はこちらです。', romaji: 'Juu-ji made desu. Shukuhakuryou wa kochira desu.', ar: 'حتى الساعة العاشرة. رسوم الإقامة هنا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'غرفتي في الفندق',
+    sentences: [
+      { jp: '私はシングルを予約しました。', romaji: 'Watashi wa shinguru wo yoyaku shimashita.', ar: 'حجزتُ غرفة فردية.' },
+      { jp: '部屋は清潔で静かですが、少し暗すぎました。', romaji: 'Heya wa seiketsu de shizuka desu ga, sukoshi kurasugimashita.', ar: 'الغرفة نظيفة وهادئة، لكنها كانت مظلمة أكثر من اللازم قليلاً.' },
+      { jp: 'だから、フロントの人が部屋を明るくしました。', romaji: 'Dakara, furonto no hito ga heya wo akaruku shimashita.', ar: 'لذلك جعل موظف الاستقبال الغرفة أكثر إضاءة.' },
+      { jp: 'エアコンの温度も低くしましたから、とても快適です。', romaji: 'Eakon no ondo mo hikuku shimashita kara, totemo kaiteki desu.', ar: 'وخفض درجة حرارة المكيف أيضاً، لذا فهي مريحة جداً.' },
+      { jp: 'シャンプーも使いやすかったですから、私は満足しました。', romaji: 'Shanpuu mo tsukaiyasukatta desu kara, watashi wa manzoku shimashita.', ar: 'والشامبو كان سهل الاستخدام أيضاً، لذا شعرتُ بالرضا.' },
+    ],
+    questions: [
+      { q: 'ما نوع الغرفة التي حجزها الكاتب؟', options: ['غرفة فردية', 'غرفة بسريرين', 'محل حلاقة'], answer: 'غرفة فردية' },
+      { q: 'ما المشكلة التي كانت في الغرفة في البداية؟', options: ['كانت مظلمة أكثر من اللازم', 'كانت صاخبة أكثر من اللازم', 'كانت غير نظيفة'], answer: 'كانت مظلمة أكثر من اللازم' },
+      { q: 'كيف كان الشامبو؟', options: ['سهل الاستخدام', 'صعب الاستخدام', 'غالي أكثر من اللازم'], answer: 'سهل الاستخدام' },
+    ],
+  },
   vocab: [
     { id: 'single', type: 'noun', jp: 'シングル', hiragana: 'シングル', reading: 'shinguru', meaning: 'غرفة فردية (سرير واحد)' },
     { id: 'twin', type: 'noun', jp: 'ツイン', hiragana: 'ツイン', reading: 'tsuin', meaning: 'غرفة بسريرين' },

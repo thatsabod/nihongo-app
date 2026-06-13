@@ -2,6 +2,34 @@ export const n4LessonTwentyFour = {
   id: 24,
   title: { ar: 'لغة الاحترام (尊敬語)', en: 'Honorific Language (尊敬語)' },
   focus: 'استخدام صيغة المبني للمجهول كأسلوب احترام (社長はもう帰られました)، واستخدام お+V(stem)+になります كصيغة احترام أقوى، وتعلم الأفعال الخاصة بالاحترام، واستخدام お/ご+اسم.',
+  dialogue: {
+    titleAr: 'في مدخل الفندق الياباني',
+    lines: [
+      { speaker: 'الموظفة', jp: 'いらっしゃいませ。お名前は何とおっしゃいますか。', romaji: 'Irasshaimase. Onamae wa nan to osshaimasu ka.', ar: 'أهلاً بك. ما اسمك من فضلك؟' },
+      { speaker: 'الزبون', jp: '田中と申します。予約をしました。', romaji: 'Tanaka to moushimashita. Yoyaku wo shimashita.', ar: 'اسمي تاناكا. لقد قمت بحجز.' },
+      { speaker: 'الموظفة', jp: 'かしこまりました。ご予約を承知しております。', romaji: 'Kashikomarimashita. Goyoyaku wo shouchi shite orimasu.', ar: 'حسناً سيدي. حجزكم معلوم لدينا.' },
+      { speaker: 'الزبون', jp: '社長はもうお越しになりましたか。', romaji: 'Shachou wa mou okoshi ni narimashita ka.', ar: 'هل وصل رئيس الشركة بالفعل (بأدب)؟' },
+      { speaker: 'الموظفة', jp: 'はい、社長はもうお部屋にいらっしゃいます。', romaji: 'Hai, shachou wa mou oheya ni irasshaimasu.', ar: 'نعم، رئيس الشركة موجود الآن في الغرفة (بأدب).' },
+      { speaker: 'الزبون', jp: 'お荷物はここに置いてもいいですか。', romaji: 'Onimotsu wa koko ni oite mo ii desu ka.', ar: 'هل يمكنني وضع الحقائب هنا؟' },
+      { speaker: 'الموظفة', jp: '恐れ入ります。私が会場までご案内します。', romaji: 'Osore irimasu. Watashi ga kaijou made go annai shimasu.', ar: 'المعذرة. سأرشدك أنا إلى القاعة.' },
+      { speaker: 'الزبون', jp: 'よろしくお願いします。', romaji: 'Yoroshiku onegai shimasu.', ar: 'تحت أمرك، أرجو تعاونك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'استقبال الزبون في الفندق',
+    sentences: [
+      { jp: '今日、大切なお客様が旅館にお越しになります。', romaji: 'Kyou, taisetsu na okyakusama ga ryokan ni okoshi ni narimasu.', ar: 'اليوم، سيحضر زبون مهم إلى الفندق الياباني (بأدب).' },
+      { jp: '社長は会場でお客様を出迎えます。', romaji: 'Shachou wa kaijou de okyakusama wo demukaemasu.', ar: 'رئيس الشركة يستقبل الزبون في القاعة.' },
+      { jp: 'お客様は挨拶をして、お名前をおっしゃいました。', romaji: 'Okyakusama wa aisatsu wo shite, onamae wo osshaimashita.', ar: 'ألقى الزبون التحية، وقال اسمه (بأدب).' },
+      { jp: '部長はお客様を部屋までご案内になりました。', romaji: 'Buchou wa okyakusama wo heya made go annai ni narimashita.', ar: 'أرشد مدير القسم الزبون إلى الغرفة (بأدب).' },
+      { jp: 'お客様はお茶を召し上がって、とても喜ばれました。', romaji: 'Okyakusama wa ocha wo meshiagatte, totemo yorokobaremashita.', ar: 'تناول الزبون الشاي، وسُرّ كثيراً (بأدب).' },
+    ],
+    questions: [
+      { q: 'أين يستقبل رئيس الشركة الزبون؟', options: ['في القاعة', 'في المطار', 'في المنزل'], answer: 'في القاعة' },
+      { q: 'من أرشد الزبون إلى الغرفة؟', options: ['رئيس الشركة', 'مدير القسم', 'الموظفة'], answer: 'مدير القسم' },
+      { q: 'ماذا تناول الزبون؟', options: ['الشاي', 'القهوة', 'الطعام'], answer: 'الشاي' },
+    ],
+  },
   vocab: [
     { id: 'aisatsu', type: 'noun', jp: '挨拶', kanji: '挨拶', hiragana: 'あいさつ', reading: 'aisatsu', meaning: 'تحية / سلام' },
     { id: 'ryokan', type: 'noun', jp: '旅館', kanji: '旅館', hiragana: 'りょかん', reading: 'ryokan', meaning: 'فندق ياباني تقليدي' },

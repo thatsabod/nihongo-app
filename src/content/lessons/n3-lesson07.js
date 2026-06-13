@@ -2,6 +2,34 @@ export const n3LessonSeven = {
   id: 7,
   title: { ar: 'التجربة والمحاولة', en: 'Experience and Trying' },
   focus: 'التعبير عن تجربة سابقة أو تجربة فعل جديد أو محاولة فعل شيء.',
+  dialogue: {
+    titleAr: 'الحديث عن كيوتو',
+    lines: [
+      { speaker: 'ساتو', jp: '京都へ行ったことがありますか。', romaji: 'Kyouto e itta koto ga arimasu ka.', ar: 'هل سبق أن ذهبت إلى كيوتو؟' },
+      { speaker: 'ميلر', jp: 'はい、二回行ったことがあります。', romaji: 'Hai, nikai itta koto ga arimasu.', ar: 'نعم، سبق أن ذهبت مرتين.' },
+      { speaker: 'ساتو', jp: '京都で日本料理を作ってみましたか。', romaji: 'Kyouto de nihon ryouri wo tsukutte mimashita ka.', ar: 'هل جربت طبخ طعام ياباني في كيوتو؟' },
+      { speaker: 'ميلر', jp: 'はい、説明書を読んで作ってみました。', romaji: 'Hai, setsumeisho wo yonde tsukutte mimashita.', ar: 'نعم، قرأت الدليل وجربت أن أطبخ.' },
+      { speaker: 'ساتو', jp: '新しいアプリも使ってみましたか。', romaji: 'Atarashii apuri mo tsukatte mimashita ka.', ar: 'وهل جربت استخدام التطبيق الجديد أيضاً؟' },
+      { speaker: 'ميلر', jp: '使おうとしましたが、時間が足りませんでした。', romaji: 'Tsukaou to shimashita ga, jikan ga tarimasen deshita.', ar: 'حاولت أن أستخدمه، لكن الوقت لم يكف.' },
+      { speaker: 'ساتو', jp: '今度、私と一緒に挑戦してみましょう。', romaji: 'Kondo, watashi to issho ni chousen shite mimashou.', ar: 'في المرة القادمة، لنجرب التحدي معاً.' },
+      { speaker: 'ميلر', jp: 'いいですね。頑張ってみます。', romaji: 'Ii desu ne. Ganbatte mimasu.', ar: 'فكرة جيدة. سأجرب أن أجتهد.' },
+    ],
+  },
+  reading: {
+    titleAr: 'تجربة الطبخ',
+    sentences: [
+      { jp: '私は日本料理を作ったことがあります。', romaji: 'Watashi wa nihon ryouri wo tsukutta koto ga arimasu.', ar: 'سبق أن طبخت طعاماً يابانياً.' },
+      { jp: '先生に習ってから、家で作ってみました。', romaji: 'Sensei ni naratte kara, ie de tsukutte mimashita.', ar: 'بعد أن تعلمت من المعلم، جربت أن أطبخ في البيت.' },
+      { jp: '説明書を読んで、新しいアプリも使ってみました。', romaji: 'Setsumeisho wo yonde, atarashii apuri mo tsukatte mimashita.', ar: 'قرأت الدليل، وجربت أيضاً استخدام التطبيق الجديد.' },
+      { jp: '一度、海外の料理に挑戦しようとしましたが、時間が足りませんでした。', romaji: 'Ichido, kaigai no ryouri ni chousen shiyou to shimashita ga, jikan ga tarimasen deshita.', ar: 'مرة، حاولت التحدي بطبخ أجنبي، لكن الوقت لم يكف.' },
+      { jp: '今度は友達と一緒に頑張ってみます。', romaji: 'Kondo wa tomodachi to issho ni ganbatte mimasu.', ar: 'في المرة القادمة سأجرب أن أجتهد مع صديقي.' },
+    ],
+    questions: [
+      { q: 'ماذا سبق أن فعل الكاتب؟', options: ['طبخ طعاماً يابانياً', 'سافر إلى الخارج', 'كتب دليلاً'], answer: 'طبخ طعاماً يابانياً' },
+      { q: 'ممن تعلم الطبخ؟', options: ['من المعلم', 'من صديقه', 'من التطبيق'], answer: 'من المعلم' },
+      { q: 'لماذا لم ينجح في تجربة الطبخ الأجنبي؟', options: ['لأن الوقت لم يكف', 'لأن الدليل كان صعباً', 'لأن التطبيق لم يعمل'], answer: 'لأن الوقت لم يكف' },
+    ],
+  },
   vocab: [
     { id: 'kyouto', type: 'place', jp: '京都', kanji: '京都', hiragana: 'きょうと', reading: 'Kyouto', meaning: 'كيوتو' },
     { id: 'apuri', type: 'noun', jp: 'アプリ', hiragana: 'アプリ', reading: 'apuri', meaning: 'تطبيق' },

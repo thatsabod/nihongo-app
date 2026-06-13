@@ -2,6 +2,34 @@ export const n3LessonEight = {
   id: 8,
   title: { ar: 'السهل والصعب والزيادة', en: 'Easy, Hard, and Too Much' },
   focus: 'وصف سهولة الفعل أو صعوبته أو المبالغة باستخدام やすい・にくい・すぎる.',
+  dialogue: {
+    titleAr: 'القاموس الجديد',
+    lines: [
+      { speaker: 'ميلر', jp: 'この辞書は使いやすいですか。', romaji: 'Kono jisho wa tsukaiyasui desu ka.', ar: 'هل هذا القاموس سهل الاستخدام؟' },
+      { speaker: 'ساتو', jp: 'はい、とても使いやすいです。', romaji: 'Hai, totemo tsukaiyasui desu.', ar: 'نعم، سهل الاستخدام جداً.' },
+      { speaker: 'ميلر', jp: 'でも、この漢字は書きにくいですね。', romaji: 'Demo, kono kanji wa kakinikui desu ne.', ar: 'لكن هذا الكانجي صعب الكتابة، أليس كذلك؟' },
+      { speaker: 'ساتو', jp: 'そうですね。発音も少し言いにくいです。', romaji: 'Sou desu ne. Hatsuon mo sukoshi iinikui desu.', ar: 'صحيح. والنطق أيضاً صعب قليلاً.' },
+      { speaker: 'ميلر', jp: 'この辞書は高すぎると思います。', romaji: 'Kono jisho wa takasugiru to omoimasu.', ar: 'أعتقد أن هذا القاموس غالٍ جداً.' },
+      { speaker: 'ساتو', jp: 'でも、言葉を覚えやすいですよ。', romaji: 'Demo, kotoba o oboeyasui desu yo.', ar: 'لكنه يجعل حفظ الكلمات سهلاً.' },
+      { speaker: 'ميلر', jp: '勉強しすぎると疲れますね。', romaji: 'Benkyou shisugiru to tsukaremasu ne.', ar: 'إذا ذاكرت أكثر من اللازم تتعب، صحيح؟' },
+      { speaker: 'ساتو', jp: 'はい。でも、この説明は分かりやすいです。', romaji: 'Hai. Demo, kono setsumei wa wakariyasui desu.', ar: 'نعم. لكن هذا الشرح سهل الفهم.' },
+    ],
+  },
+  reading: {
+    titleAr: 'دراستي للكانجي',
+    sentences: [
+      { jp: 'この辞書は使いやすいです。', romaji: 'Kono jisho wa tsukaiyasui desu.', ar: 'هذا القاموس سهل الاستخدام.' },
+      { jp: 'でも、漢字は書きにくいです。', romaji: 'Demo, kanji wa kakinikui desu.', ar: 'لكن الكانجي صعب الكتابة.' },
+      { jp: 'この言葉の発音は少し言いにくいです。', romaji: 'Kono kotoba no hatsuon wa sukoshi iinikui desu.', ar: 'نطق هذه الكلمة صعب قليلاً.' },
+      { jp: '勉強しすぎると体に悪いと思います。', romaji: 'Benkyou shisugiru to karada ni warui to omoimasu.', ar: 'أعتقد أن المذاكرة أكثر من اللازم مضرة للجسم.' },
+      { jp: 'でも、この説明は分かりやすいです。', romaji: 'Demo, kono setsumei wa wakariyasui desu.', ar: 'لكن هذا الشرح سهل الفهم.' },
+    ],
+    questions: [
+      { q: 'كيف هو القاموس؟', options: ['سهل الاستخدام', 'صعب الاستخدام', 'مكسور'], answer: 'سهل الاستخدام' },
+      { q: 'لماذا الكانجي صعب؟', options: ['صعب الكتابة', 'سهل الكتابة', 'غالٍ جداً'], answer: 'صعب الكتابة' },
+      { q: 'ماذا يحدث عند المذاكرة أكثر من اللازم؟', options: ['مضر للجسم', 'مفيد للجسم', 'سهل الفهم'], answer: 'مضر للجسم' },
+    ],
+  },
   vocab: [
     { id: 'jisho', type: 'noun', jp: '辞書', kanji: '辞書', hiragana: 'じしょ', reading: 'jisho', meaning: 'قاموس' },
     { id: 'tsukaiyasui', type: 'adjective', jp: '使いやすい', kanji: '使いやすい', hiragana: 'つかいやすい', reading: 'tsukaiyasui', meaning: 'سهل الاستخدام' },

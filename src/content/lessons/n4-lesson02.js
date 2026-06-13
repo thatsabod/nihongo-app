@@ -2,6 +2,33 @@ export const n4LessonTwo = {
   id: 2,
   title: { ar: 'صيغة الإمكان: 〜られる/〜れる', en: 'The Potential Form: ~eru/~rareru' },
   focus: 'التعبير عن القدرة على فعل شيء باستخدام صيغة الإمكان، والفرق بين 見えます/聞こえます والأفعال العادية، واستخدام は للمقارنة وしか/だけ للحصر.',
+  dialogue: {
+    titleAr: 'هل تستطيع عزف البيانو؟',
+    lines: [
+      { speaker: 'ساتو', jp: '私はピアノがひけます。ミラーさんもひけますか。', romaji: 'Watashi wa piano ga hikemasu. Miraa-san mo hikemasu ka.', ar: 'أنا أستطيع عزف البيانو. وأنت يا ميلر، هل تستطيع العزف أيضاً؟' },
+      { speaker: 'ميلر', jp: 'いいえ、ピアノはひけません。でもギターはひけます。', romaji: 'Iie, piano wa hikemasen. Demo gitaa wa hikemasu.', ar: 'لا، لا أستطيع عزف البيانو. لكنني أستطيع عزف الغيتار.' },
+      { speaker: 'ساتو', jp: '上手ですね。私はギターが全然ひけません。', romaji: 'Jouzu desu ne. Watashi wa gitaa ga zenzen hikemasen.', ar: 'أنت بارع! أنا لا أستطيع عزف الغيتار إطلاقاً.' },
+      { speaker: 'ميلر', jp: '歌は歌えますか。', romaji: 'Uta wa utaemasu ka.', ar: 'هل تستطيع الغناء؟' },
+      { speaker: 'ساتو', jp: '少しだけ歌えます。でも下手です。', romaji: 'Sukoshi dake utaemasu. Demo heta desu.', ar: 'أستطيع الغناء قليلاً فقط. لكنني ضعيف فيه.' },
+      { speaker: 'ميلر', jp: '私も歌は下手です。でも踊ることはできます。', romaji: 'Watashi mo uta wa heta desu. Demo odoru koto wa dekimasu.', ar: 'وأنا أيضاً ضعيف في الغناء. لكنني أستطيع الرقص.' },
+      { speaker: 'ساتو', jp: 'すごいですね。じゃあ、今度いっしょに歌いましょう。', romaji: 'Sugoi desu ne. Jaa, kondo issho ni utaimashou.', ar: 'رائع! إذن، فلنغنِّ معاً في المرة القادمة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'مواهب ميلر',
+    sentences: [
+      { jp: 'ミラーさんはギターがひけます。', romaji: 'Miraa-san wa gitaa ga hikemasu.', ar: 'ميلر يستطيع عزف الغيتار.' },
+      { jp: 'でもピアノは全然ひけません。', romaji: 'Demo piano wa zenzen hikemasen.', ar: 'لكنه لا يستطيع عزف البيانو إطلاقاً.' },
+      { jp: 'ミラーさんは英語と日本語が話せます。', romaji: 'Miraa-san wa eigo to nihongo ga hanasemasu.', ar: 'ميلر يستطيع التحدث بالإنجليزية واليابانية.' },
+      { jp: 'でも漢字はまだ少ししか読めません。', romaji: 'Demo kanji wa mada sukoshi shika yomemasen.', ar: 'لكنه ما زال لا يستطيع قراءة إلا القليل من الكانجي فقط.' },
+      { jp: 'ミラーさんは料理も上手です。', romaji: 'Miraa-san wa ryouri mo jouzu desu.', ar: 'ميلر بارع في الطبخ أيضاً.' },
+    ],
+    questions: [
+      { q: 'ما الآلة التي يستطيع ميلر عزفها؟', options: ['الغيتار', 'البيانو', 'لا شيء'], answer: 'الغيتار' },
+      { q: 'كم يستطيع ميلر قراءة من الكانجي؟', options: ['كل الكانجي', 'القليل فقط', 'لا شيء إطلاقاً'], answer: 'القليل فقط' },
+      { q: 'في أي شيء آخر يكون ميلر بارعاً؟', options: ['الطبخ', 'الرقص', 'السباحة'], answer: 'الطبخ' },
+    ],
+  },
   vocab: [
     { id: 'untenshimasu', type: 'verb', jp: '運転します', kanji: '運転します', hiragana: 'うんてんします', reading: 'unten shimasu', meaning: 'يقود (سيارة)' },
     { id: 'oyogimasu', type: 'verb', jp: '泳ぎます', kanji: '泳ぎます', hiragana: 'およぎます', reading: 'oyogimasu', meaning: 'يسبح' },

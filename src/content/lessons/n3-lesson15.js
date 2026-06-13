@@ -2,6 +2,34 @@ export const n3LessonFifteen = {
   id: 15,
   title: { ar: 'الغرض والوسيلة', en: 'Purpose and Means' },
   focus: 'ربط الفعل بالهدف أو الوسيلة: ように・ために・によって.',
+  dialogue: {
+    titleAr: 'لماذا تدخر المال؟',
+    lines: [
+      { speaker: 'ساتو', jp: '私は今お金を貯めています。', romaji: 'Watashi wa ima okane wo tamete imasu.', ar: 'أنا أدخر المال الآن.' },
+      { speaker: 'ميلر', jp: '何のために貯めていますか。', romaji: 'Nan no tame ni tamete imasu ka.', ar: 'من أجل ماذا تدخر؟' },
+      { speaker: 'ساتو', jp: '留学するためにアルバイトをしています。', romaji: 'Ryuugaku suru tame ni arubaito wo shite imasu.', ar: 'أعمل بدوام جزئي من أجل الدراسة في الخارج.' },
+      { speaker: 'ميلر', jp: '国によって習慣が違いますね。', romaji: 'Kuni ni yotte shuukan ga chigaimasu ne.', ar: 'تختلف العادات حسب البلد، أليس كذلك؟' },
+      { speaker: 'ساتو', jp: 'はい。言葉が通じるように毎日日本語を練習しています。', romaji: 'Hai. Kotoba ga tsuujiru you ni mainichi nihongo wo renshuu shite imasu.', ar: 'نعم. أتمرن على اليابانية كل يوم لكي تصل رسالتي.' },
+      { speaker: 'ميلر', jp: '分からない場合は辞書を使いますか。', romaji: 'Wakaranai baai wa jisho wo tsukaimasu ka.', ar: 'في حالة عدم الفهم، هل تستخدم القاموس؟' },
+      { speaker: 'ساتو', jp: 'はい。意味が分かるように辞書を使います。', romaji: 'Hai. Imi ga wakaru you ni jisho wo tsukaimasu.', ar: 'نعم. أستخدم القاموس لكي أفهم المعنى.' },
+      { speaker: 'ميلر', jp: '健康のためにも運動してくださいね。', romaji: 'Kenkou no tame ni mo undou shite kudasai ne.', ar: 'ومن أجل صحتك أيضاً، مارس الرياضة من فضلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'هدف ساتو',
+    sentences: [
+      { jp: '私は留学するためにお金を貯めています。', romaji: 'Watashi wa ryuugaku suru tame ni okane wo tamete imasu.', ar: 'أنا أدخر المال من أجل الدراسة في الخارج.' },
+      { jp: 'お金を貯めるために、毎日アルバイトをしています。', romaji: 'Okane wo tameru tame ni, mainichi arubaito wo shite imasu.', ar: 'من أجل ادخار المال، أعمل بدوام جزئي كل يوم.' },
+      { jp: '国によって習慣が違うので、日本語の練習も大切です。', romaji: 'Kuni ni yotte shuukan ga chigau node, nihongo no renshuu mo taisetsu desu.', ar: 'لأن العادات تختلف حسب البلد، فإن التمرن على اليابانية مهم أيضاً.' },
+      { jp: '言葉が通じるように、毎日声に出して話します。', romaji: 'Kotoba ga tsuujiru you ni, mainichi koe ni dashite hanashimasu.', ar: 'لكي تصل رسالتي، أتحدث بصوت مسموع كل يوم.' },
+      { jp: '分からない言葉の意味が分かるように、辞書を使います。', romaji: 'Wakaranai kotoba no imi ga wakaru you ni, jisho wo tsukaimasu.', ar: 'لكي أفهم معنى الكلمات التي لا أعرفها، أستخدم القاموس.' },
+    ],
+    questions: [
+      { q: 'لماذا يدخر ساتو المال؟', options: ['من أجل الدراسة في الخارج', 'من أجل شراء قاموس', 'من أجل الرياضة'], answer: 'من أجل الدراسة في الخارج' },
+      { q: 'ماذا يفعل ساتو كل يوم لجمع المال؟', options: ['يعمل بدوام جزئي', 'يدرس في الخارج', 'يقرأ القاموس'], answer: 'يعمل بدوام جزئي' },
+      { q: 'لماذا يستخدم ساتو القاموس؟', options: ['لكي يفهم معنى الكلمات', 'لكي يدخر المال', 'لكي يمارس الرياضة'], answer: 'لكي يفهم معنى الكلمات' },
+    ],
+  },
   vocab: [
     { id: 'kikoeru', type: 'verb', jp: '聞こえる', kanji: '聞こえる', hiragana: 'きこえる', reading: 'kikoeru', meaning: 'يُسمع / أستطيع السماع' },
     { id: 'koe', type: 'noun', jp: '声', kanji: '声', hiragana: 'こえ', reading: 'koe', meaning: 'صوت' },

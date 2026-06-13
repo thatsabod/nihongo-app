@@ -2,6 +2,33 @@ export const lessonNineteen = {
   id: 19,
   title: { ar: 'الصيغة العادية والرأي والنقل', en: 'Plain Form, Opinions, and Reported Speech' },
   focus: 'مراجعة الصيغة العادية (普通形)، と思います لإبداء الرأي، و と言っていました لنقل كلام الآخرين',
+  dialogue: {
+    titleAr: 'خبر النقل الوظيفي',
+    lines: [
+      { speaker: 'ساتو', jp: '田中さん は 来月 転勤する と 言っていました。', romaji: 'Tanaka-san wa raigetsu tenkin suru to itte imashita.', ar: 'قال السيد تاناكا إنه سينتقل وظيفيا الشهر القادم.' },
+      { speaker: 'ميلر', jp: '本当ですか。私 は 知らなかった と 思います。', romaji: 'Hontou desu ka. Watashi wa shiranakatta to omoimasu.', ar: 'حقا؟ أعتقد أنني لم أكن أعرف.' },
+      { speaker: 'ساتو', jp: '課長 も あした の 会議 に 出席する と 言っていました。', romaji: 'Kachou mo ashita no kaigi ni shusseki suru to itte imashita.', ar: 'وقال رئيس القسم أيضا إنه سيحضر اجتماع الغد.' },
+      { speaker: 'ميلر', jp: 'でも 多分 田中さん は 欠席する と 思います。', romaji: 'Demo tabun Tanaka-san wa kesseki suru to omoimasu.', ar: 'لكن أعتقد أن السيد تاناكا سيتغيب غالبا.' },
+      { speaker: 'ساتو', jp: 'どうして そう 思います か。', romaji: 'Doushite sou omoimasu ka.', ar: 'لماذا تعتقد ذلك؟' },
+      { speaker: 'ميلر', jp: '田中さん は 結婚式 が ある と 言っていました。', romaji: 'Tanaka-san wa kekkonshiki ga aru to itte imashita.', ar: 'قال السيد تاناكا إن لديه حفل زفاف.' },
+      { speaker: 'ساتو', jp: 'そう ですか。きっと 幸せ だ と 思います。', romaji: 'Sou desu ka. Kitto shiawase da to omoimasu.', ar: 'حقا؟ أعتقد أنه سعيد بالتأكيد.' },
+    ],
+  },
+  reading: {
+    titleAr: 'خبر الإعصار والاجتماع',
+    sentences: [
+      { jp: 'ニュース は あした 台風 が 来る と 言っていました。', romaji: 'Nyuusu wa ashita taifuu ga kuru to itte imashita.', ar: 'قالت الأخبار إن إعصارا سيأتي غدا.' },
+      { jp: '私 は 天候 が 悪くなる と 思います。', romaji: 'Watashi wa tenkou ga waruku naru to omoimasu.', ar: 'أعتقد أن الطقس سيسوء.' },
+      { jp: '課長 は あした の 会議 を 中止する と 言っていました。', romaji: 'Kachou wa ashita no kaigi o chuushi suru to itte imashita.', ar: 'قال رئيس القسم إنه سيلغي اجتماع الغد.' },
+      { jp: '田中さん は 会議 に 欠席する と 言っていました。', romaji: 'Tanaka-san wa kaigi ni kesseki suru to itte imashita.', ar: 'قال السيد تاناكا إنه سيتغيب عن الاجتماع.' },
+      { jp: '私 は 多分 みんな 出社しない と 思います。', romaji: 'Watashi wa tabun minna shussha shinai to omoimasu.', ar: 'أعتقد أن الجميع غالبا لن يحضروا إلى الشركة.' },
+    ],
+    questions: [
+      { q: 'ماذا قالت الأخبار عن الغد؟', options: ['سيأتي إعصار', 'سيكون مشمسا', 'سيكون اجتماع'], answer: 'سيأتي إعصار' },
+      { q: 'ماذا قرر رئيس القسم بشأن الاجتماع؟', options: ['سيلغيه', 'سيؤجله ساعة', 'سيحضره'], answer: 'سيلغيه' },
+      { q: 'ماذا يعتقد المتكلم عن حضور الجميع للشركة؟', options: ['غالبا لن يحضروا', 'سيحضرون جميعا', 'سيحضر رئيس القسم فقط'], answer: 'غالبا لن يحضروا' },
+    ],
+  },
   vocab: [
     { id: 'omoimasu', type: 'verb', jp: '思います', kanji: '思います', hiragana: 'おもいます', reading: 'omoimasu', meaning: 'يعتقد / يظن' },
     { id: 'iimasu', type: 'verb', jp: '言います', kanji: '言います', hiragana: 'いいます', reading: 'iimasu', meaning: 'يقول' },

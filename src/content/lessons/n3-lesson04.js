@@ -2,6 +2,34 @@ export const n3LessonFour = {
   id: 4,
   title: { ar: 'يبدو ويقال إن', en: 'Looks Like and Hearsay' },
   focus: 'التمييز بين そうです للمظهر، そうです للنقل، وようです للاستنتاج.',
+  dialogue: {
+    titleAr: 'حديث عن الطقس والإشاعة',
+    lines: [
+      { speaker: 'ساتو', jp: '天気予報によると、明日は雨だそうです。', romaji: 'Tenki yohou ni yoru to, ashita wa ame da sou desu.', ar: 'حسب النشرة الجوية، يُقال إن غداً ممطر.' },
+      { speaker: 'ميلر', jp: '本当ですか。空を見ると、もう雨が降りそうですね。', romaji: 'Hontou desu ka. Sora wo miru to, mou ame ga furisou desu ne.', ar: 'حقاً؟ بالنظر إلى السماء، يبدو أن المطر سيسقط بالفعل.' },
+      { speaker: 'ساتو', jp: 'はい、曇りですから。ところで、田中さんは元気そうですか。', romaji: 'Hai, kumori desu kara. Tokorode, Tanaka-san wa genki sou desu ka.', ar: 'نعم، لأن الجو غائم. بالمناسبة، هل يبدو تاناكا بصحة ونشاط؟' },
+      { speaker: 'ميلر', jp: '様子を見ると、少し忙しいようです。', romaji: 'Yousu wo miru to, sukoshi isogashii you desu.', ar: 'بالنظر إلى حاله، يبدو أنه مشغول قليلاً.' },
+      { speaker: 'ساتو', jp: '噂によると、田中さんは結婚したそうですよ。', romaji: 'Uwasa ni yoru to, Tanaka-san wa kekkon shita sou desu yo.', ar: 'حسب الإشاعة، يُقال إن تاناكا قد تزوج.' },
+      { speaker: 'ميلر', jp: 'それで忙しいようですね。とても元気そうな感じです。', romaji: 'Sorede isogashii you desu ne. Totemo genki sou na kanji desu.', ar: 'لهذا يبدو مشغولاً إذاً. يعطي انطباعاً بأنه بصحة ونشاط جداً.' },
+      { speaker: 'ساتو', jp: 'このケーキはおいしそうですから、田中さんに持って行きます。', romaji: 'Kono keeki wa oishisou desu kara, Tanaka-san ni motte ikimasu.', ar: 'هذه الكعكة تبدو لذيذة، لذا سأحملها إلى تاناكا.' },
+      { speaker: 'ميلر', jp: 'いいですね。きっと喜ぶようですよ。', romaji: 'Ii desu ne. Kitto yorokobu you desu yo.', ar: 'فكرة جيدة. يبدو أنه سيفرح بالتأكيد.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم غائم',
+    sentences: [
+      { jp: '天気予報によると、今日は雨だそうです。', romaji: 'Tenki yohou ni yoru to, kyou wa ame da sou desu.', ar: 'حسب النشرة الجوية، يُقال إن اليوم ممطر.' },
+      { jp: '空は曇りで、今にも雨が降りそうです。', romaji: 'Sora wa kumori de, ima ni mo ame ga furisou desu.', ar: 'السماء غائمة، ويبدو أن المطر سيسقط في أي لحظة.' },
+      { jp: '私の友達は外を見て、少し心配そうです。', romaji: 'Watashi no tomodachi wa soto wo mite, sukoshi shinpai sou desu.', ar: 'صديقي ينظر إلى الخارج ويبدو قلقاً قليلاً.' },
+      { jp: '様子を見ると、友達は気分があまりよくないようです。', romaji: 'Yousu wo miru to, tomodachi wa kibun ga amari yoku nai you desu.', ar: 'بالنظر إلى حاله، يبدو أن مزاج صديقي ليس جيداً كثيراً.' },
+      { jp: '噂によると、明日は元気な天気になるそうです。', romaji: 'Uwasa ni yoru to, ashita wa genki na tenki ni naru sou desu.', ar: 'حسب الإشاعة، يُقال إن الطقس سيكون منعشاً غداً.' },
+    ],
+    questions: [
+      { q: 'حسب النشرة الجوية، كيف يكون طقس اليوم؟', options: ['ممطر', 'مشمس', 'ثلجي'], answer: 'ممطر' },
+      { q: 'لماذا يبدو الصديق قلقاً؟', options: ['لأن السماء غائمة ويبدو أن المطر سيسقط', 'لأنه جائع', 'لأنه تأخر عن العمل'], answer: 'لأن السماء غائمة ويبدو أن المطر سيسقط' },
+      { q: 'ماذا تقول الإشاعة عن طقس الغد؟', options: ['سيكون منعشاً', 'سيكون ممطراً', 'سيكون بارداً جداً'], answer: 'سيكون منعشاً' },
+    ],
+  },
   vocab: [
     { id: 'keeki', type: 'noun', jp: 'ケーキ', hiragana: 'ケーキ', reading: 'keeki', meaning: 'كعكة' },
     { id: 'tenki-yohou', type: 'noun', jp: '天気予報', kanji: '天気予報', hiragana: 'てんきよほう', reading: 'tenki yohou', meaning: 'النشرة الجوية' },

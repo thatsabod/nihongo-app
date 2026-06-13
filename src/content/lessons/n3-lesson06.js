@@ -2,6 +2,34 @@ export const n3LessonSix = {
   id: 6,
   title: { ar: 'الوجوب والمنع', en: 'Obligation and Prohibition' },
   focus: 'استخدام べき・なくてはいけない・てはいけない للتعبير عن ما ينبغي أو يجب أو يمنع.',
+  dialogue: {
+    titleAr: 'قواعد المتحف',
+    lines: [
+      { speaker: 'ميلر', jp: 'ここで写真を撮ってもいいですか。', romaji: 'Koko de shashin wo totte mo ii desu ka.', ar: 'هل يجوز التقاط الصور هنا؟' },
+      { speaker: 'المعلم', jp: 'いいえ、ここで写真を撮ってはいけません。', romaji: 'Iie, koko de shashin wo totte wa ikemasen.', ar: 'لا، لا يجوز التقاط الصور هنا.' },
+      { speaker: 'ميلر', jp: 'そうですか。規則は守るべきですね。', romaji: 'Sou desu ka. Kisoku wa mamoru beki desu ne.', ar: 'فهمت. ينبغي الالتزام بالقواعد إذن.' },
+      { speaker: 'المعلم', jp: 'はい。それから、ここで大きい声を出してはいけません。', romaji: 'Hai. Sorekara, koko de ookii koe wo dashite wa ikemasen.', ar: 'نعم. وأيضاً، لا يجوز رفع الصوت هنا.' },
+      { speaker: 'ميلر', jp: '分かりました。書類はいつ出さなくてはいけませんか。', romaji: 'Wakarimashita. Shorui wa itsu dasanakute wa ikemasen ka.', ar: 'فهمت. متى يجب أن أقدم الوثائق؟' },
+      { speaker: 'المعلم', jp: '明日までに必ず出さなくてはいけません。', romaji: 'Ashita made ni kanarazu dasanakute wa ikemasen.', ar: 'يجب أن تقدمها حتماً قبل الغد.' },
+      { speaker: 'ميلر', jp: '危険な場所では注意するべきですね。', romaji: 'Kiken na basho de wa chuui suru beki desu ne.', ar: 'ينبغي الحذر في الأماكن الخطرة إذن.' },
+      { speaker: 'المعلم', jp: 'はい、約束は守るべきです。', romaji: 'Hai, yakusoku wa mamoru beki desu.', ar: 'نعم، وينبغي الوفاء بالوعد.' },
+    ],
+  },
+  reading: {
+    titleAr: 'قواعد المدرسة',
+    sentences: [
+      { jp: '学校には大切な規則があります。', romaji: 'Gakkou ni wa taisetsu na kisoku ga arimasu.', ar: 'في المدرسة قواعد مهمة.' },
+      { jp: '学生は規則を守るべきです。', romaji: 'Gakusei wa kisoku wo mamoru beki desu.', ar: 'ينبغي على الطلاب الالتزام بالقواعد.' },
+      { jp: '教室で写真を撮ってはいけません。', romaji: 'Kyoushitsu de shashin wo totte wa ikemasen.', ar: 'لا يجوز التقاط الصور في الفصل.' },
+      { jp: '書類は明日までに出さなくてはいけません。', romaji: 'Shorui wa ashita made ni dasanakute wa ikemasen.', ar: 'يجب تقديم الوثائق قبل الغد.' },
+      { jp: '私は約束を必ず守ります。', romaji: 'Watashi wa yakusoku wo kanarazu mamorimasu.', ar: 'أنا ألتزم بالوعد حتماً.' },
+    ],
+    questions: [
+      { q: 'ماذا ينبغي على الطلاب أن يفعلوا؟', options: ['الالتزام بالقواعد', 'التقاط الصور في الفصل', 'نسيان الوثائق'], answer: 'الالتزام بالقواعد' },
+      { q: 'ما الممنوع في الفصل؟', options: ['التقاط الصور', 'الالتزام بالقواعد', 'تقديم الوثائق'], answer: 'التقاط الصور' },
+      { q: 'متى يجب تقديم الوثائق؟', options: ['قبل الغد', 'بعد أسبوع', 'لا يجب تقديمها'], answer: 'قبل الغد' },
+    ],
+  },
   vocab: [
     { id: 'yakusoku', type: 'noun', jp: '約束', kanji: '約束', hiragana: 'やくそく', reading: 'yakusoku', meaning: 'وعد / موعد متفق عليه' },
     { id: 'mamoru', type: 'verb', jp: '守る', kanji: '守る', hiragana: 'まもる', reading: 'mamoru', meaning: 'يحافظ / يلتزم' },

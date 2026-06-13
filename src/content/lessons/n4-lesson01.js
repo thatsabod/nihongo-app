@@ -2,6 +2,34 @@ export const n4LessonOne = {
   id: 1,
   title: { ar: 'التعبير عن السبب: んです', en: 'Explaining Reasons: んです' },
   focus: 'استخدام んです لتوضيح سبب أو خلفية أمر ما، والسؤال عن السبب بـ どうしたんですか / どうして〜んですか',
+  dialogue: {
+    titleAr: 'لماذا تأخرت؟',
+    lines: [
+      { speaker: 'المعلم', jp: 'どうしたんですか。', romaji: 'Dou shita n desu ka.', ar: 'ما الخطب؟' },
+      { speaker: 'ميلر', jp: '気分が悪いんです。', romaji: 'Kibun ga warui n desu.', ar: 'أشعر بتوعك (لهذا السبب).' },
+      { speaker: 'المعلم', jp: 'どうして遅れたんですか。', romaji: 'Doushite okureta n desu ka.', ar: 'لماذا تأخرت؟' },
+      { speaker: 'ميلر', jp: '電車が遅れたんです。', romaji: 'Densha ga okureta n desu.', ar: 'تأخر القطار (لهذا السبب).' },
+      { speaker: 'المعلم', jp: '今度の運動会に参加するんですか。', romaji: 'Kondo no undoukai ni sanka suru n desu ka.', ar: 'هل ستشارك في يوم الرياضة القادم؟' },
+      { speaker: 'ميلر', jp: 'はい、ボランティアに申し込んだんです。', romaji: 'Hai, borantia ni moushikonda n desu.', ar: 'نعم، تقدمت بطلب للتطوع (لهذا السبب).' },
+      { speaker: 'المعلم', jp: 'じゃ、今度の都合はいいんですか。', romaji: 'Ja, kondo no tsugou wa ii n desu ka.', ar: 'إذن، هل الوقت مناسب لك في المرة القادمة؟' },
+      { speaker: 'ميلر', jp: 'はい、今度は都合がいいんです。', romaji: 'Hai, kondo wa tsugou ga ii n desu.', ar: 'نعم، في المرة القادمة الوقت مناسب لي.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم القمامة',
+    sentences: [
+      { jp: '今日はごみを出す日なんです。', romaji: 'Kyou wa gomi o dasu hi nan desu.', ar: 'اليوم هو يوم إخراج القمامة (لهذا السبب).' },
+      { jp: 'これは燃えるごみですか。', romaji: 'Kore wa moeru gomi desu ka.', ar: 'هل هذه قمامة قابلة للاحتراق؟' },
+      { jp: 'いいえ、これは燃えないごみなんです。', romaji: 'Iie, kore wa moenai gomi nan desu.', ar: 'لا، هذه قمامة غير قابلة للاحتراق (لهذا السبب).' },
+      { jp: '空き缶と空き瓶は別に出すんです。', romaji: 'Akikan to akibin wa betsu ni dasu n desu.', ar: 'العلب والزجاجات الفارغة تُخرج بشكل منفصل (لهذا السبب).' },
+      { jp: '友達はボランティアに申し込んだんです。', romaji: 'Tomodachi wa borantia ni moushikonda n desu.', ar: 'صديقي تقدم بطلب للتطوع (لهذا السبب).' },
+    ],
+    questions: [
+      { q: 'ما هو اليوم؟', options: ['يوم إخراج القمامة', 'يوم الرياضة', 'يوم عطلة'], answer: 'يوم إخراج القمامة' },
+      { q: 'العلبة الفارغة من أي نوع من القمامة حسب النص؟', options: ['قمامة قابلة للاحتراق', 'قمامة غير قابلة للاحتراق', 'تُخرج بشكل منفصل'], answer: 'تُخرج بشكل منفصل' },
+      { q: 'ماذا فعل الصديق؟', options: ['تقدم بطلب للتطوع', 'أخرج القمامة', 'تأخر عن القطار'], answer: 'تقدم بطلب للتطوع' },
+    ],
+  },
   vocab: [
     { id: 'mimasu', type: 'verb', jp: '診ます', kanji: '診ます', hiragana: 'みます', reading: 'mimasu', meaning: 'يفحص (طبياً)' },
     { id: 'sagashimasu', type: 'verb', jp: '探します', kanji: '探します', hiragana: 'さがします', reading: 'sagashimasu', meaning: 'يبحث عن' },

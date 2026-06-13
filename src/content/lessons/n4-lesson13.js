@@ -2,6 +2,34 @@ export const n4LessonThirteen = {
   id: 13,
   title: { ar: 'تحويل الفعل إلى اسم: の / こと', en: 'Nominalizers: の / こと' },
   focus: 'تحويل الجملة الفعلية إلى اسم باستخدام の أو こと، والتركيز على جزء من الجملة بـ ~のは~です، والتعبير عن "نسيت أن.../هل تعرف أن...؟" و~ときも/や/の/に',
+  dialogue: {
+    titleAr: 'حديث عن التوأم',
+    lines: [
+      { speaker: 'ميلر', jp: 'あの双子が姉妹だということを知っていますか。', romaji: 'Ano futago ga shimai da to iu koto wo shitte imasu ka.', ar: 'هل تعرفين أن ذلك التوأم أختان؟' },
+      { speaker: 'ساتو', jp: 'はい。性格はぜんぜん違いますが、顔はとても似ていますね。', romaji: 'Hai. Seikaku wa zenzen chigaimasu ga, kao wa totemo nite imasu ne.', ar: 'نعم. طباعهما مختلفة تماماً، لكن وجهيهما متشابهان جداً.' },
+      { speaker: 'ميلر', jp: '私が好きなのは、おとなしい妹のほうです。', romaji: 'Watashi ga suki na no wa, otonashii imouto no hou desu.', ar: 'التي أحبها هي الأخت الصغرى الهادئة.' },
+      { speaker: 'ساتو', jp: '姉はにぎやかで、たまにわがままですよね。', romaji: 'Ane wa nigiyaka de, tamani wagamama desu yo ne.', ar: 'الأخت الكبرى حيوية، وأحياناً عنيدة، أليس كذلك؟' },
+      { speaker: 'ميلر', jp: 'でも、二人はめったにけんかしません。なかが良いです。', romaji: 'Demo, futari wa mettani kenka shimasen. Naka ga ii desu.', ar: 'لكنهما نادراً ما يتشاجران. علاقتهما جيدة.' },
+      { speaker: 'ساتو', jp: '子供のとき、毎日いっしょに遊ぶのが好きだったそうです。', romaji: 'Kodomo no toki, mainichi issho ni asobu no ga suki datta sou desu.', ar: 'يقال إنهما عندما كانتا طفلتين كانتا تحبان اللعب معاً كل يوم.' },
+      { speaker: 'ميلر', jp: 'いいですね。私も妹がいたら安心するのに。', romaji: 'Ii desu ne. Watashi mo imouto ga itara anshin suru noni.', ar: 'هذا جميل. لو كان لي أخت صغرى أنا أيضاً لشعرت بالأمان.' },
+      { speaker: 'ساتو', jp: '一人っ子も、たまに寂しいですよね。', romaji: 'Hitorikko mo, tamani sabishii desu yo ne.', ar: 'الطفل الوحيد أيضاً يشعر بالوحدة أحياناً، أليس كذلك؟' },
+    ],
+  },
+  reading: {
+    titleAr: 'الأختان التوأم',
+    sentences: [
+      { jp: '私の友達には双子の姉妹がいます。', romaji: 'Watashi no tomodachi ni wa futago no shimai ga imasu.', ar: 'لصديقتي أختان توأم.' },
+      { jp: '顔はとても似ていますが、性格はぜんぜん違います。', romaji: 'Kao wa totemo nite imasu ga, seikaku wa zenzen chigaimasu.', ar: 'وجهاهما متشابهان جداً، لكن طباعهما مختلفة تماماً.' },
+      { jp: '姉はにぎやかで、妹はおとなしいです。', romaji: 'Ane wa nigiyaka de, imouto wa otonashii desu.', ar: 'الأخت الكبرى حيوية، والأخت الصغرى هادئة.' },
+      { jp: '二人はめったにけんかしないので、なかが良いです。', romaji: 'Futari wa mettani kenka shinai node, naka ga ii desu.', ar: 'لأنهما نادراً ما يتشاجران، فعلاقتهما جيدة.' },
+      { jp: '私が好きなのは、いつも優しい妹のほうです。', romaji: 'Watashi ga suki na no wa, itsumo yasashii imouto no hou desu.', ar: 'التي أحبها هي الأخت الصغرى اللطيفة دائماً.' },
+    ],
+    questions: [
+      { q: 'كيف وجها التوأم؟', options: ['متشابهان جداً', 'مختلفان تماماً', 'لا يُذكر في النص'], answer: 'متشابهان جداً' },
+      { q: 'كيف طبع الأخت الصغرى؟', options: ['حيوية وصاخبة', 'هادئة', 'صارمة'], answer: 'هادئة' },
+      { q: 'لماذا علاقة الأختين جيدة؟', options: ['لأنهما نادراً ما تتشاجران', 'لأنهما تسكنان معاً', 'لأنهما تدرسان معاً'], answer: 'لأنهما نادراً ما تتشاجران' },
+    ],
+  },
   vocab: [
     { id: 'akachan', type: 'noun', jp: '赤ちゃん', kanji: '赤ちゃん', hiragana: 'あかちゃん', reading: 'akachan', meaning: 'طفل رضيع' },
     { id: 'futago', type: 'noun', jp: '双子', kanji: '双子', hiragana: 'ふたご', reading: 'futago', meaning: 'توأم' },

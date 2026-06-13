@@ -2,6 +2,32 @@ export const n4LessonSeventeen = {
   id: 17,
   title: { ar: 'الهدف والغرض: ために / のに', en: 'Purpose: ために / のに' },
   focus: 'التعبير عن الهدف "لأجل أن..." بـ ~ために، واستخدام Vの/Nに+使います/役に立ちます/かかります/必要です، واستخدام ~には/~にも للتعبير عن الكمية اللازمة.',
+  dialogue: {
+    titleAr: 'حلم المستقبل',
+    lines: [
+      { speaker: 'المعلم', jp: '将来の夢のために、毎日努力していますか。', romaji: 'Shourai no yume no tame ni, mainichi doryoku shite imasu ka.', ar: 'هل تبذل جهداً كل يوم من أجل حلم المستقبل؟' },
+      { speaker: 'ميلر', jp: 'はい。社会の問題を解決するために、法律を勉強しています。', romaji: 'Hai. Shakai no mondai wo kaiketsu suru tame ni, houritsu wo benkyou shite imasu.', ar: 'نعم. أدرس القانون لكي أحلّ مشاكل المجتمع.' },
+      { speaker: 'المعلم', jp: 'いいですね。この勉強には時間がかかりますよ。', romaji: 'Ii desu ne. Kono benkyou ni wa jikan ga kakarimasu yo.', ar: 'جميل. هذه الدراسة تستغرق وقتاً، أليس كذلك.' },
+      { speaker: 'ميلر', jp: 'はい。目標を達成するには、毎日の努力が必要です。', romaji: 'Hai. Mokuhyou wo tassei suru ni wa, mainichi no doryoku ga hitsuyou desu.', ar: 'نعم. لتحقيق الهدف، يلزم جهد يومي.' },
+      { speaker: 'المعلم', jp: 'この辞書は法律を勉強するのに役に立ちますよ。', romaji: 'Kono jisho wa houritsu wo benkyou suru no ni yaku ni tachimasu yo.', ar: 'هذا القاموس مفيد لدراسة القانون.' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。平和な社会のために頑張ります。', romaji: 'Arigatou gozaimasu. Heiwa na shakai no tame ni ganbarimasu.', ar: 'شكراً جزيلاً. سأجتهد من أجل مجتمع يسوده السلام.' },
+    ],
+  },
+  reading: {
+    titleAr: 'هدفي للمستقبل',
+    sentences: [
+      { jp: '私の将来の夢は社会の問題を解決することです。', romaji: 'Watashi no shourai no yume wa shakai no mondai wo kaiketsu suru koto desu.', ar: 'حلمي للمستقبل هو أن أحلّ مشاكل المجتمع.' },
+      { jp: 'そのために、毎日法律を勉強しています。', romaji: 'Sono tame ni, mainichi houritsu wo benkyou shite imasu.', ar: 'ولأجل ذلك، أدرس القانون كل يوم.' },
+      { jp: 'この目標を達成するには、長い時間がかかります。', romaji: 'Kono mokuhyou wo tassei suru ni wa, nagai jikan ga kakarimasu.', ar: 'لتحقيق هذا الهدف يلزم وقت طويل.' },
+      { jp: '法律の知識は社会を改善するのに役に立ちます。', romaji: 'Houritsu no chishiki wa shakai wo kaizen suru no ni yaku ni tachimasu.', ar: 'المعرفة بالقانون مفيدة لتحسين المجتمع.' },
+      { jp: '平和な社会のために、これからも努力します。', romaji: 'Heiwa na shakai no tame ni, kore kara mo doryoku shimasu.', ar: 'من أجل مجتمع يسوده السلام، سأواصل بذل الجهد.' },
+    ],
+    questions: [
+      { q: 'ما هو حلم الكاتب للمستقبل؟', options: ['أن يحلّ مشاكل المجتمع', 'أن يصبح معلماً', 'أن يسافر إلى الخارج'], answer: 'أن يحلّ مشاكل المجتمع' },
+      { q: 'ماذا يدرس الكاتب كل يوم؟', options: ['القانون', 'الطب', 'الموسيقى'], answer: 'القانون' },
+      { q: 'كم من الوقت يلزم لتحقيق هذا الهدف؟', options: ['وقت طويل', 'يوم واحد فقط', 'لا يلزم وقت'], answer: 'وقت طويل' },
+    ],
+  },
   vocab: [
     { id: 'kyouiku', type: 'noun', jp: '教育', kanji: '教育', hiragana: 'きょういく', reading: 'kyouiku', meaning: 'تربية / تعليم' },
     { id: 'bunka', type: 'noun', jp: '文化', kanji: '文化', hiragana: 'ぶんか', reading: 'bunka', meaning: 'ثقافة' },

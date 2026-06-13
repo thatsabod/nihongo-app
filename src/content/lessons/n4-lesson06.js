@@ -2,6 +2,33 @@ export const n4LessonSix = {
   id: 6,
   title: { ar: 'صيغة الإرادة: 〜よう / つもり / 予定', en: 'The Volitional Form: ~ou/~you, つもり, 予定' },
   focus: 'تكوين صيغة الإرادة (let\'s.../I will...)، واستخدام ~ようと思っています للتعبير عن نية، والفرق بين つもりです (نية قوية شخصية) و予定です (جدول/خطة محددة).',
+  dialogue: {
+    titleAr: 'خطط ما بعد التخرج',
+    lines: [
+      { speaker: 'ساتو', jp: '来年大学を卒業しますね。それから何をするつもりですか。', romaji: 'Rainen daigaku wo sotsugyou shimasu ne. Sorekara nani wo suru tsumori desu ka.', ar: 'ستتخرج من الجامعة العام القادم، أليس كذلك؟ ماذا تنوي أن تفعل بعد ذلك؟' },
+      { speaker: 'ميلر', jp: '大学院に入学しようと思っています。', romaji: 'Daigakuin ni nyuugaku shiyou to omotte imasu.', ar: 'أفكر في الالتحاق بالدراسات العليا.' },
+      { speaker: 'ساتو', jp: 'いいですね。私は本社の試験を受けるつもりです。', romaji: 'Ii desu ne. Watashi wa honsha no shiken wo ukeru tsumori desu.', ar: 'جميل. أما أنا فأنوي الخضوع لامتحان المقر الرئيسي.' },
+      { speaker: 'ميلر', jp: 'その試験はいつ始まる予定ですか。', romaji: 'Sono shiken wa itsu hajimaru yotei desu ka.', ar: 'متى من المقرر أن يبدأ ذلك الامتحان؟' },
+      { speaker: 'ساتو', jp: '来月の予定です。だから今、日本語の勉強を続けようと思っています。', romaji: 'Raigetsu no yotei desu. Dakara ima, nihongo no benkyou wo tsuzukeyou to omotte imasu.', ar: 'من المقرر أن يكون الشهر القادم. لذلك أفكر الآن في الاستمرار بدراسة اليابانية.' },
+      { speaker: 'ميلر', jp: 'じゃ、今日は一緒に勉強しよう。', romaji: 'Ja, kyou wa issho ni benkyou shiyou.', ar: 'إذن، هيا ندرس معاً اليوم.' },
+      { speaker: 'ساتو', jp: 'ありがとう。少し休んでから始めよう。', romaji: 'Arigatou. Sukoshi yasunde kara hajimeyou.', ar: 'شكراً. هيا نبدأ بعد أن نستريح قليلاً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'خطة العطلة المتتالية',
+    sentences: [
+      { jp: '来年の連休に、友達と温泉に行こうと思っています。', romaji: 'Rainen no renkyuu ni, tomodachi to onsen ni ikou to omotte imasu.', ar: 'أفكر في الذهاب إلى الحمام المعدني الحار مع صديقي في العطلة المتتالية العام القادم.' },
+      { jp: 'その前に、私は試験を受ける予定です。', romaji: 'Sono mae ni, watashi wa shiken wo ukeru yotei desu.', ar: 'قبل ذلك، من المقرر أن أخضع لامتحان.' },
+      { jp: 'だから今、日本語の勉強を続けるつもりです。', romaji: 'Dakara ima, nihongo no benkyou wo tsuzukeru tsumori desu.', ar: 'لذلك أنوي الآن الاستمرار بدراسة اليابانية.' },
+      { jp: '友達は連休に動物園に行くつもりです。', romaji: 'Tomodachi wa renkyuu ni doubutsuen ni iku tsumori desu.', ar: 'صديقي ينوي الذهاب إلى حديقة الحيوان في العطلة المتتالية.' },
+      { jp: '会議は連休のあとで始まる予定です。', romaji: 'Kaigi wa renkyuu no ato de hajimaru yotei desu.', ar: 'الاجتماع من المقرر أن يبدأ بعد العطلة المتتالية.' },
+    ],
+    questions: [
+      { q: 'أين يفكر المتحدث في الذهاب في العطلة المتتالية؟', options: ['إلى الحمام المعدني الحار', 'إلى حديقة الحيوان', 'إلى المقر الرئيسي'], answer: 'إلى الحمام المعدني الحار' },
+      { q: 'ماذا ينوي المتحدث أن يفعل الآن؟', options: ['الاستمرار بدراسة اليابانية', 'الزواج', 'الالتحاق بالدراسات العليا'], answer: 'الاستمرار بدراسة اليابانية' },
+      { q: 'متى من المقرر أن يبدأ الاجتماع؟', options: ['بعد العطلة المتتالية', 'قبل الامتحان', 'في الساعة الواحدة'], answer: 'بعد العطلة المتتالية' },
+    ],
+  },
   vocab: [
     { id: 'hajimarimasu', type: 'verb', jp: '始まります', kanji: '始まります', hiragana: 'はじまります', reading: 'hajimarimasu', meaning: 'يبدأ (الشيء)' },
     { id: 'tsuzukemasu', type: 'verb', jp: '続けます', kanji: '続けます', hiragana: 'つづけます', reading: 'tsuzukemasu', meaning: 'يستمر / يواصل' },

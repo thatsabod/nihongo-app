@@ -2,6 +2,32 @@ export const lessonTwelve = {
   id: 12,
   title: { ar: 'الماضي والمقارنة', en: 'Past Adjectives and Comparison' },
   focus: 'الصفات في الماضي، が للتضاد، ほうがいい للنصيحة، وどちら للمقارنة',
+  dialogue: {
+    titleAr: 'القطار أم الحافلة؟ — اختيار وسيلة',
+    lines: [
+      { speaker: 'ميلر', jp: '空港まで 電車と バスと どちらが いいですか。', romaji: 'Kuukou made densha to basu to dochira ga ii desu ka.', ar: 'إلى المطار، القطار أم الحافلة أفضل؟' },
+      { speaker: 'ساتو', jp: '電車の ほうが いいです。', romaji: 'Densha no hou ga ii desu.', ar: 'القطار أفضل.' },
+      { speaker: 'ميلر', jp: 'バスは 大変ですか。', romaji: 'Basu wa taihen desu ka.', ar: 'هل الحافلة شاقّة؟' },
+      { speaker: 'ساتو', jp: 'はい、時間が 長いです。電車の ほうが 簡単です。', romaji: 'Hai, jikan ga nagai desu. Densha no hou ga kantan desu.', ar: 'نعم، وقتها طويل. القطار أسهل.' },
+      { speaker: 'ميلر', jp: '昨日の 天気は どうでしたか。', romaji: 'Kinou no tenki wa dou deshita ka.', ar: 'كيف كان طقس أمس؟' },
+      { speaker: 'ساتو', jp: '涼しかったです。でも、今日は 暑いです。', romaji: 'Suzushikatta desu. Demo, kyou wa atsui desu.', ar: 'كان منعشًا. لكن اليوم حار.' },
+    ],
+  },
+  reading: {
+    titleAr: 'رحلة الصيف الماضي',
+    sentences: [
+      { jp: '去年の 夏、海へ 行きました。', romaji: 'Kyonen no natsu, umi e ikimashita.', ar: 'الصيف الماضي ذهبت إلى البحر.' },
+      { jp: '天気は とても 暑かったです。', romaji: 'Tenki wa totemo atsukatta desu.', ar: 'كان الطقس حارًا جدًا.' },
+      { jp: '海は きれいでしたが、人が 多かったです。', romaji: 'Umi wa kirei deshita ga, hito ga ookatta desu.', ar: 'البحر كان جميلًا، لكن الناس كانوا كثرًا.' },
+      { jp: '冬は 海より 山の ほうが いいです。', romaji: 'Fuyu wa umi yori yama no hou ga ii desu.', ar: 'في الشتاء، الجبل أفضل من البحر.' },
+      { jp: '今年は 山へ 行きたいです。', romaji: 'Kotoshi wa yama e ikitai desu.', ar: 'هذا العام أريد الذهاب إلى الجبل.' },
+    ],
+    questions: [
+      { q: 'أين ذهب الكاتب الصيف الماضي؟', options: ['إلى البحر', 'إلى الجبل', 'إلى المطار'], answer: 'إلى البحر' },
+      { q: 'كيف كان الطقس؟', options: ['حارًا جدًا', 'منعشًا', 'باردًا'], answer: 'حارًا جدًا' },
+      { q: 'ماذا يفضّل الكاتب في الشتاء؟', options: ['الجبل', 'البحر', 'المدينة'], answer: 'الجبل' },
+    ],
+  },
   vocab: [
     { id: 'suzushii', type: 'i-adjective', jp: '涼しい', kanji: '涼しい', hiragana: 'すずしい', reading: 'suzushii', meaning: 'منعش / بارد قليلا' },
     { id: 'atatakai', type: 'i-adjective', jp: '暖かい', kanji: '暖かい', hiragana: 'あたたかい', reading: 'atatakai', meaning: 'دافئ' },

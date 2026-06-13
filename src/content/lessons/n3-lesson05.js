@@ -2,6 +2,33 @@ export const n3LessonFive = {
   id: 5,
   title: { ar: 'التغير والقرار', en: 'Change and Decisions' },
   focus: 'صياغة تغير القدرة، القرار الشخصي، والقرار الخارجي باستخدام ようになる・ことにする・ことになる.',
+  dialogue: {
+    titleAr: 'قرارات من أجل المستقبل',
+    lines: [
+      { speaker: 'ساتو', jp: '来月、東京の会社へ転勤することになりました。', romaji: 'Raigetsu, Toukyou no kaisha e tenkin suru koto ni narimashita.', ar: 'تقرر أن أنتقل للعمل في شركة في طوكيو الشهر القادم.' },
+      { speaker: 'ميلر', jp: 'そうですか。じゃ、引っ越しもしますね。', romaji: 'Sou desu ka. Ja, hikkoshi mo shimasu ne.', ar: 'حقاً؟ إذاً ستنتقل سكنك أيضاً.' },
+      { speaker: 'ساتو', jp: 'はい。だから将来のために日本語をもっと習うことにしました。', romaji: 'Hai. Dakara shourai no tame ni nihongo wo motto narau koto ni shimashita.', ar: 'نعم. لذلك قررت أن أتعلم اليابانية أكثر من أجل المستقبل.' },
+      { speaker: 'ميلر', jp: '毎日練習すれば、すぐに話せるようになりますよ。', romaji: 'Mainichi renshuu sureba, sugu ni hanaseru you ni narimasu yo.', ar: 'إذا تدربت كل يوم، فستصبح قادراً على التحدث سريعاً.' },
+      { speaker: 'ساتو', jp: '私も努力します。健康のためにタバコも止めることにしました。', romaji: 'Watashi mo doryoku shimasu. Kenkou no tame ni tabako mo yameru koto ni shimashita.', ar: 'سأبذل جهداً أيضاً. ومن أجل الصحة قررت أن أترك التدخين كذلك.' },
+      { speaker: 'ميلر', jp: 'いいですね。私も最近、毎日運動するようになりました。', romaji: 'Ii desu ne. Watashi mo saikin, mainichi undou suru you ni narimashita.', ar: 'جميل. أنا أيضاً مؤخراً صرت أمارس الرياضة كل يوم.' },
+      { speaker: 'ساتو', jp: '一緒に頑張りましょう。', romaji: 'Issho ni ganbarimashou.', ar: 'لنجتهد معاً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'تغيرات ساتو',
+    sentences: [
+      { jp: '佐藤さんは来月、会社の転勤で大阪へ引っ越しすることになりました。', romaji: 'Satou-san wa raigetsu, kaisha no tenkin de Oosaka e hikkoshi suru koto ni narimashita.', ar: 'تقرر أن ينتقل ساتو الشهر القادم إلى أوساكا بسبب نقل عمل من الشركة.' },
+      { jp: '将来のために、彼は日本語を毎日習うことにしました。', romaji: 'Shourai no tame ni, kare wa nihongo wo mainichi narau koto ni shimashita.', ar: 'من أجل المستقبل، قرر أن يتعلم اليابانية كل يوم.' },
+      { jp: '毎日練習して、難しい漢字も読めるようになりました。', romaji: 'Mainichi renshuu shite, muzukashii kanji mo yomeru you ni narimashita.', ar: 'تدرب كل يوم، فأصبح قادراً على قراءة الكانجي الصعب أيضاً.' },
+      { jp: '健康のために、甘い物を減らして、タバコも止めることにしました。', romaji: 'Kenkou no tame ni, amai mono wo herashite, tabako mo yameru koto ni shimashita.', ar: 'من أجل الصحة، قلّل الحلويات وقرر أن يترك التدخين أيضاً.' },
+      { jp: '今では毎日運動して、前より日本語が話せるようになりました。', romaji: 'Ima dewa mainichi undou shite, mae yori nihongo ga hanaseru you ni narimashita.', ar: 'الآن يمارس الرياضة كل يوم، وأصبح يتحدث اليابانية أفضل من قبل.' },
+    ],
+    questions: [
+      { q: 'لماذا سينتقل ساتو إلى أوساكا؟', options: ['بسبب نقل عمل من الشركة', 'من أجل تعلم اليابانية', 'لأنه ترك التدخين'], answer: 'بسبب نقل عمل من الشركة' },
+      { q: 'ماذا قرر ساتو أن يفعل من أجل الصحة؟', options: ['أن يقلل الحلويات ويترك التدخين', 'أن يتعلم الكانجي', 'أن ينتقل إلى طوكيو'], answer: 'أن يقلل الحلويات ويترك التدخين' },
+      { q: 'ما الذي صار ساتو قادراً عليه بعد التدريب اليومي؟', options: ['قراءة الكانجي الصعب', 'قيادة السيارة', 'الطبخ الياباني'], answer: 'قراءة الكانجي الصعب' },
+    ],
+  },
   vocab: [
     { id: 'renshuu', type: 'noun', jp: '練習', kanji: '練習', hiragana: 'れんしゅう', reading: 'renshuu', meaning: 'تدريب' },
     { id: 'yomeru', type: 'verb', jp: '読める', kanji: '読める', hiragana: 'よめる', reading: 'yomeru', meaning: 'يستطيع القراءة' },

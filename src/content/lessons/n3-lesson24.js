@@ -2,6 +2,33 @@ export const n3LessonTwentyFour = {
   id: 24,
   title: { ar: 'حتى / بحلول / منذ', en: 'Until, By, Since' },
   focus: 'تمييز まで・までに・以来 في المواعيد والنهايات الزمنية.',
+  dialogue: {
+    titleAr: 'موعد تسليم التقرير',
+    lines: [
+      { speaker: 'المعلم', jp: '金曜日までにレポートを出してください。', romaji: 'Kinyoubi made ni repooto wo dashite kudasai.', ar: 'قدّم التقرير بحلول يوم الجمعة.' },
+      { speaker: 'ساتو', jp: '締め切りまでにこの仕事を終えなければなりませんか。', romaji: 'Shimekiri made ni kono shigoto wo oenakereba narimasen ka.', ar: 'هل يجب أن أنتهي من هذا العمل بحلول الموعد النهائي؟' },
+      { speaker: 'المعلم', jp: 'はい。試験が終わるまで教室を出ないでください。', romaji: 'Hai. Shiken ga owaru made kyoushitsu wo denaide kudasai.', ar: 'نعم. ولا تغادر الصف حتى ينتهي الاختبار.' },
+      { speaker: 'ساتو', jp: '会議が始まるまで、私は資料を直します。', romaji: 'Kaigi ga hajimaru made, watashi wa shiryou wo naoshimasu.', ar: 'سأصحح المستند حتى يبدأ الاجتماع.' },
+      { speaker: 'المعلم', jp: 'いいですね。明日までにこの資料も直してください。', romaji: 'Ii desu ne. Ashita made ni kono shiryou mo naoshite kudasai.', ar: 'جيد. صحح هذا المستند أيضاً بحلول الغد.' },
+      { speaker: 'ساتو', jp: 'わかりました。卒業以来、こんなに忙しいです。', romaji: 'Wakarimashita. Sotsugyou irai, konna ni isogashii desu.', ar: 'فهمت. منذ التخرج وأنا مشغول هكذا.' },
+      { speaker: 'المعلم', jp: '夏までこの会社で続けてください。', romaji: 'Natsu made kono kaisha de tsuzukete kudasai.', ar: 'واصل في هذه الشركة حتى الصيف من فضلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'أسبوع مزدحم',
+    sentences: [
+      { jp: '私は金曜日までにレポートを出さなければなりません。', romaji: 'Watashi wa kinyoubi made ni repooto wo dasanakereba narimasen.', ar: 'يجب أن أقدّم التقرير بحلول يوم الجمعة.' },
+      { jp: '締め切りまでに会議の資料も直します。', romaji: 'Shimekiri made ni kaigi no shiryou mo naoshimasu.', ar: 'سأصحح مستند الاجتماع أيضاً بحلول الموعد النهائي.' },
+      { jp: '試験が終わるまで教室を出ないつもりです。', romaji: 'Shiken ga owaru made kyoushitsu wo denai tsumori desu.', ar: 'أنوي ألا أغادر الصف حتى ينتهي الاختبار.' },
+      { jp: '卒業以来、私はこの会社で働き続けています。', romaji: 'Sotsugyou irai, watashi wa kono kaisha de hataraki tsuzukete imasu.', ar: 'منذ التخرج وأنا أواصل العمل في هذه الشركة.' },
+      { jp: '夏まで、この忙しい仕事を続けます。', romaji: 'Natsu made, kono isogashii shigoto wo tsuzukemasu.', ar: 'سأواصل هذا العمل المزدحم حتى الصيف.' },
+    ],
+    questions: [
+      { q: 'متى يجب تقديم التقرير؟', options: ['بحلول يوم الجمعة', 'بحلول الصيف', 'منذ التخرج'], answer: 'بحلول يوم الجمعة' },
+      { q: 'حتى متى لا يغادر الكاتب الصف؟', options: ['حتى ينتهي الاختبار', 'حتى يبدأ الاجتماع', 'حتى الصيف'], answer: 'حتى ينتهي الاختبار' },
+      { q: 'منذ متى وهو يعمل في هذه الشركة؟', options: ['منذ التخرج', 'منذ الجمعة', 'منذ الاجتماع'], answer: 'منذ التخرج' },
+    ],
+  },
   vocab: [
     { id: 'kinyoubi', type: 'noun', jp: '金曜日', kanji: '金曜日', hiragana: 'きんようび', reading: 'kinyoubi', meaning: 'الجمعة' },
     { id: 'repooto', type: 'noun', jp: 'レポート', hiragana: 'レポート', reading: 'repooto', meaning: 'تقرير' },

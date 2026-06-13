@@ -2,6 +2,33 @@ export const n3LessonOne = {
   id: 1,
   title: { ar: 'النصيحة والتمني', en: 'Advice and Wishes' },
   focus: 'استخدام ばいい・たらいい・といい للتعبير عن النصيحة أو الأمل بطريقة طبيعية.',
+  dialogue: {
+    titleAr: 'استشارة المعلم قبل الاختبار',
+    lines: [
+      { speaker: 'ميلر', jp: '先生、問題があります。どうしたらいいですか。', romaji: 'Sensei, mondai ga arimasu. Dou shitara ii desu ka.', ar: 'يا أستاذ، لديّ مشكلة. ماذا أفعل؟' },
+      { speaker: 'المعلم', jp: '分からないことは、私に質問すればいいですよ。', romaji: 'Wakaranai koto wa, watashi ni shitsumon sureba ii desu yo.', ar: 'ما لا تفهمه، يكفي أن تسألني عنه.' },
+      { speaker: 'ميلر', jp: 'この方法を試したらいいですか。', romaji: 'Kono houhou wo tameshitara ii desu ka.', ar: 'هل من الأفضل أن أجرب هذه الطريقة؟' },
+      { speaker: 'المعلم', jp: 'はい。気分が悪いときは、休んだらいいです。', romaji: 'Hai. Kibun ga warui toki wa, yasundara ii desu.', ar: 'نعم. وعندما تشعر بالتوعك، من الأفضل أن تستريح.' },
+      { speaker: 'ميلر', jp: '分かりました。問題が早く解決するといいですね。', romaji: 'Wakarimashita. Mondai ga hayaku kaiketsu suru to ii desu ne.', ar: 'فهمت. أتمنى أن تُحل المشكلة قريباً.' },
+      { speaker: 'المعلم', jp: '困ったときは、また相談すればいいですよ。', romaji: 'Komatta toki wa, mata soudan sureba ii desu yo.', ar: 'عندما تقع في مأزق، يكفي أن تستشيرني مرة أخرى.' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。明日晴れるといいですね。', romaji: 'Arigatou gozaimasu. Ashita hareru to ii desu ne.', ar: 'شكراً جزيلاً. أتمنى أن يكون الجو صحواً غداً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'نصيحة قبل الاختبار',
+    sentences: [
+      { jp: '私は問題があるとき、先生に相談します。', romaji: 'Watashi wa mondai ga aru toki, sensei ni soudan shimasu.', ar: 'عندما تكون لديّ مشكلة، أستشير الأستاذ.' },
+      { jp: '分からないことは、先生に質問すればいいです。', romaji: 'Wakaranai koto wa, sensei ni shitsumon sureba ii desu.', ar: 'ما لا أفهمه، يكفي أن أسأل الأستاذ عنه.' },
+      { jp: '気分が悪いときは、休んだらいいと思います。', romaji: 'Kibun ga warui toki wa, yasundara ii to omoimasu.', ar: 'أعتقد أنه عندما أشعر بالتوعك، من الأفضل أن أستريح.' },
+      { jp: 'この方法を試したら、問題が解決しました。', romaji: 'Kono houhou wo tameshitara, mondai ga kaiketsu shimashita.', ar: 'عندما جربت هذه الطريقة، حُلّت المشكلة.' },
+      { jp: '明日も晴れるといいですね。', romaji: 'Ashita mo hareru to ii desu ne.', ar: 'أتمنى أن يكون الجو صحواً غداً أيضاً.' },
+    ],
+    questions: [
+      { q: 'ماذا يفعل الكاتب عندما تكون لديه مشكلة؟', options: ['يستشير الأستاذ', 'يذهب إلى المحطة', 'يحجز موعداً'], answer: 'يستشير الأستاذ' },
+      { q: 'ما النصيحة عند الشعور بالتوعك؟', options: ['أن يستريح', 'أن يجري الاختبار', 'أن يسأل صديقاً'], answer: 'أن يستريح' },
+      { q: 'ماذا حدث عندما جرب الكاتب هذه الطريقة؟', options: ['حُلّت المشكلة', 'صار الجو صحواً', 'تأخر القطار'], answer: 'حُلّت المشكلة' },
+    ],
+  },
   vocab: [
     { id: 'soudan', type: 'noun', jp: '相談', kanji: '相談', hiragana: 'そうだん', reading: 'soudan', meaning: 'استشارة' },
     { id: 'houhou', type: 'noun', jp: '方法', kanji: '方法', hiragana: 'ほうほう', reading: 'houhou', meaning: 'طريقة' },

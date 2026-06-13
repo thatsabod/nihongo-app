@@ -2,6 +2,34 @@ export const lessonTwentyOne = {
   id: 21,
   title: { ar: 'الشرط ب たら و なら', en: 'Conditionals: たら and なら' },
   focus: '〜たら للتعبير عن الشرط/التتابع الزمني، و なら لتقديم اقتراح بناء على ما قاله المتحدث الآخر',
+  dialogue: {
+    titleAr: 'التخطيط للسفر',
+    lines: [
+      { speaker: 'ميلر', jp: '会議 が 終わったら、 旅行 します。', romaji: 'Kaigi ga owattara, ryokou shimasu.', ar: 'إذا انتهى الاجتماع، سأسافر.' },
+      { speaker: 'ساتو', jp: '旅行 なら、 沖縄 が いいです よ。', romaji: 'Ryokou nara, Okinawa ga ii desu yo.', ar: 'إذا كان الأمر عن السفر، فأوكيناوا جيدة.' },
+      { speaker: 'ميلر', jp: '沖縄 なら、 天気 が いいですか。', romaji: 'Okinawa nara, tenki ga ii desu ka.', ar: 'إذا كانت أوكيناوا، فهل الطقس جميل؟' },
+      { speaker: 'ساتو', jp: 'はい。 沖縄 なら、 夏 が いいです。', romaji: 'Hai. Okinawa nara, natsu ga ii desu.', ar: 'نعم. إذا كانت أوكيناوا، فالصيف جميل.' },
+      { speaker: 'ميلر', jp: 'おいしい 店 を 教えて ください。', romaji: 'Oishii mise o oshiete kudasai.', ar: 'من فضلك أخبرني عن مطعم لذيذ.' },
+      { speaker: 'ساتو', jp: 'おいしい 店 なら、 田中さん が よく 知って います。', romaji: 'Oishii mise nara, Tanaka-san ga yoku shitte imasu.', ar: 'إذا كان الأمر عن المطاعم اللذيذة، فالسيد تاناكا يعرفها جيدا.' },
+      { speaker: 'ميلر', jp: '空港 に 着いたら、 電話 します。', romaji: 'Kuukou ni tsuitara, denwa shimasu.', ar: 'عندما أصل إلى المطار، سأتصل.' },
+      { speaker: 'ساتو', jp: 'わかりました。 疲れたら、 休んで ください ね。', romaji: 'Wakarimashita. Tsukaretara, yasunde kudasai ne.', ar: 'فهمت. إذا تعبت، استرح من فضلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'رحلة إلى أوكيناوا',
+    sentences: [
+      { jp: '会議 が 終わったら、 私 は 沖縄 へ 旅行 します。', romaji: 'Kaigi ga owattara, watashi wa Okinawa e ryokou shimasu.', ar: 'إذا انتهى الاجتماع، سأسافر إلى أوكيناوا.' },
+      { jp: '沖縄 なら、 夏 の 天気 が いいです。', romaji: 'Okinawa nara, natsu no tenki ga ii desu.', ar: 'إذا كانت أوكيناوا، فطقس الصيف جميل.' },
+      { jp: 'おいしい 店 なら、 友達 が よく 知って います。', romaji: 'Oishii mise nara, tomodachi ga yoku shitte imasu.', ar: 'إذا كان الأمر عن المطاعم اللذيذة، فصديقي يعرفها جيدا.' },
+      { jp: '空港 に 着いたら、 すぐ 友達 に 電話 します。', romaji: 'Kuukou ni tsuitara, sugu tomodachi ni denwa shimasu.', ar: 'عندما أصل إلى المطار، سأتصل بصديقي فورا.' },
+      { jp: '疲れたら、 ホテル で 休みます。', romaji: 'Tsukaretara, hoteru de yasumimasu.', ar: 'إذا تعبت، سأستريح في الفندق.' },
+    ],
+    questions: [
+      { q: 'متى سيسافر إلى أوكيناوا؟', options: ['عندما ينتهي الاجتماع', 'عندما يبدأ الاجتماع', 'في الشتاء'], answer: 'عندما ينتهي الاجتماع' },
+      { q: 'من يعرف المطاعم اللذيذة جيدا؟', options: ['الصديق', 'المعلم', 'لا أحد'], answer: 'الصديق' },
+      { q: 'ماذا سيفعل عندما يصل إلى المطار؟', options: ['يتصل بصديقه فورا', 'يستريح في الفندق', 'يذهب إلى الاجتماع'], answer: 'يتصل بصديقه فورا' },
+    ],
+  },
   vocab: [
     { id: 'okimasu2', type: 'verb', jp: '起きます', kanji: '起きます', hiragana: 'おきます', reading: 'okimasu', meaning: 'يستيقظ' },
     { id: 'tsukimasu', type: 'verb', jp: '着きます', kanji: '着きます', hiragana: 'つきます', reading: 'tsukimasu', meaning: 'يصل' },

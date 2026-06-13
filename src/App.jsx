@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/auth'
 import { addDoc, collection, deleteDoc, doc, getDoc, increment, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
@@ -6,10 +6,14 @@ import { hiragana, katakana, kanjiN5, lessons, n4Lessons, n3Lessons } from './da
 import LessonNode from './components/LessonNode.jsx'
 import LessonPreviewModal from './components/LessonPreviewModal.jsx'
 import TodayWidget from './components/dashboard/TodayWidget.jsx'
-import SmartReview from './components/SmartReview.jsx'
-import AiSenseiPanel from './components/ai/AiSenseiPanel.jsx'
-import AdminDashboard from './components/admin/AdminDashboard.jsx'
-import { readProgressState, writeProgressState, mergeProgressState, markSectionVisited, getVisitedSections, getReviewStreak, PROGRESS_CHANGED_EVENT } from './progress/progressStorage.js'
+import RetentionPanel from './components/dashboard/RetentionPanel.jsx'
+// Rare / heavy screens are code-split so an N5 beginner doesn't download the
+// exam engine, admin dashboard, AI Sensei, drawing pad or review screen on
+// first paint. Each is loaded on demand behind a Suspense fallback.
+const SmartReview = lazy(() => import('./components/SmartReview.jsx'))
+const AiSenseiPanel = lazy(() => import('./components/ai/AiSenseiPanel.jsx'))
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard.jsx'))
+import { readProgressState, writeProgressState, mergeProgressState, markSectionVisited, getVisitedSections, getReviewStreak, getSeenAchievements, markAchievementsSeen, PROGRESS_CHANGED_EVENT } from './progress/progressStorage.js'
 import { getLessonMastery } from './progress/masteryModel.js'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
@@ -24,10 +28,15 @@ import IconCircle from './components/IconCircle.jsx'
 import Login from './screens/Login.jsx'
 import Quiz from './screens/Quiz.jsx'
 import Result from './screens/Result.jsx'
-import Exam from './screens/Exam.jsx'
-import ExamIntro from './screens/ExamIntro.jsx'
-import ExamResult from './screens/ExamResult.jsx'
 import DrawingPad from './components/DrawingPad.jsx'
+const Exam = lazy(() => import('./screens/Exam.jsx'))
+const ExamIntro = lazy(() => import('./screens/ExamIntro.jsx'))
+const ExamResult = lazy(() => import('./screens/ExamResult.jsx'))
+
+// Lightweight fallback shown while a code-split screen loads.
+function ScreenFallback() {
+  return <main className="loading"><div className="brand big"><span className="brand-mark">日</span><span>にほんごGO</span></div></main>
+}
 import { EXAM_CONFIG, LEVEL_ORDER } from './content/examConfig.js'
 import { HeartsContext } from './hearts-context.jsx'
 
@@ -165,6 +174,10 @@ const copy = {
     aiSenseiSub: 'مساعد تعلّم مبني على بياناتك',
     reviewStreak: 'سلسلة المراجعة (أيام)',
     viewProgress: 'عرض التقدّم',
+    skillVocab: 'مفردات',
+    skillGrammar: 'قواعد',
+    skillKanji: 'كانجي',
+    achievementUnlocked: 'إنجاز جديد',
   },
   en: {
     start: 'Start learning',
@@ -281,6 +294,10 @@ const copy = {
     aiSenseiSub: 'A tutor grounded in your data',
     reviewStreak: 'review streak (days)',
     viewProgress: 'View progress',
+    skillVocab: 'Vocabulary',
+    skillGrammar: 'Grammar',
+    skillKanji: 'Kanji',
+    achievementUnlocked: 'Achievement unlocked',
   },
 }
 
@@ -288,8 +305,8 @@ const levels = [
   { id: 'N5', ar: 'أساسي', en: 'Elementary' },
   { id: 'N4', ar: 'متوسط', en: 'Intermediate' },
   { id: 'N3', ar: 'وسط-متقدم', en: 'Upper-Intermediate' },
-  { id: 'N2', ar: 'احترافي', en: 'Advanced' },
-  { id: 'N1', ar: 'محترف', en: 'Expert' },
+  { id: 'N2', ar: 'احترافي', en: 'Advanced', comingSoon: true },
+  { id: 'N1', ar: 'محترف', en: 'Expert', comingSoon: true },
 ]
 
 const communityText = {
@@ -869,6 +886,7 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10)
 }
 
+// Applied ONLY when a real study action happens today (not on app-open).
 function nextStreakValue(previousDate, currentStreak) {
   const today = todayKey()
   if (previousDate === today) return { streak: currentStreak, lastActiveDate: previousDate }
@@ -879,6 +897,16 @@ function nextStreakValue(previousDate, currentStreak) {
     streak: diff === 1 ? currentStreak + 1 : diff > 1 ? 1 : currentStreak,
     lastActiveDate: today,
   }
+}
+
+// Applied on app-open: never advances the streak (that would be dishonest —
+// opening the app is not studying). Only lapses it if a day was missed.
+function reconcileStreak(previousDate, currentStreak) {
+  const today = todayKey()
+  if (!previousDate) return { streak: currentStreak, lastActiveDate: previousDate }
+  const diff = Math.round((new Date(today) - new Date(previousDate)) / 86400000)
+  if (diff >= 2) return { streak: 0, lastActiveDate: previousDate } // missed ≥1 day
+  return { streak: currentStreak, lastActiveDate: previousDate }
 }
 
 function defaultState() {
@@ -2050,7 +2078,7 @@ function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
   )
 }
 
-function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz, lessonDone = false, sectionsDone = 0 }) {
+function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz, lessonDone = false, sectionsDone = 0, onStudyActivity }) {
   const [section, setSection] = useState('overview')
   const [flipped, setFlipped] = useState({})
   const [activeGrammarEx, setActiveGrammarEx] = useState(null)
@@ -2059,6 +2087,7 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
   // Bump to force a re-read of visited-section state after marking one.
   const [sectionTick, setSectionTick] = useState(0)
   const t = copy[lang]
+  const isAr = lang === 'ar'
   const vocabGroups = chunk(lesson.vocab, 8)
 
   // Guided lesson path (microlearning chunks) derived from this lesson's content.
@@ -2082,14 +2111,6 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
     masteryCheck: 'masteryCheck',
   }
 
-  // Tab bar mirrors the lesson-path sections exactly — dialogue/reading appear
-  // only for lessons that actually have that content.
-  const lessonTabs = [
-    'overview', 'warmup', 'vocabulary', 'grammar', 'examples',
-    ...(lesson.dialogue?.lines?.length ? ['dialogue'] : []),
-    ...(lesson.reading?.sentences?.length ? ['reading'] : []),
-    'practice', 'mistakeReview', 'masteryCheck',
-  ]
   const goToSection = (tabId) => {
     const type = tabToSection[tabId]
     if (type) {
@@ -2115,61 +2136,80 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
     return map
   }, [lesson.vocab, kanjiReadingMode])
 
-  return (
-    <main className="screen">
-      <header className="page-head">
-        <button className="icon-btn" onClick={onBack}><AppIcon name="back" size={22} /></button>
-        <div>
-          <p>{t.lesson} {lesson.displayNumber || lesson.id}</p>
-          <h1>{lesson.title[lang]}</h1>
-        </div>
-      </header>
+  // Which numbered chunk the active section is (for the focus-mode header).
+  const activeType = tabToSection[section]
+  const activeIndex = lessonSections.findIndex((s) => s.type === activeType)
 
-      <div className="lesson-toolbar">
-        <div className="tabs lesson-tabs">
-          {/* Mirrors the lesson-path sections exactly, in the same order. */}
-          {lessonTabs.map((id) => (
-            <button key={id} className={section === id ? 'active' : ''} onClick={() => goToSection(id)}>
-              {t[id]}
-            </button>
-          ))}
-        </div>
-      </div>
+  // Sections that should advance the guided path: from a study/practice section,
+  // a "continue" button moves to the next section in the path.
+  const nextSection = () => {
+    if (activeIndex >= 0 && activeIndex + 1 < lessonSections.length) {
+      goToSection(lessonSections[activeIndex + 1].tab)
+    } else {
+      setSection('overview')
+    }
+  }
 
-      {section === 'overview' && (
+  // ── Guided-path hub (the only lesson navigator) ──────────────────────────
+  if (section === 'overview') {
+    return (
+      <main className="screen">
+        <header className="page-head">
+          <button className="icon-btn" onClick={onBack}><AppIcon name="back" size={22} /></button>
+          <div>
+            <p>{t.lesson} {lesson.displayNumber || lesson.id}</p>
+            <h1>{lesson.title[lang]}</h1>
+          </div>
+        </header>
         <LessonSectionPath
           sections={lessonSections}
           totalMinutes={totalLessonMinutes(lessonSections)}
           lang={lang}
           onSelect={(s) => {
-            // Mark the chosen section's own type (e.g. 'examples'), then route.
             markSectionVisited(readProgressState(), lesson.id, s.type)
             setSectionTick((n) => n + 1)
             goToSection(s.tab)
           }}
         />
-      )}
+      </main>
+    )
+  }
 
+  // ── Immersive Focus Mode: only content + a minimal header (title + progress
+  // + back). No app chrome, no tab bar, no global stats — full immersion. ──
+  return (
+    <div className="lesson-focus">
+      <header className="lesson-focus-head">
+        <button className="icon-btn" onClick={() => setSection('overview')} aria-label={isAr ? 'رجوع للمسار' : 'Back to path'}>
+          <AppIcon name="back" size={22} />
+        </button>
+        <div className="lesson-focus-title">
+          <strong>{t[section]}</strong>
+          {activeIndex >= 0 && <small>{activeIndex + 1} / {lessonSections.length}</small>}
+        </div>
+      </header>
+
+      <div className="lesson-focus-body">
       {section === 'warmup' && (
         <WarmupSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onGo={goToSection} />
       )}
 
       {section === 'examples' && (
-        <ExamplesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} />
+        <ExamplesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onNext={nextSection} />
       )}
 
       {section === 'dialogue' && (
-        <DialogueSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} />
+        <DialogueSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onNext={nextSection} />
       )}
 
       {section === 'reading' && (
-        <ReadingSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} />
+        <ReadingSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onNext={nextSection} />
       )}
 
       {section === 'vocabulary' && (
         <>
           {vocabExOpen ? (
-            <VocabExercises vocab={lesson.vocab} lang={lang} onClose={() => setVocabExOpen(false)} />
+            <VocabExercises vocab={lesson.vocab} lang={lang} lessonId={lesson.id} onClose={() => setVocabExOpen(false)} />
           ) : vocabPracticeAllOpen ? (
             <VocabPracticeAll
               vocab={lesson.vocab}
@@ -2236,6 +2276,8 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
             <GrammarExercises
               exercises={activeGrammarEx.exercises}
               lang={lang}
+              lessonId={lesson.id}
+              ruleTitle={activeGrammarEx.title}
               onClose={() => setActiveGrammarEx(null)}
             />
           )}
@@ -2285,7 +2327,7 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
       )}
 
       {section === 'practice' && (
-        <ExercisesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onQuiz={onQuiz} />
+        <ExercisesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onQuiz={onQuiz} onStudyComplete={onStudyActivity} />
       )}
 
       {section === 'mistakeReview' && (
@@ -2301,7 +2343,8 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
           sectionsTotal={sectionCount}
         />
       )}
-    </main>
+      </div>
+    </div>
   )
 }
 
@@ -2478,6 +2521,7 @@ export default function App() {
   const [activeLesson, setActiveLesson] = useState(null)
   const [previewLesson, setPreviewLesson] = useState(null)
   const [activeCharGroup, setActiveCharGroup] = useState(null)
+  const [charExerciseGroup, setCharExerciseGroup] = useState(null)
   const [drawChar, setDrawChar] = useState(null)
   const [dataReady, setDataReady] = useState(false)
   const [isGuest, setIsGuest] = useState(false)
@@ -2699,7 +2743,7 @@ export default function App() {
 
   const startGuest = () => {
     const saved = readGuestState()
-    const activity = nextStreakValue(saved.lastActiveDate, saved.streak)
+    const activity = reconcileStreak(saved.lastActiveDate, saved.streak)
     applyState({ ...saved, ...activity })
     setUserId(null)
     setUserEmail('')
@@ -2793,7 +2837,7 @@ export default function App() {
         } catch (error) {
           console.error('Failed to hydrate learning progress', error)
         }
-        const activity = nextStreakValue(d.lastActiveDate ?? null, d.streak ?? 0)
+        const activity = reconcileStreak(d.lastActiveDate ?? null, d.streak ?? 0)
         const loadedUsername = d.userUsername || d.username || normalizeUsername(d.userName || d.name || user.displayName || user.email?.split('@')[0] || 'nihongo')
         applyState(applyAccountUnlocks({
           ...d,
@@ -2985,6 +3029,25 @@ export default function App() {
     }
   }
 
+  // The single honest "the learner actually studied today" hook. Advances the
+  // streak (only once/day, only on real study — never on app-open) and grants
+  // XP for completed learning actions beyond the kana quiz.
+  // True once the learner studies this session; gates achievement toasts so old
+  // unlocks loaded at startup never fire a spurious moment.
+  const studiedSessionRef = useRef(false)
+  const registerStudyActivity = (xpGain = 0) => {
+    // Mark that the learner has actually studied this session — the signal the
+    // achievement-moment detector uses to switch from "absorb baseline" to
+    // "toast genuine unlocks" (see the achievements effect).
+    studiedSessionRef.current = true
+    if (lastActiveDate !== todayKey()) {
+      const activity = nextStreakValue(lastActiveDate, streak)
+      setStreak(activity.streak)
+      setLastActiveDate(activity.lastActiveDate)
+    }
+    if (xpGain > 0) setXp((value) => value + xpGain)
+  }
+
   useEffect(() => {
     if (screen !== 'quiz' || !selected || !questions.length || !questions[qIndex]) return
     const isCorrect = selected === questions[qIndex]?.answer
@@ -2997,6 +3060,7 @@ export default function App() {
       const finalScore = score + (isCorrect ? 1 : 0)
       setLastScore(finalScore)
       setTotalQuizzes((value) => value + 1)
+      registerStudyActivity() // completing a quiz counts as studying today
       setGems((value) => value + Math.max(5, finalScore * 2))
       if (activeLesson) {
         const key = `${currentLevel}-${activeLesson.id}`
@@ -3234,6 +3298,56 @@ export default function App() {
   )
   const unlockedAchievements = countUnlocked(achievements)
 
+  // ── Achievement-unlock moment (Phase 5) ───────────────────────────────────
+  // Surface a calm toast when an achievement is unlocked through study THIS
+  // session. The challenge: stats hydrate across several renders (and a cross-
+  // device login merges old progress), so a naive "unlocked && not seen" diff
+  // would toast achievements the learner earned long ago. So until the first
+  // real study action (studiedSessionRef, set in registerStudyActivity), every
+  // currently-unlocked achievement is absorbed into the persisted "seen" set
+  // silently — that baseline is immune to load-order races. Only after the
+  // learner studies do genuine locked→unlocked transitions fire a moment.
+  const [achievementToast, setAchievementToast] = useState(null)
+  const [achievementQueue, setAchievementQueue] = useState([])
+  useEffect(() => {
+    if (!dataReady) return
+    const state = readProgressState()
+    const prevSeen = getSeenAchievements(state) || []
+    const unlockedIds = achievements.filter((a) => a.unlocked).map((a) => a.id)
+    if (!studiedSessionRef.current) {
+      const merged = Array.from(new Set([...prevSeen, ...unlockedIds]))
+      if (merged.length !== prevSeen.length) markAchievementsSeen(state, merged)
+      return
+    }
+    const seen = new Set(prevSeen)
+    const fresh = achievements.filter((a) => a.unlocked && !seen.has(a.id))
+    if (fresh.length === 0) return
+    // Queue every fresh unlock (deduped against what's already waiting) so
+    // simultaneous unlocks each get their own moment instead of being dropped.
+    setAchievementQueue((prev) => {
+      const queued = new Set(prev.map((a) => a.id))
+      const toAdd = fresh.filter((a) => !queued.has(a.id))
+      return toAdd.length ? [...prev, ...toAdd] : prev
+    })
+  }, [achievements, dataReady])
+  // Show the next queued unlock and mark only IT seen as it appears, so a reload
+  // mid-queue never loses the unshown tail.
+  useEffect(() => {
+    if (achievementToast || achievementQueue.length === 0) return
+    const [next, ...rest] = achievementQueue
+    setAchievementToast(next)
+    setAchievementQueue(rest)
+    const state = readProgressState()
+    const prevSeen = getSeenAchievements(state) || []
+    markAchievementsSeen(state, [...prevSeen, next.id])
+  }, [achievementToast, achievementQueue])
+  // Auto-dismiss the calm moment after a few seconds (clearing it lets the queue advance).
+  useEffect(() => {
+    if (!achievementToast) return
+    const timer = window.setTimeout(() => setAchievementToast(null), 4500)
+    return () => window.clearTimeout(timer)
+  }, [achievementToast])
+
   const logout = async () => {
     if (cloudSaveTimerRef.current) window.clearTimeout(cloudSaveTimerRef.current)
     await saveUserDataNow()
@@ -3290,21 +3404,23 @@ export default function App() {
   }
 
   if (screen === 'exam-intro' && examState) {
-    return <ExamIntro examState={examState} lang={lang} onStart={() => setScreen('exam')} onBack={() => { setExamState(null); setScreen('main') }} />
+    return <Suspense fallback={<ScreenFallback />}><ExamIntro examState={examState} lang={lang} onStart={() => setScreen('exam')} onBack={() => { setExamState(null); setScreen('main') }} /></Suspense>
   }
 
   if (screen === 'exam' && examState?.exam) {
-    return <Exam examState={examState} lang={lang} onAnswer={handleExamAnswer} onSectionStart={handleSectionStart} onTimeUp={forceFinishSection} onBack={() => { setExamState(null); setScreen('main') }} />
+    return <Suspense fallback={<ScreenFallback />}><Exam examState={examState} lang={lang} onAnswer={handleExamAnswer} onSectionStart={handleSectionStart} onTimeUp={forceFinishSection} onBack={() => { setExamState(null); setScreen('main') }} /></Suspense>
   }
 
   if (screen === 'exam-result' && examState) {
-    return <ExamResult examState={examState} lang={lang} nextLevelId={LEVEL_ORDER[LEVEL_ORDER.indexOf(examState.levelId) + 1] || null} onHome={() => { setExamState(null); setScreen('main') }} />
+    return <Suspense fallback={<ScreenFallback />}><ExamResult examState={examState} lang={lang} nextLevelId={LEVEL_ORDER[LEVEL_ORDER.indexOf(examState.levelId) + 1] || null} onHome={() => { setExamState(null); setScreen('main') }} /></Suspense>
   }
 
   if (screen === 'review') {
     return (
       <HeartsContext.Provider value={heartsApi}>
-        <SmartReview allLessons={ALL_LESSONS} allKanji={kanjiN5} lang={lang} kanjiReadingMode={kanjiReadingMode} onClose={() => setScreen('main')} />
+        <Suspense fallback={<ScreenFallback />}>
+          <SmartReview allLessons={ALL_LESSONS} allKanji={kanjiN5} lang={lang} kanjiReadingMode={kanjiReadingMode} onStudyComplete={() => registerStudyActivity(15)} onClose={() => setScreen('main')} />
+        </Suspense>
       </HeartsContext.Provider>
     )
   }
@@ -3314,21 +3430,23 @@ export default function App() {
       .filter(([key, value]) => key.startsWith(`${currentLevel}-`) && value >= sectionCount)
       .map(([key]) => key.split('-')[1])
     return (
-      <AiSenseiPanel
-        lang={lang}
-        level={currentLevel}
-        currentLessonId={activeLesson ? String(activeLesson.id) : undefined}
-        currentLessonTitleAr={activeLesson?.title?.ar}
-        completedLessonIds={completedLessonIds}
-        onClose={() => setScreen('main')}
-      />
+      <Suspense fallback={<ScreenFallback />}>
+        <AiSenseiPanel
+          lang={lang}
+          level={currentLevel}
+          currentLessonId={activeLesson ? String(activeLesson.id) : undefined}
+          currentLessonTitleAr={activeLesson?.title?.ar}
+          completedLessonIds={completedLessonIds}
+          onClose={() => setScreen('main')}
+        />
+      </Suspense>
     )
   }
 
   if (screen === 'lesson' && activeLesson) {
     return (
       <HeartsContext.Provider value={heartsApi}>
-        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} lessonDone={(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0) >= sectionCount} sectionsDone={Math.min(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0, sectionCount)} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
+        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} lessonDone={(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0) >= sectionCount} sectionsDone={Math.min(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0, sectionCount)} onStudyActivity={() => registerStudyActivity(15)} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
       </HeartsContext.Provider>
     )
   }
@@ -3338,6 +3456,14 @@ export default function App() {
     const currentDrawItem = activeCharGroup.items.find((item) => item.kana === drawChar) || activeCharGroup.items[0]
     const currentDrawChar = currentDrawItem?.kana
     const renderChar = (item) => <CharacterSymbol item={item} readingMode={kanjiReadingMode} />
+    const openCharacterTraining = () => {
+      if (hearts <= 0) {
+        setNotice(t.noHearts)
+        return
+      }
+      setCharExerciseGroup(activeCharGroup)
+      setScreen('character-exercises')
+    }
     const markDrawPractice = ({ correct }) => {
       if (!correct || !currentDrawChar) return
       setProgress((state) => ({
@@ -3355,7 +3481,7 @@ export default function App() {
               <p>{t.groups}</p>
               <h1>{title}</h1>
             </div>
-            <Button variant="small" onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
+            <Button variant="small" onClick={openCharacterTraining}>{t.groupQuiz}</Button>
           </header>
 
           <section className="content">
@@ -3381,16 +3507,24 @@ export default function App() {
               <DrawingPad char={currentDrawChar} lang={lang} autoGrade onDone={markDrawPractice} />
             </section>
 
-            <CharacterExercises
-              key={activeCharGroup.label + activeCharGroup.index}
-              items={activeCharGroup.items}
-              lang={lang}
-              renderChar={renderChar}
-              onClose={() => setScreen('main')}
-            />
-            <Button onClick={() => startCharacterGroupQuiz(activeCharGroup)}>{t.groupQuiz}</Button>
+            <Button onClick={openCharacterTraining}>{t.groupQuiz}</Button>
           </section>
         </main>
+      </HeartsContext.Provider>
+    )
+  }
+
+  if (screen === 'character-exercises' && charExerciseGroup) {
+    const renderChar = (item) => <CharacterSymbol item={item} readingMode={kanjiReadingMode} />
+    return (
+      <HeartsContext.Provider value={heartsApi}>
+        <CharacterExercises
+          key={charExerciseGroup.label + charExerciseGroup.index}
+          items={charExerciseGroup.items}
+          lang={lang}
+          renderChar={renderChar}
+          onClose={() => setScreen('character-group')}
+        />
       </HeartsContext.Provider>
     )
   }
@@ -3460,16 +3594,18 @@ export default function App() {
 
   if (screen === 'admin') {
     return (
-      <AdminDashboard
-        lang={lang}
-        levels={levels}
-        lessonsByLevel={lessonsByLevel}
-        overrides={lessonOverrides}
-        initialLevel={currentLevel}
-        adminHandle={userHandle}
-        onBack={() => setScreen('main')}
-        onNotice={setNotice}
-      />
+      <Suspense fallback={<ScreenFallback />}>
+        <AdminDashboard
+          lang={lang}
+          levels={levels}
+          lessonsByLevel={lessonsByLevel}
+          overrides={lessonOverrides}
+          initialLevel={currentLevel}
+          adminHandle={userHandle}
+          onBack={() => setScreen('main')}
+          onNotice={setNotice}
+        />
+      </Suspense>
     )
   }
 
@@ -3484,7 +3620,7 @@ export default function App() {
               </i>
             </span>
             <span className="stat-chip streak"><i className="icon-shell"><AppIcon name="streak" size={34} /></i>{streak}</span>
-            <span className="stat-chip gems"><i className="icon-shell"><AppIcon name="gems" size={34} /></i>{gems}</span>
+            {/* Gems moved off the topbar — shown only where they're spent (Profile). */}
           </div>
         </header>
 
@@ -3514,35 +3650,36 @@ export default function App() {
               onReview={() => setScreen('review')}
             />
 
-            {/* Abdoul Sensei floats above the bottom nav — out of the content flow. */}
-            <button className="sensei-fab" onClick={() => setScreen('sensei')} aria-label={t.aiSensei} title={t.aiSensei}>
-              <span className="sensei-fab-kanji">先生</span>
-            </button>
-
-            <div className="level-strip">
-              {levels.map((level) => {
-                const unlocked = unlockedLevels.includes(level.id)
-                const highestUnlockedIdx = Math.max(...unlockedLevels.map((id) => LEVEL_ORDER.indexOf(id)))
-                const isNextLocked = !unlocked && LEVEL_ORDER.indexOf(level.id) === highestUnlockedIdx + 1
-                const passed = levelExams[level.id]?.exitPassed
-                return (
-                  <button
-                    key={level.id}
-                    className={`${currentLevel === level.id ? 'active' : ''} ${!unlocked ? 'locked' : ''}`}
-                    disabled={!unlocked && !isNextLocked}
-                    onClick={() => {
-                      if (unlocked) setCurrentLevel(level.id)
-                      else if (isNextLocked) startEntranceExam(level.id)
-                    }}
-                  >
-                    {!unlocked && <AppIcon name="locked" size={16} />}
-                    {passed && <span className="level-passed-badge"><AppIcon name="correct" size={14} /></span>}
-                    <strong>{level.id}</strong>
-                    <span>{level[lang]}</span>
-                  </button>
-                )
-              })}
-            </div>
+            {/* Level switcher appears only once more than one level is unlocked —
+                a fresh learner sees a calm home with no lateral nav. */}
+            {unlockedLevels.length > 1 && (
+              <div className="level-strip">
+                {levels.filter((level) => unlockedLevels.includes(level.id) || LEVEL_ORDER.indexOf(level.id) === Math.max(...unlockedLevels.map((id) => LEVEL_ORDER.indexOf(id))) + 1).map((level) => {
+                  const unlocked = unlockedLevels.includes(level.id)
+                  const highestUnlockedIdx = Math.max(...unlockedLevels.map((id) => LEVEL_ORDER.indexOf(id)))
+                  const isNextLocked = !unlocked && LEVEL_ORDER.indexOf(level.id) === highestUnlockedIdx + 1
+                  const passed = levelExams[level.id]?.exitPassed
+                  const comingSoon = level.comingSoon // no content authored yet
+                  return (
+                    <button
+                      key={level.id}
+                      className={`${currentLevel === level.id ? 'active' : ''} ${!unlocked || comingSoon ? 'locked' : ''}`}
+                      disabled={comingSoon || (!unlocked && !isNextLocked)}
+                      onClick={() => {
+                        if (comingSoon) return
+                        if (unlocked) setCurrentLevel(level.id)
+                        else if (isNextLocked) startEntranceExam(level.id)
+                      }}
+                    >
+                      {!unlocked && !comingSoon && <AppIcon name="locked" size={16} />}
+                      {passed && <span className="level-passed-badge"><AppIcon name="correct" size={14} /></span>}
+                      <strong>{level.id}</strong>
+                      <span>{comingSoon ? (lang === 'ar' ? 'قريباً' : 'Soon') : level[lang]}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
 
             <div className="unit-card">
               <div>
@@ -3760,6 +3897,8 @@ export default function App() {
               <Stat label={t.reviewStreak} value={reviewStreak} />
             </div>
 
+            <RetentionPanel lang={lang} t={t} />
+
             <h2 className="section-title">{t.settings}</h2>
             {isAdmin && (
               <button className="settings-entry admin-entry" onClick={() => setScreen('admin')}>
@@ -3794,6 +3933,22 @@ export default function App() {
           </section>
         )}
       </main>
+
+      {/* Abdoul Sensei FAB — app-shell level so it's available on every main tab
+          (out of the content flow, hidden during lessons/exercises/focus). */}
+      <button className="sensei-fab" onClick={() => setScreen('sensei')} aria-label={t.aiSensei} title={t.aiSensei}>
+        <span className="sensei-fab-kanji">先生</span>
+      </button>
+
+      {achievementToast && (
+        <button className="achievement-toast" onClick={() => setAchievementToast(null)} aria-live="polite">
+          <span className="achievement-toast-icon"><AppIcon name={achievementToast.icon} size={26} /></span>
+          <span className="achievement-toast-text">
+            <small>{t.achievementUnlocked}</small>
+            <strong>{lang === 'ar' ? achievementToast.titleAr : achievementToast.titleEn}</strong>
+          </span>
+        </button>
+      )}
 
       <nav className="bottom-nav">
         {[

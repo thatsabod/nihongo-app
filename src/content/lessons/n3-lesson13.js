@@ -2,6 +2,34 @@ export const n3LessonThirteen = {
   id: 13,
   title: { ar: 'الدرجة والمقارنة', en: 'Degree and Comparison' },
   focus: 'التعبير عن "كلما"، "حوالي"، و"للتو" باستخدام ほど・くらい・ばかり.',
+  dialogue: {
+    titleAr: 'في درس اللغة اليابانية',
+    lines: [
+      { speaker: 'المعلم', jp: '日本語は習えば習うほど面白くなりますよ。', romaji: 'Nihongo wa naraeba narau hodo omoshiroku narimasu yo.', ar: 'اللغة اليابانية كلما تعلمتها أكثر أصبحت أكثر متعة.' },
+      { speaker: 'ميلر', jp: 'はい、でも私は習ったばかりです。', romaji: 'Hai, demo watashi wa naratta bakari desu.', ar: 'نعم، لكنني تعلمتها للتو.' },
+      { speaker: 'المعلم', jp: '練習すればするほど自信が増えますよ。', romaji: 'Renshuu sureba suru hodo jishin ga fuemasu yo.', ar: 'كلما تمرنت أكثر ازدادت ثقتك بالنفس.' },
+      { speaker: 'ميلر', jp: '毎日一時間くらい練習しています。', romaji: 'Mainichi ichi-jikan kurai renshuu shite imasu.', ar: 'أتمرن حوالي ساعة كل يوم.' },
+      { speaker: 'المعلم', jp: 'いいですね。待てば待つほど上手になります。', romaji: 'Ii desu ne. Mateba matsu hodo jouzu ni narimasu.', ar: 'جيد. كلما انتظرت أكثر أصبحت أكثر براعة.' },
+      { speaker: 'ميلر', jp: 'さっき習ったばかりです。', romaji: 'Sakki naratta bakari desu.', ar: 'تعلمتها منذ قليل للتو.' },
+      { speaker: 'المعلم', jp: '十分くらい休憩しましょう。', romaji: 'Juppun kurai kyuukei shimashou.', ar: 'لنأخذ استراحة لمدة عشر دقائق تقريباً.' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。', romaji: 'Arigatou gozaimasu.', ar: 'شكراً جزيلاً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'تعلّم اليابانية',
+    sentences: [
+      { jp: '私は日本語を習ったばかりです。', romaji: 'Watashi wa nihongo wo naratta bakari desu.', ar: 'أنا تعلمت اليابانية للتو.' },
+      { jp: '毎日一時間くらい練習します。', romaji: 'Mainichi ichi-jikan kurai renshuu shimasu.', ar: 'أتمرن حوالي ساعة كل يوم.' },
+      { jp: '練習すればするほど自信が増えます。', romaji: 'Renshuu sureba suru hodo jishin ga fuemasu.', ar: 'كلما تمرنت أكثر ازدادت ثقتي بنفسي.' },
+      { jp: '日本語は習えば習うほど面白くなります。', romaji: 'Nihongo wa naraeba narau hodo omoshiroku narimasu.', ar: 'اللغة اليابانية كلما تعلمتها أكثر أصبحت أكثر متعة.' },
+      { jp: '時々十分くらい休憩します。', romaji: 'Tokidoki juppun kurai kyuukei shimasu.', ar: 'أحياناً آخذ استراحة لمدة عشر دقائق تقريباً.' },
+    ],
+    questions: [
+      { q: 'متى تعلّم الكاتب اللغة اليابانية؟', options: ['للتو', 'منذ سنوات', 'لم يتعلمها بعد'], answer: 'للتو' },
+      { q: 'كم يتمرّن الكاتب كل يوم؟', options: ['حوالي ساعة', 'حوالي عشر دقائق', 'حوالي ثلاث ساعات'], answer: 'حوالي ساعة' },
+      { q: 'ماذا يحدث كلما تمرّن أكثر؟', options: ['تزداد ثقته بنفسه', 'تنقص ثقته بنفسه', 'يشعر بالملل'], answer: 'تزداد ثقته بنفسه' },
+    ],
+  },
   vocab: [
     { id: 'omoshiroi', type: 'adjective', jp: '面白い', kanji: '面白い', hiragana: 'おもしろい', reading: 'omoshiroi', meaning: 'ممتع' },
     { id: 'matsu', type: 'verb', jp: '待つ', kanji: '待つ', hiragana: 'まつ', reading: 'matsu', meaning: 'ينتظر' },

@@ -2,6 +2,31 @@ export const lessonSixteen = {
   id: 16,
   title: { ar: 'الوصف المركب والتغير والإفراط', en: 'Combining Descriptions, Change, and Excess' },
   focus: 'て للوصف المتعدد والسبب، なります للتغير، すぎます للإفراط، و まえに قبل الفعل',
+  dialogue: {
+    titleAr: 'هل أنت بخير؟ — معدة تؤلم',
+    lines: [
+      { speaker: 'ساتو', jp: 'ミラーさん、元気が ないですね。', romaji: 'Miraa-san, genki ga nai desu ne.', ar: 'سيد ميلر، تبدو متعبًا.' },
+      { speaker: 'ميلر', jp: 'おなかが 痛いです。食べすぎました。', romaji: 'Onaka ga itai desu. Tabesugimashita.', ar: 'معدتي تؤلمني. أكلت كثيرًا.' },
+      { speaker: 'ساتو', jp: '寝る まえに 薬を 飲んでください。', romaji: 'Neru mae ni kusuri o nonde kudasai.', ar: 'خذ الدواء قبل أن تنام.' },
+      { speaker: 'ميلر', jp: 'はい。最近 寒くなりましたね。', romaji: 'Hai. Saikin samuku narimashita ne.', ar: 'حسنًا. أصبح الجو باردًا مؤخرًا.' },
+      { speaker: 'ساتو', jp: 'そうですね。健康に 気をつけてください。', romaji: 'Sou desu ne. Kenkou ni ki o tsukete kudasai.', ar: 'نعم. اعتنِ بصحتك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'دراستي للغة اليابانية',
+    sentences: [
+      { jp: '日本語の 勉強は 楽しくて、おもしろいです。', romaji: 'Nihongo no benkyou wa tanoshikute, omoshiroi desu.', ar: 'دراسة اليابانية ممتعة وشيّقة.' },
+      { jp: '毎日 練習しますから、上手に なりました。', romaji: 'Mainichi renshuu shimasu kara, jouzu ni narimashita.', ar: 'لأنني أتدرب كل يوم، أصبحت ماهرًا.' },
+      { jp: '寝る まえに 単語を 覚えます。', romaji: 'Neru mae ni tango o oboemasu.', ar: 'أحفظ المفردات قبل النوم.' },
+      { jp: 'でも、ときどき 勉強しすぎます。', romaji: 'Demo, tokidoki benkyou shisugimasu.', ar: 'لكن أحيانًا أدرس بإفراط.' },
+      { jp: 'これから 医者に なりたいです。', romaji: 'Korekara isha ni naritai desu.', ar: 'مستقبلًا أريد أن أصبح طبيبًا.' },
+    ],
+    questions: [
+      { q: 'كيف يصف الكاتب دراسة اليابانية؟', options: ['ممتعة وشيّقة', 'صعبة ومملة', 'سهلة جدًا'], answer: 'ممتعة وشيّقة' },
+      { q: 'متى يحفظ المفردات؟', options: ['قبل النوم', 'بعد الاستيقاظ', 'أثناء الأكل'], answer: 'قبل النوم' },
+      { q: 'ماذا يريد أن يصبح؟', options: ['طبيبًا', 'مغنيًا', 'معلمًا'], answer: 'طبيبًا' },
+    ],
+  },
   vocab: [
     { id: 'narimasu', type: 'verb', jp: 'なります', kanji: 'なります', hiragana: 'なります', reading: 'narimasu', meaning: 'يصبح' },
     { id: 'sugimasu', type: 'verb', jp: 'すぎます', kanji: 'すぎます', hiragana: 'すぎます', reading: 'sugimasu', meaning: 'يفرط في / يتجاوز الحد' },

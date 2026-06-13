@@ -2,6 +2,34 @@ export const n4LessonSeven = {
   id: 7,
   title: { ar: 'النصائح والتوقعات: ~たほうがいい / でしょう / かもしれません', en: 'Advice & Predictions: ~たほうがいい / でしょう / かもしれません' },
   focus: 'تقديم نصيحة باستخدام ~たほうがいいです/~ないほうがいいです، والتعبير عن التوقع بـ ~でしょう مع きっと/たぶん/もしかしたら، والتعبير عن الاحتمال بـ ~かもしれません.',
+  dialogue: {
+    titleAr: 'عند المعلم: نصيحة عن الصحة',
+    lines: [
+      { speaker: 'المعلم', jp: 'ミラーさん、顔が赤いですね。熱がありますか。', romaji: 'Miraa-san, kao ga akai desu ne. Netsu ga arimasu ka.', ar: 'سيد ميلر، وجهك أحمر. هل لديك حرارة؟' },
+      { speaker: 'ميلر', jp: 'はい、頭痛もあります。たぶん風邪をひいたかもしれません。', romaji: 'Hai, zutsuu mo arimasu. Tabun kaze wo hiita kamoshiremasen.', ar: 'نعم، ولدي صداع أيضاً. ربما أُصبت بالبرد على الأغلب.' },
+      { speaker: 'المعلم', jp: 'それなら、今日は休んだほうがいいですよ。', romaji: 'Sore nara, kyou wa yasunda hou ga ii desu yo.', ar: 'إذاً، من الأفضل أن تستريح اليوم.' },
+      { speaker: 'ميلر', jp: '薬を飲んだほうがいいですか。', romaji: 'Kusuri wo nonda hou ga ii desu ka.', ar: 'هل من الأفضل أن أتناول دواءً؟' },
+      { speaker: 'المعلم', jp: 'はい。でも、無理しないほうがいいです。早く寝てください。', romaji: 'Hai. Demo, muri shinai hou ga ii desu. Hayaku nete kudasai.', ar: 'نعم. لكن من الأفضل ألا تُجهد نفسك. نم مبكراً من فضلك.' },
+      { speaker: 'ميلر', jp: 'わかりました。病院に行ったほうがいいでしょうか。', romaji: 'Wakarimashita. Byouin ni itta hou ga ii deshou ka.', ar: 'فهمت. هل من الأفضل أن أذهب إلى المستشفى يا تُرى؟' },
+      { speaker: 'المعلم', jp: '熱が高いなら、きっと行ったほうがいいでしょう。', romaji: 'Netsu ga takai nara, kitto itta hou ga ii deshou.', ar: 'إذا كانت الحرارة مرتفعة، فبالتأكيد من الأفضل أن تذهب على الأغلب.' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。ゆっくり休みます。', romaji: 'Arigatou gozaimasu. Yukkuri yasumimasu.', ar: 'شكراً جزيلاً. سأستريح بهدوء.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم ميلر المريض',
+    sentences: [
+      { jp: '今日、ミラーさんは熱があります。', romaji: 'Kyou, Miraa-san wa netsu ga arimasu.', ar: 'اليوم، السيد ميلر لديه حرارة.' },
+      { jp: '頭痛もせきもあるので、たぶん風邪をひいたでしょう。', romaji: 'Zutsuu mo seki mo aru node, tabun kaze wo hiita deshou.', ar: 'لديه صداع وسعال أيضاً، لذا على الأغلب أنه أُصيب بالبرد.' },
+      { jp: '先生は「今日は休んだほうがいいですよ」と言いました。', romaji: 'Sensei wa "kyou wa yasunda hou ga ii desu yo" to iimashita.', ar: 'قال المعلم: من الأفضل أن تستريح اليوم.' },
+      { jp: 'ミラーさんは薬を飲んで、早く寝ます。', romaji: 'Miraa-san wa kusuri wo nonde, hayaku nemasu.', ar: 'السيد ميلر يتناول الدواء وينام مبكراً.' },
+      { jp: '明日はきっと元気になるでしょう。', romaji: 'Ashita wa kitto genki ni naru deshou.', ar: 'غداً سيتحسن بالتأكيد على الأغلب.' },
+    ],
+    questions: [
+      { q: 'ما الذي يعاني منه ميلر اليوم؟', options: ['حرارة وصداع وسعال', 'ألم في القدم فقط', 'لا يعاني من شيء'], answer: 'حرارة وصداع وسعال' },
+      { q: 'بماذا نصحه المعلم؟', options: ['أن يستريح اليوم', 'أن يمارس الرياضة', 'أن يذهب إلى العمل'], answer: 'أن يستريح اليوم' },
+      { q: 'ماذا يفعل ميلر بعد تناول الدواء؟', options: ['ينام مبكراً', 'يخرج مع أصدقائه', 'يشاهد التلفاز'], answer: 'ينام مبكراً' },
+    ],
+  },
   vocab: [
     { id: 'kaze-o-hikimasu', type: 'expression', jp: '風邪をひきます', kanji: '風邪をひきます', hiragana: 'かぜをひきます', reading: 'kaze wo hikimasu', meaning: 'يصاب بالبرد (الرشح)' },
     { id: 'netsu-ga-arimasu', type: 'expression', jp: '熱があります', kanji: '熱があります', hiragana: 'ねつがあります', reading: 'netsu ga arimasu', meaning: 'لديه حرارة (حمى)' },

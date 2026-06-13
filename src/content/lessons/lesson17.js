@@ -2,6 +2,32 @@ export const lessonSeventeen = {
   id: 17,
   title: { ar: 'صيغة القاموس والقدرة والتسلسل', en: 'Dictionary Form, Ability, and Sequence' },
   focus: 'تكوين صيغة القاموس، ことができます للقدرة، まえに/あとで مع صيغة القاموس، و〜と (الشرط التلقائي)',
+  dialogue: {
+    titleAr: 'ما هواياتك؟ — القدرات والمهارات',
+    lines: [
+      { speaker: 'ساتو', jp: 'ミラーさんの 趣味は 何ですか。', romaji: 'Miraa-san no shumi wa nan desu ka.', ar: 'ما هواية السيد ميلر؟' },
+      { speaker: 'ميلر', jp: 'ピアノを 弾くことです。', romaji: 'Piano o hiku koto desu.', ar: 'عزف البيانو.' },
+      { speaker: 'ساتو', jp: 'すごいですね。車を 運転することが できますか。', romaji: 'Sugoi desu ne. Kuruma o unten suru koto ga dekimasu ka.', ar: 'رائع! هل تستطيع قيادة السيارة؟' },
+      { speaker: 'ميلر', jp: 'はい、できます。でも、漢字を 読むことが できません。', romaji: 'Hai, dekimasu. Demo, kanji o yomu koto ga dekimasen.', ar: 'نعم أستطيع. لكن لا أستطيع قراءة الكانجي.' },
+      { speaker: 'ساتو', jp: '毎日 勉強すると、できますよ。', romaji: 'Mainichi benkyou suru to, dekimasu yo.', ar: 'إذا درست كل يوم، ستستطيع.' },
+      { speaker: 'ميلر', jp: 'がんばります。', romaji: 'Ganbarimasu.', ar: 'سأبذل جهدي.' },
+    ],
+  },
+  reading: {
+    titleAr: 'الطريق إلى المحطة',
+    sentences: [
+      { jp: 'まっすぐ 行くと、信号が あります。', romaji: 'Massugu iku to, shingou ga arimasu.', ar: 'إذا سرت مباشرة، توجد إشارة مرور.' },
+      { jp: '信号を 右に 曲がると、駅が あります。', romaji: 'Shingou o migi ni magaru to, eki ga arimasu.', ar: 'إذا انعطفت يمينًا عند الإشارة، تجد المحطة.' },
+      { jp: '私は 一人で 空港まで 行くことが できます。', romaji: 'Watashi wa hitori de kuukou made iku koto ga dekimasu.', ar: 'أستطيع الذهاب إلى المطار وحدي.' },
+      { jp: '料理することが 好きです。', romaji: 'Ryouri suru koto ga suki desu.', ar: 'أحب الطبخ.' },
+      { jp: '寝る まえに 本を 読みます。', romaji: 'Neru mae ni hon o yomimasu.', ar: 'أقرأ كتابًا قبل النوم.' },
+    ],
+    questions: [
+      { q: 'ماذا يوجد إذا سرت مباشرة؟', options: ['إشارة مرور', 'المحطة', 'بنك'], answer: 'إشارة مرور' },
+      { q: 'إلى أين يستطيع الكاتب الذهاب وحده؟', options: ['إلى المطار', 'إلى الجبل', 'إلى البحر'], answer: 'إلى المطار' },
+      { q: 'ماذا يفعل قبل النوم؟', options: ['يقرأ كتابًا', 'يطبخ', 'يقود السيارة'], answer: 'يقرأ كتابًا' },
+    ],
+  },
   vocab: [
     { id: 'kotogadekimasu', type: 'expression', jp: '〜ことができます', hiragana: '〜ことができます', reading: '~koto ga dekimasu', meaning: 'يستطيع أن...' },
     { id: 'unten_shimasu', type: 'verb', jp: '運転します', kanji: '運転します', hiragana: 'うんてんします', reading: 'unten shimasu', meaning: 'يقود (سيارة)' },

@@ -2,6 +2,34 @@ export const n3LessonTwentyOne = {
   id: 21,
   title: { ar: 'أسلوب رسمي: عن وتجاه وحسب', en: 'Formal Reference' },
   focus: 'تراكيب شائعة في الأخبار والعروض: によると・について・に対して.',
+  dialogue: {
+    titleAr: 'في قاعة العرض',
+    lines: [
+      { speaker: 'ساتو', jp: 'ニュースによると、物価が上がるそうです。', romaji: 'Nyuusu ni yoru to, bukka ga agaru sou desu.', ar: 'حسب الأخبار، يُقال إن الأسعار سترتفع.' },
+      { speaker: 'ميلر', jp: 'その問題について発表しますか。', romaji: 'Sono mondai ni tsuite happyou shimasu ka.', ar: 'هل ستقدم عرضاً عن تلك المشكلة؟' },
+      { speaker: 'ساتو', jp: 'はい。原因について説明します。', romaji: 'Hai. Genin ni tsuite setsumei shimasu.', ar: 'نعم. سأشرح عن السبب.' },
+      { speaker: 'ميلر', jp: '調査の結果によると、物価が増加しているそうです。', romaji: 'Chousa no kekka ni yoru to, bukka ga zouka shite iru sou desu.', ar: 'حسب نتيجة البحث، يُقال إن الأسعار تزداد.' },
+      { speaker: 'المعلم', jp: 'この発表に対して質問がありますか。', romaji: 'Kono happyou ni taishite shitsumon ga arimasu ka.', ar: 'هل لديكم سؤال تجاه هذا العرض؟' },
+      { speaker: 'ميلر', jp: 'はい。出席者に対して意見を聞きたいです。', romaji: 'Hai. Shussekisha ni taishite iken wo kikitai desu.', ar: 'نعم. أريد أن أسمع رأي الحاضرين.' },
+      { speaker: 'ساتو', jp: 'その質問に対して対応します。', romaji: 'Sono shitsumon ni taishite taiou shimasu.', ar: 'سأرد على ذلك السؤال.' },
+      { speaker: 'المعلم', jp: 'いい発表でした。文化についてもっと研究してください。', romaji: 'Ii happyou deshita. Bunka ni tsuite motto kenkyuu shite kudasai.', ar: 'كان عرضاً جيداً. ابحثوا أكثر عن الثقافة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'تقرير عن الأسعار',
+    sentences: [
+      { jp: 'ニュースによると、物価が上がるそうです。', romaji: 'Nyuusu ni yoru to, bukka ga agaru sou desu.', ar: 'حسب الأخبار، يُقال إن الأسعار سترتفع.' },
+      { jp: '先生は物価の原因について説明しました。', romaji: 'Sensei wa bukka no genin ni tsuite setsumei shimashita.', ar: 'شرح المعلم عن سبب الأسعار.' },
+      { jp: '調査の結果によると、問題が増加しているそうです。', romaji: 'Chousa no kekka ni yoru to, mondai ga zouka shite iru sou desu.', ar: 'حسب نتيجة البحث، يُقال إن المشاكل تزداد.' },
+      { jp: 'この問題に対して、出席者は意見を言いました。', romaji: 'Kono mondai ni taishite, shussekisha wa iken wo iimashita.', ar: 'تجاه هذه المشكلة، قال الحاضرون رأيهم.' },
+      { jp: '私は文化について研究しています。', romaji: 'Watashi wa bunka ni tsuite kenkyuu shite imasu.', ar: 'أنا أبحث عن الثقافة.' },
+    ],
+    questions: [
+      { q: 'ماذا يُقال حسب الأخبار؟', options: ['الأسعار سترتفع.', 'الأسعار ستنخفض.', 'الثقافة ستتغير.'], answer: 'الأسعار سترتفع.' },
+      { q: 'عن ماذا شرح المعلم؟', options: ['عن سبب الأسعار.', 'عن نتيجة البحث.', 'عن رأي الحاضرين.'], answer: 'عن سبب الأسعار.' },
+      { q: 'ماذا فعل الحاضرون تجاه المشكلة؟', options: ['قالوا رأيهم.', 'طرحوا سؤالاً.', 'قدموا عرضاً.'], answer: 'قالوا رأيهم.' },
+    ],
+  },
   vocab: [
     { id: 'nyuusu', type: 'noun', jp: 'ニュース', hiragana: 'ニュース', reading: 'nyuusu', meaning: 'أخبار' },
     { id: 'bukka', type: 'noun', jp: '物価', kanji: '物価', hiragana: 'ぶっか', reading: 'bukka', meaning: 'أسعار السلع' },

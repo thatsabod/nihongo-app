@@ -2,6 +2,34 @@ export const n3LessonSeventeen = {
   id: 17,
   title: { ar: 'الشروط الطبيعية والمقترحة', en: 'Conditionals' },
   focus: 'التمييز بين と・ば・なら في الشروط الطبيعية والافتراضية والمقترحة.',
+  dialogue: {
+    titleAr: 'الطريق إلى البنك',
+    lines: [
+      { speaker: 'ساتو', jp: 'すみません、銀行はどこですか。', romaji: 'Sumimasen, ginkou wa doko desu ka.', ar: 'عفواً، أين البنك؟' },
+      { speaker: 'ميلر', jp: '真っ直ぐ歩くと、店が見えます。', romaji: 'Massugu aruku to, mise ga miemasu.', ar: 'إذا سرت مباشرة، يظهر المحل.' },
+      { speaker: 'ميلر', jp: 'そこで右に曲がると、銀行が見えますよ。', romaji: 'Soko de migi ni magaru to, ginkou ga miemasu yo.', ar: 'وإذا انعطفت هناك يميناً، يظهر البنك.' },
+      { speaker: 'ساتو', jp: 'ありがとうございます。少し遠いですか。', romaji: 'Arigatou gozaimasu. Sukoshi tooi desu ka.', ar: 'شكراً لك. هل هو بعيد قليلاً؟' },
+      { speaker: 'ميلر', jp: '時間があれば、私が手伝います。', romaji: 'Jikan ga areba, watashi ga tetsudaimasu.', ar: 'إذا كان لدي وقت فسأساعدك.' },
+      { speaker: 'ساتو', jp: '銀行へ行くなら、今がいいですか。', romaji: 'Ginkou e iku nara, ima ga ii desu ka.', ar: 'إذا كنت سأذهب إلى البنك، فهل الآن وقت جيد؟' },
+      { speaker: 'ميلر', jp: 'はい。でも酒を飲めば、運転しないでくださいね。', romaji: 'Hai. Demo sake wo nomeba, unten shinaide kudasai ne.', ar: 'نعم. لكن إذا شربت الخمر، فلا تقُد السيارة.' },
+      { speaker: 'ساتو', jp: '分かりました。少し休めば、元気になります。', romaji: 'Wakarimashita. Sukoshi yasumeba, genki ni narimasu.', ar: 'فهمت. إذا استرحت قليلاً، سأشعر بالنشاط.' },
+    ],
+  },
+  reading: {
+    titleAr: 'زر الباب',
+    sentences: [
+      { jp: 'このボタンを押すと、ドアが開きます。', romaji: 'Kono botan wo osu to, doa ga akimasu.', ar: 'إذا ضغطت هذا الزر، يفتح الباب.' },
+      { jp: '電気を消すと、部屋が暗くなります。', romaji: 'Denki wo kesu to, heya ga kuraku narimasu.', ar: 'إذا أطفأت الكهرباء، تصبح الغرفة مظلمة.' },
+      { jp: '時間があれば、私が手伝います。', romaji: 'Jikan ga areba, watashi ga tetsudaimasu.', ar: 'إذا كان لدي وقت فسأساعدك.' },
+      { jp: '少し休めば、元気になります。', romaji: 'Sukoshi yasumeba, genki ni narimasu.', ar: 'إذا استرحت قليلاً، ستشعر بالنشاط.' },
+      { jp: '日本へ行くなら、春がいいですよ。', romaji: 'Nihon e iku nara, haru ga ii desu yo.', ar: 'إذا كنت ستذهب إلى اليابان، فالربيع جيد.' },
+    ],
+    questions: [
+      { q: 'ماذا يحدث إذا ضغطت الزر؟', options: ['يفتح الباب', 'تصبح الغرفة مظلمة', 'يظهر البنك'], answer: 'يفتح الباب' },
+      { q: 'ماذا يحدث إذا أطفأت الكهرباء؟', options: ['يفتح الباب', 'تصبح الغرفة مظلمة', 'يأتي الربيع'], answer: 'تصبح الغرفة مظلمة' },
+      { q: 'أي فصل جيد إذا ذهبت إلى اليابان؟', options: ['الربيع', 'الصيف', 'الشتاء'], answer: 'الربيع' },
+    ],
+  },
   vocab: [
     { id: 'botan', type: 'noun', jp: 'ボタン', hiragana: 'ボタン', reading: 'botan', meaning: 'زر' },
     { id: 'osu', type: 'verb', jp: '押す', kanji: '押す', hiragana: 'おす', reading: 'osu', meaning: 'يضغط' },

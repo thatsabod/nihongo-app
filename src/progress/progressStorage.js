@@ -3,7 +3,7 @@
 // `nihongo-guest-state` blob, so the new models are purely additive
 // and never collide with the current save/load logic in App.jsx.
 
-import { recordAnswer } from './srsModel.js'
+import { recordAnswer, scheduleNext, createSrsRecord } from './srsModel.js'
 import { recordMistake } from './mistakeLog.js'
 
 const STORAGE_KEY = 'nihongo-learning-progress'
@@ -42,6 +42,23 @@ function pickNewer(a, b, tsField) {
   return (b[tsField] || 0) >= (a[tsField] || 0) ? b : a
 }
 
+function mergeLessonRecord(a, b) {
+  if (!a) return b
+  if (!b) return a
+  const newerStats = pickNewer(a, b, 'lastPracticedAt') || {}
+  return {
+    ...a,
+    ...b,
+    attempts: Math.max(a.attempts || 0, b.attempts || 0, newerStats.attempts || 0),
+    correct: Math.max(a.correct || 0, b.correct || 0, newerStats.correct || 0),
+    lastPracticedAt: Math.max(a.lastPracticedAt || 0, b.lastPracticedAt || 0),
+    sections: {
+      ...(a.sections || {}),
+      ...(b.sections || {}),
+    },
+  }
+}
+
 // Merge two progress states: union of keys, latest-write-wins per key. Used to
 // reconcile a device's local store with the account's cloud copy at login so
 // neither side loses data (e.g. a guest who practised, then signed in).
@@ -50,13 +67,31 @@ export function mergeProgressState(a = emptyState(), b = emptyState()) {
   const buckets = [
     ['srs', 'lastReviewedAt'],
     ['mistakes', 'lastWrongAt'],
-    ['lessons', 'lastPracticedAt'],
   ]
   for (const [bucket, ts] of buckets) {
     const keys = new Set([...Object.keys(a[bucket] || {}), ...Object.keys(b[bucket] || {})])
     for (const key of keys) {
       out[bucket][key] = pickNewer(a[bucket]?.[key], b[bucket]?.[key], ts)
     }
+  }
+  const lessonKeys = new Set([...Object.keys(a.lessons || {}), ...Object.keys(b.lessons || {})])
+  for (const key of lessonKeys) {
+    out.lessons[key] = mergeLessonRecord(a.lessons?.[key], b.lessons?.[key])
+  }
+  // Carry the review-streak (keep the most recent by lastDate) so it survives
+  // login-merge instead of being silently dropped.
+  const ra = a.reviewStreak
+  const rb = b.reviewStreak
+  if (ra || rb) {
+    out.reviewStreak = !ra ? rb : !rb ? ra : (String(rb.lastDate) >= String(ra.lastDate) ? rb : ra)
+  }
+  // Seen-achievements is append-only, so union both sides (never drop one
+  // device's history). Left absent when neither side ever initialised it, which
+  // preserves the "first run → seed silently" signal in App.jsx.
+  const sa = a.seenAchievements
+  const sb = b.seenAchievements
+  if (sa || sb) {
+    out.seenAchievements = Array.from(new Set([...(sa || []), ...(sb || [])]))
   }
   return out
 }
@@ -125,12 +160,14 @@ export function getReviewStreak(state, now = Date.now()) {
 // Powers the Mastery System: completion ≠ mastery, mastery needs accuracy too.
 export function recordLessonStat(state, lessonId, wasCorrect, now = Date.now()) {
   if (!lessonId) return state
-  const prev = state.lessons?.[lessonId] || { attempts: 0, correct: 0, lastPracticedAt: 0 }
+  const lessonId2 = String(lessonId)
+  const prev = state.lessons?.[lessonId2] || { attempts: 0, correct: 0, lastPracticedAt: 0 }
   const next = {
     ...state,
     lessons: {
       ...state.lessons,
-      [lessonId]: {
+      [lessonId2]: {
+        ...prev,
         attempts: prev.attempts + 1,
         correct: prev.correct + (wasCorrect ? 1 : 0),
         lastPracticedAt: now,
@@ -141,17 +178,36 @@ export function recordLessonStat(state, lessonId, wasCorrect, now = Date.now()) 
   return next
 }
 
-export function trackAnswer(state, { itemId, itemType, wasCorrect, lessonId, exerciseType, questionAr }, now = Date.now()) {
+// `quality` (optional, 0–5 SM-2 grade) lets confidence-graded answers
+// (Forgot/Hard/Easy in Smart Review) schedule with their real grade instead of
+// the boolean 4/2 collapse. When omitted, behaviour is unchanged for every
+// existing auto-graded caller. `wasCorrect` still drives the mistake log.
+export function trackAnswer(state, { itemId, itemType, wasCorrect, quality, lessonId, exerciseType, questionAr }, now = Date.now()) {
   const srsKey = `${itemType}:${itemId}`
-  const nextSrs = {
-    ...state.srs,
-    [srsKey]: recordAnswer(state.srs[srsKey], itemId, itemType, wasCorrect, now),
-  }
+  const nextRecord = quality == null
+    ? recordAnswer(state.srs[srsKey], itemId, itemType, wasCorrect, now)
+    : scheduleNext(state.srs[srsKey] || createSrsRecord(itemId, itemType), quality, now)
+  const nextSrs = { ...state.srs, [srsKey]: nextRecord }
   const nextMistakes = wasCorrect
     ? state.mistakes
     : recordMistake(state.mistakes, { itemId, itemType, lessonId, exerciseType, questionAr }, now)
 
   const next = { ...state, srs: nextSrs, mistakes: nextMistakes }
+  writeProgressState(next)
+  return next
+}
+
+// Achievement-unlock moment (Phase 5). We persist the set of achievement ids
+// the learner has already been shown so the "unlocked!" toast fires exactly
+// once per achievement and never re-fires on reload/cross-device. A returning
+// learner whose field is still undefined gets seeded silently (see App.jsx) so
+// pre-existing unlocks don't all toast at once.
+export function getSeenAchievements(state) {
+  return state.seenAchievements // undefined === never initialised
+}
+
+export function markAchievementsSeen(state, ids) {
+  const next = { ...state, seenAchievements: Array.from(new Set(ids || [])) }
   writeProgressState(next)
   return next
 }

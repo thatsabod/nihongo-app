@@ -2,6 +2,34 @@ export const lessonTwentyFive = {
   id: 25,
   title: { ar: 'مراجعة شاملة لمستوى N5', en: 'Comprehensive N5 Review' },
   focus: 'مراجعة وتجميع أهم القواعد التي تمت دراستها في المستوى N5 من خلال أمثلة وتمارين متنوعة',
+  dialogue: {
+    titleAr: 'قبل اختبار الكفاءة',
+    lines: [
+      { speaker: 'ميلر', jp: '明日 は 能力試験 です ね。 復習 は しましたか。', romaji: 'Ashita wa nouryoku shiken desu ne. Fukushuu wa shimashita ka.', ar: 'غدا اختبار الكفاءة، أليس كذلك؟ هل راجعت؟' },
+      { speaker: 'ساتو', jp: 'はい。 毎日 文法 と 単語 を 練習しました。', romaji: 'Hai. Mainichi bunpou to tango o renshuu shimashita.', ar: 'نعم. تمرنت على القواعد والمفردات كل يوم.' },
+      { speaker: 'ميلر', jp: '素晴らしい です ね。 自信 が ありますか。', romaji: 'Subarashii desu ne. Jishin ga arimasu ka.', ar: 'رائع! هل لديك ثقة بالنفس؟' },
+      { speaker: 'ساتو', jp: '少し あります。 でも、 問題 が 難しかったら、 諦めません。', romaji: 'Sukoshi arimasu. Demo, mondai ga muzukashikattara, akiramemasen.', ar: 'لدي قليل منها. لكن إذا كانت الأسئلة صعبة، لن أستسلم.' },
+      { speaker: 'ميلر', jp: 'いい 目標 です。 私 も 合格したい です。', romaji: 'Ii mokuhyou desu. Watashi mo goukaku shitai desu.', ar: 'هدف جيد. أنا أيضا أريد النجاح.' },
+      { speaker: 'ساتو', jp: '一緒に 頑張りましょう。 努力 は 大切 だ と 思います。', romaji: 'Issho ni ganbarimashou. Doryoku wa taisetsu da to omoimasu.', ar: 'لنجتهد معا. أعتقد أن الجهد مهم.' },
+      { speaker: 'ميلر', jp: 'これから も 日本語 の 勉強 を 続ける つもりです。', romaji: 'Korekara mo nihongo no benkyou o tsuzukeru tsumori desu.', ar: 'أنوي الاستمرار في دراسة اليابانية من الآن فصاعدا أيضا.' },
+      { speaker: 'ساتو', jp: 'いい 思い出 に なります ね。 頑張って、 また ね。', romaji: 'Ii omoide ni narimasu ne. Ganbatte, mata ne.', ar: 'ستصبح ذكرى جميلة. بالتوفيق، إلى اللقاء.' },
+    ],
+  },
+  reading: {
+    titleAr: 'هدفي في دراسة اليابانية',
+    sentences: [
+      { jp: '私 は 毎日 日本語 の 文法 と 単語 を 練習します。', romaji: 'Watashi wa mainichi nihongo no bunpou to tango o renshuu shimasu.', ar: 'أتمرن على قواعد ومفردات اليابانية كل يوم.' },
+      { jp: '私 の 目標 は 能力試験 に 合格する こと です。', romaji: 'Watashi no mokuhyou wa nouryoku shiken ni goukaku suru koto desu.', ar: 'هدفي هو النجاح في اختبار الكفاءة.' },
+      { jp: '問題 が 難しくても、 私 は 諦めません。', romaji: 'Mondai ga muzukashikutemo, watashi wa akiramemasen.', ar: 'حتى لو كانت الأسئلة صعبة، لن أستسلم.' },
+      { jp: '努力 を 続けたら、 きっと 自信 が 出ます。', romaji: 'Doryoku o tsuzuketara, kitto jishin ga demasu.', ar: 'إذا واصلت الجهد، ستظهر الثقة بالنفس بالتأكيد.' },
+      { jp: 'これから も 日本語 の 勉強 を 続ける つもりです。', romaji: 'Korekara mo nihongo no benkyou o tsuzukeru tsumori desu.', ar: 'أنوي الاستمرار في دراسة اليابانية من الآن فصاعدا أيضا.' },
+    ],
+    questions: [
+      { q: 'ما هو هدف الكاتب؟', options: ['النجاح في اختبار الكفاءة', 'شراء قاموس جديد', 'السفر إلى اليابان'], answer: 'النجاح في اختبار الكفاءة' },
+      { q: 'ماذا يفعل الكاتب إذا كانت الأسئلة صعبة؟', options: ['يستسلم فورا', 'لا يستسلم', 'يتوقف عن الدراسة'], answer: 'لا يستسلم' },
+      { q: 'ماذا ينوي الكاتب أن يفعل من الآن فصاعدا؟', options: ['يستمر في دراسة اليابانية', 'يترك دراسة اليابانية', 'يدرس لغة أخرى'], answer: 'يستمر في دراسة اليابانية' },
+    ],
+  },
   vocab: [
     { id: 'fukushuu', type: 'noun', jp: '復習', kanji: '復習', hiragana: 'ふくしゅう', reading: 'fukushuu', meaning: 'مراجعة' },
     { id: 'goukaku', type: 'noun', jp: '合格', kanji: '合格', hiragana: 'ごうかく', reading: 'goukaku', meaning: 'النجاح / اجتياز اختبار' },

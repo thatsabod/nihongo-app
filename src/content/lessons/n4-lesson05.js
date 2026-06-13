@@ -2,6 +2,34 @@ export const n4LessonFive = {
   id: 5,
   title: { ar: 'التحضير المسبق: ~てあります / ~ておきます', en: 'Prepared in Advance: ~てあります / ~ておきます' },
   focus: 'التعبير عن حالة ناتجة عن تحضير متعمد بـ ~てあります، واستخدام もう مع ~てあります للدلالة على أن التحضير تم مسبقاً، واستخدام ~ておきます/~ときます للتحضير لأجل المستقبل.',
+  dialogue: {
+    titleAr: 'التحضير للاجتماع',
+    lines: [
+      { speaker: 'المعلم', jp: '明日のミーティングの準備はもうしてありますか。', romaji: 'Ashita no miitingu no junbi wa mou shite arimasu ka.', ar: 'هل تحضير اجتماع الغد قد تمّ مسبقاً؟' },
+      { speaker: 'ميلر', jp: 'はい、資料はもう準備してあります。', romaji: 'Hai, shiryou wa mou junbi shite arimasu.', ar: 'نعم، المستندات جاهزة مسبقاً.' },
+      { speaker: 'المعلم', jp: 'ミーティングの予定は決めてありますか。', romaji: 'Miitingu no yotei wa kimete arimasu ka.', ar: 'هل تم تحديد موعد الاجتماع؟' },
+      { speaker: 'ميلر', jp: 'はい、予定も決めてあります。', romaji: 'Hai, yotei mo kimete arimasu.', ar: 'نعم، الموعد محدد أيضاً.' },
+      { speaker: 'المعلم', jp: 'じゃあ、飲み物を買っておいてください。', romaji: 'Jaa, nomimono wo katte oite kudasai.', ar: 'إذن، اشترِ المشروبات تحضيراً من فضلك.' },
+      { speaker: 'ميلر', jp: '分かりました。飲み物を買っておきます。', romaji: 'Wakarimashita. Nomimono wo katte okimasu.', ar: 'فهمت. سأشتري المشروبات تحضيراً.' },
+      { speaker: 'المعلم', jp: '会議室にお皿も並べておいてください。', romaji: 'Kaigishitsu ni osara mo narabete oite kudasai.', ar: 'رتّب الأطباق في غرفة الاجتماع تحضيراً أيضاً من فضلك.' },
+      { speaker: 'ميلر', jp: 'はい、お皿は並べておきます。', romaji: 'Hai, osara wa narabete okimasu.', ar: 'حسناً، سأرتّب الأطباق تحضيراً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'تحضير الغرفة',
+    sentences: [
+      { jp: '明日は授業があります。', romaji: 'Ashita wa jugyou ga arimasu.', ar: 'غداً توجد حصة درس.' },
+      { jp: 'もう部屋は片付けてあります。', romaji: 'Mou heya wa katazukete arimasu.', ar: 'الغرفة منظفة مسبقاً.' },
+      { jp: '花瓶に花が飾ってあります。', romaji: 'Kabin ni hana ga kazatte arimasu.', ar: 'الزهور موضوعة في المزهرية.' },
+      { jp: '資料は引き出しにしまっておきます。', romaji: 'Shiryou wa hikidashi ni shimatte okimasu.', ar: 'سأضع المستندات في الدرج تحضيراً.' },
+      { jp: '授業の前に予習しておきます。', romaji: 'Jugyou no mae ni yoshuu shite okimasu.', ar: 'سأحضّر الدرس قبل الحصة.' },
+    ],
+    questions: [
+      { q: 'ماذا يوجد غداً؟', options: ['حصة درس', 'اجتماع', 'سفر'], answer: 'حصة درس' },
+      { q: 'ما حالة الغرفة الآن؟', options: ['منظفة مسبقاً', 'متسخة جداً', 'لم تُلمس بعد'], answer: 'منظفة مسبقاً' },
+      { q: 'أين توجد الزهور؟', options: ['في المزهرية', 'في الدرج', 'على الباب'], answer: 'في المزهرية' },
+    ],
+  },
   vocab: [
     { id: 'kazarimasu', type: 'verb', jp: '飾ります', kanji: '飾ります', hiragana: 'かざります', reading: 'kazarimasu', meaning: 'يُزيّن / يُرتّب للعرض' },
     { id: 'narabemasu', type: 'verb', jp: '並べます', kanji: '並べます', hiragana: 'ならべます', reading: 'narabemasu', meaning: 'يُرتّب بصفوف / يُصفّ' },

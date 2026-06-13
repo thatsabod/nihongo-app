@@ -2,6 +2,34 @@ export const n4LessonEighteen = {
   id: 18,
   title: { ar: 'يبدو أن... / الذهاب والعودة: そう / てきます', en: 'Looks Like / Go and Return: そう / てきます' },
   focus: 'التعبير عن "يبدو وكأنه على وشك..." بـ Vstem+そうです، واستخدام الصفات+そうです (يبدو...)، والتعبير عن "أذهب وأرجع" بـ ~てきます.',
+  dialogue: {
+    titleAr: 'في السوبر ماركت',
+    lines: [
+      { speaker: 'ساتو', jp: '最近、物価が上がりそうですね。', romaji: 'Saikin, bukka ga agarisou desu ne.', ar: 'مؤخراً، يبدو أن الأسعار سترتفع، أليس كذلك؟' },
+      { speaker: 'ميلر', jp: 'はい。ガソリンの値段も高くなりそうです。', romaji: 'Hai. Gasorin no nedan mo takaku narisou desu.', ar: 'نعم. ويبدو أن سعر البنزين سيصبح أغلى أيضاً.' },
+      { speaker: 'ساتو', jp: 'このケーキはおいしそうですね。買いますか。', romaji: 'Kono keeki wa oishisou desu ne. Kaimasu ka.', ar: 'هذه الكعكة تبدو لذيذة. هل ستشتريها؟' },
+      { speaker: 'ميلر', jp: 'はい。でも、ちょっと銀行に行ってきます。', romaji: 'Hai. Demo, chotto ginkou ni itte kimasu.', ar: 'نعم. لكنني سأذهب إلى البنك سريعاً وأرجع.' },
+      { speaker: 'ساتو', jp: '両替しますか。', romaji: 'Ryougae shimasu ka.', ar: 'هل ستصرف العملة؟' },
+      { speaker: 'ميلر', jp: 'はい。両替してきます。給料日でしたから。', romaji: 'Hai. Ryougae shite kimasu. Kyuuryoubi deshita kara.', ar: 'نعم. سأصرف العملة وأرجع، لأنه كان يوم الراتب.' },
+      { speaker: 'ساتو', jp: 'じゃあ、私はここで買い物をしてきます。', romaji: 'Jaa, watashi wa koko de kaimono wo shite kimasu.', ar: 'إذن، أنا سأتسوّق هنا وأرجع.' },
+      { speaker: 'ميلر', jp: 'はい。すぐ戻ります。', romaji: 'Hai. Sugu modorimasu.', ar: 'حسناً. سأرجع حالاً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'الأسعار مؤخراً',
+    sentences: [
+      { jp: '最近、物価がだんだん上がってきました。', romaji: 'Saikin, bukka ga dandan agatte kimashita.', ar: 'مؤخراً، بدأت الأسعار ترتفع تدريجياً.' },
+      { jp: 'ガソリンの値段も高くなりそうです。', romaji: 'Gasorin no nedan mo takaku narisou desu.', ar: 'ويبدو أن سعر البنزين سيصبح أغلى أيضاً.' },
+      { jp: 'でも、私の給料は増えません。', romaji: 'Demo, watashi no kyuuryou wa fuemasen.', ar: 'لكن راتبي لا يزداد.' },
+      { jp: 'これから景気はどうなりそうですか。', romaji: 'Korekara keiki wa dou narisou desu ka.', ar: 'كيف يبدو أن الاقتصاد سيصبح من الآن فصاعداً؟' },
+      { jp: '今日はスーパーで安い買い物をしてきます。', romaji: 'Kyou wa suupaa de yasui kaimono wo shite kimasu.', ar: 'اليوم سأتسوّق بثمن رخيص من السوبر ماركت وأرجع.' },
+    ],
+    questions: [
+      { q: 'ماذا حدث للأسعار مؤخراً؟', options: ['ارتفعت تدريجياً', 'انخفضت تدريجياً', 'لم تتغيّر'], answer: 'ارتفعت تدريجياً' },
+      { q: 'ماذا يبدو أنه سيحدث لسعر البنزين؟', options: ['سيصبح أغلى', 'سيصبح أرخص', 'سيبقى كما هو'], answer: 'سيصبح أغلى' },
+      { q: 'أين سيتسوّق اليوم؟', options: ['في السوبر ماركت', 'في البنك', 'في المتجر الصغير'], answer: 'في السوبر ماركت' },
+    ],
+  },
   vocab: [
     { id: 'fuemasu', type: 'verb', jp: '増えます', kanji: '増えます', hiragana: 'ふえます', reading: 'fuemasu', meaning: 'يزداد / يرتفع (عدد)' },
     { id: 'herimasu', type: 'verb', jp: '減ります', kanji: '減ります', hiragana: 'へります', reading: 'herimasu', meaning: 'يقلّ / ينخفض (عدد)' },

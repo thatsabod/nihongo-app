@@ -2,6 +2,34 @@ export const n4LessonTwenty = {
   id: 20,
   title: { ar: 'في حالة... ورغم ذلك: 場合 / のに', en: 'In Case Of / Despite: 場合 / のに' },
   focus: 'التعبير عن "في حالة..." بـ ~場合は، والتعبير عن "رغم أن..." بـ ~のに، والمقارنة بين ~ても و~のに و~が.',
+  dialogue: {
+    titleAr: 'جهاز معطّل في المتجر',
+    lines: [
+      { speaker: 'ميلر', jp: 'すみません、この機械は新しいのに、すぐ故障しました。', romaji: 'Sumimasen, kono kikai wa atarashii noni, sugu koshou shimashita.', ar: 'عفواً، رغم أن هذا الجهاز جديد، تعطّل بسرعة.' },
+      { speaker: 'البائع', jp: '保証書はありますか。不良品の場合は、交換します。', romaji: 'Hoshousho wa arimasu ka. Furyouhin no baai wa, koukan shimasu.', ar: 'هل لديك بطاقة الضمان؟ في حالة وجود منتج معيب، نستبدله.' },
+      { speaker: 'ميلر', jp: '保証書はありますが、レシートをなくしました。', romaji: 'Hoshousho wa arimasu ga, reshiito wo nakushimashita.', ar: 'لديّ بطاقة الضمان، لكنني أضعت إيصال الشراء.' },
+      { speaker: 'البائع', jp: 'レシートがない場合は、交換ではなくて修理になります。', romaji: 'Reshiito ga nai baai wa, koukan dewa nakute shuuri ni narimasu.', ar: 'في حالة عدم وجود إيصال الشراء، يكون تصليحاً وليس استبدالاً.' },
+      { speaker: 'ميلر', jp: 'えっ、保証書があるのに、修理代を取られますか。', romaji: 'E, hoshousho ga aru noni, shuuridai wo toraremasu ka.', ar: 'ماذا؟ رغم وجود بطاقة الضمان، تأخذون مني رسوم الصيانة؟' },
+      { speaker: 'البائع', jp: '修理代は取りません。今、内容を確認します。', romaji: 'Shuuridai wa torimasen. Ima, naiyou wo kakunin shimasu.', ar: 'لن نأخذ رسوم صيانة. سأتحقق من التفاصيل الآن.' },
+      { speaker: 'ميلر', jp: 'お願いします。早く修理してほしいです。', romaji: 'Onegai shimasu. Hayaku shuuri shite hoshii desu.', ar: 'من فضلك. أريدكم أن تصلحوه بسرعة.' },
+      { speaker: 'البائع', jp: 'はい。故障した場合は、いつでも対応します。', romaji: 'Hai. Koshou shita baai wa, itsudemo taiou shimasu.', ar: 'حسناً. في حالة حدوث عطل، نتعامل معه في أي وقت.' },
+    ],
+  },
+  reading: {
+    titleAr: 'مباراة في يوم ممطر',
+    sentences: [
+      { jp: '私は友達とサッカーの試合に申し込みました。', romaji: 'Watashi wa tomodachi to sakkaa no shiai ni moushikomimashita.', ar: 'سجّلت أنا وصديقي في مباراة كرة قدم.' },
+      { jp: '私たちは一生懸命練習しました。', romaji: 'Watashitachi wa isshoukenmei renshuu shimashita.', ar: 'تدرّبنا بكل جهد.' },
+      { jp: '雨の場合は、試合は中止になります。', romaji: 'Ame no baai wa, shiai wa chuushi ni narimasu.', ar: 'في حالة هطول المطر، تُلغى المباراة.' },
+      { jp: '当日は雨でしたが、試合は中止になりませんでした。', romaji: 'Toujitsu wa ame deshita ga, shiai wa chuushi ni narimasen deshita.', ar: 'كان المطر يهطل في ذلك اليوم، لكن المباراة لم تُلغَ.' },
+      { jp: '一生懸命練習したのに、私たちは試合に負けました。', romaji: 'Isshoukenmei renshuu shita noni, watashitachi wa shiai ni makemashita.', ar: 'رغم أننا تدرّبنا بكل جهد، خسرنا المباراة.' },
+    ],
+    questions: [
+      { q: 'بماذا التحق الكاتب مع صديقه؟', options: ['بمباراة كرة قدم', 'بدرس لغة', 'برحلة'], answer: 'بمباراة كرة قدم' },
+      { q: 'في حالة هطول المطر، ماذا يحدث للمباراة حسب القاعدة؟', options: ['تُلغى', 'تُؤجَّل ساعة', 'تستمر كالمعتاد'], answer: 'تُلغى' },
+      { q: 'ما نتيجة المباراة في النهاية؟', options: ['خسروا رغم تدرّبهم بجهد', 'فازوا بسهولة', 'أُلغيت بسبب المطر'], answer: 'خسروا رغم تدرّبهم بجهد' },
+    ],
+  },
   vocab: [
     { id: 'hoshousho', type: 'noun', jp: '保証書', kanji: '保証書', hiragana: 'ほしょうしょ', reading: 'hoshousho', meaning: 'بطاقة ضمان' },
     { id: 'ryoushuusho', type: 'noun', jp: '領収書', kanji: '領収書', hiragana: 'りょうしゅうしょ', reading: 'ryoushuusho', meaning: 'إيصال (رسمي)' },

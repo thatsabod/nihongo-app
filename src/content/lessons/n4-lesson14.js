@@ -2,6 +2,34 @@ export const n4LessonFourteen = {
   id: 14,
   title: { ar: 'التعبير عن السبب: て / で / ので', en: 'Expressing Reason: て / で / ので' },
   focus: 'استخدام て/くて/で للتعبير عن السبب مع أفعال المشاعر مثل びっくりする/安心する، واستخدام اسم+で للتعبير عن سبب طبيعي، واستخدام ~ので كصيغة ألطف من から',
+  dialogue: {
+    titleAr: 'بعد الزلزال',
+    lines: [
+      { speaker: 'ساتو', jp: '大きい地震でしたね。びっくりしました。', romaji: 'Ooki jishin deshita ne. Bikkuri shimashita.', ar: 'كان زلزالاً كبيراً، أليس كذلك؟ لقد انذهلت.' },
+      { speaker: 'ميلر', jp: '私もです。家が揺れて、とても怖かったです。', romaji: 'Watashi mo desu. Ie ga yurete, totemo kowakatta desu.', ar: 'وأنا أيضاً. اهتزّ البيت وكان مخيفاً جداً.' },
+      { speaker: 'ساتو', jp: '地震でビルが倒れたとニュースで知りました。', romaji: 'Jishin de biru ga taoreta to nyuusu de shirimashita.', ar: 'عرفت من الأخبار أن مبنى انهار بسبب الزلزال.' },
+      { speaker: 'ميلر', jp: '本当ですか。けがをした人がいないので、安心しました。', romaji: 'Hontou desu ka. Kega wo shita hito ga inai node, anshin shimashita.', ar: 'حقاً؟ لا يوجد أحد مصاب، لذلك شعرت بالراحة.' },
+      { speaker: 'ساتو', jp: 'でも、まだ危険なので、避難しましょう。', romaji: 'Demo, mada kiken na node, hinan shimashou.', ar: 'لكن، لأنه ما زال خطيراً، فلنلجأ إلى مكان آمن.' },
+      { speaker: 'ميلر', jp: 'そうですね。慌てないで、落ち着いて行きましょう。', romaji: 'Sou desu ne. Awatenaide, ochitsuite ikimashou.', ar: 'صحيح. دون ارتباك، فلنذهب بهدوء.' },
+      { speaker: 'ساتو', jp: '停電なので、気をつけてください。', romaji: 'Teiden na node, ki wo tsukete kudasai.', ar: 'بسبب انقطاع الكهرباء، يرجى الانتباه.' },
+      { speaker: 'ميلر', jp: 'はい。みんなが無事で、よかったです。', romaji: 'Hai. Minna ga buji de, yokatta desu.', ar: 'نعم. الجميع بأمان، والحمد لله.' },
+    ],
+  },
+  reading: {
+    titleAr: 'ليلة الإعصار',
+    sentences: [
+      { jp: '昨日の夜、大きい台風が来ました。', romaji: 'Kinou no yoru, ooki taifuu ga kimashita.', ar: 'الليلة الماضية، جاء إعصار كبير.' },
+      { jp: '台風で電車が止まって、私は困りました。', romaji: 'Taifuu de densha ga tomatte, watashi wa komarimashita.', ar: 'توقفت القطارات بسبب الإعصار، فأصابني الانزعاج.' },
+      { jp: '家でも停電になって、とても怖かったです。', romaji: 'Ie demo teiden ni natte, totemo kowakatta desu.', ar: 'في البيت أيضاً انقطعت الكهرباء، وكان مخيفاً جداً.' },
+      { jp: '危険なので、私と友達は安全な場所に避難しました。', romaji: 'Kiken na node, watashi to tomodachi wa anzen na basho ni hinan shimashita.', ar: 'لأنه خطير، أنا وصديقي لجأنا إلى مكان آمن.' },
+      { jp: 'けがをした人がいないので、みんな安心しました。', romaji: 'Kega wo shita hito ga inai node, minna anshin shimashita.', ar: 'لا يوجد أحد مصاب، لذلك اطمأنّ الجميع.' },
+    ],
+    questions: [
+      { q: 'لماذا توقفت القطارات؟', options: ['بسبب الإعصار', 'بسبب الزلزال', 'بسبب الحريق'], answer: 'بسبب الإعصار' },
+      { q: 'ماذا حدث في البيت؟', options: ['انقطعت الكهرباء', 'انقطعت المياه', 'انهار المبنى'], answer: 'انقطعت الكهرباء' },
+      { q: 'لماذا اطمأنّ الجميع؟', options: ['لأنه لا يوجد أحد مصاب', 'لأن الإعصار جميل', 'لأن القطار وصل بسرعة'], answer: 'لأنه لا يوجد أحد مصاب' },
+    ],
+  },
   vocab: [
     { id: 'kaji', type: 'noun', jp: '火事', kanji: '火事', hiragana: 'かじ', reading: 'kaji', meaning: 'حريق' },
     { id: 'jishin', type: 'noun', jp: '地震', kanji: '地震', hiragana: 'じしん', reading: 'jishin', meaning: 'زلزال' },

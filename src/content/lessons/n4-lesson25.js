@@ -2,6 +2,33 @@ export const n4LessonTwentyFive = {
   id: 25,
   title: { ar: 'لغة التواضع والمراجعة الشاملة (謙譲語)', en: 'Humble Language & Comprehensive Review (謙譲語)' },
   focus: 'تعلم الأفعال الخاصة بالتواضع (謙譲語) مثل まいります/申します/いたします/伺います، واستخدام お/ご+V(stem)+します كصيغة تواضع، ومراجعة شاملة لـ ~ていただけませんか/~てもらえませんか كدرس ختامي.',
+  dialogue: {
+    titleAr: 'زيارة رسمية للشركة',
+    lines: [
+      { speaker: 'ميلر', jp: 'はじめまして。ミラーと申します。', romaji: 'Hajimemashite. Miraa to moushimasu.', ar: 'تشرفت بلقائكم. اسمي ميلر (بتواضع).' },
+      { speaker: 'تاناكا', jp: 'ミラーさんですね。お荷物をお持ちします。', romaji: 'Miraa-san desu ne. Onimotsu wo omochi shimasu.', ar: 'أنت السيد ميلر. سأحمل حقيبتكم (بتواضع).' },
+      { speaker: 'ميلر', jp: '恐れ入ります。今日は二時に伺いました。', romaji: 'Osore irimasu. Kyou wa ni-ji ni ukagaimashita.', ar: 'شكراً على لطفكم. زرتكم اليوم في الساعة الثانية (بتواضع).' },
+      { speaker: 'تاناكا', jp: 'かしこまりました。会場までご案内します。', romaji: 'Kashikomarimashita. Kaijou made go-annai shimasu.', ar: 'حسناً سيدي. سأرشدكم إلى القاعة (بتواضع).' },
+      { speaker: 'ميلر', jp: '申し訳ありませんが、もう一度説明していただけませんか。', romaji: 'Moushiwake arimasen ga, mou ichido setsumei shite itadakemasen ka.', ar: 'أنا آسف، لكن هل يمكن أن تشرح مرة أخرى من فضلك؟' },
+      { speaker: 'تاناكا', jp: 'はい、丁寧にご説明いたします。', romaji: 'Hai, teinei ni go-setsumei itashimasu.', ar: 'نعم، سأشرح لكم بدقة (بتواضع).' },
+      { speaker: 'ميلر', jp: 'いつもお世話になり、感謝しております。', romaji: 'Itsumo osewa ni nari, kansha shite orimasu.', ar: 'أنا شاكر لكم دائماً على رعايتكم.' },
+    ],
+  },
+  reading: {
+    titleAr: 'رسالة شكر رسمية',
+    sentences: [
+      { jp: '私は田中と申します。', romaji: 'Watashi wa Tanaka to moushimasu.', ar: 'اسمي تاناكا (بتواضع).' },
+      { jp: '先生のお手紙を拝見しました。', romaji: 'Sensei no otegami wo haiken shimashita.', ar: 'قرأت رسالة المعلم (بتواضع).' },
+      { jp: 'とても丁寧なお礼の手紙でした。', romaji: 'Totemo teinei na orei no tegami deshita.', ar: 'كانت رسالة شكر مهذبة جداً.' },
+      { jp: '明日二時に先生のお宅に伺います。', romaji: 'Ashita ni-ji ni sensei no otaku ni ukagaimasu.', ar: 'غداً في الساعة الثانية سأزور منزل المعلم (بتواضع).' },
+      { jp: '私は先生にとても感謝しております。', romaji: 'Watashi wa sensei ni totemo kansha shite orimasu.', ar: 'أنا شاكر جداً للمعلم.' },
+    ],
+    questions: [
+      { q: 'ماذا قرأ الكاتب بتواضع؟', options: ['رسالة المعلم', 'جائزة مالية', 'كتاباً'], answer: 'رسالة المعلم' },
+      { q: 'متى سيزور الكاتب منزل المعلم؟', options: ['غداً في الساعة الثانية', 'اليوم في الصباح', 'بعد أسبوع'], answer: 'غداً في الساعة الثانية' },
+      { q: 'ما هو شعور الكاتب تجاه المعلم؟', options: ['شاكر جداً', 'غاضب', 'غير مهتم'], answer: 'شاكر جداً' },
+    ],
+  },
   vocab: [
     { id: 'shoukin', type: 'noun', jp: '賞金', kanji: '賞金', hiragana: 'しょうきん', reading: 'shoukin', meaning: 'جائزة مالية' },
     { id: 'housou-shimasu', type: 'verb', jp: '放送します', kanji: '放送します', hiragana: 'ほうそうします', reading: 'housou shimasu', meaning: 'يبث (تلفزيون/راديو)' },

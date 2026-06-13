@@ -2,6 +2,34 @@ export const lessonTwentyThree = {
   id: 23,
   title: { ar: 'صيغة المبني للمجهول والنية', en: 'Passive Form and Intention' },
   focus: 'مقدمة عن 受身形 (المبني للمجهول) و つもりです للتعبير عن النية/الخطة',
+  dialogue: {
+    titleAr: 'حديث عن المهرجان والخطط المستقبلية',
+    lines: [
+      { speaker: 'ساتو', jp: 'この 祭り は 毎年 行われますか。', romaji: 'Kono matsuri wa maitoshi okonawaremasu ka.', ar: 'هل يُقام هذا المهرجان كل سنة؟' },
+      { speaker: 'ميلر', jp: 'はい。 この 祭り は 100年前 から 行われています。', romaji: 'Hai. Kono matsuri wa hyaku-nen mae kara okonawarete imasu.', ar: 'نعم. هذا المهرجان يُقام منذ 100 سنة.' },
+      { speaker: 'ساتو', jp: 'すごいですね。 私 は 友達 に 誘われました。', romaji: 'Sugoi desu ne. Watashi wa tomodachi ni sasowaremashita.', ar: 'رائع. لقد دعاني صديقي.' },
+      { speaker: 'ميلر', jp: '私 も 見に行く つもりです。', romaji: 'Watashi mo mi ni iku tsumori desu.', ar: 'أنا أيضا أنوي الذهاب لمشاهدته.' },
+      { speaker: 'ساتو', jp: 'ミラーさん は 卒業 した あと で、 何 を する つもりですか。', romaji: 'Miraa-san wa sotsugyou shita ato de, nani o suru tsumori desu ka.', ar: 'سيد ميلر، ماذا تنوي أن تفعل بعد التخرج؟' },
+      { speaker: 'ميلر', jp: '日本 で 就職する つもりです。 国 に 帰らない つもりです。', romaji: 'Nihon de shuushoku suru tsumori desu. Kuni ni kaeranai tsumori desu.', ar: 'أنوي الالتحاق بعمل في اليابان. أنوي ألا أعود إلى وطني.' },
+      { speaker: 'ساتو', jp: 'いい ですね。 将来 は 経済学 の 研究 を する つもりですか。', romaji: 'Ii desu ne. Shourai wa keizaigaku no kenkyuu o suru tsumori desu ka.', ar: 'جميل. هل تنوي إجراء بحث في علم الاقتصاد في المستقبل؟' },
+      { speaker: 'ميلر', jp: 'はい、 その つもりです。', romaji: 'Hai, sono tsumori desu.', ar: 'نعم، هذه نيتي.' },
+    ],
+  },
+  reading: {
+    titleAr: 'المهرجان وخطتي',
+    sentences: [
+      { jp: '私 の 町 の 祭り は 毎年 行われます。', romaji: 'Watashi no machi no matsuri wa maitoshi okonawaremasu.', ar: 'مهرجان مدينتي يُقام كل سنة.' },
+      { jp: 'この 祭り は 世界中 で 知られています。', romaji: 'Kono matsuri wa sekaijuu de shirarete imasu.', ar: 'هذا المهرجان معروف في جميع أنحاء العالم.' },
+      { jp: '今年 私 は 友達 に 誘われました。', romaji: 'Kotoshi watashi wa tomodachi ni sasowaremashita.', ar: 'هذا العام دعاني صديقي.' },
+      { jp: '私 は 友達 と 一緒に 見に行く つもりです。', romaji: 'Watashi wa tomodachi to issho ni mi ni iku tsumori desu.', ar: 'أنوي الذهاب لمشاهدته مع صديقي.' },
+      { jp: '卒業 した あと で、 日本 で 就職する つもりです。', romaji: 'Sotsugyou shita ato de, nihon de shuushoku suru tsumori desu.', ar: 'بعد التخرج، أنوي الالتحاق بعمل في اليابان.' },
+    ],
+    questions: [
+      { q: 'متى يُقام مهرجان المدينة؟', options: ['كل سنة', 'مرة واحدة فقط', 'كل عشر سنوات'], answer: 'كل سنة' },
+      { q: 'من الذي دعا الكاتب هذا العام؟', options: ['صديقه', 'المعلم', 'أخوه'], answer: 'صديقه' },
+      { q: 'ماذا ينوي الكاتب أن يفعل بعد التخرج؟', options: ['الالتحاق بعمل في اليابان', 'العودة إلى وطنه', 'دراسة علم الاقتصاد'], answer: 'الالتحاق بعمل في اليابان' },
+    ],
+  },
   vocab: [
     { id: 'sasoimasu', type: 'verb', jp: '誘います', kanji: '誘います', hiragana: 'さそいます', reading: 'sasoimasu', meaning: 'يدعو' },
     { id: 'shikarimasu', type: 'verb', jp: '叱ります', kanji: '叱ります', hiragana: 'しかります', reading: 'shikarimasu', meaning: 'يوبخ' },

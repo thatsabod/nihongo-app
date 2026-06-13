@@ -2,6 +2,33 @@ export const n3LessonNineteen = {
   id: 19,
   title: { ar: 'النقل والتفكير وهل/أم لا', en: 'Quoting and Whether' },
   focus: 'نقل الكلام والأفكار والسؤال غير المباشر باستخدام と言う・と思う・かどうか.',
+  dialogue: {
+    titleAr: 'هل سيشارك المعلم؟',
+    lines: [
+      { speaker: 'ساتو', jp: '先生は明日の会議に参加すると言いましたか。', romaji: 'Sensei wa ashita no kaigi ni sanka suru to iimashita ka.', ar: 'هل قال المعلم إنه سيشارك في اجتماع الغد؟' },
+      { speaker: 'ميلر', jp: '参加するかどうか分かりません。', romaji: 'Sanka suru ka dou ka wakarimasen.', ar: 'لا أعرف هل سيشارك أم لا.' },
+      { speaker: 'ساتو', jp: 'では、先生に質問して確認しましょう。', romaji: 'Dewa, sensei ni shitsumon shite kakunin shimashou.', ar: 'إذن، لنسأل المعلم ونتأكد.' },
+      { speaker: 'ميلر', jp: 'はい。でも先生は今日来るかどうか確かではありません。', romaji: 'Hai. Demo sensei wa kyou kuru ka dou ka tashika de wa arimasen.', ar: 'نعم. لكنني لست متأكداً هل سيأتي المعلم اليوم أم لا.' },
+      { speaker: 'ساتو', jp: '電話する方法が便利だと思います。', romaji: 'Denwa suru houhou ga benri da to omoimasu.', ar: 'أعتقد أن طريقة الاتصال الهاتفي مريحة.' },
+      { speaker: 'ميلر', jp: 'そうですね。先生の返事を調べて、結果を教えます。', romaji: 'Sou desu ne. Sensei no henji o shirabete, kekka o oshiemasu.', ar: 'صحيح. سأتحقق من رد المعلم وأخبرك بالنتيجة.' },
+      { speaker: 'ساتو', jp: 'ありがとう。あなたの考えは正しいと思います。', romaji: 'Arigatou. Anata no kangae wa tadashii to omoimasu.', ar: 'شكراً. أعتقد أن فكرتك صحيحة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'تأكيد المشاركة في الاجتماع',
+    sentences: [
+      { jp: '先生は明日試験があると言いました。', romaji: 'Sensei wa ashita shiken ga aru to iimashita.', ar: 'قال المعلم إن هناك اختباراً غداً.' },
+      { jp: 'でも、友達は会議に参加するかどうか分かりません。', romaji: 'Demo, tomodachi wa kaigi ni sanka suru ka dou ka wakarimasen.', ar: 'لكنني لا أعرف هل سيشارك صديقي في الاجتماع أم لا.' },
+      { jp: '私は先生に電話する方法が便利だと思います。', romaji: 'Watashi wa sensei ni denwa suru houhou ga benri da to omoimasu.', ar: 'أعتقد أن طريقة الاتصال الهاتفي بالمعلم مريحة.' },
+      { jp: '友達に質問して、返事を確認します。', romaji: 'Tomodachi ni shitsumon shite, henji o kakunin shimasu.', ar: 'سأسأل صديقي وأتحقق من الرد.' },
+      { jp: '結果は正しいと思います。', romaji: 'Kekka wa tadashii to omoimasu.', ar: 'أعتقد أن النتيجة صحيحة.' },
+    ],
+    questions: [
+      { q: 'بماذا قال المعلم؟', options: ['إن هناك اختباراً غداً.', 'إنه لن يأتي.', 'إن الاجتماع أُلغي.'], answer: 'إن هناك اختباراً غداً.' },
+      { q: 'ماذا لا يعرف المتحدث عن صديقه؟', options: ['هل سيشارك في الاجتماع أم لا.', 'أين يسكن.', 'متى ينام.'], answer: 'هل سيشارك في الاجتماع أم لا.' },
+      { q: 'أي طريقة يراها المتحدث مريحة؟', options: ['الاتصال الهاتفي بالمعلم.', 'كتابة رسالة طويلة.', 'الذهاب سيراً على الأقدام.'], answer: 'الاتصال الهاتفي بالمعلم.' },
+    ],
+  },
   vocab: [
     { id: 'iu', type: 'verb', jp: '言う', kanji: '言う', hiragana: 'いう', reading: 'iu', meaning: 'يقول' },
     { id: 'omou', type: 'verb', jp: '思う', kanji: '思う', hiragana: 'おもう', reading: 'omou', meaning: 'يعتقد / يفكر' },

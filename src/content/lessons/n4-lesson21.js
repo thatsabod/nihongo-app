@@ -2,6 +2,34 @@ export const n4LessonTwentyOne = {
   id: 21,
   title: { ar: 'على وشك / لقد انتهيت للتو: ところ / ばかり / はず', en: 'About To / Just Did / Should: ところ / ばかり / はず' },
   focus: 'التعبير عن "على وشك أن/في خضم/انتهيت من" بـ ~ところです (مع 辞書形/ている形/た形)، والتعبير عن "انتهيت للتو" بـ ~たばかりです، والتعبير عن التوقع المنطقي "من المفترض أن..." بـ ~はずです.',
+  dialogue: {
+    titleAr: 'تقرير الاجتماع',
+    lines: [
+      { speaker: 'المعلم', jp: '会議の資料はもう提出したはずですね。', romaji: 'Kaigi no shiryou wa mou teishutsu shita hazu desu ne.', ar: 'من المفترض أنك سلّمت مستندات الاجتماع بالفعل، صحيح؟' },
+      { speaker: 'ميلر', jp: 'すみません、今、提出するところです。', romaji: 'Sumimasen, ima, teishutsu suru tokoro desu.', ar: 'آسف، أنا الآن على وشك تسليمها.' },
+      { speaker: 'المعلم', jp: 'データの処理は終わりましたか。', romaji: 'Deeta no shori wa owarimashita ka.', ar: 'هل انتهت معالجة البيانات؟' },
+      { speaker: 'ميلر', jp: '今、処理しているところです。', romaji: 'Ima, shori shite iru tokoro desu.', ar: 'أنا الآن في خضم معالجتها.' },
+      { speaker: 'المعلم', jp: '宅配便で資料が届いたはずですが。', romaji: 'Takuhaibin de shiryou ga todoita hazu desu ga.', ar: 'من المفترض أن المستندات وصلت عبر خدمة التوصيل.' },
+      { speaker: 'ميلر', jp: 'はい、さっき届いたばかりです。', romaji: 'Hai, sakki todoita bakari desu.', ar: 'نعم، وصلت منذ قليل فقط.' },
+      { speaker: 'المعلم', jp: 'では、結果を報告してください。', romaji: 'Dewa, kekka wo houkoku shite kudasai.', ar: 'إذًا، قدّم تقريراً عن النتيجة من فضلك.' },
+      { speaker: 'ميلر', jp: 'はい、ちょうど報告するところでした。', romaji: 'Hai, choudo houkoku suru tokoro deshita.', ar: 'حسناً، كنت على وشك تقديم التقرير تماماً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم في العمل',
+    sentences: [
+      { jp: '私はさっきこのシステムにデータを入力したばかりです。', romaji: 'Watashi wa sakki kono shisutemu ni deeta wo nyuuryoku shita bakari desu.', ar: 'أدخلت البيانات في هذا النظام منذ قليل فقط.' },
+      { jp: '今、結果を処理しているところです。', romaji: 'Ima, kekka wo shori shite iru tokoro desu.', ar: 'أنا الآن في خضم معالجة النتيجة.' },
+      { jp: '注文した宅配便はもう届いたはずです。', romaji: 'Chuumon shita takuhaibin wa mou todoita hazu desu.', ar: 'من المفترض أن الطرد الذي طلبته قد وصل بالفعل.' },
+      { jp: '会議はちょうど終わったところです。', romaji: 'Kaigi wa choudo owatta tokoro desu.', ar: 'الاجتماع انتهى للتو.' },
+      { jp: '私は今から先生に結果を報告するところです。', romaji: 'Watashi wa ima kara sensei ni kekka wo houkoku suru tokoro desu.', ar: 'أنا الآن على وشك تقديم تقرير عن النتيجة للمعلم.' },
+    ],
+    questions: [
+      { q: 'متى أدخل الكاتب البيانات في النظام؟', options: ['منذ قليل فقط', 'الأسبوع الماضي', 'لم يدخلها بعد'], answer: 'منذ قليل فقط' },
+      { q: 'ما حال معالجة النتيجة الآن؟', options: ['انتهت', 'لم تبدأ', 'جارية الآن'], answer: 'جارية الآن' },
+      { q: 'ماذا سيفعل الكاتب الآن؟', options: ['سيقدّم تقريراً للمعلم', 'سيخرج من المنزل', 'سيبدأ الاجتماع'], answer: 'سيقدّم تقريراً للمعلم' },
+    ],
+  },
   vocab: [
     { id: 'takuhaibin', type: 'noun', jp: '宅配便', kanji: '宅配便', hiragana: 'たくはいびん', reading: 'takuhaibin', meaning: 'خدمة توصيل الطرود' },
     { id: 'pamphlet', type: 'noun', jp: 'パンフレット', hiragana: 'パンフレット', reading: 'panfuretto', meaning: 'كتيّب / منشور' },

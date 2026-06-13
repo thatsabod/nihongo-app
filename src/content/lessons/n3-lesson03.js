@@ -2,6 +2,34 @@ export const n3LessonThree = {
   id: 3,
   title: { ar: 'السبب والنتيجة', en: 'Cause and Result' },
   focus: 'تمييز السبب المحايد والسبب الإيجابي والسبب السلبي: ために・おかげで・せいで.',
+  dialogue: {
+    titleAr: 'لماذا تأخرت اليوم؟',
+    lines: [
+      { speaker: 'المعلم', jp: '今日は会議に遅れましたね。理由は何ですか。', romaji: 'Kyou wa kaigi ni okuremashita ne. Riyuu wa nan desu ka.', ar: 'لقد تأخرت عن الاجتماع اليوم. ما السبب؟' },
+      { speaker: 'ميلر', jp: '台風のために電車が止まったんです。', romaji: 'Taifuu no tame ni densha ga tomatta n desu.', ar: 'توقف القطار بسبب الإعصار.' },
+      { speaker: 'المعلم', jp: 'そうですか。事故もありましたか。', romaji: 'Sou desu ka. Jiko mo arimashita ka.', ar: 'حقاً؟ هل وقع حادث أيضاً؟' },
+      { speaker: 'ميلر', jp: 'いいえ、でも電車の故障のせいで、もっと遅れました。', romaji: 'Iie, demo densha no koshou no sei de, motto okuremashita.', ar: 'لا، لكن بسبب عطل القطار تأخرت أكثر.' },
+      { speaker: 'المعلم', jp: '大変でしたね。試験は大丈夫でしたか。', romaji: 'Taihen deshita ne. Shiken wa daijoubu deshita ka.', ar: 'كان أمراً متعباً. هل كان الاختبار على ما يرام؟' },
+      { speaker: 'ميلر', jp: 'はい、先生のおかげで合格できました。', romaji: 'Hai, sensei no okage de goukaku dekimashita.', ar: 'نعم، بفضلك تمكنت من النجاح.' },
+      { speaker: 'المعلم', jp: 'あなたの努力のおかげですよ。', romaji: 'Anata no doryoku no okage desu yo.', ar: 'بل بفضل جهدك أنت.' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。次は寝坊しないようにします。', romaji: 'Arigatou gozaimasu. Tsugi wa nebou shinai you ni shimasu.', ar: 'شكراً لك. سأحرص ألا أنام أكثر من اللازم المرة القادمة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم الإعصار',
+    sentences: [
+      { jp: '台風のために電車が止まりました。', romaji: 'Taifuu no tame ni densha ga tomarimashita.', ar: 'توقف القطار بسبب الإعصار.' },
+      { jp: '私は会議に遅れて、とても困りました。', romaji: 'Watashi wa kaigi ni okurete, totemo komarimashita.', ar: 'تأخرت عن الاجتماع وكنت في حيرة شديدة.' },
+      { jp: 'でも、友達の応援のおかげで仕事がうまくいきました。', romaji: 'Demo, tomodachi no ouen no okage de shigoto ga umaku ikimashita.', ar: 'لكن بفضل تشجيع صديقي نجح العمل.' },
+      { jp: '次の日、寝坊したせいでまた遅れました。', romaji: 'Tsugi no hi, nebou shita sei de mata okuremashita.', ar: 'في اليوم التالي تأخرت مرة أخرى بسبب نومي الزائد.' },
+      { jp: '先生のおかげで試験には合格できました。', romaji: 'Sensei no okage de shiken ni wa goukaku dekimashita.', ar: 'بفضل الأستاذ تمكنت من النجاح في الاختبار.' },
+    ],
+    questions: [
+      { q: 'لماذا توقف القطار؟', options: ['بسبب الإعصار', 'بسبب الزلزال', 'بسبب الحادث'], answer: 'بسبب الإعصار' },
+      { q: 'بفضل من نجح العمل؟', options: ['بفضل تشجيع الصديق', 'بفضل المعلم', 'بفضل الإعصار'], answer: 'بفضل تشجيع الصديق' },
+      { q: 'لماذا تأخر في اليوم التالي؟', options: ['بسبب نومه الزائد', 'بسبب عطل القطار', 'بسبب المطر'], answer: 'بسبب نومه الزائد' },
+    ],
+  },
   vocab: [
     { id: 'taifuu', type: 'noun', jp: '台風', kanji: '台風', hiragana: 'たいふう', reading: 'taifuu', meaning: 'إعصار' },
     { id: 'tomaru', type: 'verb', jp: '止まる', kanji: '止まる', hiragana: 'とまる', reading: 'tomaru', meaning: 'يتوقف' },

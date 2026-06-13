@@ -2,6 +2,34 @@ export const n3LessonTwelve = {
   id: 12,
   title: { ar: 'النية والخطط', en: 'Intentions and Plans' },
   focus: 'التعبير عن النية الشخصية والخطة الرسمية والهدف: ようと思う・予定・つもり.',
+  dialogue: {
+    titleAr: 'خطط بعد التخرج',
+    lines: [
+      { speaker: 'ساتو', jp: '卒業したら、何をしようと思っていますか。', romaji: 'Sotsugyou shitara, nani wo shiyou to omotte imasu ka.', ar: 'ماذا تفكر أن تفعل بعد التخرج؟' },
+      { speaker: 'ميلر', jp: '日本で働こうと思っています。', romaji: 'Nihon de hatarakou to omotte imasu.', ar: 'أفكر أن أعمل في اليابان.' },
+      { speaker: 'ساتو', jp: 'いいですね。試験も受ける予定ですか。', romaji: 'Ii desu ne. Shiken mo ukeru yotei desu ka.', ar: 'جميل. وهل لديك خطة لتقديم الامتحان أيضاً؟' },
+      { speaker: 'ميلر', jp: 'はい、来月N3の試験を受ける予定です。', romaji: 'Hai, raigetsu N3 no shiken wo ukeru yotei desu.', ar: 'نعم، لدي خطة لتقديم امتحان N3 الشهر القادم.' },
+      { speaker: 'ساتو', jp: '今年中に合格するつもりですか。', romaji: 'Kotoshi juu ni goukaku suru tsumori desu ka.', ar: 'هل تنوي النجاح خلال هذه السنة؟' },
+      { speaker: 'ميلر', jp: 'はい、それが今年の目標です。', romaji: 'Hai, sore ga kotoshi no mokuhyou desu.', ar: 'نعم، هذا هو هدفي لهذه السنة.' },
+      { speaker: 'ساتو', jp: '週末は私と一緒に勉強しませんか。', romaji: 'Shuumatsu wa watashi to issho ni benkyou shimasen ka.', ar: 'ألا تذاكر معي في نهاية الأسبوع؟' },
+      { speaker: 'ميلر', jp: 'いいですね。週末は友達に会う予定ですが、勉強もしようと思います。', romaji: 'Ii desu ne. Shuumatsu wa tomodachi ni au yotei desu ga, benkyou mo shiyou to omoimasu.', ar: 'فكرة جيدة. لدي خطة لمقابلة صديقي في نهاية الأسبوع، لكنني أفكر أن أذاكر أيضاً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'خطة ميلر لهذه السنة',
+    sentences: [
+      { jp: 'ミラーさんは今年、大学を卒業します。', romaji: 'Miraa-san wa kotoshi, daigaku wo sotsugyou shimasu.', ar: 'السيد ميلر سيتخرج من الجامعة هذه السنة.' },
+      { jp: '卒業したら、日本で働こうと思っています。', romaji: 'Sotsugyou shitara, Nihon de hatarakou to omotte imasu.', ar: 'يفكر أن يعمل في اليابان بعد التخرج.' },
+      { jp: '来月、N3の試験を受ける予定です。', romaji: 'Raigetsu, N3 no shiken wo ukeru yotei desu.', ar: 'لديه خطة لتقديم امتحان N3 الشهر القادم.' },
+      { jp: '今年中にN3に合格するつもりです。', romaji: 'Kotoshi juu ni N3 ni goukaku suru tsumori desu.', ar: 'وينوي النجاح في N3 خلال هذه السنة.' },
+      { jp: '週末は友達に会う予定ですが、毎日勉強します。', romaji: 'Shuumatsu wa tomodachi ni au yotei desu ga, mainichi benkyou shimasu.', ar: 'لديه خطة لمقابلة صديقه في نهاية الأسبوع، لكنه يذاكر كل يوم.' },
+    ],
+    questions: [
+      { q: 'ماذا يفكر ميلر أن يفعل بعد التخرج؟', options: ['أن يعمل في اليابان', 'أن يعود إلى بلده', 'أن يرتاح سنة كاملة'], answer: 'أن يعمل في اليابان' },
+      { q: 'متى لديه خطة لتقديم امتحان N3؟', options: ['الشهر القادم', 'الأسبوع الماضي', 'العام القادم'], answer: 'الشهر القادم' },
+      { q: 'ما هو هدفه لهذه السنة؟', options: ['النجاح في N3', 'الانتقال للسكن', 'الزواج'], answer: 'النجاح في N3' },
+    ],
+  },
   vocab: [
     { id: 'sotsugyou', type: 'noun', jp: '卒業', kanji: '卒業', hiragana: 'そつぎょう', reading: 'sotsugyou', meaning: 'تخرج' },
     { id: 'hataraku', type: 'verb', jp: '働く', kanji: '働く', hiragana: 'はたらく', reading: 'hataraku', meaning: 'يعمل' },

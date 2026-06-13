@@ -6,9 +6,10 @@
 // the learner's own data); this function enforces auth + a per-user daily
 // quota in Firestore, calls Anthropic, and returns the text.
 
-const { onCall, HttpsError } = require('firebase-functions/v2/https')
+const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https')
 const { defineSecret } = require('firebase-functions/params')
 const { initializeApp } = require('firebase-admin/app')
+const { getAuth } = require('firebase-admin/auth')
 const { getFirestore, FieldValue } = require('firebase-admin/firestore')
 const Anthropic = require('@anthropic-ai/sdk')
 
@@ -22,6 +23,39 @@ const MAX_TOKENS = 4096
 const DAILY_LIMIT = 20
 // Prompts are app-generated; anything larger means a malformed/abusive call.
 const MAX_PROMPT_CHARS = 8000
+
+function buildRealtimeInstructions(context = {}) {
+  const level = String(context.level || 'N5').slice(0, 8)
+  const lessonTitle = String(context.currentLessonTitleAr || '').slice(0, 120)
+  const weakGrammar = Array.isArray(context.weakGrammar)
+    ? context.weakGrammar.slice(0, 4).map((item) => String(item?.label || item).slice(0, 60)).join('، ')
+    : ''
+  const weakVocabulary = Array.isArray(context.weakVocabulary)
+    ? context.weakVocabulary.slice(0, 6).map((item) => String(item?.label || item).slice(0, 60)).join('، ')
+    : ''
+
+  return [
+    'أنت عبدول سينسيه، معلم ياباني صوتي داخل تطبيق عربي لتعلّم اليابانية.',
+    'تحدث بصوت طبيعي ومختصر كأنها مكالمة حقيقية. لا تعطِ محاضرات طويلة.',
+    'استخدم العربية العراقية/العربية البسيطة للشرح، واستخدم اليابانية عندما تطلب من الطالب التكرار أو التدريب.',
+    'صحح النطق والجمل بلطف. إذا أخطأ الطالب، قل التصحيح ثم اطلب منه إعادة المحاولة بجملة قصيرة.',
+    'اسأل سؤالاً واحداً في كل مرة وانتظر جواب الطالب.',
+    'لا تستخدم markdown ولا قوائم طويلة ولا رموز.',
+    `مستوى الطالب الحالي: ${level}.`,
+    lessonTitle ? `الدرس الحالي: ${lessonTitle}.` : '',
+    weakGrammar ? `نقاط قواعد تحتاج تدريب: ${weakGrammar}.` : '',
+    weakVocabulary ? `مفردات تحتاج تدريب: ${weakVocabulary}.` : '',
+  ].filter(Boolean).join('\n')
+}
+
+function readEncodedContext(value) {
+  if (!value) return {}
+  try {
+    return JSON.parse(Buffer.from(String(value), 'base64').toString('utf8'))
+  } catch {
+    return {}
+  }
+}
 
 exports.askSensei = onCall(
   {
@@ -107,28 +141,7 @@ exports.createSenseiRealtimeSecret = onCall(
       throw new HttpsError('unauthenticated', 'سجّل الدخول لاستخدام مكالمة عبدول سينسيه اللايف.')
     }
 
-    const context = request.data?.context || {}
-    const level = String(context.level || 'N5').slice(0, 8)
-    const lessonTitle = String(context.currentLessonTitleAr || '').slice(0, 120)
-    const weakGrammar = Array.isArray(context.weakGrammar)
-      ? context.weakGrammar.slice(0, 4).map((item) => String(item?.label || item).slice(0, 60)).join('، ')
-      : ''
-    const weakVocabulary = Array.isArray(context.weakVocabulary)
-      ? context.weakVocabulary.slice(0, 6).map((item) => String(item?.label || item).slice(0, 60)).join('، ')
-      : ''
-
-    const instructions = [
-      'أنت عبدول سينسيه، معلم ياباني صوتي داخل تطبيق عربي لتعلّم اليابانية.',
-      'تحدث بصوت طبيعي ومختصر كأنها مكالمة حقيقية. لا تعطِ محاضرات طويلة.',
-      'استخدم العربية العراقية/العربية البسيطة للشرح، واستخدم اليابانية عندما تطلب من الطالب التكرار أو التدريب.',
-      'صحح النطق والجمل بلطف. إذا أخطأ الطالب، قل التصحيح ثم اطلب منه إعادة المحاولة بجملة قصيرة.',
-      'اسأل سؤالاً واحداً في كل مرة وانتظر جواب الطالب.',
-      'لا تستخدم markdown ولا قوائم طويلة ولا رموز.',
-      `مستوى الطالب الحالي: ${level}.`,
-      lessonTitle ? `الدرس الحالي: ${lessonTitle}.` : '',
-      weakGrammar ? `نقاط قواعد تحتاج تدريب: ${weakGrammar}.` : '',
-      weakVocabulary ? `مفردات تحتاج تدريب: ${weakVocabulary}.` : '',
-    ].filter(Boolean).join('\n')
+    const instructions = buildRealtimeInstructions(request.data?.context || {})
 
     const response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
       method: 'POST',
@@ -161,5 +174,81 @@ exports.createSenseiRealtimeSecret = onCall(
       value: data?.value || data?.client_secret?.value,
       expires_at: data?.expires_at || data?.client_secret?.expires_at || null,
     }
+  },
+)
+
+exports.createSenseiRealtimeCall = onRequest(
+  {
+    secrets: [openaiKey],
+    region: 'us-central1',
+    timeoutSeconds: 30,
+    memory: '256MiB',
+    maxInstances: 10,
+    cors: true,
+  },
+  async (request, response) => {
+    if (request.method === 'OPTIONS') {
+      response.status(204).send('')
+      return
+    }
+    if (request.method !== 'POST') {
+      response.status(405).send('Method not allowed')
+      return
+    }
+
+    const authHeader = String(request.headers.authorization || '')
+    const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+    if (!idToken) {
+      response.status(401).send('Missing Firebase auth token')
+      return
+    }
+
+    let decoded
+    try {
+      decoded = await getAuth().verifyIdToken(idToken)
+    } catch (error) {
+      response.status(401).send('Invalid Firebase auth token')
+      return
+    }
+
+    const sdp = request.rawBody?.toString('utf8') || String(request.body || '')
+    if (!sdp.trim()) {
+      response.status(400).send('Missing SDP offer')
+      return
+    }
+
+    const context = readEncodedContext(request.headers['x-sensei-context'])
+    const sessionConfig = JSON.stringify({
+      type: 'realtime',
+      model: 'gpt-realtime-2',
+      instructions: buildRealtimeInstructions(context),
+      audio: {
+        output: {
+          voice: 'marin',
+        },
+      },
+    })
+
+    const formData = new FormData()
+    formData.set('sdp', sdp)
+    formData.set('session', sessionConfig)
+
+    const openaiResponse = await fetch('https://api.openai.com/v1/realtime/calls', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${openaiKey.value()}`,
+        'OpenAI-Safety-Identifier': decoded.uid,
+      },
+      body: formData,
+    })
+
+    const answerSdp = await openaiResponse.text()
+    if (!openaiResponse.ok) {
+      console.error('OpenAI realtime call failed:', openaiResponse.status, answerSdp)
+      response.status(openaiResponse.status).send(answerSdp || 'OpenAI realtime call failed')
+      return
+    }
+
+    response.type('application/sdp').send(answerSdp)
   },
 )

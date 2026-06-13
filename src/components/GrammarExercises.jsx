@@ -15,6 +15,8 @@ import {
   OutOfHeartsCard,
 } from './exercise-ui/index.jsx'
 import { useHearts } from '../hearts-context.jsx'
+import { answersMatch } from '../utils/answerMatch.js'
+import { readProgressState, trackAnswer, recordLessonStat } from '../progress/progressStorage.js'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -84,7 +86,7 @@ function BuildExercise({ ex, lang, onAnswer, mascotCharacter }) {
   const check = () => {
     if (selected.length === 0) return
     const built = selected.map((x) => x.w).join(' ')
-    const correct = built === ex.answer
+    const correct = answersMatch(built, ex.answer)
     setResult(correct ? 'correct' : 'wrong')
     setTimeout(() => onAnswer(correct), 1100)
   }
@@ -273,7 +275,7 @@ function withSpeakingExercise(exercises) {
 }
 
 // ── Main wrapper ─────────────────────────────────────────────────
-export default function GrammarExercises({ exercises: rawExercises, lang, onClose }) {
+export default function GrammarExercises({ exercises: rawExercises, lang, onClose, lessonId, ruleTitle }) {
   const [exercises] = useState(() => withSpeakingExercise(rawExercises))
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
@@ -290,6 +292,21 @@ export default function GrammarExercises({ exercises: rawExercises, lang, onClos
     else {
       playWrong()
       heartsApi?.consumeHeart()
+    }
+    // Feed weakness detection + SRS so grammar drills aren't a learning blind
+    // spot (correct answers enter SRS; wrong answers also log a mistake).
+    if (lessonId) {
+      let state = recordLessonStat(readProgressState(), String(lessonId), correct)
+      if (ruleTitle) {
+        trackAnswer(state, {
+          itemId: ruleTitle,
+          itemType: 'grammar',
+          wasCorrect: correct,
+          lessonId: String(lessonId),
+          exerciseType: 'grammar-drill',
+          questionAr: ruleTitle,
+        })
+      }
     }
     const next = score + (correct ? 1 : 0)
     if (idx + 1 >= exercises.length) {

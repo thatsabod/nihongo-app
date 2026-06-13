@@ -2,6 +2,32 @@ export const lessonTwenty = {
   id: 20,
   title: { ar: 'الشرح والاحتمال والتوقيت', en: 'Explanation, Probability, and Timing' },
   focus: '普通形 + んです للشرح، でしょう للاحتمال، و〜とき للتعبير عن "عندما"',
+  dialogue: {
+    titleAr: 'لون وجهك شاحب',
+    lines: [
+      { speaker: 'ميلر', jp: '田中さん、顔色 が 悪い です ね。 どうしたんですか。', romaji: 'Tanaka-san, kaoiro ga warui desu ne. Doushitan desu ka.', ar: 'سيد تاناكا، لون وجهك شاحب. ماذا حدث؟' },
+      { speaker: 'تاناكا', jp: '風邪 を ひいた んです。 頭 が 痛い んです。', romaji: 'Kaze o hiita n desu. Atama ga itai n desu.', ar: 'أصبت بالزكام. ورأسي يؤلمني.' },
+      { speaker: 'ميلر', jp: '具合 が 悪い とき、 病院 へ 行った ほうが いい でしょう。', romaji: 'Guai ga warui toki, byouin e itta hou ga ii deshou.', ar: 'عندما تكون حالتك سيئة، من الأفضل أن تذهب إلى المستشفى على الأرجح.' },
+      { speaker: 'تاناكا', jp: 'はい。 でも、今日 は 仕事 が 忙しい んです。', romaji: 'Hai. Demo, kyou wa shigoto ga isogashii n desu.', ar: 'نعم. لكن العمل مزدحم اليوم.' },
+      { speaker: 'ميلر', jp: '暇 な とき、 薬 を 飲んで ください。', romaji: 'Hima na toki, kusuri o nonde kudasai.', ar: 'عندما يكون لديك وقت فراغ، تناول الدواء من فضلك.' },
+      { speaker: 'تاناكا', jp: 'ありがとう。 たぶん 明日 は 元気 に なる でしょう。', romaji: 'Arigatou. Tabun ashita wa genki ni naru deshou.', ar: 'شكرا. على الأرجح سأكون بخير غدا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم ممطر',
+    sentences: [
+      { jp: '天気予報 に よると、 明日 は 雨 が 降る でしょう。', romaji: 'Tenkiyohou ni yoru to, ashita wa ame ga furu deshou.', ar: 'حسب نشرة الطقس، ستمطر غدا على الأرجح.' },
+      { jp: '私 は 寒い とき、 熱い お茶 を 飲みます。', romaji: 'Watashi wa samui toki, atsui ocha o nomimasu.', ar: 'أنا أشرب الشاي الساخن عندما يكون الجو باردا.' },
+      { jp: '昨日 は 元気 が なかった んです。', romaji: 'Kinou wa genki ga nakatta n desu.', ar: 'بالأمس لم أكن نشيطا.' },
+      { jp: '友達 が 「どうしたんですか」 と 聞きました。', romaji: 'Tomodachi ga “doushitan desu ka” to kikimashita.', ar: 'سألني صديقي: ماذا حدث؟' },
+      { jp: '風邪 を ひいた んです が、 今日 は 晴れて、 元気 に なりました。', romaji: 'Kaze o hiita n desu ga, kyou wa harete, genki ni narimashita.', ar: 'كنت قد أصبت بالزكام، لكن اليوم صحا الجو وأصبحت بخير.' },
+    ],
+    questions: [
+      { q: 'ماذا يقول توقع الطقس عن الغد؟', options: ['سيمطر على الأرجح', 'سيكون الجو صحوا', 'ستهب رياح قوية'], answer: 'سيمطر على الأرجح' },
+      { q: 'ماذا يشرب الكاتب عندما يكون الجو باردا؟', options: ['الشاي الساخن', 'الماء البارد', 'الدواء'], answer: 'الشاي الساخن' },
+      { q: 'كيف أصبحت حالة الكاتب اليوم؟', options: ['أصبح بخير', 'ما زال مريضا', 'ذهب إلى المستشفى'], answer: 'أصبح بخير' },
+    ],
+  },
   vocab: [
     { id: 'kaze_hikimasu', type: 'expression', jp: '風邪をひきます', kanji: '風邪をひきます', hiragana: 'かぜをひきます', reading: 'kaze o hikimasu', meaning: 'يصاب بالزكام' },
     { id: 'kaoiro', type: 'noun', jp: '顔色', kanji: '顔色', hiragana: 'かおいろ', reading: 'kaoiro', meaning: 'لون الوجه (الحالة الصحية الظاهرة)' },

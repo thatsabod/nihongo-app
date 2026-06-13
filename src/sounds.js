@@ -147,7 +147,7 @@ export function getJapaneseVoices() {
 
 function speakWithWebSpeech(text, options = {}) {
   const config = typeof options === 'number' ? { rate: options } : options
-  if (typeof window === 'undefined' || !window.speechSynthesis) return
+  if (typeof window === 'undefined' || !window.speechSynthesis) return false
 
   window.speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(normalizeSpeechText(text))
@@ -161,7 +161,12 @@ function speakWithWebSpeech(text, options = {}) {
   u.pitch = config.pitch ?? 0.96
   u.volume = 1
 
-  window.speechSynthesis.speak(u)
+  try {
+    window.speechSynthesis.speak(u)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export const speakJapanese = (text, options = {}) => {
@@ -170,9 +175,11 @@ export const speakJapanese = (text, options = {}) => {
   if (!speechText) return
 
   const voices = getJapaneseVoices()
+  const mobile = isProbablyMobile()
   const shouldUseRemote = config.remote === true
-    || (isProbablyMobile() && (voices.length === 0 || speechText.length <= 3 || unlocked))
+    || (mobile && voices.length === 0 && speechText.length > 1)
 
   if (shouldUseRemote && playRemoteJapanese(speechText)) return
-  speakWithWebSpeech(speechText, config)
+  if (speakWithWebSpeech(speechText, config)) return
+  playRemoteJapanese(speechText)
 }

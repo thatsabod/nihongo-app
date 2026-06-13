@@ -2,6 +2,34 @@ export const n4LessonFour = {
   id: 4,
   title: { ar: 'حالة الأشياء والنتائج: ~ています / ~てしまいました', en: 'States, Results & Regret: ~ています / ~てしまいました' },
   focus: 'التعبير عن حالة ناتجة عن فعل بـ ~ています (مثل ドアが開いています)، والتعبير عن إكمال فعل أو حدوث أمر غير مرغوب بـ ~てしまいました، والبحث عن شيء بـ どこかで/どこかに.',
+  dialogue: {
+    titleAr: 'المحفظة المفقودة',
+    lines: [
+      { speaker: 'ميلر', jp: '大変です。財布を忘れてしまいました。', romaji: 'Taihen desu. Saifu wo wasurete shimaimashita.', ar: 'موقف فظيع. نسيت محفظتي (للأسف).' },
+      { speaker: 'ساتو', jp: 'えっ、どこかに落としましたか。', romaji: 'Ee, dokoka ni otoshimashita ka.', ar: 'ماذا؟ هل أسقطتها في مكان ما؟' },
+      { speaker: 'ميلر', jp: 'わかりません。電車の中で消えてしまいました。', romaji: 'Wakarimasen. Densha no naka de kiete shimaimashita.', ar: 'لا أعرف. اختفت في القطار (للأسف).' },
+      { speaker: 'ساتو', jp: 'このへんで見つけましたか。', romaji: 'Kono hen de mitsukemashita ka.', ar: 'هل وجدتها في هذه المنطقة؟' },
+      { speaker: 'ميلر', jp: 'いいえ。でも棚にかぎがありました。', romaji: 'Iie. Demo tana ni kagi ga arimashita.', ar: 'لا. لكن المفتاح كان موجوداً على الرف.' },
+      { speaker: 'ساتو', jp: 'あっ、財布はどこかにありましたか。', romaji: 'A, saifu wa dokoka ni arimashita ka.', ar: 'آه، هل وُجدت المحفظة في مكان ما؟' },
+      { speaker: 'ميلر', jp: 'はい。さいふはこのへんにありました。', romaji: 'Hai. Saifu wa kono hen ni arimashita.', ar: 'نعم. المحفظة كانت هنا تقريباً (وجدتها).' },
+      { speaker: 'ساتو', jp: 'よかったですね。', romaji: 'Yokatta desu ne.', ar: 'الحمد لله، ما أجمل ذلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'صباح صعب',
+    sentences: [
+      { jp: '今朝、地震がありました。', romaji: 'Kesa, jishin ga arimashita.', ar: 'هذا الصباح حدث زلزال.' },
+      { jp: '棚のお皿が落ちて、壊れてしまいました。', romaji: 'Tana no osara ga ochite, kowarete shimaimashita.', ar: 'سقطت أطباق الرف وتعطّلت (للأسف).' },
+      { jp: 'エレベーターも止まっていました。', romaji: 'Erebeetaa mo tomatte imashita.', ar: 'وكان المصعد متوقفاً أيضاً.' },
+      { jp: '私はかぎを落としてしまいました。', romaji: 'Watashi wa kagi wo otoshite shimaimashita.', ar: 'أنا أسقطتُ المفتاح (للأسف).' },
+      { jp: 'でも、かぎはこのへんにありました。', romaji: 'Demo, kagi wa kono hen ni arimashita.', ar: 'لكن المفتاح كان هنا تقريباً (وجدته).' },
+    ],
+    questions: [
+      { q: 'ماذا حدث هذا الصباح؟', options: ['حدث زلزال.', 'هطل المطر.', 'توقف القطار.'], answer: 'حدث زلزال.' },
+      { q: 'ماذا حصل لأطباق الرف؟', options: ['بقيت سليمة.', 'سقطت وتعطّلت.', 'أحدٌ أخذها.'], answer: 'سقطت وتعطّلت.' },
+      { q: 'أين كان المفتاح في النهاية؟', options: ['كان هنا تقريباً.', 'ضاع إلى الأبد.', 'كان في القطار.'], answer: 'كان هنا تقريباً.' },
+    ],
+  },
   vocab: [
     { id: 'tomarimasu', type: 'verb', jp: '止まります', kanji: '止まります', hiragana: 'とまります', reading: 'tomarimasu', meaning: 'يتوقف (الشيء)' },
     { id: 'machigaemasu', type: 'verb', jp: '間違えます', kanji: '間違えます', hiragana: 'まちがえます', reading: 'machigaemasu', meaning: 'يخطئ / يغلط' },

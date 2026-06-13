@@ -2,6 +2,34 @@ export const n4LessonEight = {
   id: 8,
   title: { ar: 'صيغ الأمر والنهي', en: 'Imperative & Prohibitive Forms' },
   focus: 'تكوين صيغة الأمر (命令形) وصيغة النهي (禁止形)، واستخدام ~なさい كصيغة أمر ألطف.',
+  dialogue: {
+    titleAr: 'عند الطريق المغلق',
+    lines: [
+      { speaker: 'المعلم', jp: '危ない！止まれ！', romaji: 'Abunai! Tomare!', ar: 'خطر! قف!' },
+      { speaker: 'ميلر', jp: 'どうしましたか。', romaji: 'Dou shimashita ka.', ar: 'ماذا حدث؟' },
+      { speaker: 'المعلم', jp: 'そこは工事中だ。入るな。', romaji: 'Soko wa kouji chuu da. Hairu na.', ar: 'هناك أعمال إنشاء جارية. لا تدخل.' },
+      { speaker: 'ميلر', jp: 'すみません。気をつけます。', romaji: 'Sumimasen. Ki wo tsukemasu.', ar: 'آسف. سأنتبه.' },
+      { speaker: 'المعلم', jp: '規則を守りなさい。', romaji: 'Kisoku wo mamorinasai.', ar: 'التزم بالقواعد.' },
+      { speaker: 'ميلر', jp: 'はい。信号も守ります。', romaji: 'Hai. Shingou mo mamorimasu.', ar: 'نعم. سألتزم بإشارة المرور أيضاً.' },
+      { speaker: 'المعلم', jp: '事故が危ないから、急ぐな。', romaji: 'Jiko ga abunai kara, isogu na.', ar: 'الحادث خطير، فلا تستعجل.' },
+      { speaker: 'ميلر', jp: 'わかりました。ありがとうございます。', romaji: 'Wakarimashita. Arigatou gozaimasu.', ar: 'فهمت. شكراً جزيلاً.' },
+    ],
+  },
+  reading: {
+    titleAr: 'قواعد الطريق',
+    sentences: [
+      { jp: 'この道路は工事中です。', romaji: 'Kono douro wa kouji chuu desu.', ar: 'هذا الطريق تحت الإنشاء.' },
+      { jp: '「立入禁止」と書いてあるから、入るな。', romaji: '"Tachiiri kinshi" to kaite aru kara, hairu na.', ar: 'مكتوب "ممنوع الدخول"، فلا تدخل.' },
+      { jp: '危ないとき、すぐに逃げろ。', romaji: 'Abunai toki, sugu ni nigero.', ar: 'عند الخطر، اهرب فوراً.' },
+      { jp: '事故のとき、警察を呼びなさい。', romaji: 'Jiko no toki, keisatsu wo yobinasai.', ar: 'عند وقوع حادث، نادِ الشرطة.' },
+      { jp: '私たちは規則を守ります。', romaji: 'Watashitachi wa kisoku wo mamorimasu.', ar: 'نحن نلتزم بالقواعد.' },
+    ],
+    questions: [
+      { q: 'ما حالة هذا الطريق؟', options: ['تحت الإنشاء', 'مفتوح تماماً', 'ممنوع التدخين'], answer: 'تحت الإنشاء' },
+      { q: 'ماذا يجب أن تفعل عند الخطر؟', options: ['تهرب فوراً', 'تنتظر هناك', 'تدخل بسرعة'], answer: 'تهرب فوراً' },
+      { q: 'من يجب أن تنادي عند وقوع حادث؟', options: ['الشرطة', 'المعلم', 'الصديق'], answer: 'الشرطة' },
+    ],
+  },
   vocab: [
     { id: 'abunai', type: 'adjective-i', jp: '危ない', kanji: '危ない', hiragana: 'あぶない', reading: 'abunai', meaning: 'خطير' },
     { id: 'kisoku', type: 'noun', jp: '規則', kanji: '規則', hiragana: 'きそく', reading: 'kisoku', meaning: 'قواعد / لوائح' },

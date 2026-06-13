@@ -2,6 +2,32 @@ export const lessonFourteen = {
   id: 14,
   title: { ar: 'صيغة て والطلب والاستمرارية', en: 'The Te-Form, Requests, and Ongoing Actions' },
   focus: 'تكوين صيغة て للأفعال، استخدامها في てください للطلب، و ています للفعل المستمر أو الحالة',
+  dialogue: {
+    titleAr: 'لحظة من فضلك — طلبات في المكتب',
+    lines: [
+      { speaker: 'ساتو', jp: 'ミラーさん、ちょっと 待ってください。', romaji: 'Miraa-san, chotto matte kudasai.', ar: 'سيد ميلر، انتظر لحظة من فضلك.' },
+      { speaker: 'ميلر', jp: 'はい、何ですか。', romaji: 'Hai, nan desu ka.', ar: 'نعم، ما الأمر؟' },
+      { speaker: 'ساتو', jp: '暑いですね。エアコンを つけてください。', romaji: 'Atsui desu ne. Eakon o tsukete kudasai.', ar: 'الجو حار. شغّل المكيف من فضلك.' },
+      { speaker: 'ميلر', jp: 'はい。窓も 開けましょうか。', romaji: 'Hai. Mado mo akemashou ka.', ar: 'حاضر. هل أفتح النافذة أيضًا؟' },
+      { speaker: 'ساتو', jp: 'お願いします。今 何を していますか。', romaji: 'Onegai shimasu. Ima nani o shite imasu ka.', ar: 'من فضلك. ماذا تفعل الآن؟' },
+      { speaker: 'ميلر', jp: 'レポートを 書いています。', romaji: 'Repooto o kaite imasu.', ar: 'أكتب التقرير.' },
+    ],
+  },
+  reading: {
+    titleAr: 'صديقي — أين يعيش وماذا يفعل',
+    sentences: [
+      { jp: '私の 友達は 東京に 住んでいます。', romaji: 'Watashi no tomodachi wa Toukyou ni sunde imasu.', ar: 'صديقي يعيش في طوكيو.' },
+      { jp: '銀行で 働いています。', romaji: 'Ginkou de hataraite imasu.', ar: 'ويعمل في بنك.' },
+      { jp: '彼は 結婚しています。', romaji: 'Kare wa kekkon shite imasu.', ar: 'إنه متزوج.' },
+      { jp: '毎朝 新聞を 読んでいます。', romaji: 'Maiasa shinbun o yonde imasu.', ar: 'يقرأ الجريدة كل صباح.' },
+      { jp: 'めがねを かけています。', romaji: 'Megane o kakete imasu.', ar: 'ويرتدي نظارة.' },
+    ],
+    questions: [
+      { q: 'أين يعيش صديق الكاتب؟', options: ['في طوكيو', 'في كيوتو', 'في المطار'], answer: 'في طوكيو' },
+      { q: 'أين يعمل؟', options: ['في بنك', 'في مدرسة', 'في مستشفى'], answer: 'في بنك' },
+      { q: 'ماذا يقرأ كل صباح؟', options: ['الجريدة', 'كتابًا', 'رسالة'], answer: 'الجريدة' },
+    ],
+  },
   vocab: [
     { id: 'mochimasu', type: 'verb', jp: '持ちます', kanji: '持ちます', hiragana: 'もちます', reading: 'mochimasu', meaning: 'يحمل / يملك' },
     { id: 'machimasu', type: 'verb', jp: '待ちます', kanji: '待ちます', hiragana: 'まちます', reading: 'machimasu', meaning: 'ينتظر' },

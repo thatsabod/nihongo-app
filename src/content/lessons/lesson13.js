@@ -2,6 +2,33 @@ export const lessonThirteen = {
   id: 13,
   title: { ar: 'الرغبات والأهداف', en: 'Wants and Purposes' },
   focus: '〜たいです للرغبة، へ〜に行きます للهدف من الذهاب، ましょうか للعرض، وどうして〜から للسؤال عن السبب',
+  dialogue: {
+    titleAr: 'ماذا تريد أن تفعل؟ — خطط العطلة',
+    lines: [
+      { speaker: 'ساتو', jp: '夏休みに 何が したいですか。', romaji: 'Natsuyasumi ni nani ga shitai desu ka.', ar: 'ماذا تريد أن تفعل في عطلة الصيف؟' },
+      { speaker: 'ميلر', jp: '富士山に 登りたいです。', romaji: 'Fujisan ni noboritai desu.', ar: 'أريد أن أتسلق جبل فوجي.' },
+      { speaker: 'ساتو', jp: 'いいですね。どうして 富士山ですか。', romaji: 'Ii desu ne. Doushite Fujisan desu ka.', ar: 'جميل! لماذا جبل فوجي؟' },
+      { speaker: 'ميلر', jp: '写真を 撮りたいですから。', romaji: 'Shashin o toritai desu kara.', ar: 'لأنني أريد أن ألتقط صورًا.' },
+      { speaker: 'ساتو', jp: '荷物を 持ちましょうか。', romaji: 'Nimotsu o mochimashou ka.', ar: 'هل أحمل لك الأمتعة؟' },
+      { speaker: 'ميلر', jp: 'ありがとうございます。お願いします。', romaji: 'Arigatou gozaimasu. Onegai shimasu.', ar: 'شكرًا، من فضلك.' },
+      { speaker: 'ساتو', jp: '一緒に 海でも 泳ぎたいです。', romaji: 'Issho ni umi demo oyogitai desu.', ar: 'أريد أيضًا أن نسبح في البحر معًا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'حلمي — الدراسة في اليابان',
+    sentences: [
+      { jp: '私は 日本へ 留学したいです。', romaji: 'Watashi wa Nihon e ryuugaku shitai desu.', ar: 'أريد أن أدرس في اليابان.' },
+      { jp: '温泉に 入りたいです。', romaji: 'Onsen ni hairitai desu.', ar: 'أريد أن أدخل الينابيع الحارة.' },
+      { jp: '祭りで 遊びたいです。', romaji: 'Matsuri de asobitai desu.', ar: 'أريد أن أستمتع في المهرجانات.' },
+      { jp: '日本語を もっと 勉強したいですから、毎日 練習します。', romaji: 'Nihongo o motto benkyou shitai desu kara, mainichi renshuu shimasu.', ar: 'لأنني أريد دراسة اليابانية أكثر، أتدرب كل يوم.' },
+      { jp: '友達と 一緒に 旅行したいです。', romaji: 'Tomodachi to issho ni ryokou shitai desu.', ar: 'أريد أن أسافر مع أصدقائي.' },
+    ],
+    questions: [
+      { q: 'ما حلم الكاتب؟', options: ['الدراسة في اليابان', 'العمل في اليابان', 'الزواج'], answer: 'الدراسة في اليابان' },
+      { q: 'لماذا يتدرب كل يوم؟', options: ['لأنه يريد دراسة اليابانية أكثر', 'لأنه متعب', 'لأن عنده امتحان'], answer: 'لأنه يريد دراسة اليابانية أكثر' },
+      { q: 'مع من يريد أن يسافر؟', options: ['مع أصدقائه', 'مع عائلته', 'وحده'], answer: 'مع أصدقائه' },
+    ],
+  },
   vocab: [
     { id: 'ryokou', type: 'noun', jp: '旅行', kanji: '旅行', hiragana: 'りょこう', reading: 'ryokou', meaning: 'سفر / رحلة' },
     { id: 'ryokou_shimasu', type: 'verb', jp: '旅行します', kanji: '旅行します', hiragana: 'りょこうします', reading: 'ryokou shimasu', meaning: 'يسافر' },

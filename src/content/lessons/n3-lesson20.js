@@ -2,6 +2,34 @@ export const n3LessonTwenty = {
   id: 20,
   title: { ar: 'التسمية والتوضيح', en: 'Naming and Clarifying' },
   focus: 'استخدام という・って لتسمية الأشياء أو توضيح معنى كلام سابق.',
+  dialogue: {
+    titleAr: 'سؤال عن كلمة جديدة',
+    lines: [
+      { speaker: 'ميلر', jp: '先生、この言葉ってどういう意味ですか。', romaji: 'Sensei, kono kotoba tte dou iu imi desu ka.', ar: 'يا معلم، ما معنى هذه الكلمة؟' },
+      { speaker: 'المعلم', jp: 'これは「目標」という言葉です。', romaji: 'Kore wa "mokuhyou" to iu kotoba desu.', ar: 'هذه كلمة اسمها (هدف).' },
+      { speaker: 'ميلر', jp: '例えば、どう使いますか。', romaji: 'Tatoeba, dou tsukaimasu ka.', ar: 'مثلاً، كيف تُستخدم؟' },
+      { speaker: 'المعلم', jp: '日本語を学ぶという目標があります、と言います。', romaji: 'Nihongo wo manabu to iu mokuhyou ga arimasu, to iimasu.', ar: 'نقول: لدي هدف وهو تعلم اليابانية.' },
+      { speaker: 'ميلر', jp: '私には日本の歴史を学ぶという夢があります。', romaji: 'Watashi ni wa Nihon no rekishi wo manabu to iu yume ga arimasu.', ar: 'لدي حلم وهو تعلم تاريخ اليابان.' },
+      { speaker: 'المعلم', jp: 'いい夢ですね。漢字も毎日勉強してください。', romaji: 'Ii yume desu ne. Kanji mo mainichi benkyou shite kudasai.', ar: 'حلم جميل. ادرس الكانجي كل يوم أيضاً من فضلك.' },
+      { speaker: 'ميلر', jp: '質問があったら、また聞いてもいいですか。', romaji: 'Shitsumon ga attara, mata kiite mo ii desu ka.', ar: 'إذا كان لدي سؤال، هل يمكنني أن أسأل مرة أخرى؟' },
+      { speaker: 'المعلم', jp: 'もちろんです。説明しますよ。', romaji: 'Mochiron desu. Setsumei shimasu yo.', ar: 'بالطبع. سأشرح لك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'هدف ميلر',
+    sentences: [
+      { jp: 'ミラーさんという人は私の友達です。', romaji: 'Miraa-san to iu hito wa watashi no tomodachi desu.', ar: 'شخص اسمه ميلر هو صديقي.' },
+      { jp: '彼には日本語を学ぶという目標があります。', romaji: 'Kare ni wa Nihongo wo manabu to iu mokuhyou ga arimasu.', ar: 'لديه هدف وهو تعلم اليابانية.' },
+      { jp: '毎日新しい言葉と漢字を勉強しています。', romaji: 'Mainichi atarashii kotoba to kanji wo benkyou shite imasu.', ar: 'يدرس كل يوم كلمات وكانجي جديدة.' },
+      { jp: '分からない意味があったら、先生に質問します。', romaji: 'Wakaranai imi ga attara, sensei ni shitsumon shimasu.', ar: 'إذا كان هناك معنى لا يفهمه، يسأل المعلم.' },
+      { jp: '日本で働くという夢のために、彼は今もがんばっています。', romaji: 'Nihon de hataraku to iu yume no tame ni, kare wa ima mo ganbatte imasu.', ar: 'من أجل حلمه وهو العمل في اليابان، ما زال يجتهد الآن.' },
+    ],
+    questions: [
+      { q: 'ما هو هدف ميلر؟', options: ['تعلم اليابانية', 'العمل في شركة', 'دراسة التاريخ'], answer: 'تعلم اليابانية' },
+      { q: 'ماذا يدرس ميلر كل يوم؟', options: ['كلمات وكانجي جديدة', 'الهواية فقط', 'الهاتف'], answer: 'كلمات وكانجي جديدة' },
+      { q: 'ماذا يفعل ميلر عندما لا يفهم معنى؟', options: ['يسأل المعلم', 'يتوقف عن الدراسة', 'يتصل بصديقه'], answer: 'يسأل المعلم' },
+    ],
+  },
   vocab: [
     { id: 'denwa', type: 'noun', jp: '電話', kanji: '電話', hiragana: 'でんわ', reading: 'denwa', meaning: 'هاتف / اتصال' },
     { id: 'mokuhyou', type: 'noun', jp: '目標', kanji: '目標', hiragana: 'もくひょう', reading: 'mokuhyou', meaning: 'هدف' },

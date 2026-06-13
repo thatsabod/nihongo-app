@@ -2,6 +2,34 @@ export const lessonTwentyFour = {
   id: 24,
   title: { ar: 'يبدو أن... ومراجعة التغيير', en: 'Looking Like... and Review of Change' },
   focus: '〜そうです (様態 - المظهر/الانطباع) ومراجعة شاملة لتعبيرات التغيير بـ なります',
+  dialogue: {
+    titleAr: 'قبل المطر',
+    lines: [
+      { speaker: 'ساتو', jp: '空 が 黒く なりました ね。', romaji: 'Sora ga kuroku narimashita ne.', ar: 'صارت السماء سوداء، أليس كذلك؟' },
+      { speaker: 'ميلر', jp: 'はい、 雲 も 多くて、 雨 が 降りそう です。', romaji: 'Hai, kumo mo ookute, ame ga furisou desu.', ar: 'نعم، والسحب كثيرة أيضا، يبدو أنه سيمطر.' },
+      { speaker: 'ساتو', jp: 'この 荷物 は 重そう です ね。', romaji: 'Kono nimotsu wa omosou desu ne.', ar: 'هذه الأمتعة تبدو ثقيلة، أليس كذلك؟' },
+      { speaker: 'ميلر', jp: 'はい、 でも 私 は 走りそう です。', romaji: 'Hai, demo watashi wa hashirisou desu.', ar: 'نعم، لكن يبدو أنني سأجري.' },
+      { speaker: 'ساتو', jp: 'もうすぐ 寒く なります から、 気をつけて ください。', romaji: 'Mousugu samuku narimasu kara, ki o tsukete kudasai.', ar: 'سيصبح الجو باردا قريبا، فانتبه من فضلك.' },
+      { speaker: 'ميلر', jp: 'ありがとう。 喉 が 渇きそう です。', romaji: 'Arigatou. Nodo ga kawakisou desu.', ar: 'شكرا. يبدو أنني سأعطش.' },
+      { speaker: 'ساتو', jp: '友達 の 店 は 静かに なります から、 そこ で 休みましょう。', romaji: 'Tomodachi no mise wa shizuka ni narimasu kara, soko de yasumimashou.', ar: 'متجر صديقي يصبح هادئا، فلنسترح هناك.' },
+      { speaker: 'ميلر', jp: 'いい です ね。 楽しそう です。', romaji: 'Ii desu ne. Tanoshisou desu.', ar: 'فكرة جميلة. يبدو ممتعا.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم ممطر',
+    sentences: [
+      { jp: '今日 は 空 が 黒く なりました。', romaji: 'Kyou wa sora ga kuroku narimashita.', ar: 'اليوم صارت السماء سوداء.' },
+      { jp: '雲 が 多くて、 雨 が 降りそう です。', romaji: 'Kumo ga ookute, ame ga furisou desu.', ar: 'السحب كثيرة، ويبدو أنه سيمطر.' },
+      { jp: '私 の 荷物 は 重そう です。', romaji: 'Watashi no nimotsu wa omosou desu.', ar: 'أمتعتي تبدو ثقيلة.' },
+      { jp: 'もうすぐ 冬 に なります から、 寒く なります。', romaji: 'Mousugu fuyu ni narimasu kara, samuku narimasu.', ar: 'سيأتي الشتاء قريبا، فيصبح الجو باردا.' },
+      { jp: '友達 と 店 で 休みました。 とても 楽しそう でした。', romaji: 'Tomodachi to mise de yasumimashita. Totemo tanoshisou deshita.', ar: 'استرحت مع صديقي في المتجر. بدا الأمر ممتعا جدا.' },
+    ],
+    questions: [
+      { q: 'كيف صارت السماء اليوم؟', options: ['سوداء', 'زرقاء', 'حمراء'], answer: 'سوداء' },
+      { q: 'ماذا يبدو أنه سيحدث للطقس؟', options: ['يبدو أنه سيمطر', 'يبدو أنه سيشمس', 'يبدو أنه سيثلج'], answer: 'يبدو أنه سيمطر' },
+      { q: 'كيف تبدو الأمتعة؟', options: ['ثقيلة', 'خفيفة', 'صغيرة'], answer: 'ثقيلة' },
+    ],
+  },
   vocab: [
     { id: 'oishisou', type: 'expression', jp: 'おいしそう', kanji: 'おいしそう', hiragana: 'おいしそう', reading: 'oishisou', meaning: 'يبدو لذيذا' },
     { id: 'omosou', type: 'expression', jp: '重そう', kanji: '重そう', hiragana: 'おもそう', reading: 'omosou', meaning: 'يبدو ثقيلا' },

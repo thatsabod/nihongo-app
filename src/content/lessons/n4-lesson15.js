@@ -2,6 +2,34 @@ export const n4LessonFifteen = {
   id: 15,
   title: { ar: 'أثناء... وهل...أم لا: とちゅうで / かどうか', en: 'On the Way / Whether or Not: とちゅうで / かどうか' },
   focus: 'التعبير عن "في منتصف الطريق" بـ ~とちゅうで، وصياغة الأسئلة المضمنة بـ ~か/~かどうか، والتعبير عن "أحاول أن..." بـ ~てみます، وتحويل الصفة إلى اسم بـ さ، واستخدام ~でしょうか للسؤال المهذب',
+  dialogue: {
+    titleAr: 'قياس الصندوق',
+    lines: [
+      { speaker: 'ميلر', jp: 'この箱の重さはどれくらいでしょうか。', romaji: 'Kono hako no omosa wa dore kurai deshou ka.', ar: 'يا ترى كم يبلغ وزن هذا الصندوق؟' },
+      { speaker: 'ساتو', jp: 'わかりません。今から量ってみます。', romaji: 'Wakarimasen. Ima kara hakatte mimasu.', ar: 'لا أعرف. سأجرّب أن أقيسه الآن.' },
+      { speaker: 'ميلر', jp: '長さと幅も調べてください。', romaji: 'Nagasa to haba mo shirabete kudasai.', ar: 'تحقق من الطول والعرض أيضاً من فضلك.' },
+      { speaker: 'ساتو', jp: '重さはちょうど五キログラムです。約一メートルの長さです。', romaji: 'Omosa wa choudo go-kiroguramu desu. Yaku ichi-meetoru no nagasa desu.', ar: 'الوزن خمسة كيلوغرامات بالضبط. الطول حوالي متر واحد.' },
+      { speaker: 'ميلر', jp: '友達に送るとちゅうで、サイズを確かめたかったんです。', romaji: 'Tomodachi ni okuru tochuu de, saizu wo tashikametakatta n desu.', ar: 'أردت التأكد من المقاس وأنا في طريقي لإرساله إلى صديق.' },
+      { speaker: 'ساتو', jp: 'この箱が大きすぎるかどうか、もう一度数えてみましょう。', romaji: 'Kono hako ga ookisugiru ka dou ka, mou ichido kazoete mimashou.', ar: 'لنجرّب العدّ مرة أخرى لنرى هل هذا الصندوق كبير جداً أم لا.' },
+      { speaker: 'ميلر', jp: 'ありがとう。五キロ以下なら大丈夫でしょうか。', romaji: 'Arigatou. Go-kiro ika nara daijoubu deshou ka.', ar: 'شكراً. هل سيكون الأمر بخير إن كان أقل من خمسة كيلو يا ترى؟' },
+      { speaker: 'ساتو', jp: 'はい、ちょうど五キロですから大丈夫です。', romaji: 'Hai, choudo go-kiro desu kara daijoubu desu.', ar: 'نعم، إنه خمسة كيلو بالضبط، فلا مشكلة.' },
+    ],
+  },
+  reading: {
+    titleAr: 'في الطريق إلى المكتب',
+    sentences: [
+      { jp: '会社に行くとちゅうで、私は重い箱を見つけました。', romaji: 'Kaisha ni iku tochuu de, watashi wa omoi hako wo mitsukemashita.', ar: 'في طريقي إلى الشركة، وجدتُ صندوقاً ثقيلاً.' },
+      { jp: 'その箱の重さがどれくらいか調べてみました。', romaji: 'Sono hako no omosa ga dore kurai ka shirabete mimashita.', ar: 'جرّبتُ أن أتحقق من مقدار وزن ذلك الصندوق.' },
+      { jp: '重さはちょうど十キログラムでした。', romaji: 'Omosa wa choudo juu-kiroguramu deshita.', ar: 'كان الوزن عشرة كيلوغرامات بالضبط.' },
+      { jp: '友達がこの箱を運べるかどうかわかりませんでした。', romaji: 'Tomodachi ga kono hako wo hakoberu ka dou ka wakarimasen deshita.', ar: 'لم أكن أعرف هل يستطيع صديقي حمل هذا الصندوق أم لا.' },
+      { jp: '長さは約一メートルで、幅はだいたい五十センチでした。', romaji: 'Nagasa wa yaku ichi-meetoru de, haba wa daitai gojuu-senchi deshita.', ar: 'الطول حوالي متر واحد، والعرض خمسون سنتيمتراً تقريباً.' },
+    ],
+    questions: [
+      { q: 'متى وجد الكاتب الصندوق؟', options: ['في طريقه إلى الشركة', 'في طريقه إلى المدرسة', 'بعد عودته إلى البيت'], answer: 'في طريقه إلى الشركة' },
+      { q: 'كم كان وزن الصندوق بالضبط؟', options: ['عشرة كيلوغرامات', 'خمسة كيلوغرامات', 'متر واحد'], answer: 'عشرة كيلوغرامات' },
+      { q: 'ماذا لم يعرف الكاتب؟', options: ['هل يستطيع صديقه حمل الصندوق أم لا', 'هل الصندوق غالٍ الثمن أم لا', 'هل المطر سينزل أم لا'], answer: 'هل يستطيع صديقه حمل الصندوق أم لا' },
+    ],
+  },
   vocab: [
     { id: 'kazoemasu', type: 'verb', jp: '数えます', kanji: '数えます', hiragana: 'かぞえます', reading: 'kazoemasu', meaning: 'يَعدّ / يحسب' },
     { id: 'hakarimasu', type: 'verb', jp: '量ります', kanji: '量ります', hiragana: 'はかります', reading: 'hakarimasu', meaning: 'يقيس (الوزن/الكمية)' },

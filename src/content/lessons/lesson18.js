@@ -2,6 +2,34 @@ export const lessonEighteen = {
   id: 18,
   title: { ar: 'صيغة النفي والواجب', en: 'Negative Form and Obligation' },
   focus: 'تكوين صيغة ない، ないでください للنهي، なければなりません للواجب، و なくてもいいです لعدم الضرورة',
+  dialogue: {
+    titleAr: 'قبل السفر من المطار',
+    lines: [
+      { speaker: 'ميلر', jp: '空港 で パスポート を 見せなければ なりません か。', romaji: 'Kuukou de pasupooto o misenakereba narimasen ka.', ar: 'هل يجب إظهار جواز السفر في المطار؟' },
+      { speaker: 'ساتو', jp: 'はい。 パスポート を 忘れないで ください。', romaji: 'Hai. Pasupooto o wasurenaide kudasai.', ar: 'نعم. لا تنس جواز السفر من فضلك.' },
+      { speaker: 'ميلر', jp: '現金 で 払わなければ なりません か。', romaji: 'Genkin de harawanakereba narimasen ka.', ar: 'هل يجب الدفع نقدا؟' },
+      { speaker: 'ساتو', jp: 'いいえ、 現金 で 払わなくても いいです。 カード が あります。', romaji: 'Iie, genkin de harawanakutemo ii desu. Kaado ga arimasu.', ar: 'لا، لا داعي للدفع نقدا. توجد بطاقة.' },
+      { speaker: 'ميلر', jp: '署名 を 書かなければ なりません か。', romaji: 'Shomei o kakanakereba narimasen ka.', ar: 'هل يجب كتابة التوقيع؟' },
+      { speaker: 'ساتو', jp: 'はい、 ここ に 署名 を 書かなければ なりません。', romaji: 'Hai, koko ni shomei o kakanakereba narimasen.', ar: 'نعم، يجب كتابة التوقيع هنا.' },
+      { speaker: 'ميلر', jp: 'ここ で 喫煙 しても いいです か。', romaji: 'Koko de kitsuen shitemo ii desu ka.', ar: 'هل يجوز التدخين هنا؟' },
+      { speaker: 'ساتو', jp: 'いいえ、 ここ で 喫煙 しないで ください。', romaji: 'Iie, koko de kitsuen shinaide kudasai.', ar: 'لا، لا تدخن هنا من فضلك.' },
+    ],
+  },
+  reading: {
+    titleAr: 'يوم العمل',
+    sentences: [
+      { jp: '明日 は 出勤日 です。', romaji: 'Ashita wa shukkinbi desu.', ar: 'غدا يوم عمل.' },
+      { jp: '九時 までに 出勤しなければ なりません。', romaji: 'Kuji made ni shukkin shinakereba narimasen.', ar: 'يجب الوصول إلى العمل بحلول التاسعة.' },
+      { jp: '会社 の 規則 は 厳しい です から、 制服 を 着なければ なりません。', romaji: 'Kaisha no kisoku wa kibishii desu kara, seifuku o kinakereba narimasen.', ar: 'لوائح الشركة صارمة، لذلك يجب ارتداء الزي الرسمي.' },
+      { jp: '会議 に 遅れないで ください。', romaji: 'Kaigi ni okurenaide kudasai.', ar: 'لا تتأخر عن الاجتماع من فضلك.' },
+      { jp: '日曜日 は 出勤しなくても いいです。', romaji: 'Nichiyoubi wa shukkin shinakutemo ii desu.', ar: 'يوم الأحد لا داعي للذهاب إلى العمل.' },
+    ],
+    questions: [
+      { q: 'متى يجب الوصول إلى العمل؟', options: ['بحلول التاسعة', 'بحلول العاشرة', 'يوم الأحد'], answer: 'بحلول التاسعة' },
+      { q: 'ماذا يجب ارتداؤه لأن اللوائح صارمة؟', options: ['الزي الرسمي', 'ملابس عادية', 'جواز السفر'], answer: 'الزي الرسمي' },
+      { q: 'ماذا عن يوم الأحد؟', options: ['لا داعي للذهاب إلى العمل', 'يجب الذهاب مبكرا', 'يجب ارتداء الزي الرسمي'], answer: 'لا داعي للذهاب إلى العمل' },
+    ],
+  },
   vocab: [
     { id: 'shinpai_shimasu', type: 'verb', jp: '心配します', kanji: '心配します', hiragana: 'しんぱいします', reading: 'shinpai shimasu', meaning: 'يقلق' },
     { id: 'wasuremasu', type: 'verb', jp: '忘れます', kanji: '忘れます', hiragana: 'わすれます', reading: 'wasuremasu', meaning: 'ينسى' },

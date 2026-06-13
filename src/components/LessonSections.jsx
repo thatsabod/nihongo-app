@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import AppIcon from './AppIcon.jsx'
 import { SpeakingPracticeQuiz, ExerciseContainer, ProgressHeader, ResultCard, ActionButton, OutOfHeartsCard, MistakeFeedback } from './exercise-ui/index.jsx'
@@ -7,6 +7,7 @@ import { readProgressState, trackAnswer, recordLessonStat } from '../progress/pr
 import { getLessonMastery, masteryStatusLabel } from '../progress/masteryModel.js'
 import GrammarExercises from './GrammarExercises.jsx'
 import VocabExercises from './VocabExercises.jsx'
+import { answersMatch } from '../utils/answerMatch.js'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -90,7 +91,9 @@ function findGrammarRule(lesson, ex) {
     const byHint = rules.find((r) => r.title && ex.hint.includes(r.title.split(' ')[0]))
     if (byHint) return byHint
   }
-  return rules[0] || null
+  // No confident match — return null rather than a misleading first rule
+  // (the feedback panel would otherwise blame an unrelated grammar point).
+  return null
 }
 
 // Find vocab items whose surface form (kanji or kana) appears in the exercise text.
@@ -210,8 +213,7 @@ function OrderExercise({ ex, lang, onAnswer }) {
   const check = () => {
     if (selected.length === 0) return
     const built = selected.map((x) => x.w).join('')
-    const normal = (s) => s.replace(/\s/g, '')
-    const correct = normal(built) === normal(ex.answer)
+    const correct = answersMatch(built, ex.answer)
     setResult(correct ? 'correct' : 'wrong')
     if (correct) playCorrect()
     else playWrong()
@@ -253,7 +255,9 @@ function OrderExercise({ ex, lang, onAnswer }) {
 }
 
 // ── Exercise: repeat a sentence out loud ──────────────────────────────────────
-function SpeakSectionExercise({ ex, lang, onAnswer }) {
+// `onSkip` advances neutrally (no score, no mastery credit) — skipping a
+// speaking item must not hand out free correct answers and inflate accuracy.
+function SpeakSectionExercise({ ex, lang, onAnswer, onSkip }) {
   return (
     <SpeakingPracticeQuiz
       sentence={ex.sentence}
@@ -261,7 +265,7 @@ function SpeakSectionExercise({ ex, lang, onAnswer }) {
       speakText={ex.sentence}
       lang={lang}
       onAnswer={(passed) => onAnswer(passed)}
-      onSkip={() => onAnswer(true)}
+      onSkip={onSkip || (() => onAnswer(false))}
     />
   )
 }
@@ -285,7 +289,7 @@ function withSpeakingExercise(exercises, lesson) {
 }
 
 // ── SECTION: Interactive Exercises ───────────────────────────────────────────
-export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
+export function ExercisesSection({ lesson, lang, kanjiReadingMode, onStudyComplete }) {
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
   const [done, setDone] = useState(false)
@@ -293,6 +297,12 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
   const [retryNonce, setRetryNonce] = useState(0)
   const isAr = lang === 'ar'
   const heartsApi = useHearts()
+
+  // Finishing the practice set counts as a real study action (streak + XP).
+  useEffect(() => {
+    if (done) onStudyComplete?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done])
 
   const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
   const baseExercises = lesson.exercises || []
@@ -373,6 +383,34 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
       questionAr: ex.prompt,
     })
 
+    // Track the grammar/vocab this item exercises into SRS on BOTH correct and
+    // wrong answers — otherwise the scheduler only ever sees already-missed
+    // items and learned material never enters spaced repetition. trackAnswer
+    // only logs a *mistake* when wasCorrect is false, so correct answers just
+    // advance the SRS interval.
+    const grammarRule = findGrammarRule(lesson, ex)
+    const vocabMatches = findVocabMatches(lesson, ex)
+    if (grammarRule) {
+      state = trackAnswer(state, {
+        itemId: grammarRule.title,
+        itemType: 'grammar',
+        wasCorrect: correct,
+        lessonId: String(lesson.id),
+        exerciseType: ex.type,
+        questionAr: grammarRule.title,
+      })
+    }
+    vocabMatches.forEach((item) => {
+      state = trackAnswer(state, {
+        itemId: item.id || item.jp,
+        itemType: 'vocab',
+        wasCorrect: correct,
+        lessonId: String(lesson.id),
+        exerciseType: ex.type,
+        questionAr: item.meaning,
+      })
+    })
+
     const nextScore = score + (correct ? 1 : 0)
     const nextIdx = idx + 1
 
@@ -388,31 +426,6 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
     } else {
       playWrong()
       heartsApi?.consumeHeart()
-
-      // Track per-grammar and per-vocab mistakes for weak-area detection.
-      const grammarRule = findGrammarRule(lesson, ex)
-      const vocabMatches = findVocabMatches(lesson, ex)
-      if (grammarRule) {
-        state = trackAnswer(state, {
-          itemId: grammarRule.title,
-          itemType: 'grammar',
-          wasCorrect: false,
-          lessonId: String(lesson.id),
-          exerciseType: ex.type,
-          questionAr: grammarRule.title,
-        })
-      }
-      vocabMatches.forEach((item) => {
-        state = trackAnswer(state, {
-          itemId: item.id || item.jp,
-          itemType: 'vocab',
-          wasCorrect: false,
-          lessonId: String(lesson.id),
-          exerciseType: ex.type,
-          questionAr: item.meaning,
-        })
-      })
-
       setFeedback({ grammarRule, vocabMatches, nextScore, nextIdx })
     }
   }
@@ -435,6 +448,13 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
   const retry = () => {
     setFeedback(null)
     setRetryNonce((n) => n + 1)
+  }
+
+  // Skip a speaking item without scoring it (neutral — no correct, no mistake).
+  const skipQuestion = () => {
+    const nextIdx = idx + 1
+    if (nextIdx >= exercises.length) setDone(true)
+    else setIdx(nextIdx)
   }
 
   return (
@@ -471,7 +491,7 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode }) {
             <OrderExercise key={`${idx}-${retryNonce}`} ex={ex} lang={lang} onAnswer={handleAnswer} />
           )}
           {ex.type === 'speak' && (
-            <SpeakSectionExercise key={`${idx}-${retryNonce}`} ex={ex} lang={lang} onAnswer={handleAnswer} />
+            <SpeakSectionExercise key={`${idx}-${retryNonce}`} ex={ex} lang={lang} onAnswer={handleAnswer} onSkip={skipQuestion} />
           )}
           {!['choose', 'complete', 'order', 'speak'].includes(ex.type) && (
             <div className="iex-card">
@@ -752,7 +772,7 @@ export function WarmupSection({ lesson, lang, kanjiReadingMode, onGo }) {
 }
 
 // ── SECTION: Examples — every sentence in the lesson, tappable audio ─────────
-export function ExamplesSection({ lesson, lang, kanjiReadingMode }) {
+export function ExamplesSection({ lesson, lang, kanjiReadingMode, onNext }) {
   const isAr = lang === 'ar'
   const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
 
@@ -801,6 +821,11 @@ export function ExamplesSection({ lesson, lang, kanjiReadingMode }) {
             ))}
           </div>
         </section>
+      )}
+      {onNext && (
+        <button className="btn btn-primary section-continue" onClick={onNext}>
+          {isAr ? 'متابعة ←' : 'Continue →'}
+        </button>
       )}
     </div>
   )
@@ -943,10 +968,10 @@ export function MasteryCheckSection({ lesson, lang, kanjiReadingMode, sectionsDo
   }, [lesson])
 
   if (challenge === 'grammar') {
-    return <GrammarExercises exercises={grammarPool} lang={lang} onClose={() => setChallenge(null)} />
+    return <GrammarExercises exercises={grammarPool} lang={lang} lessonId={lesson.id} onClose={() => setChallenge(null)} />
   }
   if (challenge === 'vocab') {
-    return <VocabExercises vocab={lesson.vocab} lang={lang} onClose={() => setChallenge(null)} />
+    return <VocabExercises vocab={lesson.vocab} lang={lang} lessonId={lesson.id} onClose={() => setChallenge(null)} />
   }
   if (challenge === 'speak') {
     return <ReviewSpeakingSession items={speakingItems} lang={lang} onClose={() => setChallenge(null)} />
@@ -1052,7 +1077,7 @@ export function MasteryCheckSection({ lesson, lang, kanjiReadingMode, sectionsDo
 }
 
 // ── SECTION: Dialogue — a real conversation using this lesson's grammar ──────
-export function DialogueSection({ lesson, lang, kanjiReadingMode }) {
+export function DialogueSection({ lesson, lang, kanjiReadingMode, onNext }) {
   const isAr = lang === 'ar'
   const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
   const dialogue = lesson.dialogue
@@ -1084,12 +1109,17 @@ export function DialogueSection({ lesson, lang, kanjiReadingMode }) {
           ))}
         </div>
       </section>
+      {onNext && (
+        <button className="btn btn-primary section-continue" onClick={onNext}>
+          {isAr ? 'متابعة ←' : 'Continue →'}
+        </button>
+      )}
     </div>
   )
 }
 
 // ── SECTION: Reading — short passage + comprehension questions ───────────────
-export function ReadingSection({ lesson, lang, kanjiReadingMode }) {
+export function ReadingSection({ lesson, lang, kanjiReadingMode, onNext }) {
   const isAr = lang === 'ar'
   const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
   const reading = lesson.reading
@@ -1163,6 +1193,11 @@ export function ReadingSection({ lesson, lang, kanjiReadingMode }) {
             ))}
           </div>
         </section>
+      )}
+      {onNext && (
+        <button className="btn btn-primary section-continue" onClick={onNext}>
+          {isAr ? 'متابعة ←' : 'Continue →'}
+        </button>
       )}
     </div>
   )
