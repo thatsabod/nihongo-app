@@ -115,9 +115,9 @@ const text = {
   },
 }
 
-export default function Login({ lang = 'ar', onBack, onLogin }) {
+export default function Login({ lang = 'ar', onBack, onLogin, initialMode = 'login' }) {
   const t = text[lang] || text.en
-  const [mode, setMode] = useState('login')
+  const [mode, setMode] = useState(initialMode === 'register' ? 'register' : 'login')
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')

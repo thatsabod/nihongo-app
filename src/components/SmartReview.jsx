@@ -205,7 +205,7 @@ function GrammarReviewCard({ entry, lang, onAnswer }) {
 }
 
 // ── SCREEN: Smart Review ─────────────────────────────────────────────────────
-export default function SmartReview({ allLessons, allKanji = [], lang, kanjiReadingMode, onClose, onStudyComplete }) {
+export default function SmartReview({ allLessons, allKanji = [], lang, kanjiReadingMode, onClose, onStudyComplete, reviewFilter = null }) {
   const isAr = lang === 'ar'
   const [idx, setIdx] = useState(0)
   const [score, setScore] = useState(0)
@@ -217,8 +217,13 @@ export default function SmartReview({ allLessons, allKanji = [], lang, kanjiRead
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done])
 
-  // Built once on mount so answering doesn't reshuffle the live queue.
-  const session = useMemo(() => buildReviewSession(allLessons, readProgressState(), Date.now(), 15, allKanji), [allLessons, allKanji])
+  // Built once on mount so answering doesn't reshuffle the live queue. When a
+  // `reviewFilter` (e.g. 'grammar' | 'vocab' | 'kanji') is supplied — from the
+  // home weak-area shortcuts — restrict the queue to that skill.
+  const session = useMemo(() => {
+    const full = buildReviewSession(allLessons, readProgressState(), Date.now(), 15, allKanji)
+    return reviewFilter ? full.filter((entry) => entry.itemType === reviewFilter) : full
+  }, [allLessons, allKanji, reviewFilter])
   const meaningPool = useMemo(() => {
     const all = (allLessons || []).flatMap((l) => (l.vocab || []).map((v) => v.meaning)).filter(Boolean)
     return [...new Set(all)]

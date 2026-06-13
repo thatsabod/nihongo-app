@@ -8,6 +8,7 @@
 
 import type { SenseiContext, SenseiPrompt } from './aiSensei.types'
 import { senseiVoiceIdentity, SENSEI_VOICE_RULES_AR } from './senseiPersona'
+import { stopAudio } from '../utils/audioPlayer.js'
 
 export interface CallTurn {
   role: 'student' | 'sensei'
@@ -55,7 +56,7 @@ export function speakMixed(text: string, { onEnd }: { onEnd?: () => void } = {})
     return
   }
   const synth = window.speechSynthesis
-  synth.cancel()
+  stopAudio()
 
   // Strip anything that reads badly aloud (markdown leftovers, emoji).
   const clean = text.replace(/[*#_`>~]/g, ' ').replace(/\s+/g, ' ').trim()
@@ -96,10 +97,17 @@ export function speakMixed(text: string, { onEnd }: { onEnd?: () => void } = {})
       utterance.rate = 1
     }
     if (i === spoken.length - 1 && onEnd) utterance.onend = () => onEnd()
-    synth.speak(utterance)
+    utterance.onerror = () => {
+      if (i === spoken.length - 1) onEnd?.()
+    }
+    try {
+      synth.speak(utterance)
+    } catch {
+      if (i === spoken.length - 1) onEnd?.()
+    }
   })
 }
 
 export function stopSpeaking(): void {
-  if (typeof window !== 'undefined') window.speechSynthesis?.cancel()
+  stopAudio()
 }

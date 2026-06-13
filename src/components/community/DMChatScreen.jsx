@@ -10,7 +10,7 @@ function HeadAvatar({ name, url }) {
 }
 
 // Focused 1:1 chat. No dashboard/XP/streak — header + messages + composer only.
-export default function DMChatScreen({ lang, profile, messages, currentUserId, draft, onDraftChange, onSend, onBack, timeFor }) {
+export default function DMChatScreen({ lang, profile, messages, currentUserId, draft, onDraftChange, onSend, onSendText, onOpenProfile, onBack, timeFor }) {
   const isAr = lang === 'ar'
   const endRef = useRef(null)
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }) }, [messages.length])
@@ -24,11 +24,13 @@ export default function DMChatScreen({ lang, profile, messages, currentUserId, d
     <section className="cm-screen cm-chat">
       <header className="cm-screen-head cm-chat-head">
         <button className="cm-icon-btn" onClick={onBack} aria-label={isAr ? 'رجوع' : 'Back'}><IconBack size={22} /></button>
-        <HeadAvatar name={name} url={avatar} />
-        <div className="cm-chat-head-meta">
-          <strong>{name}</strong>
-          {sub && <span>{sub}</span>}
-        </div>
+        <button className="cm-chat-head-id" onClick={onOpenProfile} aria-label={isAr ? 'الملف الشخصي' : 'View profile'}>
+          <HeadAvatar name={name} url={avatar} />
+          <div className="cm-chat-head-meta">
+            <strong>{name}</strong>
+            {sub && <span>{sub}</span>}
+          </div>
+        </button>
       </header>
 
       <div className="cm-chat-thread">
@@ -53,7 +55,7 @@ export default function DMChatScreen({ lang, profile, messages, currentUserId, d
         <div ref={endRef} />
       </div>
 
-      <ChatComposer value={draft} onChange={onDraftChange} onSend={onSend} lang={lang} />
+      <ChatComposer value={draft} onChange={onDraftChange} onSend={onSend} onSendText={onSendText} lang={lang} />
     </section>
   )
 }

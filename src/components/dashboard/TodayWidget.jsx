@@ -10,7 +10,7 @@ const DAILY_GOAL = 15
 //   P2 (only when relevant): Reviews Due, Weak Areas
 // Streak/XP live in the global topbar; deeper stats live behind
 // "View Progress" (profile). Nothing here repeats them.
-export default function TodayWidget({ lang, t, recommendedLesson, onContinue, onReview }) {
+export default function TodayWidget({ lang, t, recommendedLesson, onContinue, onReview, onReviewWeak }) {
   const { reviewDueCount, weakGrammar, weakVocab, practicedToday } = useMemo(() => {
     const state = readProgressState()
     const now = Date.now()
@@ -72,14 +72,24 @@ export default function TodayWidget({ lang, t, recommendedLesson, onContinue, on
       {/* P2 — only when weak areas exist */}
       {weakTotal > 0 && (
         <div className="today-weak-row">
-          <div className={`today-weak-card ${weakGrammar > 0 ? 'has-weak' : ''}`}>
+          <button
+            type="button"
+            className={`today-weak-card ${weakGrammar > 0 ? 'has-weak' : ''}`}
+            disabled={weakGrammar === 0}
+            onClick={() => onReviewWeak?.('grammar')}
+          >
             <span className="today-weak-num">{weakGrammar}</span>
             <span className="today-weak-label">{t.weakGrammar}</span>
-          </div>
-          <div className={`today-weak-card ${weakVocab > 0 ? 'has-weak' : ''}`}>
+          </button>
+          <button
+            type="button"
+            className={`today-weak-card ${weakVocab > 0 ? 'has-weak' : ''}`}
+            disabled={weakVocab === 0}
+            onClick={() => onReviewWeak?.('vocab')}
+          >
             <span className="today-weak-num">{weakVocab}</span>
             <span className="today-weak-label">{t.weakVocab}</span>
-          </div>
+          </button>
         </div>
       )}
     </div>

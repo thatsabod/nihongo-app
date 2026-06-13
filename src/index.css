@@ -706,9 +706,9 @@ button {
 
 .today-widget {
   display: grid;
-  gap: 11px;
-  margin: 12px 0;
-  padding: 14px;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--panel);
@@ -753,7 +753,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 11px 14px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, #36bdf7, #7c3aed);
   color: white;
@@ -792,7 +792,7 @@ button {
   align-items: center;
   gap: 10px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 10px;
   padding: 12px 14px;
   border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
   border-radius: var(--radius-lg, 14px);
@@ -818,7 +818,7 @@ button {
 
 /* ── Daily goal ── */
 .today-goal {
-  margin-bottom: 14px;
+  margin-bottom: 11px;
 }
 
 .today-goal-head {
@@ -893,7 +893,7 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .today-weak-card {
@@ -6768,7 +6768,7 @@ select:focus {
   align-items: center;
   gap: 8px;
   padding: 0 14px;
-  height: 40px;
+  height: 36px;
   border-radius: 999px;
   background: var(--panel-2, color-mix(in srgb, var(--text) 6%, var(--panel)));
   border: 1px solid var(--border);
@@ -6795,7 +6795,7 @@ select:focus {
 .cm-tabs::-webkit-scrollbar { display: none; }
 .cm-tab {
   flex: 0 0 auto;
-  padding: 7px 14px;
+  padding: 6px 13px;
   border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
@@ -6821,7 +6821,7 @@ select:focus {
 .cm-compose input {
   flex: 1;
   min-width: 0;
-  padding: 11px 14px;
+  padding: 9px 14px;
   border-radius: var(--radius-lg, 16px);
   border: 1px solid var(--border);
   background: var(--panel);
@@ -6835,7 +6835,7 @@ select:focus {
 .cm-feed { display: grid; gap: 10px; }
 .cm-empty { text-align: center; color: var(--muted); padding: 32px 0; }
 .cm-post {
-  padding: 13px 14px;
+  padding: 11px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg, 16px);
   background: var(--panel);
@@ -6923,7 +6923,7 @@ select:focus {
 .cm-post-romaji { margin: 2px 0 0; font-size: 0.82rem; color: var(--muted); }
 .cm-post-translation { margin: 6px 0 0; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--text) 5%, var(--panel)); font-size: 0.9rem; }
 
-.cm-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.cm-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .cm-tag { font-size: 0.74rem; font-weight: 700; color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--panel)); border-radius: 999px; padding: 3px 10px; }
 
 /* Action bar */
@@ -7101,3 +7101,7 @@ select:focus {
 .cm-switch-knob { position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform 0.18s ease; }
 .cm-switch.on .cm-switch-knob { transform: translateX(18px); }
 [dir="rtl"] .cm-switch.on .cm-switch-knob { transform: translateX(-18px); }
+
+/* Button-as-element resets for newly-interactive affordances (button audit) */
+.avatar.avatar-edit { border: 0; padding: 0; font: inherit; cursor: pointer; }
+.cm-chat-head-id { display: flex; align-items: center; gap: 10px; min-width: 0; border: 0; background: transparent; color: inherit; padding: 0; cursor: pointer; text-align: start; }

@@ -53,6 +53,8 @@ The lesson node progress ring should reflect these five sections. Completion sho
 
 - `recordLessonStat` now preserves existing lesson fields such as completed sections.
 - `mergeProgressState` now merges lesson sections instead of replacing an entire lesson record with the newest stats record.
+- Added a central browser audio service in `src/utils/audioPlayer.js`. All Japanese pronunciation and feedback sounds should go through `src/sounds.js`, which now wraps the central player. Avoid new scattered `new Audio(...)` or direct `speechSynthesis` calls unless there is a feature-specific reason.
+- Current app has no bundled mp3/wav/ogg/m4a lesson audio files. Japanese pronunciation relies on Web Speech API TTS, with optional remote TTS fallback. Audio failures emit a global app notice instead of silently failing.
 
 ---
 
@@ -155,6 +157,24 @@ Goal: modern dark social-learning feed. Decision (user): reuse the real Firestor
 - `.cm-screen` = `position:fixed; inset:0; z-index:60` flex column (header / scroll body / pinned composer). `safe-area-inset-bottom` on the composer.
 - Verified live: DMs icon → inbox screen (chrome hidden, empty state); notifications → screen (no messages, gear→settings); settings toggle flips + persists; back navigation at every level restores chrome + feed (7 posts); no console errors. DM chat + conversation rows render with real data (not exercised — this guest has no messages — but reuse proven logic + build-valid).
 - Old inline dm-modal + `inbox-panel` messages/notifications branches are now superseded (requests branch still used inline); left in place, harmless.
+
+### Spacing −18% pass #2 + global button audit/fixes DONE
+- **Spacing**: further tightened the named Home/Community areas — `.cm-search` 40→36h, `.cm-tab` 7/14→6/13, `.cm-compose input` 11→9, `.cm-post` 13→11, `.cm-tags` 12→10, `.today-recommend` 14/16→11/14, `.today-review-cta`/`.today-goal`/`.today-weak-row` →10/11, `.today-widget` gap/margin/pad →10/10/12.
+- **Button audit** (8-agent workflow, 221 clickables, 206 already working). Fixed every genuinely-inert one:
+  - **Mock-post Comment / Correct / View-all** were no-ops (`onToggleComments` early-returned for `mock-` ids). Removed the guard; `CommunityPostCard` now expands an inline read-only `.cm-thread-mock` (from `commentsPreview`) for non-question posts. ✅ verified live.
+  - **Home weak-grammar / weak-vocab cards** were non-interactive stat divs → now `<button>`s → `onReviewWeak(type)` → `setReviewFilter(type)` + `setScreen('review')`. `SmartReview` gained a `reviewFilter` prop that filters the session by `itemType`. (Cards only show when weak items exist.)
+  - **DM attach** (Image/File/Location) were stubs → Image/File open a real file picker and send a text placeholder naming the file (TODO: real Storage upload); Location uses `navigator.geolocation` → sends a Google-Maps link. Added `sendMessageBody(body)` (refactored out of `sendMessageToProfile`) + `onSendText` prop through DMChatScreen→ChatComposer.
+  - **Notification row** only marked-read → now also opens the sender's profile (`setSelectedProfile` + back to feed).
+  - **Profile-card avatar** was a dead affordance → `<button>` → `setScreen('edit-profile')`. ✅ verified live.
+  - **DM chat header** (avatar+name) → now a button → opens counterpart profile.
+- **Left as-is (not user-facing dead buttons)**: guest "Create account" navigates to login (functional, just duplicate of Login); `SpeakSectionExercise` onAnswer no-op (rare examples-but-no-exercises branch; its record/replay/skip buttons all work); `ReviewSection` unused export + `onQuiz` dead prop chain (dead CODE, no rendered button) — flagged for a cleanup pass.
+- Build clean, no console errors.
+
+### Button-audit follow-ups (the 3 deferred items) DONE
+- **(a) Sign-up intent**: `Login.jsx` gained an `initialMode` prop (`useState(initialMode==='register'?…)`). App added `authIntent` state + `goToAuth(intent)`; profile "إنشاء حساب" → `goToAuth('register')`, "تسجيل الدخول"/Welcome-login/settings-account → `goToAuth('login')`; `<Login initialMode={authIntent}/>`. ✅ verified live: Create account opens the register form.
+- **(b) Speak-practice result**: the examples-but-no-exercises branch's `SpeakSectionExercise onAnswer={() => {}}` → now `recordLessonStat(readProgressState(), String(lesson.id), passed !== false)` (completion counts).
+- **(c) Dead code removed**: `ReviewSection` (unused export), the `onQuiz` prop chain (LessonView sig + ExercisesSection call + render), and `startLessonQuiz` (only reachable via the dead onQuiz). `makeLessonVocabQuiz` + `ReviewSpeakingSession` are now orphaned internal helpers (tree-shaken; left in place).
+- ⚠️ **Concurrent-edit incident**: `LessonSections.jsx` was being restructured by the user/linter mid-turn (sections reordered — Warmup/Examples moved up, ReviewSection/ReviewSpeakingSession area changed). A line-based `sed` for the ReviewSection removal hit a transient layout and briefly broke the `ExamplesSection`/`WarmupSection` exports (stale HMR errors `?t=1781363931224`). Resolved: final `vite build` clean; a fresh `import('/src/components/LessonSections.jsx')` confirms `ExamplesSection`/`WarmupSection`/`ExercisesSection` export and `ReviewSection` is gone; lesson flow verified live (9-section path + Warmup focus render). **Lesson for next time: prefer Edit (exact-match) over line-range `sed` on files under concurrent edit.**
 
 ### Gotchas confirmed this session
 - `.env.local` `VITE_ANTHROPIC_API_KEY` = LOCAL dev only (in browser bundle — never deploy with it; prod uses `askSensei` cloud fn). Committed key was screenshot-exposed → rotate.

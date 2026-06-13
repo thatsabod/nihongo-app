@@ -108,6 +108,97 @@ function findVocabMatches(lesson, ex) {
 }
 
 // ── Exercise: choose meaning ──────────────────────────────────────────────────
+export function WarmupSection({ lesson, lang, kanjiReadingMode, onGo }) {
+  const isAr = lang === 'ar'
+  const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
+  const sampleVocab = (lesson.vocab || []).slice(0, 4)
+  const sampleExample = lesson.examples?.[0] || lesson.grammar?.[0]?.example
+
+  return (
+    <div className="review-wrap">
+      <div className="review-focus">
+        <span className="review-focus-label">{isAr ? 'تهيئة الدرس' : 'Lesson warm-up'}</span>
+        <p>{lesson.focus || (isAr ? 'ابدأ بهدوء، استمع للكلمات الأساسية، ثم انتقل للدرس.' : 'Start calmly, listen to the key items, then continue.')}</p>
+      </div>
+
+      {sampleExample?.jp && (
+        <section className="review-block">
+          <h3 className="review-block-title">{isAr ? 'جملة البداية' : 'Starter sentence'}</h3>
+          <button className="review-example-btn" onClick={() => speakJapanese(sampleExample.jp)}>
+            <LessonJP text={sampleExample.jp} readingMap={readingMap} />
+            {sampleExample.romaji && <small dir="ltr">{sampleExample.romaji}</small>}
+            <span>{sampleExample.ar}</span>
+          </button>
+        </section>
+      )}
+
+      {sampleVocab.length > 0 && (
+        <section className="review-block">
+          <h3 className="review-block-title">{isAr ? 'استمع لأول كلمات الدرس' : 'Listen to the first words'}</h3>
+          <div className="review-vocab-list">
+            {sampleVocab.map((item) => {
+              const surface = item.kanji || item.jp
+              const kana = item.hiragana || item.jp
+              return (
+                <button key={item.id || item.jp} className="review-vocab-chip" onClick={() => speakJapanese(kana)}>
+                  <LessonJP text={surface} readingMap={readingMap} />
+                  <small>{item.meaning}</small>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      <div className="review-actions">
+        <button className="btn btn-primary" onClick={() => onGo?.('vocabulary')}>
+          {isAr ? 'ابدأ المفردات' : 'Start vocabulary'}
+          <AppIcon name="next" size={16} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function ExamplesSection({ lesson, lang, kanjiReadingMode, onNext }) {
+  const isAr = lang === 'ar'
+  const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
+  const examples = lesson.examples?.length
+    ? lesson.examples
+    : (lesson.grammar || []).map((rule) => rule.example).filter(Boolean)
+
+  return (
+    <div className="review-wrap">
+      <div className="review-focus">
+        <span className="review-focus-label">{isAr ? 'أمثلة الدرس' : 'Lesson examples'}</span>
+        <p>{isAr ? 'اضغط على أي جملة حتى تسمع اللفظ، ثم اقرأ المعنى.' : 'Tap any sentence to hear it, then read the meaning.'}</p>
+      </div>
+
+      <section className="review-block">
+        <h3 className="review-block-title">{isAr ? 'الجمل الأساسية' : 'Core sentences'}</h3>
+        <div className="review-examples-list">
+          {examples.map((ex, i) => (
+            <button key={`${ex.jp}-${i}`} className="review-example-btn" onClick={() => speakJapanese(ex.jp)}>
+              <LessonJP text={ex.jp} readingMap={readingMap} />
+              {ex.romaji && <small dir="ltr">{ex.romaji}</small>}
+              <span>{ex.ar}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {onNext && (
+        <div className="review-actions">
+          <button className="btn btn-primary" onClick={onNext}>
+            {isAr ? 'التالي' : 'Next'}
+            <AppIcon name="next" size={16} />
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ChooseExercise({ ex, allAnswers, lang, readingMap, onAnswer }) {
   const [picked, setPicked] = useState(null)
   const jpText = extractJP(ex.prompt)
@@ -336,7 +427,7 @@ export function ExercisesSection({ lesson, lang, kanjiReadingMode, onStudyComple
         </div>
         {exercises[0]?.type === 'speak' && (
           <div className="iex-card" style={{ marginTop: 16 }}>
-            <SpeakSectionExercise ex={exercises[0]} lang={lang} onAnswer={() => {}} />
+            <SpeakSectionExercise ex={exercises[0]} lang={lang} onAnswer={(passed) => recordLessonStat(readProgressState(), String(lesson.id), passed !== false)} />
           </div>
         )}
       </div>
@@ -566,268 +657,6 @@ function ReviewSpeakingSession({ items, lang, onClose }) {
         onSkip={() => handleAnswer(true)}
       />
     </ExerciseContainer>
-  )
-}
-
-// ── SECTION: Review ───────────────────────────────────────────────────────────
-export function ReviewSection({ lesson, lang, kanjiReadingMode }) {
-  const [showAll, setShowAll] = useState(false)
-  const [speakingSession, setSpeakingSession] = useState(false)
-  const isAr = lang === 'ar'
-  const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
-  const displayVocab = showAll ? lesson.vocab : lesson.vocab?.slice(0, 6)
-
-  const speakingItems = useMemo(() => {
-    const fromExamples = (lesson.examples || []).map((ex) => ({ sentence: ex.jp.replace(/\s+/g, ''), reading: ex.romaji }))
-    const fromVocab = (lesson.vocab || []).map((v) => ({ sentence: v.kanji || v.jp, reading: v.hiragana || v.reading }))
-    return shuffle([...fromExamples, ...fromVocab]).slice(0, 5)
-  }, [lesson])
-
-  if (speakingSession) {
-    return <ReviewSpeakingSession items={speakingItems} lang={lang} onClose={() => setSpeakingSession(false)} />
-  }
-
-  return (
-    <div className="review-wrap">
-      {speakingItems.length > 0 && (
-        <button className="btn btn-primary" onClick={() => setSpeakingSession(true)}>
-          {isAr ? '🎙️ تمرين التكرار الشفوي' : '🎙️ Speaking review'}
-        </button>
-      )}
-      {/* Focus banner */}
-      <div className="review-focus">
-        <span className="review-focus-label">{isAr ? 'محور الدرس' : 'Lesson focus'}</span>
-        <p>{lesson.focus}</p>
-      </div>
-
-      {/* Grammar summary */}
-      {Array.isArray(lesson.grammar) && (
-        <section className="review-block">
-          <h3 className="review-block-title">{isAr ? 'القواعد' : 'Grammar'}</h3>
-          <div className="review-grammar-list">
-            {lesson.grammar.map((rule) => (
-              <div key={rule.title} className="review-grammar-chip">
-                {rule.particle && (
-                  <span className="grammar-particle-badge" dir="ltr" style={{ fontSize: '0.78rem', padding: '2px 8px' }}>
-                    {rule.particle}
-                  </span>
-                )}
-                <div>
-                  <strong>{rule.title}</strong>
-                  <span dir="ltr">{rule.pattern}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Grammar examples */}
-      {Array.isArray(lesson.grammar) && (
-        <section className="review-block">
-          <h3 className="review-block-title">{isAr ? 'أمثلة القواعد' : 'Grammar examples'}</h3>
-          <div className="review-examples-list">
-            {lesson.grammar.map((rule) => (
-              <button key={rule.title} className="review-example-btn" onClick={() => speakJapanese(rule.example.jp)}>
-                <LessonJP text={rule.example.jp} readingMap={readingMap} />
-                <span>{rule.example.ar}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Vocabulary */}
-      <section className="review-block">
-        <h3 className="review-block-title">{isAr ? 'المفردات' : 'Vocabulary'}</h3>
-        <div className="review-vocab-grid">
-          {displayVocab?.map((item) => {
-            const surface = item.kanji || item.jp
-            const kana = item.hiragana || item.jp
-            const reading = kanjiReadingMode === 'romaji' ? item.reading : kana
-            const hasKanji = /[㐀-鿿]/.test(surface)
-            return (
-              <button key={item.jp} className="review-vocab-chip" onClick={() => speakJapanese(kana)}>
-                <span dir="ltr">
-                  {hasKanji ? (
-                    <ruby>{surface}<rt>{reading}</rt></ruby>
-                  ) : (
-                    surface
-                  )}
-                </span>
-                <small>{item.meaning}</small>
-              </button>
-            )
-          })}
-        </div>
-        {lesson.vocab?.length > 6 && (
-          <button className="btn btn-secondary" style={{ marginTop: 10 }} onClick={() => setShowAll((v) => !v)}>
-            {showAll ? (isAr ? 'عرض أقل' : 'Show less') : (isAr ? `عرض الكل (${lesson.vocab.length})` : `Show all (${lesson.vocab.length})`)}
-          </button>
-        )}
-      </section>
-
-      {/* Sentence examples */}
-      {lesson.examples?.length > 0 && (
-        <section className="review-block">
-          <h3 className="review-block-title">{isAr ? 'جمل الدرس' : 'Lesson sentences'}</h3>
-          <div className="review-examples-list">
-            {lesson.examples.slice(0, 6).map((ex, i) => (
-              <button key={i} className="review-example-btn" onClick={() => speakJapanese(ex.jp)}>
-                <LessonJP text={ex.jp} readingMap={readingMap} />
-                <span>{ex.ar}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  )
-}
-
-// ── SECTION: Warm-up — orient the student before diving in ───────────────────
-export function WarmupSection({ lesson, lang, kanjiReadingMode, onGo }) {
-  const isAr = lang === 'ar'
-  const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
-  const firstExample = lesson.examples?.[0]
-  const warmupWords = (lesson.vocab || []).slice(0, 6)
-
-  return (
-    <div className="review-wrap">
-      {/* What this lesson is about */}
-      <div className="review-focus">
-        <span className="review-focus-label">{isAr ? 'محور الدرس' : 'Lesson focus'}</span>
-        <p>{lesson.focus}</p>
-      </div>
-
-      {/* What you'll learn today */}
-      <section className="review-block">
-        <h3 className="review-block-title">{isAr ? 'ماذا ستتعلم اليوم؟' : "What you'll learn today"}</h3>
-        <div className="warmup-stats">
-          <span className="warmup-chip"><strong>{lesson.vocab?.length || 0}</strong>{isAr ? 'مفردة' : 'words'}</span>
-          <span className="warmup-chip"><strong>{Array.isArray(lesson.grammar) ? lesson.grammar.length : 0}</strong>{isAr ? 'قواعد' : 'grammar'}</span>
-          <span className="warmup-chip"><strong>{lesson.examples?.length || 0}</strong>{isAr ? 'جملة' : 'sentences'}</span>
-          <span className="warmup-chip"><strong>{lesson.exercises?.length || 0}</strong>{isAr ? 'تمرينًا' : 'exercises'}</span>
-        </div>
-        {Array.isArray(lesson.grammar) && (
-          <div className="review-grammar-list" style={{ marginTop: 10 }}>
-            {lesson.grammar.map((rule) => (
-              <div key={rule.title} className="review-grammar-chip">
-                {rule.particle && (
-                  <span className="grammar-particle-badge" dir="ltr" style={{ fontSize: '0.78rem', padding: '2px 8px' }}>
-                    {rule.particle}
-                  </span>
-                )}
-                <div>
-                  <strong>{rule.title}</strong>
-                  <span dir="ltr">{rule.pattern}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Quick ear-warmup: tap to hear */}
-      {warmupWords.length > 0 && (
-        <section className="review-block">
-          <h3 className="review-block-title">{isAr ? 'تسخين سريع — اضغط واستمع 🔊' : 'Quick warm-up — tap to listen 🔊'}</h3>
-          <div className="review-vocab-grid">
-            {warmupWords.map((item) => {
-              const surface = item.kanji || item.jp
-              const kana = item.hiragana || item.jp
-              const hasKanji = /[㐀-鿿]/.test(surface)
-              return (
-                <button key={item.jp} className="review-vocab-chip" onClick={() => speakJapanese(kana)}>
-                  <span dir="ltr">
-                    {hasKanji ? <ruby>{surface}<rt>{kanjiReadingMode === 'romaji' ? item.reading : kana}</rt></ruby> : surface}
-                  </span>
-                  <small>{item.meaning}</small>
-                </button>
-              )
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* Sentence of the day */}
-      {firstExample && (
-        <section className="review-block">
-          <h3 className="review-block-title">{isAr ? 'جملة اليوم' : 'Sentence of the day'}</h3>
-          <div className="review-examples-list">
-            <button className="review-example-btn" onClick={() => speakJapanese(firstExample.jp)}>
-              <LessonJP text={firstExample.jp} readingMap={readingMap} />
-              <small dir="ltr">{firstExample.romaji}</small>
-              <span>{firstExample.ar}</span>
-            </button>
-          </div>
-        </section>
-      )}
-
-      <button className="btn btn-primary section-next-cta" onClick={() => onGo('vocabulary')}>
-        {isAr ? 'جاهز؟ ابدأ بالمفردات ←' : "Ready? Start with vocabulary →"}
-      </button>
-    </div>
-  )
-}
-
-// ── SECTION: Examples — every sentence in the lesson, tappable audio ─────────
-export function ExamplesSection({ lesson, lang, kanjiReadingMode, onNext }) {
-  const isAr = lang === 'ar'
-  const readingMap = useMemo(() => buildReadingMap(lesson.vocab || [], kanjiReadingMode), [lesson.vocab, kanjiReadingMode])
-
-  return (
-    <div className="review-wrap">
-      <div className="review-focus">
-        <span className="review-focus-label">{isAr ? 'كيف تستفيد' : 'How to use this'}</span>
-        <p>{isAr
-          ? 'اضغط أي جملة لتسمعها، ثم كرّرها بصوتٍ عالٍ. التكرار الصوتي يثبّت القاعدة أسرع من القراءة الصامتة.'
-          : 'Tap any sentence to hear it, then repeat it out loud. Hearing + repeating beats silent reading.'}</p>
-      </div>
-
-      {/* Grammar examples — one per rule, with the rule named */}
-      {Array.isArray(lesson.grammar) && lesson.grammar.length > 0 && (
-        <section className="review-block">
-          <h3 className="review-block-title">{isAr ? 'أمثلة القواعد' : 'Grammar examples'}</h3>
-          <div className="review-examples-list">
-            {lesson.grammar.map((rule) => (
-              <div key={rule.title} className="example-rule-group">
-                <p className="example-rule-name">
-                  {rule.particle && <span className="grammar-particle-badge" dir="ltr" style={{ fontSize: '0.72rem', padding: '1px 8px' }}>{rule.particle}</span>}
-                  {rule.title}
-                </p>
-                <button className="review-example-btn" onClick={() => speakJapanese(rule.example.jp)}>
-                  <LessonJP text={rule.example.jp} readingMap={readingMap} />
-                  {rule.example.romaji && <small dir="ltr">{rule.example.romaji}</small>}
-                  <span>{rule.example.ar}</span>
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Every lesson sentence */}
-      {lesson.examples?.length > 0 && (
-        <section className="review-block">
-          <h3 className="review-block-title">{isAr ? `جمل الدرس (${lesson.examples.length})` : `Lesson sentences (${lesson.examples.length})`}</h3>
-          <div className="review-examples-list">
-            {lesson.examples.map((ex, i) => (
-              <button key={i} className="review-example-btn" onClick={() => speakJapanese(ex.jp)}>
-                <LessonJP text={ex.jp} readingMap={readingMap} />
-                {ex.romaji && <small dir="ltr">{ex.romaji}</small>}
-                <span>{ex.ar}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-      {onNext && (
-        <button className="btn btn-primary section-continue" onClick={onNext}>
-          {isAr ? 'متابعة ←' : 'Continue →'}
-        </button>
-      )}
-    </div>
   )
 }
 

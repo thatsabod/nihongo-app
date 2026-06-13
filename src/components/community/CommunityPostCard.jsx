@@ -121,7 +121,21 @@ export default function CommunityPostCard({
         />
       )}
 
-      {expanded && renderThread?.(post)}
+      {expanded && (renderThread
+        ? renderThread(post)
+        : (
+          <div className="cm-thread cm-thread-mock">
+            {(post.commentsPreview || []).length ? post.commentsPreview.map((c) => (
+              <p key={c.id} className="cm-comment">
+                <button className="cm-comment-author" onClick={() => onOpenProfile?.(c)}>{c.authorHandle}</button>
+                <span dir="auto">{c.body}</span>
+              </p>
+            )) : (
+              <p className="cm-empty" style={{ padding: '8px 0' }}>{isAr ? 'لا توجد تعليقات بعد.' : 'No comments yet.'}</p>
+            )}
+          </div>
+        )
+      )}
     </article>
   )
 }

@@ -29,6 +29,7 @@ import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
 import { speakJapanese, unlockAudio } from './sounds.js'
+import { AUDIO_EVENT } from './utils/audioPlayer.js'
 import GrammarExercises, { HighlightSentence } from './components/GrammarExercises.jsx'
 import { ExercisesSection, WarmupSection, ExamplesSection, MistakeReviewSection, MasteryCheckSection, DialogueSection, ReadingSection } from './components/LessonSections.jsx'
 import VocabExercises, { VocabPracticeAll } from './components/VocabExercises.jsx'
@@ -1427,11 +1428,13 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     }
   }
 
-  const sendMessageToProfile = async () => {
-    if (!dmProfile || !requireCommunityAccount()) return
+  // Send an explicit body to the current DM counterpart (used by the composer
+  // and by attachment shortcuts). Returns true on success.
+  const sendMessageBody = async (rawBody) => {
+    if (!dmProfile || !requireCommunityAccount()) return false
     const targetId = dmProfile.id || dmProfile.userId
-    const body = messageDraft.trim()
-    if (!body) return onNotice(text.messagePlaceholder)
+    const body = (rawBody || '').trim()
+    if (!body) { onNotice(text.messagePlaceholder); return false }
     try {
       await addDoc(collection(db, 'messages'), {
         fromId: userId,
@@ -1452,11 +1455,17 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         read: false,
         createdAt: serverTimestamp(),
       })
-      setMessageDraft('')
       onNotice(text.messageSent)
+      return true
     } catch (error) {
       onNotice(`${text.locked} ${error.code || error.message}`)
+      return false
     }
+  }
+
+  const sendMessageToProfile = async () => {
+    const ok = await sendMessageBody(messageDraft)
+    if (ok) setMessageDraft('')
   }
 
   const checkSentence = () => {
@@ -1515,7 +1524,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     .filter((post) => !search || `${post.contentAr || ''} ${post.contentJa || ''} ${post.user?.handle || ''} ${(post.tags || []).join(' ')}`.toLowerCase().includes(search))
 
   // Feed interaction wrappers (reuse existing backend handlers; mock = local).
-  const onToggleComments = (id) => { if (String(id).startsWith('mock-')) return; setActiveReplyId((cur) => (cur === id ? null : id)) }
+  const onToggleComments = (id) => setActiveReplyId((cur) => (cur === id ? null : id))
   const toggleSavedPost = (post) => setSavedPostIds((prev) => { const n = new Set(prev); if (n.has(post.id)) n.delete(post.id); else n.add(post.id); return n })
   const handleFeedLike = (post) => { setLikedPostIds((prev) => new Set(prev).add(post.id)); if (post.source === 'question' && post.raw?.id) likeQuestion(post.raw) }
   const handleFeedShare = (post) => {
@@ -1658,6 +1667,8 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         draft={messageDraft}
         onDraftChange={setMessageDraft}
         onSend={sendMessageToProfile}
+        onSendText={sendMessageBody}
+        onOpenProfile={() => { setSelectedProfile(dmProfile); setCommunityView('feed') }}
         onBack={() => setCommunityView('dm-inbox')}
         timeFor={(m) => timeAgo(m.createdAt)}
       />
@@ -1668,7 +1679,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       <NotificationsScreen
         lang={lang}
         notifications={activityNotifications}
-        onOpenNotification={(n) => markItemsRead('notifications', [n])}
+        onOpenNotification={(n) => {
+          markItemsRead('notifications', [n])
+          if (n.fromId) { setSelectedProfile(profileForCommunityItem({ userId: n.fromId, authorHandle: n.fromHandle })); setCommunityView('feed') }
+        }}
         onBack={() => setCommunityView('feed')}
         onOpenSettings={() => setCommunityView('notif-settings')}
       />
@@ -1900,7 +1914,7 @@ function Welcome({ lang, setLang, theme, setTheme, onStart, onLogin }) {
   )
 }
 
-function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, onQuiz, lessonDone = false, sectionsDone = 0, onStudyActivity }) {
+function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onBack, lessonDone = false, sectionsDone = 0, onStudyActivity }) {
   const [section, setSection] = useState('overview')
   const [flipped, setFlipped] = useState({})
   const [activeGrammarEx, setActiveGrammarEx] = useState(null)
@@ -2149,7 +2163,7 @@ function LessonView({ lesson, lang, progress, setProgress, kanjiReadingMode, onB
       )}
 
       {section === 'practice' && (
-        <ExercisesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onQuiz={onQuiz} onStudyComplete={onStudyActivity} />
+        <ExercisesSection lesson={lesson} lang={lang} kanjiReadingMode={kanjiReadingMode} onStudyComplete={onStudyActivity} />
       )}
 
       {section === 'mistakeReview' && (
@@ -2338,6 +2352,9 @@ export default function App() {
   const [tab, setTab] = useState('home')
   const [communityView, setCommunityView] = useState('feed') // 'feed'|'dm-inbox'|'dm-chat'|'notifications'|'notif-settings'
   useEffect(() => { if (tab !== 'community') setCommunityView('feed') }, [tab])
+  const [reviewFilter, setReviewFilter] = useState(null) // null | 'grammar' | 'vocab' | 'kanji' — weak-area review shortcut
+  const [authIntent, setAuthIntent] = useState('login') // 'login' | 'register' — which mode the Login screen opens in
+  const goToAuth = (intent) => { setAuthIntent(intent); setScreen('login') }
   const [lang, setLang] = useState(localStorage.getItem('nihongo-lang') || 'ar')
   const [theme, setTheme] = useState(localStorage.getItem('nihongo-theme') || 'light')
   const [lettersTab, setLettersTab] = useState('hiragana')
@@ -2433,6 +2450,18 @@ export default function App() {
   const verificationWaitMs = Math.max(0, verificationRetryAt - nowTick)
   const verificationWaitSeconds = Math.ceil(verificationWaitMs / 1000)
   const verificationWaitLabel = `${Math.floor(verificationWaitSeconds / 60)}:${String(verificationWaitSeconds % 60).padStart(2, '0')}`
+
+  useEffect(() => {
+    const onAudioState = (event) => {
+      if (event.detail?.status === 'error') {
+        setNotice(lang === 'ar'
+          ? 'تعذر تشغيل الصوت حاليا. جرّب الضغط مرة ثانية.'
+          : 'Audio could not play right now. Tap again.')
+      }
+    }
+    window.addEventListener(AUDIO_EVENT, onAudioState)
+    return () => window.removeEventListener(AUDIO_EVENT, onAudioState)
+  }, [lang])
 
   const applyState = (state) => {
     setXp(state.xp ?? 0)
@@ -2808,18 +2837,6 @@ export default function App() {
     setScreen('quiz')
   }
 
-  const startLessonQuiz = (lesson, groupItems = null) => {
-    if (hearts <= 0) {
-      setNotice(t.noHearts)
-      return
-    }
-    setQuestions(makeLessonVocabQuiz(lesson, groupItems || lesson.vocab, kanjiReadingMode).map((q) => ({ ...q, soundEnabled })))
-    setQIndex(0)
-    setSelected(null)
-    setScore(0)
-    setScreen('quiz')
-  }
-
   const startCharacterGroupQuiz = (group) => {
     if (hearts <= 0) {
       setNotice(t.noHearts)
@@ -3120,7 +3137,7 @@ export default function App() {
         theme={theme}
         setTheme={setTheme}
         onStart={startGuest}
-        onLogin={() => setScreen('login')}
+        onLogin={() => goToAuth('login')}
       />
     )
   }
@@ -3129,6 +3146,7 @@ export default function App() {
     return (
       <Login
         lang={lang}
+        initialMode={authIntent}
         onBack={() => setScreen('welcome')}
         onLogin={(name) => {
           if (name === 'زائر' || name === 'Guest') {
@@ -3166,7 +3184,7 @@ export default function App() {
     return (
       <HeartsContext.Provider value={heartsApi}>
         <Suspense fallback={<ScreenFallback />}>
-          <SmartReview allLessons={ALL_LESSONS} allKanji={kanjiN5} lang={lang} kanjiReadingMode={kanjiReadingMode} onStudyComplete={() => registerStudyActivity(15)} onClose={() => setScreen('main')} />
+          <SmartReview allLessons={ALL_LESSONS} allKanji={kanjiN5} lang={lang} kanjiReadingMode={kanjiReadingMode} reviewFilter={reviewFilter} onStudyComplete={() => registerStudyActivity(15)} onClose={() => { setReviewFilter(null); setScreen('main') }} />
         </Suspense>
       </HeartsContext.Provider>
     )
@@ -3193,7 +3211,7 @@ export default function App() {
   if (screen === 'lesson' && activeLesson) {
     return (
       <HeartsContext.Provider value={heartsApi}>
-        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} lessonDone={(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0) >= sectionCount} sectionsDone={Math.min(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0, sectionCount)} onStudyActivity={() => registerStudyActivity(15)} onBack={() => setScreen('main')} onQuiz={(groupItems) => startLessonQuiz(activeLesson, groupItems)} />
+        <LessonView lesson={activeLesson} lang={lang} progress={progress} setProgress={setProgress} kanjiReadingMode={kanjiReadingMode} lessonDone={(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0) >= sectionCount} sectionsDone={Math.min(lessonProgress[`${currentLevel}-${activeLesson.id}`] || 0, sectionCount)} onStudyActivity={() => registerStudyActivity(15)} onBack={() => setScreen('main')} />
       </HeartsContext.Provider>
     )
   }
@@ -3328,7 +3346,7 @@ export default function App() {
         values={{ userAvatar, soundEnabled, fontScale, cozyMode, kanjiReadingMode, isPaid, isGuest }}
         onBack={() => setScreen('main')}
         onEditProfile={() => setScreen('edit-profile')}
-        onAccountAction={() => setScreen('login')}
+        onAccountAction={() => goToAuth('login')}
         onUpdatePrefs={(prefs) => {
           if ('soundEnabled' in prefs) setSoundEnabled(prefs.soundEnabled)
           if ('fontScale' in prefs) setFontScale(prefs.fontScale)
@@ -3397,7 +3415,8 @@ export default function App() {
               t={t}
               recommendedLesson={recommendedLesson}
               onContinue={() => recommendedLesson && setPreviewLesson(recommendedLesson)}
-              onReview={() => setScreen('review')}
+              onReview={() => { setReviewFilter(null); setScreen('review') }}
+              onReviewWeak={(type) => { setReviewFilter(type); setScreen('review') }}
             />
 
             <div className="unit-card">
@@ -3569,7 +3588,7 @@ export default function App() {
             </div>
 
             <div className="profile-card">
-              <div className="avatar">{userAvatar ? <img src={userAvatar} alt="" /> : (userName || t.guestName).slice(0, 1).toUpperCase()}</div>
+              <button type="button" className="avatar avatar-edit" onClick={() => setScreen('edit-profile')} aria-label={t.editProfile || (isAr ? 'تعديل الملف' : 'Edit profile')}>{userAvatar ? <img src={userAvatar} alt="" /> : (userName || t.guestName).slice(0, 1).toUpperCase()}</button>
               <h1>{userName || t.guestName}</h1>
               <p className="user-handle">{userHandle}</p>
               <p>{isGuest ? t.guestHint : 'にほんごGO learner'}</p>
@@ -3595,8 +3614,8 @@ export default function App() {
               <div className="guest-panel">
                 <p>{t.loginPrompt}</p>
                 <div className="split-actions">
-                  <Button onClick={() => setScreen('login')}>{t.login}</Button>
-                  <Button variant="secondary" onClick={() => setScreen('login')}>{t.create}</Button>
+                  <Button onClick={() => goToAuth('login')}>{t.login}</Button>
+                  <Button variant="secondary" onClick={() => goToAuth('register')}>{t.create}</Button>
                 </div>
               </div>
             )}
