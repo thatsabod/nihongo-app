@@ -5,8 +5,14 @@ import { auth, db } from './firebase.js'
 import { hiragana, katakana, kanjiN5, lessons, n4Lessons, n3Lessons } from './data.js'
 import LessonNode from './components/LessonNode.jsx'
 import LessonPreviewModal from './components/LessonPreviewModal.jsx'
+import LevelSelector from './components/LevelSelector.jsx'
+import CommunityHeader from './components/community/CommunityHeader.jsx'
+import CommunityTabs from './components/community/CommunityTabs.jsx'
+import CommunityFeed from './components/community/CommunityFeed.jsx'
+import { COMMUNITY_TABS, MOCK_COMMUNITY_POSTS, postMatchesTab } from './data/communityMockData.js'
 import TodayWidget from './components/dashboard/TodayWidget.jsx'
 import RetentionPanel from './components/dashboard/RetentionPanel.jsx'
+import { copy } from './i18n/copy.js'
 // Rare / heavy screens are code-split so an N5 beginner doesn't download the
 // exam engine, admin dashboard, AI Sensei, drawing pad or review screen on
 // first paint. Each is loaded on demand behind a Suspense fallback.
@@ -38,6 +44,7 @@ function ScreenFallback() {
   return <main className="loading"><div className="brand big"><span className="brand-mark">日</span><span>にほんごGO</span></div></main>
 }
 import { EXAM_CONFIG, LEVEL_ORDER } from './content/examConfig.js'
+import { useExam } from './hooks/useExam.js'
 import { HeartsContext } from './hearts-context.jsx'
 
 const TOTAL_LESSONS = 25
@@ -56,249 +63,6 @@ const lessonDisplayOffsetByLevel = {
   N5: 0,
   N4: 25,
   N3: 50,
-}
-
-const copy = {
-  ar: {
-    start: 'ابدأ التعلم',
-    login: 'تسجيل الدخول',
-    create: 'إنشاء حساب',
-    home: 'الرئيسية',
-    letters: 'الحروف',
-    profile: 'حسابي',
-    welcomeTitle: 'تعلم اليابانية بخطوات قصيرة',
-    welcomeText: 'حروف، مفردات، دروس N5، واختبارات سريعة بتجربة مرتبة وواضحة.',
-    continue: 'كمّل من مكانك',
-    level: 'المستوى',
-    streak: 'ستريك',
-    hearts: 'قلوب',
-    gems: 'جواهر',
-    xp: 'نقاط',
-    lessons: 'مسار الدروس',
-    practice: 'تدرب الآن',
-    lesson: 'درس',
-    locked: 'مقفل',
-    done: 'مكتمل',
-    current: 'نشط',
-    comingSoon: 'قريبا',
-    overview: 'المسار',
-    warmup: 'تهيئة',
-    vocabulary: 'مفردات',
-    grammar: 'قواعد',
-    examples: 'أمثلة',
-    dialogue: 'حوار',
-    reading: 'قراءة',
-    practice: 'تدريب',
-    mistakeReview: 'مراجعة الأخطاء',
-    masteryCheck: 'اختبار الإتقان',
-    exercises: 'تمارين',
-    videos: 'فيديوهات',
-    review: 'مراجعة',
-    noVideos: 'سنضيف فيديوهات هذا الدرس لاحقا. حاليا تدرب على المفردات والقواعد.',
-    tapHear: 'اضغط للسماع',
-    quiz: 'اختبار',
-    settings: 'الإعدادات',
-    achievements: 'الإنجازات',
-    signOut: 'تسجيل الخروج',
-    language: 'اللغة',
-    theme: 'المظهر',
-    dark: 'داكن',
-    light: 'فاتح',
-    mastered: 'متقن',
-    noHearts: 'ماكو قلوب كافية. انتظر دقيقة ونص أو عبّيها بالجواهر.',
-    guestName: 'زائر',
-    guestHint: 'تقدمك محفوظ على هذا الجهاز فقط.',
-    loginPrompt: 'سجل دخول أو أنشئ حساب حتى تحفظ تقدمك بالسحابة.',
-    refillAll: 'تعبئة البطارية',
-    refillCost: '250 جوهرة',
-    notEnoughGems: 'الجواهر غير كافية.',
-    usernameInvalid: 'Username لازم يبدأ بحرف إنكليزي ويحتوي حروف إنكليزية أو أرقام أو _ فقط، من 3 إلى 24 حرف.',
-    usernameTaken: 'هذا الـ username مأخوذ، جرّب واحد ثاني.',
-    emailUnverified: 'بريدك غير مؤكد بعد. أكد البريد حتى يبقى حسابك آمن وتقدر تسترجعه لاحقا.',
-    resendEmail: 'إرسال رابط التأكيد',
-    resendWait: 'انتظر',
-    refreshEmail: 'تحديث الحالة',
-    verificationSent: 'تم إرسال رابط التأكيد إلى بريدك.',
-    emailVerified: 'البريد مؤكد',
-    heartsFull: 'قلوبك ممتلئة.',
-    editProfile: 'تعديل الملف الشخصي',
-    name: 'الاسم',
-    bio: 'نبذة',
-    phone: 'الهاتف',
-    birthday: 'تاريخ الميلاد',
-    save: 'حفظ',
-    cancel: 'إلغاء',
-    groups: 'مجموعات الحروف',
-    group: 'مجموعة',
-    groupQuiz: 'ابدأ بالتدرب الآن',
-    drawPractice: 'تدريب الرسم',
-    chooseCharacter: 'اختر حرفا للتدرب على رسمه',
-    listen: 'استماع',
-    openGroup: 'فتح المجموعة',
-    fiveChars: 'كل مجموعة 5 أحرف',
-    account: 'الحساب',
-    customization: 'التخصيص',
-    subscription: 'الاشتراك',
-    policy: 'سياسة التطبيق',
-    support: 'دعم مباشر',
-    donate: 'تبرع لنا',
-    freePlan: 'مجاني',
-    paidPlan: 'مدفوع',
-    sound: 'الأصوات',
-    fontSize: 'حجم الخط',
-    cozyMode: 'وضع مريح',
-    kanjiReading: 'صوت الكانجي داخل التطبيق',
-    kanjiReadingHiragana: 'هيراغانا',
-    kanjiReadingRomaji: 'روماجي',
-    profilePhoto: 'صورة الحساب',
-    uploadPhoto: 'اختيار صورة',
-    subscriptionText: 'اشتراكك الحالي مجاني. الباقات المدفوعة ستفتح لاحقا مزايا مثل دروس أكثر وتمارين متقدمة.',
-    policyText: 'نحفظ تقدمك وبيانات حسابك الأساسية حتى تقدر تكمل التعلم من أي جهاز. بيانات الزائر تبقى على هذا الجهاز فقط.',
-    supportText: 'الدعم المباشر قيد التجهيز. حاليا تقدر تبلغنا بالمشكلة من داخل ملاحظاتك وسنضيف قناة تواصل مباشرة.',
-    donateText: 'التبرع يساعدنا نطور الدروس والصوت وتجربة الرسم. سنضيف وسيلة دفع آمنة لاحقا.',
-    todayTitle: 'اليوم',
-    dayStreak: 'يوم متتالي',
-    reviewsDue: 'مراجعات جاهزة',
-    noReviewsDue: 'لا توجد مراجعات الآن',
-    weakSpots: 'نقاط تحتاج تدريب',
-    noWeakSpots: 'لا توجد نقاط ضعف الآن',
-    recommendedLesson: 'الدرس المقترح',
-    continueCta: 'استمر',
-    startReview: 'ابدأ المراجعة',
-    reviewWidgetCta: 'راجع نقاط ضعفك اليوم',
-    dailyGoal: 'هدف اليوم',
-    goalReached: 'أحسنت! حققت هدف اليوم 🎉',
-    weakGrammar: 'قواعد ضعيفة',
-    weakVocab: 'مفردات ضعيفة',
-    aiSensei: 'اسأل عبدول سينسيه',
-    aiSenseiSub: 'مساعد تعلّم مبني على بياناتك',
-    reviewStreak: 'سلسلة المراجعة (أيام)',
-    viewProgress: 'عرض التقدّم',
-    skillVocab: 'مفردات',
-    skillGrammar: 'قواعد',
-    skillKanji: 'كانجي',
-    achievementUnlocked: 'إنجاز جديد',
-  },
-  en: {
-    start: 'Start learning',
-    login: 'Log in',
-    create: 'Create account',
-    home: 'Home',
-    letters: 'Letters',
-    profile: 'Profile',
-    welcomeTitle: 'Learn Japanese in short focused steps',
-    welcomeText: 'Characters, vocabulary, N5 lessons, and quick quizzes in a cleaner experience.',
-    continue: 'Continue learning',
-    level: 'Level',
-    streak: 'Streak',
-    hearts: 'Hearts',
-    gems: 'Gems',
-    xp: 'XP',
-    lessons: 'Lesson path',
-    practice: 'Practice now',
-    lesson: 'Lesson',
-    locked: 'Locked',
-    done: 'Done',
-    current: 'Current',
-    comingSoon: 'Coming soon',
-    overview: 'Path',
-    warmup: 'Warm-up',
-    vocabulary: 'Vocabulary',
-    grammar: 'Grammar',
-    examples: 'Examples',
-    dialogue: 'Dialogue',
-    reading: 'Reading',
-    practice: 'Practice',
-    mistakeReview: 'Mistake Review',
-    masteryCheck: 'Mastery Check',
-    exercises: 'Exercises',
-    videos: 'Videos',
-    review: 'Review',
-    noVideos: 'Videos for this lesson will be added later. Practice vocabulary and grammar for now.',
-    tapHear: 'Tap to hear',
-    quiz: 'Quiz',
-    settings: 'Settings',
-    achievements: 'Achievements',
-    signOut: 'Sign out',
-    language: 'Language',
-    theme: 'Theme',
-    dark: 'Dark',
-    light: 'Light',
-    mastered: 'Mastered',
-    noHearts: 'No hearts left. Wait 90 seconds or refill with gems.',
-    guestName: 'Guest',
-    guestHint: 'Your progress is saved on this device only.',
-    loginPrompt: 'Log in or create an account to save progress in the cloud.',
-    refillAll: 'Refill battery',
-    refillCost: '250 gems',
-    notEnoughGems: 'Not enough gems.',
-    usernameInvalid: 'Username must start with an English letter and use only English letters, numbers, or _, 3-24 characters.',
-    usernameTaken: 'This username is already taken.',
-    emailUnverified: 'Your email is not verified yet. Verify it to keep the account secure and recoverable.',
-    resendEmail: 'Send verification link',
-    resendWait: 'Wait',
-    refreshEmail: 'Refresh status',
-    verificationSent: 'Verification link sent to your email.',
-    emailVerified: 'Email verified',
-    heartsFull: 'Your hearts are full.',
-    editProfile: 'Edit profile',
-    name: 'Name',
-    bio: 'Bio',
-    phone: 'Phone',
-    birthday: 'Birthday',
-    save: 'Save',
-    cancel: 'Cancel',
-    groups: 'Character groups',
-    group: 'Group',
-    groupQuiz: 'Start practice now',
-    drawPractice: 'Drawing practice',
-    chooseCharacter: 'Choose a character to practice drawing',
-    listen: 'Listen',
-    openGroup: 'Open group',
-    fiveChars: 'Each group has 5 characters',
-    account: 'Account',
-    customization: 'Customization',
-    subscription: 'Subscription',
-    policy: 'App policy',
-    support: 'Live support',
-    donate: 'Donate',
-    freePlan: 'Free',
-    paidPlan: 'Paid',
-    sound: 'Sounds',
-    fontSize: 'Font size',
-    cozyMode: 'Cozy mode',
-    kanjiReading: 'Kanji reading',
-    kanjiReadingHiragana: 'Hiragana',
-    kanjiReadingRomaji: 'Romaji',
-    profilePhoto: 'Profile photo',
-    uploadPhoto: 'Choose photo',
-    subscriptionText: 'Your current plan is free. Paid plans will later unlock more lessons and advanced practice.',
-    policyText: 'We save learning progress and basic account data so you can continue across devices. Guest data stays on this device.',
-    supportText: 'Live support is being prepared. For now, send us the issue in your notes and we will add a direct channel.',
-    donateText: 'Donations help improve lessons, audio, and drawing practice. A secure payment method will be added later.',
-    todayTitle: 'Today',
-    dayStreak: 'day streak',
-    reviewsDue: 'reviews ready',
-    noReviewsDue: 'No reviews right now',
-    weakSpots: 'need practice',
-    noWeakSpots: 'No weak spots right now',
-    recommendedLesson: 'Recommended lesson',
-    continueCta: 'Continue',
-    startReview: 'Start review',
-    reviewWidgetCta: 'Review your weak spots today',
-    dailyGoal: 'Daily goal',
-    goalReached: 'Daily goal reached! 🎉',
-    weakGrammar: 'weak grammar',
-    weakVocab: 'weak vocab',
-    aiSensei: 'Ask Abdoul Sensei',
-    aiSenseiSub: 'A tutor grounded in your data',
-    reviewStreak: 'review streak (days)',
-    viewProgress: 'View progress',
-    skillVocab: 'Vocabulary',
-    skillGrammar: 'Grammar',
-    skillKanji: 'Kanji',
-    achievementUnlocked: 'Achievement unlocked',
-  },
 }
 
 const levels = [
@@ -1077,6 +841,11 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
   const [messageDraft, setMessageDraft] = useState('')
   const [dmProfile, setDmProfile] = useState(null)
   const [friendMenuOpen, setFriendMenuOpen] = useState(false)
+  // Feed redesign UI state (presentation only — no new backend).
+  const [activeTab, setActiveTab] = useState('recent')
+  const [communitySearch, setCommunitySearch] = useState('')
+  const [savedPostIds, setSavedPostIds] = useState(new Set())
+  const [likedPostIds, setLikedPostIds] = useState(new Set())
   const text = communityText[lang] || communityText.en
   const isAr = lang === 'ar'
   const displayName = userName || (isAr ? 'أنت' : 'You')
@@ -1689,35 +1458,152 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     setPartnerReply(hasJapanese(next) ? text.partnerReply : text.needsJapanese)
   }
 
+  // ── Feed redesign: real Firestore questions → post cards, merged with mock ──
+  const deriveQuestionTags = (q) => {
+    const tags = ['#سؤال']
+    const body = `${q.text || ''}`
+    if (/[はがをにでへとも]|قاعدة|الفرق|grammar|قواعد/i.test(body)) tags.push('#قواعد')
+    if (/مفرد|كلمة|معنى|vocab|単語/.test(body)) tags.push('#مفردات')
+    if (q.lang === 'ja' || /[ぁ-んァ-ン一-龯]/.test(body)) tags.push('#JLPT')
+    return tags
+  }
+
+  const mapQuestionToPost = (q) => {
+    const replies = repliesForQuestion(q.id)
+    const profile = profileForCommunityItem(q)
+    return {
+      id: q.id,
+      type: 'help',
+      source: 'question',
+      raw: q,
+      user: {
+        id: q.userId,
+        name: q.authorName || (q.authorHandle || '').replace('@', '') || 'Nihongo',
+        handle: q.authorHandle || '@nihongo',
+        level: profile?.level || q.level,
+        nativeLang: 'AR',
+        learningLang: 'JP',
+      },
+      contentAr: q.text,
+      tags: deriveQuestionTags(q),
+      likesCount: q.likes || 0,
+      commentsCount: q.answers || replies.length || 0,
+      liked: false,
+      saved: false,
+      commentsPreview: replies.slice(0, 2).map((r) => ({ id: r.id, authorHandle: r.authorHandle, body: r.body, userId: r.userId })),
+    }
+  }
+
+  const questionPosts = visibleQuestions.filter((q) => !q.deleted).map(mapQuestionToPost)
+  const allPosts = [...questionPosts, ...MOCK_COMMUNITY_POSTS]
+  const search = communitySearch.trim().toLowerCase()
+  const feedPosts = allPosts
+    .filter((post) => postMatchesTab(post, activeTab))
+    .filter((post) => !search || `${post.contentAr || ''} ${post.contentJa || ''} ${post.user?.handle || ''} ${(post.tags || []).join(' ')}`.toLowerCase().includes(search))
+
+  // Feed interaction wrappers (reuse existing backend handlers; mock = local).
+  const onToggleComments = (id) => { if (String(id).startsWith('mock-')) return; setActiveReplyId((cur) => (cur === id ? null : id)) }
+  const toggleSavedPost = (post) => setSavedPostIds((prev) => { const n = new Set(prev); if (n.has(post.id)) n.delete(post.id); else n.add(post.id); return n })
+  const handleFeedLike = (post) => { setLikedPostIds((prev) => new Set(prev).add(post.id)); if (post.source === 'question' && post.raw?.id) likeQuestion(post.raw) }
+  const handleFeedShare = (post) => {
+    if (post.source === 'question' && post.raw) { shareQuestion(post.raw); return }
+    const body = post.contentAr || post.contentJa || ''
+    if (navigator.clipboard) navigator.clipboard.writeText(body).then(() => onNotice(text.copied)).catch(() => onNotice(body))
+    else onNotice(body)
+  }
+  const handleFeedTranslate = () => onNotice(isAr ? 'الترجمة غير متاحة لهذا المنشور بعد.' : 'Translation not available yet.')
+  const openPostProfile = (post) => setSelectedProfile(post.raw
+    ? profileForCommunityItem(post.raw)
+    : profileForCommunityItem({ userId: post.user?.id, authorHandle: post.user?.handle, authorName: post.user?.name }))
+  const joinVoiceRoom = (room) => onNotice(isAr ? `غرف الصوت قريباً — «${room.title}»` : `Voice rooms coming soon — "${room.title}"`)
+
+  // The full reply thread for a real question (reuses the existing reply/edit/
+  // delete/report handlers verbatim — no backend logic duplicated).
+  const renderThread = (post) => {
+    const question = post.raw
+    if (!question) return null
+    return (
+      <div className="reply-panel cm-thread">
+        {editingQuestionId === question.id && (
+          <div className="edit-box">
+            <input
+              value={questionEditDrafts[question.id] || ''}
+              onChange={(event) => setQuestionEditDrafts((drafts) => ({ ...drafts, [question.id]: event.target.value }))}
+            />
+            <div>
+              <Button variant="small" onClick={() => saveQuestionEdit(question)}>{text.save}</Button>
+              <Button variant="secondary" onClick={() => setEditingQuestionId(null)}>{text.cancel}</Button>
+            </div>
+          </div>
+        )}
+        <div className="reply-list">
+          {repliesForQuestion(question.id).map((reply) => (
+            <div key={reply.id} className="reply-item">
+              <div>
+                <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(reply))}>
+                  {reply.authorHandle || text.viewProfile}
+                </button>
+                {editingReplyId === reply.id ? (
+                  <div className="edit-box compact">
+                    <input
+                      value={replyEditDrafts[reply.id] || ''}
+                      onChange={(event) => setReplyEditDrafts((drafts) => ({ ...drafts, [reply.id]: event.target.value }))}
+                    />
+                    <div>
+                      <Button variant="small" onClick={() => saveReplyEdit(reply)}>{text.save}</Button>
+                      <Button variant="secondary" onClick={() => setEditingReplyId(null)}>{text.cancel}</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p dir="auto">{reply.body}</p>
+                )}
+              </div>
+              <span className="post-menu-wrap">
+                <button className="post-menu-btn" onClick={() => setOpenPostMenu(openPostMenu === `reply:${reply.id}` ? null : `reply:${reply.id}`)}>⋯</button>
+                {openPostMenu === `reply:${reply.id}` && (
+                  <span className="post-menu">
+                    {reply.userId === userId && <button onClick={() => startReplyEdit(reply)}>{text.edit}</button>}
+                    {reply.userId === userId && <button onClick={() => deleteReplyPost(reply)}>{text.delete}</button>}
+                    <button onClick={() => reportCommunityItem(reply, 'reply')}>{text.report}</button>
+                  </span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="reply-box">
+          <input
+            value={replyDrafts[question.id] || ''}
+            onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [question.id]: event.target.value }))}
+            placeholder={text.replyPlaceholder}
+            dir="auto"
+          />
+          <Button variant="small" onClick={() => sendQuestionReply(question)}>{text.send}</Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <section className="content community">
-      <div className="community-hero">
-        <div>
-          <p className="eyebrow">Study Hub</p>
-          <h1>{text.title}</h1>
-          <p>{text.subtitle}</p>
-        </div>
-        <div className="community-hero-side">
-          <div className="community-inbox-actions">
-            <button onClick={() => openInbox('messages')} aria-label={text.inbox}>
-              <span><AppIcon name="messages" size={30} /></span>
-              {unreadMessages > 0 && <b>{unreadMessages}</b>}
-            </button>
-            <button onClick={() => setActiveInbox(activeInbox === 'requests' ? null : 'requests')} aria-label={text.requests}>
-              <span className="friend-request-icon"><AppIcon name="profile" size={28} /><em>+</em></span>
-              {friendRequests.length > 0 && <b>{friendRequests.length}</b>}
-            </button>
-            <button onClick={() => openInbox('notifications')} aria-label={text.notifications}>
-              <span><AppIcon name="notifications" size={30} /></span>
-              {unreadNotifications > 0 && <b>{unreadNotifications}</b>}
-            </button>
-          </div>
-          <div className="community-score">
-            <strong>{streak}</strong>
-            <span>Streak</span>
-            <small>{totalQuizzes} Quiz</small>
-          </div>
-        </div>
+    <section className="content community cm-page">
+      <CommunityHeader
+        lang={lang}
+        searchValue={communitySearch}
+        onSearchChange={setCommunitySearch}
+        onOpenMessages={() => openInbox('messages')}
+        unreadMessages={unreadMessages}
+        onOpenRequests={() => setActiveInbox(activeInbox === 'requests' ? null : 'requests')}
+        requestsCount={friendRequests.length}
+        onOpenNotifications={() => openInbox('notifications')}
+        unreadNotifications={unreadNotifications}
+        onOpenProfile={() => setSelectedProfile(leaderboard.find((p) => p.current) || fallbackProfile)}
+      />
+
+      <CommunityTabs tabs={COMMUNITY_TABS} activeTab={activeTab} onSelect={setActiveTab} lang={lang} />
+
+      <div className="cm-compose">
+        <input value={questionText} onChange={(event) => setQuestionText(event.target.value)} placeholder={text.questionPlaceholder} dir="auto" />
+        <Button variant="small" onClick={askQuestion}>{text.ask}</Button>
       </div>
 
       {activeInbox && activeInbox !== 'compose' && (
@@ -1765,186 +1651,28 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         </article>
       )}
 
-      <div className="community-grid">
-        <article className="community-card daily-card">
-          <div className="card-heading">
-            <IconCircle name="calendar" size={38} />
-            <div>
-              <h2>{text.daily}</h2>
-              <p>{isAr ? 'خمس دقائق: حرف، مفردة، وجملة قصيرة.' : 'Five minutes: character, word, and short sentence.'}</p>
-            </div>
-          </div>
-          <div className="challenge-meter">
-            <span style={{ width: `${Math.min(100, masteredCount * 4)}%` }} />
-          </div>
-          <Button variant="small" onClick={onStartDaily}>{text.start}</Button>
-        </article>
-
-        <article className="community-card">
-          <div className="card-heading">
-            <IconCircle name="ranking" size={38} />
-            <h2>{text.leaderboard}</h2>
-          </div>
-          <div className="leaderboard-list">
-            {leaderboard.map((item, index) => (
-              <button key={item.id || item.userHandle} className={item.current ? 'current' : ''} onClick={() => setSelectedProfile(item)}>
-                <strong>{index + 1}</strong>
-                <span>{item.userName || item.name}<small>{item.userHandle}</small></span>
-                <b>{item.xp || 0} XP</b>
-              </button>
-            ))}
-          </div>
-        </article>
-
-        <article className="community-card wide">
-          <div className="card-heading">
-            <IconCircle name="culture" size={38} />
-            <h2>{text.groups}</h2>
-          </div>
-          <div className="study-group-list">
-            {studyGroups.map((group) => (
-              <button key={group.en} onClick={() => joinGroup(group)}>
-                <i>{group.icon}</i>
-                <span>
-                  <strong>{group[isAr ? 'ar' : 'en']}</strong>
-                  <small>{group[isAr ? 'metaAr' : 'metaEn']}</small>
-                </span>
-                <b>{text.join}</b>
-              </button>
-            ))}
-          </div>
-        </article>
-
-        <article className="community-card">
-          <div className="card-heading">
-            <IconCircle name="speaking" size={38} />
-            <h2>{text.questions}</h2>
-          </div>
-          <div className="question-list">
-            {visibleQuestions.map((question) => (
-              <div key={question.id} className="community-post">
-                <div className="post-main">
-                  {editingQuestionId === question.id ? (
-                    <div className="edit-box">
-                      <input
-                        value={questionEditDrafts[question.id] || ''}
-                        onChange={(event) => setQuestionEditDrafts((drafts) => ({ ...drafts, [question.id]: event.target.value }))}
-                      />
-                      <div>
-                        <Button variant="small" onClick={() => saveQuestionEdit(question)}>{text.save}</Button>
-                        <Button variant="secondary" onClick={() => setEditingQuestionId(null)}>{text.cancel}</Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button className="post-title" onClick={() => setActiveReplyId(activeReplyId === question.id ? null : question.id)}>
-                      <strong>{question.text}</strong>
-                      <small>{question.answers || 0} {isAr ? 'إجابات' : 'answers'}</small>
-                    </button>
-                  )}
-                  <div className="question-actions">
-                    <button onClick={() => likeQuestion(question)}>♡ {text.like}</button>
-                    <button onClick={() => setActiveReplyId(activeReplyId === question.id ? null : question.id)}>↩ {text.reply}</button>
-                    <button onClick={() => repostQuestion(question)}>↻ {text.repost}</button>
-                    <button onClick={() => shareQuestion(question)}><AppIcon name="share" size={18} /> {text.shareComment}</button>
-                  </div>
-                  {(repliesForQuestion(question.id).length > 0 || activeReplyId === question.id) && (
-                    <div className="reply-panel">
-                      {repliesForQuestion(question.id).length > 0 && (
-                        <div className="reply-list">
-                          {repliesForQuestion(question.id).map((reply) => (
-                            <div key={reply.id} className="reply-item">
-                              <div>
-                                <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(reply))}>
-                                  {reply.authorHandle || text.viewProfile}
-                                </button>
-                                {editingReplyId === reply.id ? (
-                                  <div className="edit-box compact">
-                                    <input
-                                      value={replyEditDrafts[reply.id] || ''}
-                                      onChange={(event) => setReplyEditDrafts((drafts) => ({ ...drafts, [reply.id]: event.target.value }))}
-                                    />
-                                    <div>
-                                      <Button variant="small" onClick={() => saveReplyEdit(reply)}>{text.save}</Button>
-                                      <Button variant="secondary" onClick={() => setEditingReplyId(null)}>{text.cancel}</Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <p>{reply.body}</p>
-                                )}
-                              </div>
-                              <span className="post-menu-wrap">
-                                <button className="post-menu-btn" onClick={() => setOpenPostMenu(openPostMenu === `reply:${reply.id}` ? null : `reply:${reply.id}`)}>⋯</button>
-                                {openPostMenu === `reply:${reply.id}` && (
-                                  <span className="post-menu">
-                                    {reply.userId === userId && <button onClick={() => startReplyEdit(reply)}>{text.edit}</button>}
-                                    {reply.userId === userId && <button onClick={() => deleteReplyPost(reply)}>{text.delete}</button>}
-                                    <button onClick={() => reportCommunityItem(reply, 'reply')}>{text.report}</button>
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {activeReplyId === question.id && (
-                      <div className="reply-box">
-                        <input
-                          value={replyDrafts[question.id] || ''}
-                          onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [question.id]: event.target.value }))}
-                          placeholder={text.replyPlaceholder}
-                        />
-                        <Button variant="small" onClick={() => sendQuestionReply(question)}>{text.send}</Button>
-                      </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <div className="post-side">
-                  {(question.authorHandle || question.userId) && (
-                    <button className="author-chip" onClick={() => setSelectedProfile(profileForCommunityItem(question))}>
-                      {question.authorHandle || text.viewProfile}
-                    </button>
-                  )}
-                  <span className="post-menu-wrap">
-                    <button className="post-menu-btn" onClick={() => setOpenPostMenu(openPostMenu === `question:${question.id}` ? null : `question:${question.id}`)}>⋯</button>
-                    {openPostMenu === `question:${question.id}` && (
-                      <span className="post-menu">
-                        {question.userId === userId && <button onClick={() => startQuestionEdit(question)}>{text.edit}</button>}
-                        {question.userId === userId && <button onClick={() => deleteQuestionPost(question)}>{text.delete}</button>}
-                        <button onClick={() => reportCommunityItem(question, 'question')}>{text.report}</button>
-                      </span>
-                    )}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="community-input">
-            <input value={questionText} onChange={(event) => setQuestionText(event.target.value)} placeholder={text.questionPlaceholder} />
-            <Button variant="secondary" onClick={askQuestion}>{text.ask}</Button>
-          </div>
-        </article>
-
-        <article className="community-card ai-card">
-          <div className="card-heading">
-            <IconCircle name="correct" size={38} />
-            <h2>{text.corrector}</h2>
-          </div>
-          <textarea value={sentence} onChange={(event) => setSentence(event.target.value)} placeholder={text.sentencePlaceholder} />
-          <Button variant="small" onClick={checkSentence}>{text.correct}</Button>
-          {correction && <p className="ai-reply">{correction}</p>}
-        </article>
-
-        <article className="community-card ai-card wide">
-          <div className="card-heading">
-            <IconCircle name="sound" size={38} />
-            <h2>{text.aiPartner}</h2>
-          </div>
-          <textarea value={partnerMessage} onChange={(event) => setPartnerMessage(event.target.value)} placeholder={text.partnerPlaceholder} />
-          <Button variant="small" onClick={talkToPartner}>{text.send}</Button>
-          {partnerReply && <p className="ai-reply">{partnerReply}</p>}
-        </article>
-      </div>
+      <CommunityFeed
+        posts={feedPosts}
+        lang={lang}
+        currentUserId={userId}
+        expandedId={activeReplyId}
+        onToggleComments={onToggleComments}
+        likedIds={likedPostIds}
+        savedIds={savedPostIds}
+        onLike={handleFeedLike}
+        onSave={toggleSavedPost}
+        onShare={handleFeedShare}
+        onTranslate={handleFeedTranslate}
+        onOpenProfile={openPostProfile}
+        onJoinRoom={joinVoiceRoom}
+        menuOpenId={openPostMenu}
+        onToggleMenu={(id) => setOpenPostMenu(openPostMenu === id ? null : id)}
+        onEditPost={(post) => { startQuestionEdit(post.raw); setActiveReplyId(post.id) }}
+        onDeletePost={(post) => deleteQuestionPost(post.raw)}
+        onReportPost={(post) => reportCommunityItem(post.raw, 'question')}
+        renderThread={renderThread}
+        emptyLabel={isAr ? 'لا توجد منشورات في هذا التصنيف بعد.' : 'No posts in this category yet.'}
+      />
 
       {selectedProfile && (
         <div className="profile-modal" role="dialog" aria-modal="true">
@@ -2551,7 +2279,7 @@ export default function App() {
   const [lessonProgress, setLessonProgress] = useState({})
   const [unlockedLevels, setUnlockedLevels] = useState(['N5'])
   const [levelExams, setLevelExams] = useState({})
-  const [examState, setExamState] = useState(null)
+  const { examState, setExamState, startExitExam, startEntranceExam, handleExamAnswer, handleSectionStart, forceFinishSection } = useExam({ screen, setScreen, kanjiReadingMode, setLevelExams, setUnlockedLevels, buildExamQuestions })
   const [totalQuizzes, setTotalQuizzes] = useState(0)
   const [perfectScores, setPerfectScores] = useState(0)
   const [questions, setQuestions] = useState([])
@@ -3078,83 +2806,6 @@ export default function App() {
       .every((lessonNumber) => (lessonProgress[`${levelId}-${lessonNumber}`] || 0) >= sectionCount)
   }
 
-  const startExitExam = (levelId) => {
-    const exam = buildExamQuestions(levelId, 'exit', kanjiReadingMode)
-    setExamState({ levelId, examType: 'exit', exam, sectionIndex: 0, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: [], phase: 'section-intro' })
-    setScreen('exam-intro')
-  }
-
-  const startEntranceExam = (levelId) => {
-    const exam = buildExamQuestions(levelId, 'entrance', kanjiReadingMode)
-    setExamState({ levelId, examType: 'entrance', exam, sectionIndex: 0, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: [], phase: 'section-intro' })
-    setScreen('exam-intro')
-  }
-
-  const finalizeExam = (sectionScores) => {
-    const total = sectionScores.reduce((a, b) => a + b, 0)
-    const passed = total >= examState.exam.passScore
-    const { levelId, examType } = examState
-    setLevelExams((prev) => ({
-      ...prev,
-      [levelId]: {
-        ...prev[levelId],
-        ...(examType === 'exit' ? { exitScore: total, exitPassed: passed } : { entranceScore: total, entrancePassed: passed }),
-      },
-    }))
-    if (passed) {
-      if (examType === 'exit') {
-        const next = LEVEL_ORDER[LEVEL_ORDER.indexOf(levelId) + 1]
-        if (next) setUnlockedLevels((prev) => prev.includes(next) ? prev : [...prev, next])
-      } else {
-        setUnlockedLevels((prev) => prev.includes(levelId) ? prev : [...prev, levelId])
-      }
-    }
-    setExamState((prev) => ({ ...prev, sectionScores, totalScore: total, passed, phase: 'finished' }))
-    setScreen('exam-result')
-  }
-
-  const handleExamAnswer = (opt) => {
-    setExamState((prev) => (prev && prev.selected === null ? { ...prev, selected: opt } : prev))
-  }
-
-  const handleSectionStart = () => {
-    setExamState((prev) => (prev ? { ...prev, phase: 'active' } : prev))
-  }
-
-  const forceFinishSection = () => {
-    if (!examState) return
-    const section = examState.exam.sections[examState.sectionIndex]
-    const sectionScore = Math.round((examState.sectionCorrect / section.questions.length) * (examState.exam.totalScore / examState.exam.sections.length))
-    const newSectionScores = [...examState.sectionScores, sectionScore]
-    if (examState.sectionIndex + 1 < examState.exam.sections.length) {
-      setExamState((prev) => ({ ...prev, sectionIndex: prev.sectionIndex + 1, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: newSectionScores, phase: 'section-intro' }))
-    } else {
-      finalizeExam(newSectionScores)
-    }
-  }
-
-  useEffect(() => {
-    if (screen !== 'exam' || !examState || examState.phase !== 'active' || examState.selected === null) return
-    const section = examState.exam.sections[examState.sectionIndex]
-    const q = section.questions[examState.qIndex]
-    const isCorrect = examState.selected === q.answer
-    const timer = setTimeout(() => {
-      const nextCorrect = examState.sectionCorrect + (isCorrect ? 1 : 0)
-      if (examState.qIndex + 1 < section.questions.length) {
-        setExamState((prev) => ({ ...prev, qIndex: prev.qIndex + 1, selected: null, sectionCorrect: nextCorrect }))
-        return
-      }
-      const sectionScore = Math.round((nextCorrect / section.questions.length) * (examState.exam.totalScore / examState.exam.sections.length))
-      const newSectionScores = [...examState.sectionScores, sectionScore]
-      if (examState.sectionIndex + 1 < examState.exam.sections.length) {
-        setExamState((prev) => ({ ...prev, sectionIndex: prev.sectionIndex + 1, qIndex: 0, selected: null, sectionCorrect: 0, sectionScores: newSectionScores, phase: 'section-intro' }))
-        return
-      }
-      finalizeExam(newSectionScores)
-    }, isCorrect ? 700 : 1300)
-    return () => clearTimeout(timer)
-  }, [screen, examState])
-
   const openLesson = (lesson, lessonNumberOverride = null) => {
     setQuestions([])
     setQIndex(0)
@@ -3613,6 +3264,16 @@ export default function App() {
     <>
       <main className="app-shell">
         <header className="topbar app-topbar">
+          <LevelSelector
+            levels={levels}
+            currentLevel={currentLevel}
+            unlockedLevels={unlockedLevels}
+            levelOrder={LEVEL_ORDER}
+            levelExams={levelExams}
+            lang={lang}
+            onSelectLevel={setCurrentLevel}
+            onStartEntranceExam={startEntranceExam}
+          />
           <div className="toolbar top-stats">
             <span className="stat-chip life">
               <i className="life-shell" style={{ '--life-fill': `${(hearts / MAX_HEARTS) * 100}%` }}>
@@ -3628,20 +3289,8 @@ export default function App() {
 
         {tab === 'home' && (
           <section className="content">
-            <div className="dashboard dashboard-calm">
-              <div className="dashboard-progress-ring ring" style={{ '--value': `${lessonPercent}%` }}>
-                <span>{lessonPercent}%</span>
-              </div>
-              <div className="dashboard-copy">
-                <h1>{t.level} {currentLevel}</h1>
-                <p>{levels.find((level) => level.id === currentLevel)?.[lang]}</p>
-                {/* XP / mastered / quiz stats moved to Profile — P3 info, on demand. */}
-                <button className="view-progress-link" onClick={() => setTab('profile')}>
-                  {t.viewProgress} ›
-                </button>
-              </div>
-            </div>
-
+            {/* Large level card + level strip removed — level lives in the top-bar
+                LevelSelector; level progress moved to Profile › View progress. */}
             <TodayWidget
               lang={lang}
               t={t}
@@ -3649,37 +3298,6 @@ export default function App() {
               onContinue={() => recommendedLesson && setPreviewLesson(recommendedLesson)}
               onReview={() => setScreen('review')}
             />
-
-            {/* Level switcher appears only once more than one level is unlocked —
-                a fresh learner sees a calm home with no lateral nav. */}
-            {unlockedLevels.length > 1 && (
-              <div className="level-strip">
-                {levels.filter((level) => unlockedLevels.includes(level.id) || LEVEL_ORDER.indexOf(level.id) === Math.max(...unlockedLevels.map((id) => LEVEL_ORDER.indexOf(id))) + 1).map((level) => {
-                  const unlocked = unlockedLevels.includes(level.id)
-                  const highestUnlockedIdx = Math.max(...unlockedLevels.map((id) => LEVEL_ORDER.indexOf(id)))
-                  const isNextLocked = !unlocked && LEVEL_ORDER.indexOf(level.id) === highestUnlockedIdx + 1
-                  const passed = levelExams[level.id]?.exitPassed
-                  const comingSoon = level.comingSoon // no content authored yet
-                  return (
-                    <button
-                      key={level.id}
-                      className={`${currentLevel === level.id ? 'active' : ''} ${!unlocked || comingSoon ? 'locked' : ''}`}
-                      disabled={comingSoon || (!unlocked && !isNextLocked)}
-                      onClick={() => {
-                        if (comingSoon) return
-                        if (unlocked) setCurrentLevel(level.id)
-                        else if (isNextLocked) startEntranceExam(level.id)
-                      }}
-                    >
-                      {!unlocked && !comingSoon && <AppIcon name="locked" size={16} />}
-                      {passed && <span className="level-passed-badge"><AppIcon name="correct" size={14} /></span>}
-                      <strong>{level.id}</strong>
-                      <span>{comingSoon ? (lang === 'ar' ? 'قريباً' : 'Soon') : level[lang]}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
 
             <div className="unit-card">
               <div>
@@ -3890,6 +3508,16 @@ export default function App() {
 
             {/* P3 stats — moved off the home dashboard, on-demand here. */}
             <h2 className="section-title">{t.viewProgress}</h2>
+            {/* Level + completion ring — moved here from the home dashboard. */}
+            <div className="profile-level-card">
+              <div className="dashboard-progress-ring ring" style={{ '--value': `${lessonPercent}%` }}>
+                <span>{lessonPercent}%</span>
+              </div>
+              <div className="profile-level-copy">
+                <h3>{t.level} {currentLevel}</h3>
+                <p>{levels.find((level) => level.id === currentLevel)?.[lang]}</p>
+              </div>
+            </div>
             <div className="dashboard-stats profile-stats">
               <Stat label={t.xp} value={xp} />
               <Stat label={t.mastered} value={masteredCount} />
