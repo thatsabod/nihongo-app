@@ -1,11 +1,16 @@
+import { useState } from 'react'
 import AppIcon from '../AppIcon.jsx'
 import { useHearts } from '../../hearts-context.jsx'
+import ExerciseSettingsSheet from '../exercise/ExerciseSettingsSheet.jsx'
 
 // Sticky header used at the top of every exercise overlay: a close button,
-// a progress bar, and an optional trailing counter/label.
+// a progress bar, an optional trailing counter/label, and a settings gear that
+// opens the exercise settings bottom sheet. `onEndSession` (falls back to
+// onClose) is the safe session-exit used by the sheet's "End Session" action.
 // Mirrors the markup GrammarExercises originally used for `.grammar-ex-header`.
-export default function ProgressHeader({ onClose, closeLabel = '', progress = 0, counter, children }) {
+export default function ProgressHeader({ onClose, closeLabel = '', progress = 0, counter, children, lang = 'ar', onEndSession }) {
   const heartsApi = useHearts()
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   return (
     <div className="grammar-ex-header">
@@ -23,6 +28,20 @@ export default function ProgressHeader({ onClose, closeLabel = '', progress = 0,
       )}
       {counter != null && <span>{counter}</span>}
       {children}
+      <button
+        className="icon-btn ex-settings-gear"
+        onClick={() => setSettingsOpen(true)}
+        aria-label={lang === 'ar' ? 'الإعدادات' : 'Settings'}
+      >
+        <AppIcon name="settings" size={24} />
+      </button>
+      {settingsOpen && (
+        <ExerciseSettingsSheet
+          lang={lang}
+          onClose={() => setSettingsOpen(false)}
+          onEndSession={onEndSession || onClose}
+        />
+      )}
     </div>
   )
 }

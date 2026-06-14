@@ -19,6 +19,7 @@ import {
   OutOfHeartsCard,
 } from './exercise-ui/index.jsx'
 import { getVocabImage } from '../constants/vocabImages.js'
+import useExerciseSettings from '../hooks/useExerciseSettings.js'
 import { useHearts } from '../hearts-context.jsx'
 import { answersMatch } from '../utils/answerMatch.js'
 import { readProgressState, trackAnswer, recordLessonStat } from '../progress/progressStorage.js'
@@ -116,8 +117,11 @@ function generateVocabExercises(vocab = []) {
 
 // ── Shared: render a vocab term with furigana ────────────────────────────────
 function VocabTerm({ item }) {
+  const { settings } = useExerciseSettings()
   const surface = item.kanji || item.jp
-  const reading = item.hiragana || item.reading || item.jp
+  const reading = settings.pronunciationMode === 'romanized'
+    ? (item.reading || item.hiragana || item.jp)
+    : (item.hiragana || item.reading || item.jp)
   const hasKanji = /[㐀-鿿]/.test(surface)
   return (
     <span className="jp-line" dir="ltr">

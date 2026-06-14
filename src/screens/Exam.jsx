@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import AppIcon from '../components/AppIcon.jsx'
 import { AnswerOption, getOptionState, ActionButton } from '../components/exercise-ui/index.jsx'
+import useExerciseSettings from '../hooks/useExerciseSettings.js'
 
 function hasKanji(value = '') {
   return /[㐀-鿿]/.test(value)
@@ -127,6 +128,9 @@ const text = {
 
 export default function Exam({ examState, lang, onAnswer, onSectionStart, onTimeUp, onBack }) {
   const t = text[lang] || text.en
+  // Live romaji↔hiragana pick (matches Quiz); falls back to precomputed string.
+  const { settings: exSettings } = useExerciseSettings()
+  const readNow = (pair, fallback) => (pair ? (exSettings.pronunciationMode === 'romanized' ? pair.romaji : pair.kana) : fallback)
   const { exam, sectionIndex, qIndex, selected, phase } = examState
   const section = exam.sections[sectionIndex]
   const q = section.questions[qIndex]
@@ -285,7 +289,7 @@ export default function Exam({ examState, lang, onAnswer, onSectionStart, onTime
                     disabled={matchedIds.includes(pair.id)}
                     onClick={() => chooseMatch('left', pair)}
                   >
-                    <RubyText text={pair.left} reading={pair.leftReading} />
+                    <RubyText text={pair.left} reading={readNow(pair.leftReadingPair, pair.leftReading)} />
                   </AnswerOption>
                 ))}
               </div>
@@ -350,7 +354,7 @@ export default function Exam({ examState, lang, onAnswer, onSectionStart, onTime
                 ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span>
                 : (isAudioWord || isAudioSentence)
                   ? <span className="listen-focus"><AppIcon name="sound" size={82} /></span>
-                  : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
+                  : <RubyText text={q.kana} reading={readNow(q.kanaReadingPair, q.kanaReading)} className="quiz-ruby-main" />}
               <small>{t.hear}</small>
               {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
             </button>
@@ -367,7 +371,7 @@ export default function Exam({ examState, lang, onAnswer, onSectionStart, onTime
                     answer(opt)
                   }}
                 >
-                  <RubyText text={opt} reading={q.optionReadings?.[opt]} />
+                  <RubyText text={opt} reading={readNow(q.optionReadingPairs?.[opt], q.optionReadings?.[opt])} />
                 </AnswerOption>
               ))}
             </div>

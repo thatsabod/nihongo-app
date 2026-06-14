@@ -5,6 +5,7 @@ import RuaaMascot from '../components/RuaaMascot.jsx'
 import AppIcon from '../components/AppIcon.jsx'
 import IconCircle from '../components/IconCircle.jsx'
 import { ProgressHeader, AnswerOption, getOptionState } from '../components/exercise-ui/index.jsx'
+import useExerciseSettings from '../hooks/useExerciseSettings.js'
 
 function hasKanji(value = '') {
   return /[\u3400-\u9fff]/.test(value)
@@ -114,6 +115,11 @@ function ruaaMode({ q, selected, isCorrect }) {
 export default function Quiz({ questions, qIndex, selected, score, xp, hearts, lang, onAnswer, onBack }) {
   const q = questions[qIndex]
   const t = text[lang] || text.en
+  // Pick the reading LIVE from the chosen pronunciation mode so toggling
+  // romaji↔hiragana updates the displayed furigana immediately (falls back to
+  // the precomputed string for any question built without a reading pair).
+  const { settings: exSettings } = useExerciseSettings()
+  const readNow = (pair, fallback) => (pair ? (exSettings.pronunciationMode === 'romanized' ? pair.romaji : pair.kana) : fallback)
   const voiceIndex = Math.floor(qIndex / 3)
   const [matchingState, setMatchingState] = useState({ qIndex: -1, selected: null, matched: [] })
   const matchingSelected = matchingState.qIndex === qIndex ? matchingState.selected : null
@@ -224,7 +230,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
                     disabled={matchedIds.includes(pair.id)}
                     onClick={() => chooseMatch('left', pair)}
                   >
-                    <RubyText text={pair.left} reading={pair.leftReading} />
+                    <RubyText text={pair.left} reading={readNow(pair.leftReadingPair, pair.leftReading)} />
                   </AnswerOption>
                 ))}
               </div>
@@ -250,7 +256,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
             <div className={`quiz-character-scene ${showRuaa ? '' : 'no-mascot'}`}>
               <RuaaMascot mode={mascotMode} visible={showRuaa} character={mascotCharacter} />
               <button className={`kana-focus ruaa-speech ${selected ? isCorrect ? 'correct' : 'wrong' : ''}`} onClick={() => q.soundEnabled !== false && speakQuizText(q.speakText || q.kana, { rate: 0.6264, voiceIndex })}>
-                {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus"><AppIcon name="sound" size={82} /></span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={q.kanaReading} className="quiz-ruby-main" />}
+                {isSentence ? <span className="sentence-focus-text" style={{ fontSize: `${Math.max(28, Math.min(74, 620 / Math.max(q.sentence.length, 8)))}px` }}>{q.sentence}</span> : isAudioWord ? <span className="listen-focus"><AppIcon name="sound" size={82} /></span> : isReverse ? <span>{q.answerLabel}</span> : <RubyText text={q.kana} reading={readNow(q.kanaReadingPair, q.kanaReading)} className="quiz-ruby-main" />}
                 <small>{t.hear}</small>
                 {selected && <strong>{isCorrect ? t.correct : `${t.wrong}: ${q.answer}`}</strong>}
                 {!isAudioWord && q.soundEnabled !== false && <IconCircle name="sound" size={38} className="stage-sound-badge" />}
@@ -274,7 +280,7 @@ export default function Quiz({ questions, qIndex, selected, score, xp, hearts, l
                     answer(opt)
                   }}
                 >
-                  <RubyText text={opt} reading={q.optionReadings?.[opt]} />
+                  <RubyText text={opt} reading={readNow(q.optionReadingPairs?.[opt], q.optionReadings?.[opt])} />
                 </AnswerOption>
               ))}
             </div>

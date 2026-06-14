@@ -25,6 +25,7 @@ const AiSenseiPanel = lazy(() => import('./components/ai/AiSenseiPanel.jsx'))
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard.jsx'))
 import { readProgressState, writeProgressState, mergeProgressState, markSectionVisited, getVisitedSections, getReviewStreak, getSeenAchievements, markAchievementsSeen, PROGRESS_CHANGED_EVENT } from './progress/progressStorage.js'
 import { getLessonMastery } from './progress/masteryModel.js'
+import { getExerciseSettings, setExerciseSettings, applyPronunciationVisibility, pronModeToReadingMode, readingModeToPronMode, EXERCISE_SETTINGS_EVENT } from './utils/exerciseSettings.js'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
@@ -328,6 +329,17 @@ function optionReadingsFor(options, items, mode = 'hiragana') {
   }), {})
 }
 
+// Both authored readings for an item, so the exercise can switch romaji↔kana
+// LIVE at render time (the chosen mode is read from the exercise settings),
+// instead of baking one reading in at quiz-build time.
+function vocabReadings(item) {
+  return { kana: item.hiragana || item.reading || '', romaji: item.reading || item.hiragana || '' }
+}
+
+function optionReadingPairsFor(options, items) {
+  return items.reduce((acc, item) => ({ ...acc, [vocabLabel(item)]: vocabReadings(item) }), {})
+}
+
 function optionSpeakTextsFor(options, items) {
   return options.reduce((acc, option) => {
     const item = items.find((candidate) => vocabLabel(candidate) === option)
@@ -437,6 +449,7 @@ function makeMatchingQuestion(lesson, items, kanjiReadingMode = 'hiragana') {
     id: `${lesson.id}-${item.reading}-${index}`,
     left: vocabLabel(item),
     leftReading: vocabReading(item, kanjiReadingMode),
+    leftReadingPair: vocabReadings(item),
     leftSpeak: speakableVocab(item),
     right: item.meaning,
     progressKey: vocabKey(lesson.id, item),
@@ -468,11 +481,13 @@ function makeSentenceQuestion(lesson, item, items, kanjiReadingMode = 'hiragana'
     type: 'sentence',
     kana: label,
     kanaReading: vocabReading(item, kanjiReadingMode),
+    kanaReadingPair: vocabReadings(item),
     speakText: sentenceSpeakText(item, sentence),
     sentence,
     answer: label,
     options,
     optionReadings: optionReadingsFor(options, optionItems, kanjiReadingMode),
+    optionReadingPairs: optionReadingPairsFor(options, optionItems),
     optionSpeakTexts: optionSpeakTextsFor(options, optionItems),
     kanjiReadingMode,
     progressKeys: [vocabKey(lesson.id, item)],
@@ -487,6 +502,7 @@ function makeLessonVocabQuiz(lesson, groupItems = lesson.vocab, kanjiReadingMode
     type: 'vocab_meaning',
     kana: vocabLabel(item),
     kanaReading: vocabReading(item, kanjiReadingMode),
+    kanaReadingPair: vocabReadings(item),
     speakText: speakableVocab(item),
     answer: item.meaning,
     options: makeVocabOptions(items, item, 'meaning'),
@@ -504,6 +520,7 @@ function makeLessonVocabQuiz(lesson, groupItems = lesson.vocab, kanjiReadingMode
       answer: vocabLabel(item),
       options,
       optionReadings: optionReadingsFor(options, items, kanjiReadingMode),
+      optionReadingPairs: optionReadingPairsFor(options, items),
       optionSpeakTexts: optionSpeakTextsFor(options, items),
       kanjiReadingMode,
       progressKeys: [vocabKey(lesson.id, item)],
@@ -599,6 +616,7 @@ function buildExamQuestions(levelId, examType, kanjiReadingMode = 'hiragana') {
             type: 'vocab_meaning',
             kana: vocabLabel(item),
             kanaReading: vocabReading(item, kanjiReadingMode),
+            kanaReadingPair: vocabReadings(item),
             speakText: speakableVocab(item),
             answer: item.meaning,
             options: makeVocabOptions(allVocab, item, 'meaning'),
@@ -616,6 +634,7 @@ function buildExamQuestions(levelId, examType, kanjiReadingMode = 'hiragana') {
             answer: vocabLabel(item),
             options,
             optionReadings: optionReadingsFor(options, allVocab, kanjiReadingMode),
+            optionReadingPairs: optionReadingPairsFor(options, allVocab),
             optionSpeakTexts: optionSpeakTextsFor(options, allVocab),
             kanjiReadingMode,
           })
@@ -2621,6 +2640,9 @@ export default function App() {
     setFontScale(state.fontScale ?? 1)
     setCozyMode(state.cozyMode ?? true)
     setKanjiReadingMode(state.kanjiReadingMode ?? 'hiragana')
+    // Keep the exercise-settings sheet's mode in sync with the loaded reading
+    // mode (seed silently — don't echo back into kanjiReadingMode).
+    setExerciseSettings({ pronunciationMode: readingModeToPronMode(state.kanjiReadingMode ?? 'hiragana') }, { silent: true })
     setIsPaid(state.isPaid ?? false)
     setStartingGemsGranted(true)
     if (state.theme) setTheme(state.theme)
@@ -2854,6 +2876,20 @@ export default function App() {
       setScreen('main')
     })
     return () => unsub()
+  }, [])
+
+  // Exercise settings sheet → app. The sheet's pronunciation mode mirrors the
+  // global kanjiReadingMode; "show pronunciation" toggles furigana visibility
+  // (a root CSS class) app-wide. Apply once on mount, then on every change.
+  useEffect(() => {
+    applyPronunciationVisibility()
+    const sync = () => {
+      const s = getExerciseSettings()
+      setKanjiReadingMode(pronModeToReadingMode(s.pronunciationMode))
+      applyPronunciationVisibility(s)
+    }
+    window.addEventListener(EXERCISE_SETTINGS_EVENT, sync)
+    return () => window.removeEventListener(EXERCISE_SETTINGS_EVENT, sync)
   }, [])
 
   useEffect(() => {
@@ -3483,7 +3519,7 @@ export default function App() {
           if ('soundEnabled' in prefs) setSoundEnabled(prefs.soundEnabled)
           if ('fontScale' in prefs) setFontScale(prefs.fontScale)
           if ('cozyMode' in prefs) setCozyMode(prefs.cozyMode)
-          if ('kanjiReadingMode' in prefs) setKanjiReadingMode(prefs.kanjiReadingMode)
+          if ('kanjiReadingMode' in prefs) { setKanjiReadingMode(prefs.kanjiReadingMode); setExerciseSettings({ pronunciationMode: readingModeToPronMode(prefs.kanjiReadingMode) }, { silent: true }) }
         }}
       />
     )

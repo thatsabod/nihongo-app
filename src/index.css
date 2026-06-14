@@ -7278,3 +7278,71 @@ select:focus {
 .sensei-call-failed-status { font-size: 0.74rem; opacity: 0.7; font-variant: small-caps; letter-spacing: 0.5px; }
 .sensei-call-failed-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; margin-top: 8px; }
 .sensei-call-failed-actions button { width: 100%; }
+
+/* ── Exercise settings bottom sheet (gear in ProgressHeader) ───────────────── */
+/* Global furigana visibility — hides every <rt> reading when toggled off. */
+.hide-furigana rt { display: none; }
+
+.ex-settings-gear { margin-inline-start: 4px; color: var(--muted); }
+.ex-settings-gear:hover { color: var(--text); }
+
+.ex-sheet-root { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; justify-content: flex-end; }
+.ex-sheet-backdrop {
+  position: absolute; inset: 0; border: 0; padding: 0; cursor: pointer;
+  background: rgba(0, 0, 0, 0.55); animation: ex-sheet-fade 0.18s ease-out;
+}
+.ex-sheet {
+  position: relative; z-index: 1; width: 100%; max-width: 560px; margin: 0 auto;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-bottom: 0;
+  border-radius: 22px 22px 0 0; padding: 10px 18px calc(20px + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
+  display: flex; flex-direction: column; gap: 14px;
+  animation: ex-sheet-up 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ex-sheet-handle { width: 44px; height: 5px; border-radius: 999px; background: var(--border); align-self: center; margin: 4px 0 2px; }
+.ex-sheet-title { margin: 0; text-align: center; font-size: 1.05rem; font-weight: 800; color: var(--muted); }
+
+.ex-sheet-card { border: 1px solid var(--border); border-radius: var(--radius-lg, 18px); padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+.ex-sheet-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ex-sheet-label { font-size: 1rem; font-weight: 700; }
+
+/* iOS-style toggle */
+.ex-toggle {
+  position: relative; width: 56px; height: 32px; flex-shrink: 0;
+  border: 0; border-radius: 999px; background: var(--border); cursor: pointer;
+  transition: background 0.18s ease; padding: 0;
+}
+.ex-toggle.on { background: var(--primary); }
+.ex-toggle-knob {
+  position: absolute; top: 3px; inset-inline-start: 3px; width: 26px; height: 26px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.18s ease;
+}
+.ex-toggle.on .ex-toggle-knob { transform: translateX(24px); }
+[dir='rtl'] .ex-toggle.on .ex-toggle-knob { transform: translateX(-24px); }
+
+.ex-sheet-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ex-sheet-options.is-disabled { opacity: 0.45; }
+.ex-pron-option {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 16px 10px; border: 2px solid var(--border); border-radius: 16px;
+  background: var(--bg); color: var(--text); cursor: pointer; font: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.ex-pron-option:disabled { cursor: default; }
+.ex-pron-option.active { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--panel)); }
+.ex-pron-option.active .ex-pron-word, .ex-pron-option.active .ex-pron-name { color: var(--primary); }
+.ex-pron-furi { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.5px; }
+.ex-pron-word { font-size: 1.7rem; font-weight: 800; line-height: 1.1; }
+.ex-pron-name { margin-top: 6px; font-size: 0.92rem; font-weight: 700; }
+
+.ex-sheet-done { width: 100%; }
+.ex-sheet-end {
+  width: 100%; border: 0; background: transparent; cursor: pointer; padding: 6px;
+  color: var(--primary); font: inherit; font-weight: 800; font-size: 0.95rem; letter-spacing: 0.5px;
+}
+.ex-sheet-end:hover { text-decoration: underline; }
+
+@keyframes ex-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes ex-sheet-fade { from { opacity: 0; } to { opacity: 1; } }
