@@ -36,20 +36,78 @@ function buildRealtimeInstructions(context = {}) {
   const modePrompt = String(context.modePrompt || '').slice(0, 400) // Phase B — chosen call mode
   const recentCallMemory = String(context.recentCallMemory || '').slice(0, 300) // Phase D — memory of past calls
 
+  const L = level.toUpperCase()
+  const isBeginner = L === 'N5' || L === 'N4'
+  const levelPolicy =
+    L === 'N5'
+      ? 'الطالب مبتدئ (N5): استخدم يابانية قصيرة جداً وبسيطة وتكلّم ببطء ووضوح، واشرح بالعربية غالباً، وصحّح خطأً واحداً فقط في كل مرة، وكرّر الجملة الصحيحة ببطء.'
+      : L === 'N4'
+        ? 'الطالب (N4): استخدم يابانية بسيطة مع شرح بالعربية عند الحاجة، وصحّح خطأً أو خطأين كحدّ أقصى.'
+        : L === 'N3'
+          ? 'الطالب (N3): استخدم يابانية طبيعية أكثر وقلّل العربية إلا عند اللزوم.'
+          : 'الطالب متقدّم (N2/N1): تحدّث باليابانية غالباً، واستخدم العربية للضرورة فقط.'
+  const lengthRule = isBeginner
+    ? 'اجعل ردّك قصيراً جداً: جملة يابانية واحدة قصيرة + (عند الحاجة) سطر عربي قصير لتوضيح المعنى + سؤال واحد قصير. تكلّم ببطء.'
+    : 'اجعل ردّك مختصراً وطبيعياً: يابانية أكثر وعربية أقل، وأنهِ بسؤال متابعة قصير.'
+
   return [
-    'أنت عبدول سينسيه، معلم ياباني صوتي داخل تطبيق عربي لتعلّم اليابانية.',
-    'تحدث بصوت طبيعي ومختصر كأنها مكالمة حقيقية. لا تعطِ محاضرات طويلة.',
-    'استخدم العربية العراقية/العربية البسيطة للشرح، واستخدم اليابانية عندما تطلب من الطالب التكرار أو التدريب.',
-    'صحح النطق والجمل بلطف. إذا أخطأ الطالب، قل التصحيح ثم اطلب منه إعادة المحاولة بجملة قصيرة.',
-    'اسأل سؤالاً واحداً في كل مرة وانتظر جواب الطالب.',
-    'لا تستخدم markdown ولا قوائم طويلة ولا رموز.',
+    'أنت «عبدول سينسيه»، معلّم ياباني حقيقي ودود لمتحدّثي العربية، داخل مكالمة صوتية مباشرة.',
+    'تكلّم بدفء واختصار كأنها مكالمة حقيقية، وحافظ على استمرار المحادثة. لا تحاضر ولا تعطِ فقرات طويلة.',
+    levelPolicy,
+    lengthRule,
+    'سير كل دور: (1) استمع جيداً. (2) إذا لم تسمع الجملة أو لم تفهمها بوضوح فلا تخمّن إطلاقاً — اطلب الإعادة ببطء: «ما سمعت الجملة بوضوح، ممكن تعيدها ببطء؟» أو أكّد فهمك: «تقصد قلت: … ؟». (3) إذا فهمته، ردّ بشكل طبيعي. (4) إذا أخطأ: صحّح خطأً واحداً بإيجاز، أعطِه الجملة الأفضل، اشرح السبب بالعربية بسطر واحد، ثم اطلب منه إعادة الجملة الصحيحة. (5) اطرح سؤالاً صغيراً واحداً لإكمال المحادثة.',
+    'الطالب عربي يتعلّم اليابانية وقد يخلط اليابانية والعربية (واللهجة العراقية) والإنجليزية في كلامه — هذا متوقّع وطبيعي؛ تعامل معه بمرونة ولا تفترض أنه قال يابانية ركيكة حين يتكلّم العربية.',
+    'لا تعاقب الطالب على لهجته أو لكنته أبداً، وشجّعه دائماً، واطلب الإعادة عند عدم الوضوح بدل التخمين.',
+    'اسأل سؤالاً واحداً فقط في كل مرة وانتظر جواب الطالب. لا تستخدم markdown ولا رموز ولا قوائم.',
+    'تجنّب: السيطرة على المحادثة، الردود الطويلة، تغيير الموضوع فجأة، تصحيح كل خطأ صغير، ادّعاء فهم كلام غير واضح، استخدام يابانية متقدّمة مع المبتدئين.',
     `مستوى الطالب الحالي: ${level}.`,
     lessonTitle ? `الدرس الحالي: ${lessonTitle}.` : '',
     weakGrammar ? `نقاط قواعد تحتاج تدريب: ${weakGrammar}.` : '',
     weakVocabulary ? `مفردات تحتاج تدريب: ${weakVocabulary}.` : '',
-    recentCallMemory ? `تتذكر من مكالمات سابقة مع نفس الطالب (راجِع هذه النقاط بإيجاز إذا ناسب):\n${recentCallMemory}` : '',
+    recentCallMemory ? `تتذكّر من مكالمات سابقة مع نفس الطالب (راجِع هذه النقاط بإيجاز إذا ناسب):\n${recentCallMemory}` : '',
     modePrompt,
   ].filter(Boolean).join('\n')
+}
+
+// Per-level output speech speed — slower for beginners so they can follow.
+function outputSpeedForLevel(level) {
+  const L = String(level || 'N5').toUpperCase()
+  if (L === 'N5' || L === 'N4') return 0.85
+  if (L === 'N3') return 0.92
+  return 1.0
+}
+
+// The full Realtime session object, shared by both entry points so the call
+// and the (legacy) ephemeral-secret path stay identical. Tuned for Arabic
+// learners of Japanese: semantic VAD (waits for the learner to finish instead
+// of cutting off on a fixed silence timer), multilingual input transcription
+// (also powers the live "what Sensei heard" transcript), near-field noise
+// reduction, and level-based slower speech. Conversation model unchanged.
+function buildRealtimeSession(context = {}) {
+  return {
+    type: 'realtime',
+    model: 'gpt-realtime-2',
+    instructions: buildRealtimeInstructions(context),
+    audio: {
+      input: {
+        transcription: {
+          model: 'gpt-4o-transcribe',
+          prompt: 'المتحدّث عربي يتعلّم اليابانية ويخلط بين اليابانية والعربية (واللهجة العراقية) والإنجليزية أحياناً.',
+        },
+        noise_reduction: { type: 'near_field' },
+        turn_detection: {
+          type: 'semantic_vad',
+          eagerness: 'low',
+          create_response: true,
+          interrupt_response: true,
+        },
+      },
+      output: {
+        voice: 'marin',
+        speed: outputSpeedForLevel(context.level),
+      },
+    },
+  }
 }
 
 function readEncodedContext(value) {
@@ -145,8 +203,6 @@ exports.createSenseiRealtimeSecret = onCall(
       throw new HttpsError('unauthenticated', 'سجّل الدخول لاستخدام مكالمة عبدول سينسيه اللايف.')
     }
 
-    const instructions = buildRealtimeInstructions(request.data?.context || {})
-
     const response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
       method: 'POST',
       headers: {
@@ -155,16 +211,7 @@ exports.createSenseiRealtimeSecret = onCall(
         'OpenAI-Safety-Identifier': uid,
       },
       body: JSON.stringify({
-        session: {
-          type: 'realtime',
-          model: 'gpt-realtime-2',
-          instructions,
-          audio: {
-            output: {
-              voice: 'marin',
-            },
-          },
-        },
+        session: buildRealtimeSession(request.data?.context || {}),
       }),
     })
 
@@ -222,16 +269,7 @@ exports.createSenseiRealtimeCall = onRequest(
     }
 
     const context = readEncodedContext(request.headers['x-sensei-context'])
-    const sessionConfig = JSON.stringify({
-      type: 'realtime',
-      model: 'gpt-realtime-2',
-      instructions: buildRealtimeInstructions(context),
-      audio: {
-        output: {
-          voice: 'marin',
-        },
-      },
-    })
+    const sessionConfig = JSON.stringify(buildRealtimeSession(context))
 
     const formData = new FormData()
     formData.set('sdp', sdp)

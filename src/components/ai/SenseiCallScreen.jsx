@@ -538,6 +538,7 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
       )}
 
       {(mode === 'realtime' || mode === 'fallback') && showTranscript && <div className="sensei-call-transcript" ref={transcriptRef}>
+        <p className="sensei-transcript-caption">{isAr ? 'النص المباشر — ما يسمعه سينسيه منك' : 'Live transcript — what Sensei hears'}</p>
         {turns.map((turn, i) => (
           <div key={i} className={`sensei-call-bubble ${turn.role}`}>
             {turn.text}
