@@ -10,6 +10,40 @@ import { canStartCall, addCallSeconds, callMinutesRemaining, quotaMessage } from
 import { generateCallReport } from '../../ai/callReport.js'
 import { saveCallSession, fetchRecentCallSessions, buildCallMemory, pushCallMistakesToReview } from '../../ai/callSessions.js'
 
+// Temporary verbose call diagnostics. Flip to false to silence. Prefixed so the
+// whole call lifecycle is greppable in the console: "[CallSensei]".
+const CALL_DEBUG = true
+const clog = (...args) => { if (CALL_DEBUG) console.log('[CallSensei]', ...args) }
+
+// Turn any startup failure into a clear, user-facing reason + a kind tag, so the
+// call screen can show WHY it failed instead of silently dropping back to setup.
+function classifyCallError(err, status, body, isAr) {
+  const msg = String(err?.message || '')
+  const b = String(body || '')
+  if (msg === 'not-signed-in') {
+    return { kind: 'auth', title: isAr ? 'تحتاج تسجيل الدخول' : 'Sign-in required', detail: isAr ? 'سجّل الدخول بحسابك لبدء المكالمة اللايف.' : 'Sign in to start a live call.' }
+  }
+  if (err?.name === 'NotAllowedError' || err?.name === 'SecurityError') {
+    return { kind: 'mic', title: isAr ? 'الميكروفون محظور' : 'Microphone blocked', detail: isAr ? 'اسمح بالوصول للميكروفون من إعدادات المتصفح ثم أعد المحاولة.' : 'Allow microphone access in your browser, then retry.' }
+  }
+  if (err?.name === 'NotFoundError' || err?.name === 'NotReadableError') {
+    return { kind: 'mic', title: isAr ? 'لا يوجد ميكروفون' : 'No microphone', detail: isAr ? 'لم يُعثر على ميكروفون متاح على هذا الجهاز.' : 'No usable microphone was found on this device.' }
+  }
+  if (status === 401 && /invalid_api_key|Incorrect API key/i.test(b)) {
+    return { kind: 'server', title: isAr ? 'مفتاح الخدمة غير صالح' : 'Service key invalid', detail: isAr ? 'الخادم رفض مفتاح OpenAI (401). لازم يُضبط OPENAI_API_KEY صحيح على الخادم ثم إعادة النشر.' : 'The server rejected the OpenAI key (401). A valid OPENAI_API_KEY must be set on the server and redeployed.' }
+  }
+  if (status === 401 || status === 403) {
+    return { kind: 'auth', title: isAr ? 'انتهت الجلسة' : 'Session expired', detail: isAr ? 'انتهت صلاحية جلستك. سجّل الدخول مجدداً ثم حاول.' : 'Your session expired. Sign in again and retry.' }
+  }
+  if (status >= 500 || /openai|realtime/i.test(b)) {
+    return { kind: 'server', title: isAr ? 'الخدمة غير متاحة' : 'Service unavailable', detail: isAr ? 'تعذّر إنشاء جلسة الصوت على الخادم. حاول بعد قليل أو استخدم الوضع العادي.' : 'Could not create the voice session on the server. Try again shortly or use fallback mode.' }
+  }
+  if (status === 0 || /Failed to fetch|NetworkError|load failed/i.test(msg)) {
+    return { kind: 'connection', title: isAr ? 'تعذّر الاتصال' : 'Connection failed', detail: isAr ? 'ما قدرنا نوصل للخادم. تحقق من الإنترنت ثم أعد المحاولة.' : "Couldn't reach the server. Check your internet and retry." }
+  }
+  return { kind: 'unknown', title: isAr ? 'تعذّر بدء المكالمة' : 'Could not start the call', detail: isAr ? `حدث خطأ غير متوقع${status ? ` (رمز ${status})` : ''}. حاول مجدداً أو استخدم الوضع العادي.` : `An unexpected error occurred${status ? ` (code ${status})` : ''}. Retry or use fallback mode.` }
+}
+
 // Full-screen "call" with Abdoul Sensei: speak (or type) → he answers out
 // loud. Each turn is one regular Sensei request, so the daily quota and the
 // secure cloud path apply unchanged.
@@ -17,7 +51,7 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
   const isAr = lang === 'ar'
   const [turns, setTurns] = useState([]) // { role: 'student'|'sensei', text }
   const [status, setStatus] = useState('idle') // idle | listening | thinking | speaking
-  const [mode, setMode] = useState('setup') // setup | realtime | fallback (call phase)
+  const [mode, setMode] = useState('setup') // setup | realtime | fallback | failed (call phase)
   const [micLang, setMicLang] = useState('ar') // 'ar' | 'ja'
   const [typed, setTyped] = useState('')
   const [error, setError] = useState('')
@@ -37,6 +71,8 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
   const [callMemory, setCallMemory] = useState('')
   const savedRef = useRef(false)
   const endedSecondsRef = useRef(0)
+  // Why the live call failed, shown on the 'failed' screen (never a silent exit).
+  const [connError, setConnError] = useState(null) // { kind, title, detail }
   const recognitionRef = useRef(null)
   const peerRef = useRef(null)
   const dataChannelRef = useRef(null)
@@ -240,24 +276,42 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
     callSecondsRef.current = 0
     setCallSeconds(0)
     savedRef.current = false // Phase D — allow this new call to persist once
+    setConnError(null)
     setMode('realtime')
     setStatus('thinking')
     setError('')
     setTurns([])
+    clog('entering call screen → start realtime call', { callMode, scenario })
 
+    let sdpStatus = 0
+    let sdpBody = ''
     try {
       if (!auth.currentUser) throw new Error('not-signed-in')
+      clog('creating session token (getIdToken)…')
       const idToken = await auth.currentUser.getIdToken()
 
       const peer = new RTCPeerConnection()
       peerRef.current = peer
+      clog('RTCPeerConnection created')
 
       peer.ontrack = (event) => {
+        clog('remote audio track received')
         if (!remoteAudioRef.current) return
         remoteAudioRef.current.srcObject = event.streams[0]
         remoteAudioRef.current.play?.().catch(() => {})
       }
+      peer.oniceconnectionstatechange = () => clog('iceConnectionState:', peer.iceConnectionState)
+      peer.onconnectionstatechange = () => {
+        clog('connectionState:', peer.connectionState)
+        // A genuine drop AFTER the call connected — surface it, don't bounce to setup.
+        if (peer.connectionState === 'failed' && mountedRef.current) {
+          stopCallTimer()
+          setConnError({ kind: 'connection', title: isAr ? 'انقطع الاتصال' : 'Connection lost', detail: isAr ? 'تعذّر الحفاظ على اتصال المكالمة. تحقق من الإنترنت وحاول مجدداً.' : 'The call connection dropped. Check your internet and retry.' })
+          setMode('failed')
+        }
+      }
 
+      clog('requesting microphone (getUserMedia)…')
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
@@ -267,10 +321,12 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
       })
       localStreamRef.current = stream
       stream.getTracks().forEach((track) => peer.addTrack(track, stream))
+      clog('local audio track added')
 
       const dataChannel = peer.createDataChannel('oai-events')
       dataChannelRef.current = dataChannel
       dataChannel.onopen = () => {
+        clog('data channel open — call connected')
         if (!mountedRef.current) return
         setStatus('idle')
         startCallTimer() // Phase A/E — duration display + quota accounting
@@ -284,10 +340,11 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
         }))
       }
       dataChannel.onmessage = handleRealtimeEvent
-      dataChannel.onerror = () => setError(isAr ? 'حدث خطأ بقناة المكالمة.' : 'Live call channel error.')
+      dataChannel.onerror = (e) => { clog('data channel error', e); setError(isAr ? 'حدث خطأ بقناة المكالمة.' : 'Live call channel error.') }
 
       const offer = await peer.createOffer()
       await peer.setLocalDescription(offer)
+      clog('SDP offer created + set; sending to server…')
 
       const sdpResponse = await fetch(realtimeCallEndpoint(), {
         method: 'POST',
@@ -298,25 +355,26 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
           'X-Sensei-Context': encodeContext({ ...ctx, modePrompt: modePromptSnippet(callMode, scenario), recentCallMemory: callMemory }),
         },
       })
+      sdpStatus = sdpResponse.status
+      clog('SDP response status:', sdpStatus)
 
       if (!sdpResponse.ok) {
-        const details = await sdpResponse.text().catch(() => '')
-        throw new Error(details || `realtime-sdp-${sdpResponse.status}`)
+        sdpBody = await sdpResponse.text().catch(() => '')
+        clog('SDP error body:', sdpBody.slice(0, 300))
+        throw new Error(`sdp-${sdpStatus}`)
       }
 
-      await peer.setRemoteDescription({
-        type: 'answer',
-        sdp: await sdpResponse.text(),
-      })
+      const answerSdp = await sdpResponse.text()
+      await peer.setRemoteDescription({ type: 'answer', sdp: answerSdp })
+      clog('SDP answer received + applied — negotiating media…')
     } catch (err) {
-      console.error('Realtime Sensei call failed:', err)
-      const message = isAr
-        ? 'تعذر تشغيل المكالمة اللايف حالياً. تأكد أن functions منشورة وأن OPENAI_API_KEY مضبوط. تقدر تستخدم الوضع العادي مؤقتاً.'
-        : 'Live call could not start. Make sure functions are deployed and OPENAI_API_KEY is configured. You can use fallback mode for now.'
-      setError(message)
+      console.error('Realtime Sensei call failed:', err, { sdpStatus })
+      clog('cleanup triggered by startRealtimeCall failure')
       cleanupRealtime()
-      setMode('setup')
       setStatus('idle')
+      // Never silently return to setup: show the reason + a retry path.
+      setConnError(classifyCallError(err, sdpStatus, sdpBody, isAr))
+      setMode('failed')
     }
   }
 
@@ -459,7 +517,27 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
         </section>
       )}
 
-      {mode !== 'setup' && showTranscript && <div className="sensei-call-transcript" ref={transcriptRef}>
+      {mode === 'failed' && connError && (
+        <section className="sensei-call-failed">
+          <div className="sensei-call-failed-icon" aria-hidden="true">⚠️</div>
+          <h2>{connError.title}</h2>
+          <p>{connError.detail}</p>
+          <p className="sensei-call-failed-status">{isAr ? `نوع المشكلة: ${connError.kind}` : `Status: ${connError.kind}`}</p>
+          <div className="sensei-call-failed-actions">
+            <button className="sensei-live-primary" onClick={startRealtimeCall}>
+              {isAr ? 'إعادة المحاولة' : 'Retry'}
+            </button>
+            <button className="sensei-live-secondary" onClick={() => { setConnError(null); startFallbackCall() }}>
+              {isAr ? 'استخدم الوضع العادي' : 'Use fallback mode'}
+            </button>
+            <button className="sensei-live-secondary" onClick={() => { setConnError(null); setMode('setup'); setStatus('idle') }}>
+              {isAr ? 'رجوع' : 'Back'}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {(mode === 'realtime' || mode === 'fallback') && showTranscript && <div className="sensei-call-transcript" ref={transcriptRef}>
         {turns.map((turn, i) => (
           <div key={i} className={`sensei-call-bubble ${turn.role}`}>
             {turn.text}

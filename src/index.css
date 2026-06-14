@@ -7259,3 +7259,15 @@ select:focus {
   font-size: 0.98rem; line-height: 1.6;
   text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--red, #ef4444) 55%, transparent);
 }
+
+/* Call Sensei — visible failure screen (never a silent close) */
+.sensei-call-failed {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 28px 24px; text-align: center;
+}
+.sensei-call-failed-icon { font-size: 2.6rem; }
+.sensei-call-failed h2 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--text); }
+.sensei-call-failed p { margin: 0; max-width: 340px; font-size: 0.92rem; line-height: 1.7; color: var(--muted); }
+.sensei-call-failed-status { font-size: 0.74rem; opacity: 0.7; font-variant: small-caps; letter-spacing: 0.5px; }
+.sensei-call-failed-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; margin-top: 8px; }
+.sensei-call-failed-actions button { width: 100%; }
