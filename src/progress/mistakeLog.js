@@ -6,7 +6,7 @@ export function mistakeKey(itemType, itemId) {
   return `${itemType}:${itemId}`
 }
 
-export function recordMistake(mistakes, { itemId, itemType, lessonId, exerciseType, questionAr }, now = Date.now()) {
+export function recordMistake(mistakes, { itemId, itemType, lessonId, exerciseType, questionAr, data }, now = Date.now()) {
   const key = mistakeKey(itemType, itemId)
   const existing = mistakes[key]
   return {
@@ -17,6 +17,9 @@ export function recordMistake(mistakes, { itemId, itemType, lessonId, exerciseTy
       lessonId: lessonId ?? existing?.lessonId,
       exerciseType: exerciseType ?? existing?.exerciseType,
       questionAr: questionAr ?? existing?.questionAr,
+      // Self-contained payload for 'speaking' (call) mistakes; harmlessly
+      // undefined for every existing lesson-item caller.
+      data: data ?? existing?.data,
       wrongCount: (existing?.wrongCount || 0) + 1,
       lastWrongAt: now,
       resolved: false,

@@ -3,6 +3,12 @@ import AppIcon from '../AppIcon.jsx'
 import { auth } from '../../firebase.js'
 import { requestSensei } from '../../ai/senseiClient.ts'
 import { buildCallPrompt, speakMixed, stopSpeaking } from '../../ai/senseiCall.ts'
+import CallModePicker from './CallModePicker.jsx'
+import CallReportScreen from './CallReportScreen.jsx'
+import { modePromptSnippet } from '../../ai/callModes.js'
+import { canStartCall, addCallSeconds, callMinutesRemaining, quotaMessage } from '../../ai/callQuota.js'
+import { generateCallReport } from '../../ai/callReport.js'
+import { saveCallSession, fetchRecentCallSessions, buildCallMemory, pushCallMistakesToReview } from '../../ai/callSessions.js'
 
 // Full-screen "call" with Abdoul Sensei: speak (or type) → he answers out
 // loud. Each turn is one regular Sensei request, so the daily quota and the
@@ -11,10 +17,26 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
   const isAr = lang === 'ar'
   const [turns, setTurns] = useState([]) // { role: 'student'|'sensei', text }
   const [status, setStatus] = useState('idle') // idle | listening | thinking | speaking
-  const [mode, setMode] = useState('setup') // setup | realtime | fallback
+  const [mode, setMode] = useState('setup') // setup | realtime | fallback (call phase)
   const [micLang, setMicLang] = useState('ar') // 'ar' | 'ja'
   const [typed, setTyped] = useState('')
   const [error, setError] = useState('')
+  // Phase B — conversation mode + role-play scenario.
+  const [callMode, setCallMode] = useState('free')
+  const [scenario, setScenario] = useState('restaurant')
+  // Phase A — call controls.
+  const [muted, setMuted] = useState(false)
+  const [speakerOn, setSpeakerOn] = useState(true)
+  const [showTranscript, setShowTranscript] = useState(true)
+  const [callSeconds, setCallSeconds] = useState(0)
+  // Phase C — post-call report.
+  const [reportStatus, setReportStatus] = useState('idle') // idle | loading | ok | empty | error | disabled
+  const [report, setReport] = useState(null)
+  const reportConvoRef = useRef([])
+  // Phase D — cross-call memory + one-time persistence per call.
+  const [callMemory, setCallMemory] = useState('')
+  const savedRef = useRef(false)
+  const endedSecondsRef = useRef(0)
   const recognitionRef = useRef(null)
   const peerRef = useRef(null)
   const dataChannelRef = useRef(null)
@@ -22,6 +44,8 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
   const remoteAudioRef = useRef(null)
   const transcriptRef = useRef(null)
   const mountedRef = useRef(true)
+  const callTimerRef = useRef(null)
+  const callSecondsRef = useRef(0)
 
   useEffect(() => {
     mountedRef.current = true
@@ -38,7 +62,36 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
     transcriptRef.current?.scrollTo({ top: transcriptRef.current.scrollHeight, behavior: 'smooth' })
   }, [turns, status])
 
+  // Phase D — load recent call sessions once so Sensei can remember past
+  // topics/mistakes (shown on the setup screen + injected into the live prompt).
+  useEffect(() => {
+    let alive = true
+    if (auth.currentUser) {
+      fetchRecentCallSessions(3).then((sessions) => {
+        if (alive) setCallMemory(buildCallMemory(sessions))
+      })
+    }
+    return () => { alive = false }
+  }, [])
+
+  const stopCallTimer = () => {
+    if (callTimerRef.current) { clearInterval(callTimerRef.current); callTimerRef.current = null }
+    if (callSecondsRef.current > 0) {
+      addCallSeconds(callSecondsRef.current) // bank used minutes against the daily quota
+      callSecondsRef.current = 0
+    }
+  }
+
+  const startCallTimer = () => {
+    if (callTimerRef.current) return
+    callTimerRef.current = setInterval(() => {
+      callSecondsRef.current += 1
+      if (mountedRef.current) setCallSeconds(callSecondsRef.current)
+    }, 1000)
+  }
+
   const cleanupRealtime = () => {
+    stopCallTimer()
     dataChannelRef.current?.close?.()
     peerRef.current?.close?.()
     localStreamRef.current?.getTracks?.().forEach((track) => track.stop())
@@ -46,6 +99,71 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
     peerRef.current = null
     localStreamRef.current = null
     if (remoteAudioRef.current) remoteAudioRef.current.srcObject = null
+  }
+
+  const toggleMute = () => {
+    const next = !muted
+    localStreamRef.current?.getAudioTracks?.().forEach((track) => { track.enabled = !next })
+    setMuted(next)
+  }
+
+  const toggleSpeaker = () => {
+    const next = !speakerOn
+    if (remoteAudioRef.current) remoteAudioRef.current.muted = !next
+    setSpeakerOn(next)
+  }
+
+  const formatDuration = (total) => {
+    const m = Math.floor(total / 60)
+    const s = total % 60
+    return `${m}:${String(s).padStart(2, '0')}`
+  }
+
+  // Phase D — save the finished call once, and push its mistakes into review.
+  // Best-effort and fire-and-forget; never blocks or breaks the report UI.
+  const persistAndLearn = (convo, rep) => {
+    if (savedRef.current || !auth.currentUser) return
+    savedRef.current = true
+    try {
+      saveCallSession({ mode: callMode, scenario, durationSeconds: endedSecondsRef.current, turns: convo, report: rep })
+      pushCallMistakesToReview(rep)
+    } catch (err) {
+      console.warn('persistAndLearn failed:', err?.message || err)
+    }
+  }
+
+  const runReport = (convo) => {
+    setReportStatus('loading')
+    generateCallReport(convo, ctx).then((res) => {
+      if (!mountedRef.current) return
+      setReport(res.report || null)
+      setReportStatus(res.status === 'ok' ? 'ok' : res.status || 'error')
+      if (res.status === 'ok' && res.report) persistAndLearn(convo, res.report)
+    })
+  }
+
+  // End the live call and show a study report (Phase C). Very short calls skip
+  // straight back to setup — nothing useful to summarize.
+  const endCallWithReport = () => {
+    const convo = turns.filter((turn) => turn && turn.text)
+    endedSecondsRef.current = callSecondsRef.current // capture before cleanup banks + resets it
+    cleanupRealtime()
+    stopSpeaking()
+    setStatus('idle')
+    if (convo.length < 2) {
+      setMode('setup')
+      return
+    }
+    reportConvoRef.current = convo
+    runReport(convo)
+  }
+
+  const finishReport = () => {
+    setReportStatus('idle')
+    setReport(null)
+    setTurns([])
+    setMode('setup')
+    onClose()
   }
 
   const startFallbackCall = () => {
@@ -107,6 +225,10 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
   }
 
   const startRealtimeCall = async () => {
+    if (!canStartCall()) {
+      setError(quotaMessage(isAr)) // Phase E — daily realtime minutes used up
+      return
+    }
     if (!navigator.mediaDevices?.getUserMedia || !window.RTCPeerConnection) {
       setError(isAr ? 'هذا الجهاز لا يدعم المكالمة اللايف. راح نفتح وضع المكالمة العادي.' : 'This device does not support live calls. Opening fallback mode.')
       startFallbackCall()
@@ -115,6 +237,9 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
 
     cleanupRealtime()
     stopSpeaking()
+    callSecondsRef.current = 0
+    setCallSeconds(0)
+    savedRef.current = false // Phase D — allow this new call to persist once
     setMode('realtime')
     setStatus('thinking')
     setError('')
@@ -148,6 +273,7 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
       dataChannel.onopen = () => {
         if (!mountedRef.current) return
         setStatus('idle')
+        startCallTimer() // Phase A/E — duration display + quota accounting
         dataChannel.send(JSON.stringify({
           type: 'response.create',
           response: {
@@ -169,7 +295,7 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
         headers: {
           Authorization: `Bearer ${idToken}`,
           'Content-Type': 'application/sdp',
-          'X-Sensei-Context': encodeContext(ctx),
+          'X-Sensei-Context': encodeContext({ ...ctx, modePrompt: modePromptSnippet(callMode, scenario), recentCallMemory: callMemory }),
         },
       })
 
@@ -266,6 +392,18 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
     speaking: isAr ? 'سينسيه يتحدث… 🔊' : 'Sensei is speaking… 🔊',
   }[status]
 
+  if (reportStatus !== 'idle') {
+    return (
+      <CallReportScreen
+        report={report}
+        status={reportStatus}
+        lang={lang}
+        onClose={finishReport}
+        onRetry={() => runReport(reportConvoRef.current)}
+      />
+    )
+  }
+
   return (
     <div className="sensei-call" dir={isAr ? 'rtl' : 'ltr'}>
       <audio ref={remoteAudioRef} autoPlay playsInline />
@@ -293,17 +431,35 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
               ? 'تكلم طبيعي بالعربي أو الياباني. عبدول يسمعك ويرد عليك صوتياً مثل مكالمة ChatGPT.'
               : 'Speak naturally in Arabic or Japanese. Abdoul listens and answers by voice like a ChatGPT call.'}
           </p>
+          {callMemory && (
+            <div className="sensei-call-memory">
+              <span className="sensei-call-memory-title">{isAr ? '🧠 يتذكّر سينسيه من مكالماتك السابقة' : '🧠 Sensei remembers from your past calls'}</span>
+              <p>{callMemory}</p>
+            </div>
+          )}
+          <CallModePicker
+            lang={lang}
+            mode={callMode}
+            scenario={scenario}
+            onSelectMode={setCallMode}
+            onSelectScenario={setScenario}
+          />
           <button className="sensei-live-primary" onClick={startRealtimeCall}>
             {isAr ? 'ابدأ المكالمة اللايف' : 'Start live call'}
           </button>
           <button className="sensei-live-secondary" onClick={startFallbackCall}>
             {isAr ? 'استخدم الوضع العادي' : 'Use fallback mode'}
           </button>
+          <p className="sensei-call-quota">
+            {isAr
+              ? `المتبقي اليوم: ${Math.ceil(callMinutesRemaining())} دقيقة`
+              : `${Math.ceil(callMinutesRemaining())} min left today`}
+          </p>
           {error && <div className="sensei-call-error">{error}</div>}
         </section>
       )}
 
-      {mode !== 'setup' && <div className="sensei-call-transcript" ref={transcriptRef}>
+      {mode !== 'setup' && showTranscript && <div className="sensei-call-transcript" ref={transcriptRef}>
         {turns.map((turn, i) => (
           <div key={i} className={`sensei-call-bubble ${turn.role}`}>
             {turn.text}
@@ -347,17 +503,44 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
       </footer>}
 
       {mode === 'realtime' && <footer className="sensei-call-controls sensei-live-controls">
-        <button
-          type="button"
-          className="sensei-call-end sensei-live-end"
-          onClick={() => {
-            cleanupRealtime()
-            setMode('setup')
-            setStatus('idle')
-          }}
-        >
-          {isAr ? 'إنهاء المكالمة' : 'End call'}
-        </button>
+        <span className="sensei-call-duration" aria-label={isAr ? 'مدة المكالمة' : 'Call duration'}>{formatDuration(callSeconds)}</span>
+        <div className="sensei-call-btnrow">
+          <button
+            type="button"
+            className={`sensei-ctrl-btn ${muted ? 'off' : ''}`}
+            onClick={toggleMute}
+            aria-pressed={muted}
+            title={isAr ? (muted ? 'إلغاء الكتم' : 'كتم الميكروفون') : (muted ? 'Unmute' : 'Mute')}
+          >
+            {muted ? '🔇' : '🎙️'}
+          </button>
+          <button
+            type="button"
+            className={`sensei-ctrl-btn ${speakerOn ? '' : 'off'}`}
+            onClick={toggleSpeaker}
+            aria-pressed={speakerOn}
+            title={isAr ? (speakerOn ? 'كتم الصوت' : 'تشغيل الصوت') : (speakerOn ? 'Speaker off' : 'Speaker on')}
+          >
+            {speakerOn ? '🔊' : '🔈'}
+          </button>
+          <button
+            type="button"
+            className={`sensei-ctrl-btn ${showTranscript ? 'active' : ''}`}
+            onClick={() => setShowTranscript((v) => !v)}
+            aria-pressed={showTranscript}
+            title={isAr ? 'النص' : 'Transcript'}
+          >
+            <AppIcon name="messages" size={20} />
+          </button>
+          <button
+            type="button"
+            className="sensei-ctrl-btn sensei-ctrl-end"
+            onClick={endCallWithReport}
+            title={isAr ? 'إنهاء' : 'End'}
+          >
+            <AppIcon name="wrong" size={20} />
+          </button>
+        </div>
       </footer>}
     </div>
   )

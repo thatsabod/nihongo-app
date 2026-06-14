@@ -7137,3 +7137,125 @@ select:focus {
 .cm-share-close { color: var(--muted); }
 
 .cm-post-detail, .cm-saved-list { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* ══ Call Sensei — mode picker (Phase B) + call controls (Phase A) ══════════ */
+.call-mode-picker { width: 100%; max-width: 420px; margin: 4px auto 8px; }
+.call-mode-label { margin: 0 0 8px; font-size: 0.82rem; font-weight: 700; color: var(--muted); text-align: center; }
+.call-mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.call-mode-chip {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--panel);
+  color: var(--text); font: inherit; font-weight: 700; font-size: 0.86rem; cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.call-mode-chip:hover { border-color: color-mix(in srgb, var(--primary) 40%, var(--border)); }
+.call-mode-chip.active { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--panel)); }
+.call-mode-icon { font-size: 1.1rem; }
+.call-scenario-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; justify-content: center; }
+.call-scenario-chip {
+  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer;
+}
+.call-scenario-chip.active { border-color: var(--primary); color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--panel)); }
+.sensei-call-quota { margin: 8px 0 0; font-size: 0.78rem; color: var(--muted); text-align: center; }
+
+.sensei-live-controls { flex-direction: column; gap: 12px; }
+.sensei-call-duration { font-size: 1.05rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
+.sensei-call-btnrow { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.sensei-ctrl-btn {
+  display: grid; place-items: center; width: 52px; height: 52px;
+  border: 1px solid var(--border); border-radius: 50%; background: var(--panel);
+  color: var(--text); font-size: 1.3rem; cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.sensei-ctrl-btn:hover { border-color: color-mix(in srgb, var(--primary) 40%, var(--border)); }
+.sensei-ctrl-btn.active { border-color: var(--primary); color: var(--primary); }
+.sensei-ctrl-btn.off { background: color-mix(in srgb, var(--muted) 18%, var(--panel)); color: var(--muted); }
+.sensei-ctrl-end { background: var(--red, #ef4444); border-color: var(--red, #ef4444); color: #fff; }
+.sensei-ctrl-end:hover { filter: brightness(1.05); }
+
+/* Phase C — post-call study report */
+.call-report {
+  position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column;
+  background: var(--bg); color: var(--text);
+}
+.call-report-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.call-report-head h2 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+.call-report-close {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--panel); color: var(--text); cursor: pointer;
+}
+.call-report-close:hover { border-color: color-mix(in srgb, var(--primary) 40%, var(--border)); }
+.call-report-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+.call-report-score {
+  align-self: center; text-align: center; padding: 14px 26px; border-radius: var(--radius-lg, 18px);
+  background: color-mix(in srgb, var(--primary) 10%, var(--panel)); border: 1px solid var(--border);
+}
+.call-report-score-num { font-size: 2.4rem; font-weight: 900; line-height: 1; color: var(--primary); }
+.call-report-score-num small { font-size: 1rem; font-weight: 700; color: var(--muted); margin-inline-start: 2px; }
+.call-report-score p { margin: 6px 0 0; font-size: 0.82rem; color: var(--muted); }
+.call-report-score.good .call-report-score-num { color: var(--green, #16a34a); }
+.call-report-score.good { background: color-mix(in srgb, var(--green, #16a34a) 12%, var(--panel)); }
+.call-report-score.low .call-report-score-num { color: var(--red, #ef4444); }
+.call-report-score.low { background: color-mix(in srgb, var(--red, #ef4444) 10%, var(--panel)); }
+
+.call-report-summary {
+  margin: 0; font-size: 0.95rem; line-height: 1.7; color: var(--text);
+  background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px;
+}
+.call-report-section {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px;
+}
+.call-report-section h3 { margin: 0 0 10px; font-size: 0.92rem; font-weight: 800; }
+.call-report-list { margin: 0; padding-inline-start: 18px; display: flex; flex-direction: column; gap: 7px; }
+.call-report-list li { font-size: 0.9rem; line-height: 1.5; }
+
+.call-report-mistakes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.call-report-mistake {
+  display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px;
+  background: color-mix(in srgb, var(--red, #ef4444) 7%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--red, #ef4444) 20%, var(--border));
+}
+.call-report-mistake .cr-you {
+  font-size: 0.88rem; color: var(--muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--red, #ef4444) 60%, transparent);
+}
+.call-report-mistake .cr-better { font-size: 0.95rem; font-weight: 800; color: var(--green, #16a34a); }
+.call-report-mistake .cr-why { font-size: 0.82rem; color: var(--muted); }
+
+.call-report-foot { flex-shrink: 0; padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); }
+.call-report-done { width: 100%; }
+
+.call-report-loading, .call-report-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; padding: 32px; text-align: center; color: var(--muted);
+}
+.call-report-empty-icon { font-size: 2.4rem; }
+.call-report-empty .call-report-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.call-report-spinner {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 3px solid var(--border); border-top-color: var(--primary);
+  animation: call-report-spin 0.8s linear infinite;
+}
+@keyframes call-report-spin { to { transform: rotate(360deg); } }
+
+/* Phase D — cross-call memory (setup screen) */
+.sensei-call-memory {
+  width: 100%; max-width: 360px; margin: 4px auto 0; padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: 14px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--panel)); text-align: start;
+}
+.sensei-call-memory-title { display: block; font-size: 0.82rem; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+.sensei-call-memory p { margin: 0; font-size: 0.84rem; line-height: 1.7; color: var(--text); white-space: pre-line; }
+
+/* Phase D — speaking-correction card in Smart Review */
+.speaking-review-you {
+  margin: 4px 0 12px; padding: 10px 12px; border-radius: 12px;
+  background: color-mix(in srgb, var(--red, #ef4444) 7%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--red, #ef4444) 20%, var(--border));
+  font-size: 0.98rem; line-height: 1.6;
+  text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--red, #ef4444) 55%, transparent);
+}

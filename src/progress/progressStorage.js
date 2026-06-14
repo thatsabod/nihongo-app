@@ -197,6 +197,26 @@ export function trackAnswer(state, { itemId, itemType, wasCorrect, quality, less
   return next
 }
 
+// Phase D — record a freeform speaking correction captured from a live Call
+// Sensei session. Unlike trackAnswer (which schedules a lesson item), this
+// stores the full {you,better,why} payload on the mistake record and seeds an
+// SRS entry due immediately, so the correction surfaces in the next Smart
+// Review and then follows normal SM-2 once the learner grades it.
+export function recordSpeakingMistake(state, { itemId, data, questionAr }, now = Date.now()) {
+  const srsKey = `speaking:${itemId}`
+  const existing = state.srs[srsKey]
+  const srsRecord = existing
+    ? { ...existing, nextReviewAt: Math.min(existing.nextReviewAt || now, now) }
+    : { ...createSrsRecord(itemId, 'speaking'), nextReviewAt: now }
+  const next = {
+    ...state,
+    srs: { ...state.srs, [srsKey]: srsRecord },
+    mistakes: recordMistake(state.mistakes, { itemId, itemType: 'speaking', exerciseType: 'speaking', questionAr, data }, now),
+  }
+  writeProgressState(next)
+  return next
+}
+
 // Achievement-unlock moment (Phase 5). We persist the set of achievement ids
 // the learner has already been shown so the "unlocked!" toast fires exactly
 // once per achievement and never re-fires on reload/cross-device. A returning

@@ -166,7 +166,10 @@ export interface ReadingPassage {
 // Matches the runtime item-type tags written by the progress/mistake models
 // (LessonSections tracking, reviewQueue keys, SmartReview). 'vocab' — not
 // 'vocabulary' — is the established key used everywhere in the app.
-export type SrsItemType = 'vocab' | 'grammar' | 'kanji' | 'mistake'
+// 'speaking' — a freeform correction captured from a live Call Sensei session;
+// it carries its own {you,better,why} payload (see MistakeRecord.data) rather
+// than resolving to a lesson item.
+export type SrsItemType = 'vocab' | 'grammar' | 'kanji' | 'mistake' | 'speaking'
 
 export interface SrsRecord {
   itemId: string
@@ -189,6 +192,9 @@ export interface MistakeRecord {
   wrongCount: number
   lastWrongAt: number
   resolved: boolean
+  // Self-contained payload for 'speaking' mistakes from a live call — the
+  // review card renders this directly instead of resolving a lesson item.
+  data?: { you: string; better: string; why: string }
 }
 
 export interface ReviewItem {

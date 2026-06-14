@@ -204,6 +204,49 @@ function GrammarReviewCard({ entry, lang, onAnswer }) {
   )
 }
 
+// ── Speaking recall: a correction captured from a live Call Sensei session ───
+// Self-graded flashcard (mirrors GrammarReviewCard): show what the learner said,
+// reveal the better phrasing + why, then self-rate. The item carries its own
+// { you, better, why } payload — no lesson resolution needed.
+function SpeakingReviewCard({ entry, lang, onAnswer }) {
+  const { item } = entry
+  const isAr = lang === 'ar'
+  const [revealed, setRevealed] = useState(false)
+
+  return (
+    <div className="iex-card review-card">
+      <p className="ex-prompt">{isAr ? 'صحّح هذه الجملة من مكالمتك' : 'Fix this sentence from your call'}</p>
+      {item.you && <p className="speaking-review-you" dir="auto">{item.you}</p>}
+
+      {!revealed ? (
+        <button className="btn btn-primary" onClick={() => setRevealed(true)}>
+          {isAr ? 'أظهر التصحيح' : 'Show correction'}
+        </button>
+      ) : (
+        <>
+          {item.better && (
+            <button
+              className="mistake-example"
+              dir="ltr"
+              onClick={() => speakJapanese(item.better)}
+              style={{ cursor: 'pointer', width: '100%', textAlign: 'inherit' }}
+            >
+              <span className="mistake-example-jp" dir="ltr">{item.better}</span>
+              <small>🔊</small>
+            </button>
+          )}
+          {item.why && <p className="mistake-explanation" dir="rtl">{item.why}</p>}
+          <ConfidenceButtons
+            isAr={isAr}
+            includeForgot
+            onGrade={(q) => { if (q >= 3) playCorrect(); else playWrong(); onAnswer(q >= 3, q) }}
+          />
+        </>
+      )}
+    </div>
+  )
+}
+
 // ── SCREEN: Smart Review ─────────────────────────────────────────────────────
 export default function SmartReview({ allLessons, allKanji = [], lang, kanjiReadingMode, onClose, onStudyComplete, reviewFilter = null }) {
   const isAr = lang === 'ar'
@@ -273,7 +316,7 @@ export default function SmartReview({ allLessons, allKanji = [], lang, kanjiRead
       quality,
       lessonId: entry.lessonId,
       exerciseType: 'review',
-      questionAr: entry.kind === 'vocab' ? entry.item.meaning : entry.kind === 'kanji' ? entry.item.answer : entry.item.title,
+      questionAr: entry.kind === 'vocab' ? entry.item.meaning : entry.kind === 'kanji' ? entry.item.answer : entry.kind === 'speaking' ? entry.item.better : entry.item.title,
     })
     if (correct) {
       // Clear it from the weak-areas list once recalled correctly in review.
@@ -315,6 +358,9 @@ export default function SmartReview({ allLessons, allKanji = [], lang, kanjiRead
       )}
       {entry.kind === 'grammar' && (
         <GrammarReviewCard key={entry.key} entry={entry} lang={lang} onAnswer={handleAnswer} />
+      )}
+      {entry.kind === 'speaking' && (
+        <SpeakingReviewCard key={entry.key} entry={entry} lang={lang} onAnswer={handleAnswer} />
       )}
     </ExerciseContainer>
   )

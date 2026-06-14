@@ -50,6 +50,9 @@ export interface SenseiContext {
   recentMistakes: MistakeRecord[]
   reviewDueCount: number
   knownVocabularyCount: number
+  // Phase D — short Arabic summary of recent Call Sensei sessions, injected at
+  // call time so the live tutor remembers past topics/mistakes across calls.
+  recentCallMemory?: string
   generatedAt: number
 }
 

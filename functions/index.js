@@ -33,6 +33,8 @@ function buildRealtimeInstructions(context = {}) {
   const weakVocabulary = Array.isArray(context.weakVocabulary)
     ? context.weakVocabulary.slice(0, 6).map((item) => String(item?.label || item).slice(0, 60)).join('، ')
     : ''
+  const modePrompt = String(context.modePrompt || '').slice(0, 400) // Phase B — chosen call mode
+  const recentCallMemory = String(context.recentCallMemory || '').slice(0, 300) // Phase D — memory of past calls
 
   return [
     'أنت عبدول سينسيه، معلم ياباني صوتي داخل تطبيق عربي لتعلّم اليابانية.',
@@ -45,6 +47,8 @@ function buildRealtimeInstructions(context = {}) {
     lessonTitle ? `الدرس الحالي: ${lessonTitle}.` : '',
     weakGrammar ? `نقاط قواعد تحتاج تدريب: ${weakGrammar}.` : '',
     weakVocabulary ? `مفردات تحتاج تدريب: ${weakVocabulary}.` : '',
+    recentCallMemory ? `تتذكر من مكالمات سابقة مع نفس الطالب (راجِع هذه النقاط بإيجاز إذا ناسب):\n${recentCallMemory}` : '',
+    modePrompt,
   ].filter(Boolean).join('\n')
 }
 

@@ -38,7 +38,14 @@ function splitKey(key) {
   return { itemType: key.slice(0, idx), itemId: key.slice(idx + 1) }
 }
 
-function resolveItem(index, itemType, itemId) {
+function resolveItem(index, itemType, itemId, mistakes, key) {
+  if (itemType === 'speaking') {
+    // Call-derived corrections carry their own payload — no lesson lookup.
+    const rec = mistakes?.[key]
+    if (!rec || rec.resolved) return null
+    const data = rec.data || { you: '', better: rec.questionAr || itemId, why: '' }
+    return { kind: 'speaking', item: data, lessonId: '' }
+  }
   if (itemType === 'vocab') {
     const hit = index.vocab.get(itemId)
     return hit ? { kind: 'vocab', item: hit.item, lessonId: hit.lessonId } : null
@@ -66,7 +73,7 @@ export function buildReviewSession(allLessons, state, now = Date.now(), max = 15
   const push = (key, extra) => {
     if (seen.has(key)) return
     const { itemType, itemId } = splitKey(key)
-    const resolved = resolveItem(index, itemType, itemId)
+    const resolved = resolveItem(index, itemType, itemId, mistakes, key)
     if (!resolved) return
     seen.add(key)
     out.push({ key, itemType, itemId, wrongCount: 0, due: false, ...resolved, ...extra })
