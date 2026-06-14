@@ -1,10 +1,25 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import CommunityActionBar from './CommunityActionBar.jsx'
 import CommunityCommentPreview from './CommunityCommentPreview.jsx'
 import VoiceRoomCard from './VoiceRoomCard.jsx'
 import DailyChallengeCard from './DailyChallengeCard.jsx'
+import kanjiMeanings from '../../content/kanjiMeanings.js'
 
 const TEXT_LIMIT = 180
+
+// Offline kanji gloss: list each known kanji in the text with its Arabic meaning.
+// Honest "safe placeholder" translation aid — real MT can replace this later.
+function buildGloss(post) {
+  if (post.translationAr) return post.translationAr
+  const src = `${post.contentJa || ''} ${post.contentAr || ''}`
+  const seen = new Set()
+  const parts = []
+  for (const ch of src) {
+    const g = kanjiMeanings[ch]
+    if (g && !seen.has(ch)) { seen.add(ch); parts.push(`${ch} — ${g.meaningAr}`) }
+  }
+  return parts.length ? parts.join('، ') : ''
+}
 
 function Avatar({ user }) {
   if (user?.avatarUrl) return <img className="cm-avatar" src={user.avatarUrl} alt="" />
@@ -30,10 +45,8 @@ export default function CommunityPostCard({
   const longText = (post.contentAr || '').length > TEXT_LIMIT
   const bodyText = longText && !showMore ? `${post.contentAr.slice(0, TEXT_LIMIT)}…` : post.contentAr
 
-  const handleTranslate = () => {
-    if (post.translationAr) setShowTranslation((v) => !v)
-    else onTranslate?.(post)
-  }
+  const gloss = useMemo(() => buildGloss(post), [post])
+  const handleTranslate = () => setShowTranslation((v) => !v)
 
   return (
     <article className={`cm-post ${post.type === 'teacher' ? 'cm-post-teacher' : ''}`}>
@@ -83,8 +96,15 @@ export default function CommunityPostCard({
         <p className="cm-post-jp" dir="ltr">{post.contentJa}</p>
       )}
       {post.romaji && <p className="cm-post-romaji" dir="ltr">{post.romaji}</p>}
-      {showTranslation && post.translationAr && (
-        <p className="cm-post-translation" dir="auto">{post.translationAr}</p>
+      {showTranslation && (
+        <div className="cm-translation">
+          <span className="cm-translation-label">{isAr ? 'الأصل' : 'Original'}</span>
+          <p dir="auto">{post.contentJa || post.contentAr || '—'}</p>
+          <span className="cm-translation-label">{isAr ? 'الترجمة' : 'Translation'}</span>
+          {gloss
+            ? <p dir="auto">{gloss}</p>
+            : <p className="cm-translation-empty">{isAr ? 'لا تتوفر ترجمة تلقائية لهذا المنشور.' : 'No automatic translation available.'}</p>}
+        </div>
       )}
 
       {post.type === 'voiceRoom' && <VoiceRoomCard room={post.voiceRoom} lang={lang} onJoin={onJoinRoom} />}

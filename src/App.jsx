@@ -102,6 +102,18 @@ const communityText = {
     locked: 'قريباً ربط مباشر مع Firestore و AI حقيقي.',
     saved: 'تم الحفظ بالمجتمع.',
     loginRequired: 'سجل دخول حتى تشارك بالمجتمع وتحفظ باسمك.',
+    likedYourPost: 'أعجب بمنشورك',
+    linkCopied: 'تم نسخ الرابط',
+    savedPosts: 'المنشورات المحفوظة',
+    noSavedPosts: 'لا توجد منشورات محفوظة بعد.',
+    translate: 'ترجمة',
+    hideTranslation: 'إخفاء الترجمة',
+    noTranslation: 'لا تتوفر ترجمة تلقائية لهذا المنشور.',
+    shareTitle: 'مشاركة المنشور',
+    copyLink: 'نسخ الرابط',
+    nativeShare: 'مشاركة عبر التطبيقات',
+    comments: 'التعليقات',
+    noComments: 'لا توجد تعليقات بعد',
     follow: 'متابعة',
     followRequest: 'إرسال طلب متابعة',
     requestSent: 'تم إرسال طلب الصداقة.',
@@ -171,6 +183,18 @@ const communityText = {
     locked: 'Firestore and real AI wiring can be added next.',
     saved: 'Saved to the community.',
     loginRequired: 'Log in to post to the community under your name.',
+    likedYourPost: 'liked your post',
+    linkCopied: 'Link copied',
+    savedPosts: 'Saved posts',
+    noSavedPosts: 'No saved posts yet.',
+    translate: 'Translate',
+    hideTranslation: 'Hide translation',
+    noTranslation: 'No automatic translation for this post.',
+    shareTitle: 'Share post',
+    copyLink: 'Copy link',
+    nativeShare: 'Share via apps',
+    comments: 'Comments',
+    noComments: 'No comments yet',
     follow: 'Follow',
     followRequest: 'Send follow request',
     requestSent: 'Friend request sent.',
@@ -849,8 +873,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
   // Feed redesign UI state (presentation only — no new backend).
   const [activeTab, setActiveTab] = useState('recent')
   const [communitySearch, setCommunitySearch] = useState('')
-  const [savedPostIds, setSavedPostIds] = useState(new Set())
-  const [likedPostIds, setLikedPostIds] = useState(new Set())
+  const [savedPostIds, setSavedPostIds] = useState(new Set()) // bookmarked question ids (Firestore-synced + mock-local)
+  const [likedPostIds, setLikedPostIds] = useState(new Set()) // liked question ids (Firestore-synced + mock-local)
+  const [sharePost, setSharePost] = useState(null) // post being shared (share modal)
+  const [activePostId, setActivePostId] = useState(null) // post open in the comments screen
   const [notifSettings, setNotifSettings] = useState(() => {
     try { return JSON.parse(localStorage.getItem('nihongo-notif-settings') || '{}') } catch { return {} }
   })
@@ -1026,6 +1052,20 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       console.warn('Notifications unavailable', error)
     })
 
+    // My likes / bookmarks — drive liked/saved state across refresh + devices.
+    // Merge: keep any optimistic mock-* ids, replace the real question ids.
+    const likesQuery = query(collection(db, 'communityQuestionLikes'), where('userId', '==', userId), limit(500))
+    const stopLikes = onSnapshot(likesQuery, (snapshot) => {
+      const ids = snapshot.docs.map((item) => item.data().questionId).filter(Boolean)
+      setLikedPostIds((prev) => new Set([...[...prev].filter((id) => String(id).startsWith('mock-')), ...ids]))
+    }, (error) => console.warn('Likes unavailable', error))
+
+    const bookmarksQuery = query(collection(db, 'bookmarks'), where('userId', '==', userId), limit(500))
+    const stopBookmarks = onSnapshot(bookmarksQuery, (snapshot) => {
+      const ids = snapshot.docs.map((item) => item.data().questionId).filter(Boolean)
+      setSavedPostIds((prev) => new Set([...[...prev].filter((id) => String(id).startsWith('mock-')), ...ids]))
+    }, (error) => console.warn('Bookmarks unavailable', error))
+
     return () => {
       stopFollowing()
       stopFollowers()
@@ -1034,6 +1074,8 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       stopMessages()
       stopSentMessages()
       stopNotifications()
+      stopLikes()
+      stopBookmarks()
     }
   }, [userId, isGuest])
 
@@ -1096,17 +1138,27 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     })
   }
 
-  const likeQuestion = async (question) => {
+  // Toggle a like: deterministic doc id prevents duplicates; likeCount on the
+  // question is incremented/decremented; author is notified on a fresh like.
+  const toggleQuestionLike = async (question) => {
     if (!requireCommunityAccount()) return
+    const liked = likedPostIds.has(question.id)
+    // Optimistic UI — the likes subscription reconciles the truth.
+    setLikedPostIds((prev) => { const n = new Set(prev); if (liked) n.delete(question.id); else n.add(question.id); return n })
+    const likeRef = doc(db, 'communityQuestionLikes', `${question.id}_${userId}`)
+    const qRef = doc(db, 'communityQuestions', question.id)
     try {
-      await setDoc(doc(db, 'communityQuestionLikes', `${question.id}_${userId}`), {
-        questionId: question.id,
-        userId,
-        userHandle,
-        createdAt: serverTimestamp(),
-      }, { merge: true })
-      onNotice(text.liked)
+      if (liked) {
+        await deleteDoc(likeRef)
+        await updateDoc(qRef, { likeCount: increment(-1) }).catch(() => {})
+      } else {
+        await setDoc(likeRef, { questionId: question.id, userId, userHandle, createdAt: serverTimestamp() })
+        await updateDoc(qRef, { likeCount: increment(1) }).catch(() => {})
+        notifyQuestionAuthor(question, 'like', `${userHandle} ${text.likedYourPost}`)
+      }
     } catch (error) {
+      // Roll back optimistic state on failure.
+      setLikedPostIds((prev) => { const n = new Set(prev); if (liked) n.add(question.id); else n.delete(question.id); return n })
       onNotice(`${text.locked} ${error.code || error.message}`)
     }
   }
@@ -1508,8 +1560,8 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       },
       contentAr: q.text,
       tags: deriveQuestionTags(q),
-      likesCount: q.likes || 0,
-      commentsCount: q.answers || replies.length || 0,
+      likesCount: Math.max(0, q.likeCount || 0),
+      commentsCount: replies.length || q.answers || 0,
       liked: false,
       saved: false,
       commentsPreview: replies.slice(0, 2).map((r) => ({ id: r.id, authorHandle: r.authorHandle, body: r.body, userId: r.userId })),
@@ -1523,17 +1575,45 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     .filter((post) => postMatchesTab(post, activeTab))
     .filter((post) => !search || `${post.contentAr || ''} ${post.contentJa || ''} ${post.user?.handle || ''} ${(post.tags || []).join(' ')}`.toLowerCase().includes(search))
 
-  // Feed interaction wrappers (reuse existing backend handlers; mock = local).
-  const onToggleComments = (id) => setActiveReplyId((cur) => (cur === id ? null : id))
-  const toggleSavedPost = (post) => setSavedPostIds((prev) => { const n = new Set(prev); if (n.has(post.id)) n.delete(post.id); else n.add(post.id); return n })
-  const handleFeedLike = (post) => { setLikedPostIds((prev) => new Set(prev).add(post.id)); if (post.source === 'question' && post.raw?.id) likeQuestion(post.raw) }
-  const handleFeedShare = (post) => {
-    if (post.source === 'question' && post.raw) { shareQuestion(post.raw); return }
-    const body = post.contentAr || post.contentJa || ''
-    if (navigator.clipboard) navigator.clipboard.writeText(body).then(() => onNotice(text.copied)).catch(() => onNotice(body))
-    else onNotice(body)
+  // Feed interaction wrappers. Comment opens a dedicated post screen; like and
+  // save are real Firestore toggles for questions (optimistic local for mock).
+  const onToggleComments = (id) => { setActivePostId(id); setCommunityView('post') }
+
+  const toggleSavedPost = async (post) => {
+    const saved = savedPostIds.has(post.id)
+    setSavedPostIds((prev) => { const n = new Set(prev); if (saved) n.delete(post.id); else n.add(post.id); return n })
+    if (post.source !== 'question') return // mock posts: local-only bookmark
+    if (!requireCommunityAccount()) {
+      setSavedPostIds((prev) => { const n = new Set(prev); if (saved) n.add(post.id); else n.delete(post.id); return n })
+      return
+    }
+    const ref = doc(db, 'bookmarks', `${userId}_${post.id}`)
+    try {
+      if (saved) await deleteDoc(ref)
+      else await setDoc(ref, { userId, questionId: post.id, createdAt: serverTimestamp() })
+    } catch (error) {
+      setSavedPostIds((prev) => { const n = new Set(prev); if (saved) n.add(post.id); else n.delete(post.id); return n })
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
   }
-  const handleFeedTranslate = () => onNotice(isAr ? 'الترجمة غير متاحة لهذا المنشور بعد.' : 'Translation not available yet.')
+
+  const handleFeedLike = (post) => {
+    if (post.source === 'question' && post.raw?.id) { toggleQuestionLike(post.raw); return }
+    setLikedPostIds((prev) => { const n = new Set(prev); if (n.has(post.id)) n.delete(post.id); else n.add(post.id); return n }) // mock: local toggle
+  }
+
+  const handleFeedShare = (post) => setSharePost(post) // open share modal
+  const handleFeedTranslate = () => {} // handled inside the card (collapsible gloss); no-op fallback
+  const postUrl = (post) => `${typeof window !== 'undefined' ? window.location.origin : ''}/community/post/${post.id}`
+  const copyShareLink = (post) => {
+    const url = postUrl(post)
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => { onNotice(text.linkCopied); setSharePost(null) }).catch(() => onNotice(url))
+    else { onNotice(url); setSharePost(null) }
+  }
+  const nativeShare = (post) => {
+    if (!navigator.share) return copyShareLink(post)
+    navigator.share({ title: 'にほんごGO', text: post.contentAr || post.contentJa || '', url: postUrl(post) }).then(() => setSharePost(null)).catch(() => {})
+  }
   const openPostProfile = (post) => setSelectedProfile(post.raw
     ? profileForCommunityItem(post.raw)
     : profileForCommunityItem({ userId: post.user?.id, authorHandle: post.user?.handle, authorName: post.user?.name }))
@@ -1653,7 +1733,59 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     setCommunityView('dm-chat')
   }
 
+  // Shared per-post feed props (used by the feed + the post-detail + saved screens).
+  const feedHandlers = {
+    lang,
+    currentUserId: userId,
+    likedIds: likedPostIds,
+    savedIds: savedPostIds,
+    onLike: handleFeedLike,
+    onSave: toggleSavedPost,
+    onShare: handleFeedShare,
+    onTranslate: handleFeedTranslate,
+    onOpenProfile: openPostProfile,
+    onJoinRoom: joinVoiceRoom,
+    menuOpenId: openPostMenu,
+    onToggleMenu: (id) => setOpenPostMenu(openPostMenu === id ? null : id),
+    onEditPost: (post) => startQuestionEdit(post.raw),
+    onDeletePost: (post) => deleteQuestionPost(post.raw),
+    onReportPost: (post) => reportCommunityItem(post.raw, 'question'),
+    renderThread,
+  }
+
   // ── Dedicated full screens (chrome hidden by App when communityView!=='feed') ──
+  if (communityView === 'post') {
+    const activePost = allPosts.find((p) => p.id === activePostId)
+    return (
+      <section className="cm-screen">
+        <header className="cm-screen-head">
+          <button className="cm-icon-btn" onClick={() => setCommunityView('feed')} aria-label={isAr ? 'رجوع' : 'Back'}><AppIcon name="back" size={22} /></button>
+          <h1>{text.comments}</h1>
+          <span className="cm-screen-head-spacer" />
+        </header>
+        <div className="cm-post-detail">
+          {activePost
+            ? <CommunityFeed posts={[activePost]} expandedId={activePostId} onToggleComments={() => {}} emptyLabel={text.noComments} {...feedHandlers} />
+            : <p className="cm-empty">{text.noComments}</p>}
+        </div>
+      </section>
+    )
+  }
+  if (communityView === 'saved') {
+    const savedPosts = allPosts.filter((p) => savedPostIds.has(p.id))
+    return (
+      <section className="cm-screen">
+        <header className="cm-screen-head">
+          <button className="cm-icon-btn" onClick={() => setCommunityView('feed')} aria-label={isAr ? 'رجوع' : 'Back'}><AppIcon name="back" size={22} /></button>
+          <h1>{text.savedPosts}</h1>
+          <span className="cm-screen-head-spacer" />
+        </header>
+        <div className="cm-saved-list">
+          <CommunityFeed posts={savedPosts} expandedId={null} onToggleComments={onToggleComments} emptyLabel={text.noSavedPosts} {...feedHandlers} />
+        </div>
+      </section>
+    )
+  }
   if (communityView === 'dm-inbox') {
     return <DMInboxScreen lang={lang} conversations={conversations} onOpenConversation={openConversation} onBack={() => setCommunityView('feed')} />
   }
@@ -1761,25 +1893,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
       <CommunityFeed
         posts={feedPosts}
-        lang={lang}
-        currentUserId={userId}
-        expandedId={activeReplyId}
+        expandedId={null}
         onToggleComments={onToggleComments}
-        likedIds={likedPostIds}
-        savedIds={savedPostIds}
-        onLike={handleFeedLike}
-        onSave={toggleSavedPost}
-        onShare={handleFeedShare}
-        onTranslate={handleFeedTranslate}
-        onOpenProfile={openPostProfile}
-        onJoinRoom={joinVoiceRoom}
-        menuOpenId={openPostMenu}
-        onToggleMenu={(id) => setOpenPostMenu(openPostMenu === id ? null : id)}
-        onEditPost={(post) => { startQuestionEdit(post.raw); setActiveReplyId(post.id) }}
-        onDeletePost={(post) => deleteQuestionPost(post.raw)}
-        onReportPost={(post) => reportCommunityItem(post.raw, 'question')}
-        renderThread={renderThread}
         emptyLabel={isAr ? 'لا توجد منشورات في هذا التصنيف بعد.' : 'No posts in this category yet.'}
+        {...feedHandlers}
       />
 
       {selectedProfile && (
@@ -1875,6 +1992,21 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
               <Button variant="small" onClick={sendMessageToProfile}>{text.send}</Button>
             </footer>
           </article>
+        </div>
+      )}
+
+      {sharePost && (
+        <div className="cm-share-modal" role="dialog" aria-modal="true">
+          <button className="modal-backdrop" onClick={() => setSharePost(null)} aria-label="Close" />
+          <div className="cm-share-card">
+            <h3>{text.shareTitle}</h3>
+            <p className="cm-share-url" dir="ltr">{postUrl(sharePost)}</p>
+            <button className="btn btn-primary" onClick={() => copyShareLink(sharePost)}>{text.copyLink}</button>
+            {typeof navigator !== 'undefined' && navigator.share && (
+              <button className="btn btn-secondary" onClick={() => nativeShare(sharePost)}>{text.nativeShare}</button>
+            )}
+            <button className="btn btn-quiet cm-share-close" onClick={() => setSharePost(null)}>{isAr ? 'إغلاق' : 'Close'}</button>
+          </div>
         </div>
       )}
 
@@ -3657,6 +3789,16 @@ export default function App() {
                 <small>›</small>
               </button>
             )}
+            <button className="settings-entry" onClick={() => { setTab('community'); setCommunityView('saved') }}>
+              <IconCircle name="star" size={44} />
+              <strong>{lang === 'ar' ? 'المنشورات المحفوظة' : 'Saved posts'}</strong>
+              <small>›</small>
+            </button>
+            <button className="settings-entry" onClick={() => { setTab('community'); setCommunityView('notif-settings') }}>
+              <IconCircle name="notifications" size={44} />
+              <strong>{lang === 'ar' ? 'إعدادات الإشعارات' : 'Notification settings'}</strong>
+              <small>›</small>
+            </button>
             <button className="settings-entry" onClick={() => setScreen('settings')}>
               <IconCircle name="settings" size={44} />
               <strong>{t.settings}</strong>
