@@ -3,9 +3,18 @@ import CommunityActionBar from './CommunityActionBar.jsx'
 import CommunityCommentPreview from './CommunityCommentPreview.jsx'
 import VoiceRoomCard from './VoiceRoomCard.jsx'
 import DailyChallengeCard from './DailyChallengeCard.jsx'
+import PollCard from './PollCard.jsx'
 import kanjiMeanings from '../../content/kanjiMeanings.js'
 
 const TEXT_LIMIT = 180
+
+// Small badge per post type (voiceRoom/challenge render their own sub-card).
+const POST_BADGE = {
+  help: { ar: '❓ سؤال', en: '❓ Question' },
+  question: { ar: '❓ سؤال', en: '❓ Question' },
+  achievement: { ar: '🏆 إنجاز', en: '🏆 Achievement' },
+  poll: { ar: '📊 استفتاء', en: '📊 Poll' },
+}
 
 // Offline kanji gloss: list each known kanji in the text with its Arabic meaning.
 // Honest "safe placeholder" translation aid — real MT can replace this later.
@@ -33,7 +42,7 @@ function Avatar({ user }) {
 export default function CommunityPostCard({
   post, lang, expanded, onToggleComments,
   liked, saved, onLike, onSave, onShare, onTranslate,
-  onOpenProfile, onJoinRoom,
+  onOpenProfile, onJoinRoom, onVotePoll, onLoadPollTally,
   menu, renderThread,
 }) {
   const isAr = lang === 'ar'
@@ -81,6 +90,10 @@ export default function CommunityPostCard({
         )}
       </header>
 
+      {POST_BADGE[post.type] && (
+        <span className={`cm-type-badge cm-type-${post.type}`}>{isAr ? POST_BADGE[post.type].ar : POST_BADGE[post.type].en}</span>
+      )}
+
       {post.contentAr && (
         <div className="cm-post-body">
           <p dir="auto">{bodyText}</p>
@@ -89,6 +102,16 @@ export default function CommunityPostCard({
               {showMore ? (isAr ? 'عرض أقل' : 'Show less') : (isAr ? 'عرض المزيد' : 'Show more')}
             </button>
           )}
+        </div>
+      )}
+
+      {post.images?.length > 0 && (
+        <div className={`cm-post-images count-${Math.min(post.images.length, 4)}`}>
+          {post.images.slice(0, 4).map((src, i) => (
+            <a key={i} href={src} target="_blank" rel="noreferrer" className="cm-post-image">
+              <img src={src} alt="" loading="lazy" />
+            </a>
+          ))}
         </div>
       )}
 
@@ -109,6 +132,16 @@ export default function CommunityPostCard({
 
       {post.type === 'voiceRoom' && <VoiceRoomCard room={post.voiceRoom} lang={lang} onJoin={onJoinRoom} />}
       {post.type === 'challenge' && <DailyChallengeCard challenge={post.challenge} lang={lang} />}
+      {post.type === 'poll' && post.poll && (
+        <PollCard
+          poll={post.poll}
+          postId={post.id}
+          lang={lang}
+          votedOptionId={post.votedOptionId}
+          onVote={onVotePoll}
+          loadTally={onLoadPollTally}
+        />
+      )}
 
       {post.tags?.length > 0 && (
         <div className="cm-tags">

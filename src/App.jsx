@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { onAuthStateChanged, sendEmailVerification, signOut } from 'firebase/auth'
-import { addDoc, collection, deleteDoc, doc, getDoc, increment, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
-import { auth, db } from './firebase.js'
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, limit, onSnapshot, orderBy, query, runTransaction, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore'
+import { auth, db, storage } from './firebase.js'
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { hiragana, katakana, kanjiN5, lessons, n4Lessons, n3Lessons } from './data.js'
 import LessonNode from './components/LessonNode.jsx'
 import LessonPreviewModal from './components/LessonPreviewModal.jsx'
@@ -9,6 +10,7 @@ import LevelSelector from './components/LevelSelector.jsx'
 import CommunityHeader from './components/community/CommunityHeader.jsx'
 import CommunityTabs from './components/community/CommunityTabs.jsx'
 import CommunityFeed from './components/community/CommunityFeed.jsx'
+import CommunityComposerModal from './components/community/CommunityComposerModal.jsx'
 import DMInboxScreen from './components/community/DMInboxScreen.jsx'
 import DMChatScreen from './components/community/DMChatScreen.jsx'
 import NotificationsScreen from './components/community/NotificationsScreen.jsx'
@@ -591,6 +593,8 @@ const STORIES_BY_LEVEL = Object.fromEntries(
         title: l.title?.ar || l.title || '',
         titleAr: l.reading.titleAr || l.title?.ar || l.title || '',
         sentences: l.reading.sentences,
+        vocab: l.vocab || [],
+        questions: l.reading.questions || [],
       })),
   ]),
 )
@@ -903,6 +907,8 @@ function CharacterSymbol({ item, readingMode = 'hiragana' }) {
 function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, currentLevel, onStartDaily, onNotice, communityView = 'feed', setCommunityView = () => {} }) {
   const [sentence, setSentence] = useState('')
   const [questionText, setQuestionText] = useState('')
+  const [composer, setComposer] = useState(null) // null | { type } — post composer modal
+  const [pollVotes, setPollVotes] = useState(() => new Map()) // postId -> chosen optionId
   const [activeReplyId, setActiveReplyId] = useState(null)
   const [replyDrafts, setReplyDrafts] = useState({})
   const [liveReplies, setLiveReplies] = useState([])
@@ -1124,6 +1130,14 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       setSavedPostIds((prev) => new Set([...[...prev].filter((id) => String(id).startsWith('mock-')), ...ids]))
     }, (error) => console.warn('Bookmarks unavailable', error))
 
+    // My poll votes — drive "you voted X" + results across refresh/devices.
+    const votesQuery = query(collection(db, 'communityPollVotes'), where('userId', '==', userId), limit(500))
+    const stopPollVotes = onSnapshot(votesQuery, (snapshot) => {
+      const map = new Map()
+      snapshot.docs.forEach((item) => { const d = item.data(); if (d.postId) map.set(d.postId, d.optionId) })
+      setPollVotes(map)
+    }, (error) => console.warn('Poll votes unavailable', error))
+
     return () => {
       stopFollowing()
       stopFollowers()
@@ -1132,6 +1146,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       stopMessages()
       stopSentMessages()
       stopNotifications()
+      stopPollVotes()
       stopLikes()
       stopBookmarks()
     }
@@ -1180,6 +1195,93 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       onNotice(text.saved)
     } catch (error) {
       onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  // Composer modal → create a typed post (post/question/achievement/poll/
+  // voiceRoom) in the same communityQuestions collection so feed/likes/comments/
+  // bookmarks/admin all keep working.
+  const createPost = async (payload) => {
+    if (!requireCommunityAccount()) return
+    const body = (payload.text || '').trim()
+    if (payload.type === 'voiceRoom' ? !payload.voiceRoom?.title : (!body && !payload.images?.length)) return
+    try {
+      // Upload any attached images to Storage first, then store their URLs.
+      // Resilient: if Storage isn't enabled / upload fails, the post still
+      // publishes as text instead of failing entirely.
+      let imageUrls = []
+      if (payload.images?.length) {
+        try {
+          imageUrls = await Promise.all(payload.images.slice(0, 4).map(async (file, i) => {
+            const safe = String(file.name || 'img').replace(/[^\w.]/g, '').slice(-40)
+            const path = `communityImages/${userId}/${Date.now()}_${i}_${safe}`
+            const snap = await uploadBytes(storageRef(storage, path), file)
+            return getDownloadURL(snap.ref)
+          }))
+        } catch (uploadErr) {
+          console.warn('Image upload failed (Storage enabled?):', uploadErr?.code || uploadErr?.message)
+          onNotice(isAr ? 'تعذّر رفع الصور، تم نشر النص فقط.' : 'Image upload failed; posted text only.')
+          if (!body) { return } // nothing left to post
+        }
+      }
+      const docData = {
+        text: body,
+        type: payload.type || 'post',
+        lang,
+        authorName: displayName,
+        authorHandle: userHandle,
+        answers: 0,
+        userId,
+        createdAt: serverTimestamp(),
+      }
+      if (payload.type === 'poll' && payload.poll) {
+        docData.poll = {
+          options: (payload.poll.options || []).slice(0, 5).map((o, i) => ({ id: o.id || `o${i}`, text: String(o.text || '').slice(0, 80) })),
+          endsAt: Date.now() + (Number(payload.poll.durationDays) || 3) * 86400000,
+        }
+      }
+      if (payload.type === 'voiceRoom' && payload.voiceRoom) {
+        docData.voiceRoom = {
+          title: String(payload.voiceRoom.title || '').slice(0, 80),
+          level: payload.voiceRoom.level || 'N5',
+          capacity: Number(payload.voiceRoom.capacity) || 8,
+          participants: 0,
+          live: false,
+          host: userHandle,
+        }
+      }
+      if (imageUrls.length) docData.images = imageUrls
+      await addDoc(collection(db, 'communityQuestions'), docData)
+      setComposer(null)
+      onNotice(text.saved)
+    } catch (error) {
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  // One vote per user per poll (deterministic doc id). Counts are aggregated
+  // from communityPollVotes on demand (loadPollTally), so no author-only write.
+  const votePoll = async (postId, optionId) => {
+    if (!requireCommunityAccount()) return
+    const prev = pollVotes.get(postId)
+    if (prev === optionId) return
+    setPollVotes((m) => { const n = new Map(m); n.set(postId, optionId); return n })
+    try {
+      await setDoc(doc(db, 'communityPollVotes', `${postId}_${userId}`), { postId, optionId, userId, userHandle, createdAt: serverTimestamp() })
+    } catch (error) {
+      setPollVotes((m) => { const n = new Map(m); if (prev) n.set(postId, prev); else n.delete(postId); return n })
+      onNotice(`${text.locked} ${error.code || error.message}`)
+    }
+  }
+
+  const loadPollTally = async (postId) => {
+    try {
+      const snap = await getDocs(query(collection(db, 'communityPollVotes'), where('postId', '==', postId), limit(2000)))
+      const tally = {}
+      snap.docs.forEach((d) => { const o = d.data().optionId; if (o) tally[o] = (tally[o] || 0) + 1 })
+      return tally
+    } catch {
+      return {}
     }
   }
 
@@ -1605,7 +1707,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     const profile = profileForCommunityItem(q)
     return {
       id: q.id,
-      type: 'help',
+      type: q.type || 'help',
       source: 'question',
       raw: q,
       user: {
@@ -1617,6 +1719,10 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
         learningLang: 'JP',
       },
       contentAr: q.text,
+      images: q.images,
+      poll: q.poll,
+      voiceRoom: q.voiceRoom,
+      votedOptionId: pollVotes.get(q.id),
       tags: deriveQuestionTags(q),
       likesCount: Math.max(0, q.likeCount || 0),
       commentsCount: replies.length || q.answers || 0,
@@ -1803,6 +1909,8 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     onTranslate: handleFeedTranslate,
     onOpenProfile: openPostProfile,
     onJoinRoom: joinVoiceRoom,
+    onVotePoll: votePoll,
+    onLoadPollTally: loadPollTally,
     menuOpenId: openPostMenu,
     onToggleMenu: (id) => setOpenPostMenu(openPostMenu === id ? null : id),
     onEditPost: (post) => startQuestionEdit(post.raw),
@@ -1899,10 +2007,28 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
       <CommunityTabs tabs={COMMUNITY_TABS} activeTab={activeTab} onSelect={setActiveTab} lang={lang} />
 
-      <div className="cm-compose">
-        <input value={questionText} onChange={(event) => setQuestionText(event.target.value)} placeholder={text.questionPlaceholder} dir="auto" />
-        <Button variant="small" onClick={askQuestion}>{text.ask}</Button>
+      <div className="cm-composer">
+        <button className="cm-composer-main" onClick={() => setComposer({ type: 'post' })}>
+          <span className="cm-composer-avatar" aria-hidden="true">{(displayName || userHandle || 'N').replace('@', '').slice(0, 1).toUpperCase()}</span>
+          <span className="cm-composer-placeholder">{isAr ? 'بماذا تفكر؟ شارك سؤالاً أو فكرة…' : 'What’s on your mind?'}</span>
+        </button>
+        <div className="cm-composer-actions">
+          <button type="button" onClick={() => setComposer({ type: 'post' })}>📷<span>{isAr ? 'صور' : 'Photos'}</span></button>
+          <button type="button" onClick={() => setComposer({ type: 'question' })}>❓<span>{isAr ? 'سؤال' : 'Question'}</span></button>
+          <button type="button" onClick={() => setComposer({ type: 'poll' })}>📊<span>{isAr ? 'استفتاء' : 'Poll'}</span></button>
+          <button type="button" onClick={() => setComposer({ type: 'voiceRoom' })}>🎙️<span>{isAr ? 'غرفة' : 'Room'}</span></button>
+          <button type="button" onClick={() => setComposer({ type: 'achievement' })}>🏆<span>{isAr ? 'إنجاز' : 'Win'}</span></button>
+        </div>
       </div>
+
+      {composer && (
+        <CommunityComposerModal
+          lang={lang}
+          initialType={composer.type}
+          onClose={() => setComposer(null)}
+          onSubmit={createPost}
+        />
+      )}
 
       {activeInbox && activeInbox !== 'compose' && (
         <article className="community-card inbox-panel">
@@ -3479,7 +3605,7 @@ export default function App() {
   }
 
   if (screen === 'club-stories') {
-    return <ClubStoriesScreen lang={lang} storiesByLevel={STORIES_BY_LEVEL} onClose={() => setScreen('main')} />
+    return <ClubStoriesScreen lang={lang} storiesByLevel={STORIES_BY_LEVEL} onClose={() => setScreen('main')} onComplete={(xp) => registerStudyActivity(xp)} />
   }
 
   if (screen === 'sensei') {

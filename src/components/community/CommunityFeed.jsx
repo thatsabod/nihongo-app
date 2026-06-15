@@ -7,7 +7,7 @@ export default function CommunityFeed({
   posts, lang, currentUserId,
   expandedId, onToggleComments,
   likedIds, savedIds, onLike, onSave, onShare, onTranslate,
-  onOpenProfile, onJoinRoom,
+  onOpenProfile, onJoinRoom, onVotePoll, onLoadPollTally,
   menuOpenId, onToggleMenu, onEditPost, onDeletePost, onReportPost,
   renderThread, emptyLabel,
 }) {
@@ -33,6 +33,8 @@ export default function CommunityFeed({
             onTranslate={onTranslate}
             onOpenProfile={() => onOpenProfile(post)}
             onJoinRoom={onJoinRoom}
+            onVotePoll={onVotePoll}
+            onLoadPollTally={onLoadPollTally}
             menu={{
               visible: isQuestion,
               open: menuOpenId === post.id,
