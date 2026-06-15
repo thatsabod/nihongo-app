@@ -3,53 +3,8 @@ import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import AppIcon from '../components/AppIcon.jsx'
 import { AnswerOption, getOptionState, ActionButton } from '../components/exercise-ui/index.jsx'
 import useExerciseSettings from '../hooks/useExerciseSettings.js'
-
-function hasKanji(value = '') {
-  return /[㐀-鿿]/.test(value)
-}
-
-function getRubyReadings(text, reading) {
-  const parts = String(text || '').split(/([㐀-鿿]+)/g).filter(Boolean)
-  const kanjiParts = parts.filter((part) => hasKanji(part))
-  const rawReading = String(reading || '').trim()
-
-  if (/[぀-ヿ]/.test(rawReading)) {
-    let remaining = rawReading
-    parts.forEach((part) => {
-      if (hasKanji(part) || !part) return
-      if (remaining.startsWith(part)) remaining = remaining.slice(part.length)
-      else if (remaining.endsWith(part)) remaining = remaining.slice(0, -part.length)
-    })
-    if (kanjiParts.length === 1 && remaining) return [remaining]
-  }
-
-  const readingChunks = rawReading.split(/\s+/).filter(Boolean)
-  if (readingChunks.length === kanjiParts.length) return readingChunks
-
-  return kanjiParts.map(() => rawReading)
-}
-
-function RubyText({ text, reading, className = '' }) {
-  const wrapperClass = ['jp-inline', className].filter(Boolean).join(' ')
-  if (!reading || !hasKanji(text)) return <span className={wrapperClass}>{text}</span>
-  const parts = String(text || '').split(/([㐀-鿿]+)/g).filter(Boolean)
-  const readings = getRubyReadings(text, reading)
-  return (
-    <span className={wrapperClass}>
-      {parts.map((part, index) => {
-        if (!hasKanji(part)) return <span key={`${part}-${index}`}>{part}</span>
-        const kanjiIndex = parts.slice(0, index).filter((previous) => hasKanji(previous)).length
-        const rt = readings[kanjiIndex] || reading
-        return (
-          <ruby key={`${part}-${index}`}>
-            {part}
-            <rt>{rt}</rt>
-          </ruby>
-        )
-      })}
-    </span>
-  )
-}
+import { RubyText } from '../components/JapaneseText.jsx'
+import ExerciseSettingsSheet from '../components/exercise/ExerciseSettingsSheet.jsx'
 
 function hasJapaneseText(value = '') {
   return /[぀-ヿ㐀-鿿]/.test(String(value || ''))
@@ -141,6 +96,7 @@ export default function Exam({ examState, lang, onAnswer, onSectionStart, onTime
   const buildSelected = buildState.qIndex === qIndex ? buildState.selected : []
   const buildPool = buildState.qIndex === qIndex ? buildState.pool : []
   const [timeLeft, setTimeLeft] = useState(section.minutes * 60)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   useEffect(() => {
     const resetTimer = setTimeout(() => setTimeLeft(section.minutes * 60), 0)
@@ -267,7 +223,11 @@ export default function Exam({ examState, lang, onAnswer, onSectionStart, onTime
         <button className="icon-btn" onClick={onBack}><AppIcon name="wrong" label="Close" size={26} /></button>
         <strong>{t.section} {sectionIndex + 1} {t.of} {exam.sections.length}</strong>
         <span className="exam-timer" dir="ltr"><AppIcon name="timer" size={24} /> {formatTime(timeLeft)}</span>
+        <button className="icon-btn ex-settings-gear" onClick={() => setSettingsOpen(true)} aria-label={lang === 'ar' ? 'الإعدادات' : 'Settings'}>
+          <AppIcon name="settings" size={24} />
+        </button>
       </header>
+      {settingsOpen && <ExerciseSettingsSheet lang={lang} onClose={() => setSettingsOpen(false)} onEndSession={onBack} />}
 
       <div className="progress-line">
         <span style={{ width: `${((qIndex + 1) / section.questions.length) * 100}%` }} />

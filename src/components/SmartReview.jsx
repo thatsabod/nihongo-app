@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import AppIcon from './AppIcon.jsx'
 import { playCorrect, playWrong, speakJapanese } from '../sounds.js'
 import { ExerciseContainer, ProgressHeader, ResultCard, ActionButton } from './exercise-ui/index.jsx'
+import JapaneseText from './JapaneseText.jsx'
 import { readProgressState, writeProgressState, trackAnswer, recordLessonStat, recordReviewActivity } from '../progress/progressStorage.js'
 import { resolveMistake } from '../progress/mistakeLog.js'
 import { buildReviewSession } from '../progress/reviewQueue.js'
@@ -47,7 +48,6 @@ function VocabReviewCard({ entry, meaningPool, kanjiReadingMode, lang, onAnswer 
   const surface = item.kanji || item.jp
   const kana = item.hiragana || item.jp
   const reading = kanjiReadingMode === 'romaji' ? item.reading : kana
-  const hasKanji = /[㐀-鿿]/.test(surface)
 
   const options = useMemo(() => {
     const distractors = meaningPool.filter((m) => m && m !== item.meaning)
@@ -71,7 +71,7 @@ function VocabReviewCard({ entry, meaningPool, kanjiReadingMode, lang, onAnswer 
     <div className="iex-card review-card">
       <p className="ex-prompt">{isAr ? 'ما معنى هذه الكلمة؟' : 'What does this word mean?'}</p>
       <button className="sentence-display" dir="ltr" onClick={() => speakJapanese(kana)}>
-        {hasKanji ? <ruby>{surface}<rt>{reading}</rt></ruby> : surface}
+        <JapaneseText text={surface} reading={reading} />
         <small>🔊</small>
       </button>
       <div className="meaning-options">

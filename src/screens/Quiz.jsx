@@ -6,53 +6,7 @@ import AppIcon from '../components/AppIcon.jsx'
 import IconCircle from '../components/IconCircle.jsx'
 import { ProgressHeader, AnswerOption, getOptionState } from '../components/exercise-ui/index.jsx'
 import useExerciseSettings from '../hooks/useExerciseSettings.js'
-
-function hasKanji(value = '') {
-  return /[\u3400-\u9fff]/.test(value)
-}
-
-function getRubyReadings(text, reading) {
-  const parts = String(text || '').split(/([\u3400-\u9fff]+)/g).filter(Boolean)
-  const kanjiParts = parts.filter((part) => hasKanji(part))
-  const rawReading = String(reading || '').trim()
-
-  if (/[\u3040-\u30ff]/.test(rawReading)) {
-    let remaining = rawReading
-    parts.forEach((part) => {
-      if (hasKanji(part) || !part) return
-      if (remaining.startsWith(part)) remaining = remaining.slice(part.length)
-      else if (remaining.endsWith(part)) remaining = remaining.slice(0, -part.length)
-    })
-    if (kanjiParts.length === 1 && remaining) return [remaining]
-  }
-
-  const readingChunks = rawReading.split(/\s+/).filter(Boolean)
-  if (readingChunks.length === kanjiParts.length) return readingChunks
-
-  return kanjiParts.map(() => rawReading)
-}
-
-function RubyText({ text, reading, className = '' }) {
-  const wrapperClass = ['jp-inline', className].filter(Boolean).join(' ')
-  if (!reading || !hasKanji(text)) return <span className={wrapperClass}>{text}</span>
-  const parts = String(text || '').split(/([\u3400-\u9fff]+)/g).filter(Boolean)
-  const readings = getRubyReadings(text, reading)
-  return (
-    <span className={wrapperClass}>
-      {parts.map((part, index) => {
-        if (!hasKanji(part)) return <span key={`${part}-${index}`}>{part}</span>
-        const kanjiIndex = parts.slice(0, index).filter((previous) => hasKanji(previous)).length
-        const rt = readings[kanjiIndex] || reading
-        return (
-          <ruby key={`${part}-${index}`}>
-            {part}
-            <rt>{rt}</rt>
-          </ruby>
-        )
-      })}
-    </span>
-  )
-}
+import { RubyText } from '../components/JapaneseText.jsx'
 
 function hasJapaneseText(value = '') {
   return /[\u3040-\u30ff\u3400-\u9fff]/.test(String(value || ''))

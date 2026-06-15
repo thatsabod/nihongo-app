@@ -20,6 +20,7 @@ import {
 } from './exercise-ui/index.jsx'
 import { getVocabImage } from '../constants/vocabImages.js'
 import useExerciseSettings from '../hooks/useExerciseSettings.js'
+import JapaneseText from './JapaneseText.jsx'
 import { useHearts } from '../hearts-context.jsx'
 import { answersMatch } from '../utils/answerMatch.js'
 import { readProgressState, trackAnswer, recordLessonStat } from '../progress/progressStorage.js'
@@ -122,12 +123,7 @@ function VocabTerm({ item }) {
   const reading = settings.pronunciationMode === 'romanized'
     ? (item.reading || item.hiragana || item.jp)
     : (item.hiragana || item.reading || item.jp)
-  const hasKanji = /[㐀-鿿]/.test(surface)
-  return (
-    <span className="jp-line" dir="ltr">
-      {hasKanji ? <ruby>{surface}<rt>{reading}</rt></ruby> : surface}
-    </span>
-  )
+  return <JapaneseText text={surface} reading={reading} className="jp-line" />
 }
 
 // ── Exercise: choose the meaning of a word ───────────────────────────────────

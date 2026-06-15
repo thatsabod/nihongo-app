@@ -31,6 +31,7 @@ import { getExerciseSettings, setExerciseSettings, applyPronunciationVisibility,
 import ClubHome from './components/ClubHome.jsx'
 import ClubSpeakingScreen from './components/ClubSpeakingScreen.jsx'
 import ClubStoriesScreen from './components/ClubStoriesScreen.jsx'
+import { N5_STORIES } from './content/n5Stories.js'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
@@ -598,6 +599,8 @@ const STORIES_BY_LEVEL = Object.fromEntries(
       })),
   ]),
 )
+// Surface the hand-authored interactive N5 stories first in القصص (Stories).
+STORIES_BY_LEVEL.N5 = [...N5_STORIES, ...(STORIES_BY_LEVEL.N5 || [])]
 
 // Build an audio-only listening session (reuses the Quiz screen's audio_word card).
 function buildListeningQuiz(items, kanjiReadingMode = 'hiragana') {

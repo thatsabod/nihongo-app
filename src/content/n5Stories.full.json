@@ -1,0 +1,4387 @@
+[
+ {
+  "id": "n5s-lost-umbrella",
+  "title": "المظلة المفقودة",
+  "titleAr": "المظلة المفقودة",
+  "titleEn": "The Lost Umbrella",
+  "sentences": [
+   {
+    "jp": "雨の 日でした。",
+    "romaji": "Ame no hi deshita.",
+    "ar": "كان يومًا ممطرًا."
+   },
+   {
+    "jp": "ケンは カフェに いました。",
+    "romaji": "Ken wa kafe ni imashita.",
+    "ar": "كان كين في المقهى."
+   },
+   {
+    "jp": "ケンの 傘は 入口に ありました。",
+    "romaji": "Ken no kasa wa iriguchi ni arimashita.",
+    "ar": "كانت مظلة كين عند المدخل."
+   },
+   {
+    "jp": "午後、ケンは 外へ 出ました。",
+    "romaji": "Gogo, Ken wa soto e demashita.",
+    "ar": "بعد الظهر، خرج كين إلى الخارج."
+   },
+   {
+    "jp": "でも、ケンの 傘が ありませんでした。",
+    "romaji": "Demo, Ken no kasa ga arimasen deshita.",
+    "ar": "لكن مظلة كين لم تكن موجودة."
+   },
+   {
+    "jp": "変な 傘が 一つ ありました。",
+    "romaji": "Hen na kasa ga hitotsu arimashita.",
+    "ar": "كانت هناك مظلة غريبة واحدة."
+   },
+   {
+    "jp": "「これは 誰の 傘ですか。」",
+    "romaji": "\"Kore wa dare no kasa desu ka.\"",
+    "ar": "«لمن هذه المظلة؟»"
+   },
+   {
+    "jp": "ケンは 青い 傘を 取りました。",
+    "romaji": "Ken wa aoi kasa o torimashita.",
+    "ar": "أخذ كين المظلة الزرقاء."
+   },
+   {
+    "jp": "青い 傘は 小さかったです。",
+    "romaji": "Aoi kasa wa chiisakatta desu.",
+    "ar": "كانت المظلة الزرقاء صغيرة."
+   },
+   {
+    "jp": "「これは 僕のじゃ ありません。」",
+    "romaji": "\"Kore wa boku no ja arimasen.\"",
+    "ar": "«هذه ليست لي.»"
+   },
+   {
+    "jp": "ケンは 赤い 傘も 取りました。",
+    "romaji": "Ken wa akai kasa mo torimashita.",
+    "ar": "أخذ كين المظلة الحمراء أيضًا."
+   },
+   {
+    "jp": "赤い 傘は 重かったです。",
+    "romaji": "Akai kasa wa omokatta desu.",
+    "ar": "كانت المظلة الحمراء ثقيلة."
+   },
+   {
+    "jp": "ケンは 傘の 中を 見ました。",
+    "romaji": "Ken wa kasa no naka o mimashita.",
+    "ar": "نظر كين داخل المظلة."
+   },
+   {
+    "jp": "名前が ありました。",
+    "romaji": "Namae ga arimashita.",
+    "ar": "كان هناك اسم."
+   },
+   {
+    "jp": "名前は ミカでした。",
+    "romaji": "Namae wa Mika deshita.",
+    "ar": "كان الاسم ميكا."
+   },
+   {
+    "jp": "そのとき、女の人が 来ました。",
+    "romaji": "Sono toki, onna no hito ga kimashita.",
+    "ar": "في تلك اللحظة، جاءت امرأة."
+   },
+   {
+    "jp": "「すみません、それは 私の 傘です。」",
+    "romaji": "\"Sumimasen, sore wa watashi no kasa desu.\"",
+    "ar": "«المعذرة، تلك مظلتي.»"
+   },
+   {
+    "jp": "「私は ミカです。」",
+    "romaji": "\"Watashi wa Mika desu.\"",
+    "ar": "«أنا ميكا.»"
+   },
+   {
+    "jp": "ミカは ケンの 傘を 持って いました。",
+    "romaji": "Mika wa Ken no kasa o motte imashita.",
+    "ar": "كانت ميكا تحمل مظلة كين."
+   },
+   {
+    "jp": "「あ、それは 僕の 傘です。」",
+    "romaji": "\"A, sore wa boku no kasa desu.\"",
+    "ar": "«آه، تلك مظلتي.»"
+   },
+   {
+    "jp": "ケンは 自分の 傘を 取りました。ミカも 傘を 取りました。",
+    "romaji": "Ken wa jibun no kasa o torimashita. Mika mo kasa o torimashita.",
+    "ar": "أخذ كين مظلته. وأخذت ميكا مظلتها أيضًا."
+   },
+   {
+    "jp": "「ありがとう ございます。」",
+    "romaji": "\"Arigatou gozaimasu.\"",
+    "ar": "«شكرًا جزيلًا.»"
+   },
+   {
+    "jp": "二人は いっしょに 笑いました。",
+    "romaji": "Futari wa issho ni waraimashita.",
+    "ar": "ضحك الاثنان معًا."
+   },
+   {
+    "jp": "雨は もう やみました。",
+    "romaji": "Ame wa mou yamimashita.",
+    "ar": "كان المطر قد توقّف بالفعل."
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "かさ",
+    "hiragana": "かさ",
+    "meaning": "مظلة"
+   },
+   {
+    "jp": "あめ",
+    "hiragana": "あめ",
+    "meaning": "مطر"
+   },
+   {
+    "jp": "なまえ",
+    "hiragana": "なまえ",
+    "meaning": "اسم"
+   },
+   {
+    "jp": "いりぐち",
+    "hiragana": "いりぐち",
+    "meaning": "مدخل"
+   },
+   {
+    "jp": "へんな",
+    "hiragana": "へんな",
+    "meaning": "غريب"
+   },
+   {
+    "jp": "とります",
+    "hiragana": "とります",
+    "meaning": "يأخذ"
+   },
+   {
+    "jp": "なか",
+    "hiragana": "なか",
+    "meaning": "داخل"
+   },
+   {
+    "jp": "おんなのひと",
+    "hiragana": "おんなのひと",
+    "meaning": "امرأة"
+   },
+   {
+    "jp": "じぶん",
+    "hiragana": "じぶん",
+    "meaning": "نفسه / الخاص به"
+   },
+   {
+    "jp": "わらいます",
+    "hiragana": "わらいます",
+    "meaning": "يضحك"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "雨の 日でした。",
+    "romaji": "Ame no hi deshita.",
+    "ar": "كان يومًا ممطرًا."
+   },
+   {
+    "type": "line",
+    "jp": "ケンは カフェに いました。",
+    "romaji": "Ken wa kafe ni imashita.",
+    "ar": "كان كين في المقهى."
+   },
+   {
+    "type": "line",
+    "jp": "ケンの 傘は 入口に ありました。",
+    "romaji": "Ken no kasa wa iriguchi ni arimashita.",
+    "ar": "كانت مظلة كين عند المدخل."
+   },
+   {
+    "type": "q",
+    "prompt": "ケンは どこに いましたか。(أين كان كين؟)",
+    "options": [
+     "カフェ (مقهى)",
+     "えき (محطة)",
+     "がっこう (مدرسة)"
+    ],
+    "answer": "カフェ (مقهى)",
+    "explain": "القصة تقول إن كين كان في المقهى."
+   },
+   {
+    "type": "line",
+    "jp": "午後、ケンは 外へ 出ました。",
+    "romaji": "Gogo, Ken wa soto e demashita.",
+    "ar": "بعد الظهر، خرج كين إلى الخارج."
+   },
+   {
+    "type": "line",
+    "jp": "でも、ケンの 傘が ありませんでした。",
+    "romaji": "Demo, Ken no kasa ga arimasen deshita.",
+    "ar": "لكن مظلة كين لم تكن موجودة."
+   },
+   {
+    "type": "line",
+    "jp": "変な 傘が 一つ ありました。",
+    "romaji": "Hen na kasa ga hitotsu arimashita.",
+    "ar": "كانت هناك مظلة غريبة واحدة."
+   },
+   {
+    "type": "q",
+    "prompt": "ケンの かさは ありました。(كانت مظلة كين موجودة.)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "«ありませんでした» تعني أنها لم تكن موجودة."
+   },
+   {
+    "type": "line",
+    "jp": "「これは 誰の 傘ですか。」",
+    "romaji": "\"Kore wa dare no kasa desu ka.\"",
+    "ar": "«لمن هذه المظلة؟»"
+   },
+   {
+    "type": "line",
+    "jp": "ケンは 青い 傘を 取りました。",
+    "romaji": "Ken wa aoi kasa o torimashita.",
+    "ar": "أخذ كين المظلة الزرقاء."
+   },
+   {
+    "type": "line",
+    "jp": "青い 傘は 小さかったです。",
+    "romaji": "Aoi kasa wa chiisakatta desu.",
+    "ar": "كانت المظلة الزرقاء صغيرة."
+   },
+   {
+    "type": "q",
+    "prompt": "ケンは あおい かさ ＿ とりました。(اختر الأداة الصحيحة)",
+    "options": [
+     "を",
+     "に",
+     "へ"
+    ],
+    "answer": "を",
+    "explain": "«を» تُعلِّم المفعول به (المظلة) الذي أُخذ."
+   },
+   {
+    "type": "line",
+    "jp": "「これは 僕のじゃ ありません。」",
+    "romaji": "\"Kore wa boku no ja arimasen.\"",
+    "ar": "«هذه ليست لي.»"
+   },
+   {
+    "type": "line",
+    "jp": "ケンは 赤い 傘も 取りました。",
+    "romaji": "Ken wa akai kasa mo torimashita.",
+    "ar": "أخذ كين المظلة الحمراء أيضًا."
+   },
+   {
+    "type": "line",
+    "jp": "赤い 傘は 重かったです。",
+    "romaji": "Akai kasa wa omokatta desu.",
+    "ar": "كانت المظلة الحمراء ثقيلة."
+   },
+   {
+    "type": "q",
+    "prompt": "ケンは なんいろの かさを とりましたか。(أيّ لونين أخذ كين؟)",
+    "options": [
+     "あおと あか (أزرق وأحمر)",
+     "しろと くろ (أبيض وأسود)",
+     "みどりと きいろ (أخضر وأصفر)"
+    ],
+    "answer": "あおと あか (أزرق وأحمر)",
+    "explain": "أخذ المظلة الزرقاء، ثم الحمراء أيضًا."
+   },
+   {
+    "type": "line",
+    "jp": "ケンは 傘の 中を 見ました。",
+    "romaji": "Ken wa kasa no naka o mimashita.",
+    "ar": "نظر كين داخل المظلة."
+   },
+   {
+    "type": "line",
+    "jp": "名前が ありました。",
+    "romaji": "Namae ga arimashita.",
+    "ar": "كان هناك اسم."
+   },
+   {
+    "type": "line",
+    "jp": "名前は ミカでした。",
+    "romaji": "Namae wa Mika deshita.",
+    "ar": "كان الاسم ميكا."
+   },
+   {
+    "type": "q",
+    "prompt": "かさの なかの なまえは だれですか。(ما الاسم الذي كان بالداخل؟)",
+    "options": [
+     "ミカ (ميكا)",
+     "ケン (كين)",
+     "ユキ (يوكي)"
+    ],
+    "answer": "ミカ (ميكا)",
+    "explain": "الاسم داخل المظلة كان ميكا."
+   },
+   {
+    "type": "line",
+    "jp": "そのとき、女の人が 来ました。",
+    "romaji": "Sono toki, onna no hito ga kimashita.",
+    "ar": "في تلك اللحظة، جاءت امرأة."
+   },
+   {
+    "type": "line",
+    "jp": "「すみません、それは 私の 傘です。」",
+    "romaji": "\"Sumimasen, sore wa watashi no kasa desu.\"",
+    "ar": "«المعذرة، تلك مظلتي.»"
+   },
+   {
+    "type": "line",
+    "jp": "「私は ミカです。」",
+    "romaji": "\"Watashi wa Mika desu.\"",
+    "ar": "«أنا ميكا.»"
+   },
+   {
+    "type": "q",
+    "prompt": "おんなのひとの なまえは なんですか。(ما اسم المرأة؟)",
+    "options": [
+     "ミカ (ميكا)",
+     "ケン (كين)",
+     "わかりません (لا أعرف)"
+    ],
+    "answer": "ミカ (ميكا)",
+    "explain": "قالت «わたしは ミカです»."
+   },
+   {
+    "type": "line",
+    "jp": "ミカは ケンの 傘を 持って いました。",
+    "romaji": "Mika wa Ken no kasa o motte imashita.",
+    "ar": "كانت ميكا تحمل مظلة كين."
+   },
+   {
+    "type": "line",
+    "jp": "「あ、それは 僕の 傘です。」",
+    "romaji": "\"A, sore wa boku no kasa desu.\"",
+    "ar": "«آه، تلك مظلتي.»"
+   },
+   {
+    "type": "line",
+    "jp": "ケンは 自分の 傘を 取りました。ミカも 傘を 取りました。",
+    "romaji": "Ken wa jibun no kasa o torimashita. Mika mo kasa o torimashita.",
+    "ar": "أخذ كين مظلته. وأخذت ميكا مظلتها أيضًا."
+   },
+   {
+    "type": "q",
+    "prompt": "「ケンは じぶんの かさを とりました」の いみは؟ (ما معنى هذه الجملة؟)",
+    "options": [
+     "أخذ كين مظلته الخاصة.",
+     "اشترى كين مظلة جديدة.",
+     "أضاع كين مظلته."
+    ],
+    "answer": "أخذ كين مظلته الخاصة.",
+    "explain": "«じぶんの かさを とりました» تعني أنه استعاد مظلته."
+   },
+   {
+    "type": "line",
+    "jp": "「ありがとう ございます。」",
+    "romaji": "\"Arigatou gozaimasu.\"",
+    "ar": "«شكرًا جزيلًا.»"
+   },
+   {
+    "type": "line",
+    "jp": "二人は いっしょに 笑いました。",
+    "romaji": "Futari wa issho ni waraimashita.",
+    "ar": "ضحك الاثنان معًا."
+   },
+   {
+    "type": "line",
+    "jp": "雨は もう やみました。",
+    "romaji": "Ame wa mou yamimashita.",
+    "ar": "كان المطر قد توقّف بالفعل."
+   },
+   {
+    "type": "q",
+    "prompt": "さいごに あめは どうでしたか。(في النهاية، ماذا عن المطر؟)",
+    "options": [
+     "やみました (توقّف)",
+     "ふりました (هطل)",
+     "つよかった (كان قويًا)"
+    ],
+    "answer": "やみました (توقّف)",
+    "explain": "«あめは もう やみました» — توقّف المطر."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】ケンは なにを なくしましたか。(ماذا أضاع كين؟)",
+    "options": [
+     "かさ (مظلة)",
+     "かばん (حقيبة)",
+     "ぼうし (قبعة)"
+    ],
+    "answer": "かさ (مظلة)",
+    "explain": "أضاع كين مظلته."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】かさの なかに だれの なまえが ありましたか。(اسمُ مَن كان داخل المظلة؟)",
+    "options": [
+     "ミカ (ميكا)",
+     "ケン (كين)",
+     "せんせい (المعلّم)"
+    ],
+    "answer": "ミカ (ميكا)",
+    "explain": "كان اسم ميكا مكتوبًا داخل المظلة."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに ケンは なにを しましたか。(ماذا فعل كين في النهاية؟)",
+    "options": [
+     "じぶんの かさを とりました (أخذ مظلته)",
+     "けんかしました (تشاجر)",
+     "ねました (نام)"
+    ],
+    "answer": "じぶんの かさを とりました (أخذ مظلته)",
+    "explain": "استعاد كين مظلته الخاصة وضحكا معًا."
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "雨": "あめ",
+   "日": "ひ",
+   "傘": "かさ",
+   "入口": "いりぐち",
+   "午後": "ごご",
+   "外": "そと",
+   "出": "で",
+   "変": "へん",
+   "一": "ひと",
+   "誰": "だれ",
+   "青": "あお",
+   "取": "と",
+   "小": "ちい",
+   "僕": "ぼく",
+   "赤": "あか",
+   "重": "おも",
+   "中": "なか",
+   "見": "み",
+   "名前": "なまえ",
+   "女": "おんな",
+   "人": "ひと",
+   "来": "き",
+   "私": "わたし",
+   "持": "も",
+   "自分": "じぶん",
+   "二人": "ふたり",
+   "笑": "わら"
+  }
+ },
+ {
+  "id": "n5s-strange-bento",
+  "title": "علبة الغداء الغريبة",
+  "titleAr": "علبة الغداء الغريبة",
+  "titleEn": "The Strange Lunch Box",
+  "sentences": [
+   {
+    "jp": "昼ごはんの 時間です。",
+    "romaji": "Hirugohan no jikan desu.",
+    "ar": "حان وقت الغداء."
+   },
+   {
+    "jp": "メイさんは お弁当を 開けました。",
+    "romaji": "Mei-san wa obentou o akemashita.",
+    "ar": "فتحت ماي علبة غدائها."
+   },
+   {
+    "jp": "「あれ？ 変ですね。」",
+    "romaji": "\"Are? Hen desu ne.\"",
+    "ar": "«ماذا؟ هذا غريب.»"
+   },
+   {
+    "jp": "中に 変な 食べ物が あります。",
+    "romaji": "Naka ni hen na tabemono ga arimasu.",
+    "ar": "في الداخل طعام غريب."
+   },
+   {
+    "jp": "大きな ハンバーグと 赤い トマトです。",
+    "romaji": "Ooki na hanbaagu to akai tomato desu.",
+    "ar": "إنه همبرغر كبير وطماطم حمراء."
+   },
+   {
+    "jp": "メイさんの お母さんは ハンバーグを 作りません。",
+    "romaji": "Mei-san no okaasan wa hanbaagu o tsukurimasen.",
+    "ar": "أمّ ماي لا تصنع الهمبرغر."
+   },
+   {
+    "jp": "「私の お弁当は どこですか。」",
+    "romaji": "\"Watashi no obentou wa doko desu ka.\"",
+    "ar": "«أين علبة غدائي؟»"
+   },
+   {
+    "jp": "メイさんの お弁当は ありません。",
+    "romaji": "Mei-san no obentou wa arimasen.",
+    "ar": "علبة غداء ماي غير موجودة."
+   },
+   {
+    "jp": "メイさんは 少し 怖いです。",
+    "romaji": "Mei-san wa sukoshi kowai desu.",
+    "ar": "ماي خائفة قليلًا."
+   },
+   {
+    "jp": "メイさんは ハンバーグを 食べたいです。",
+    "romaji": "Mei-san wa hanbaagu o tabetai desu.",
+    "ar": "تريد ماي أن تأكل الهمبرغر."
+   },
+   {
+    "jp": "そっと 食べました。",
+    "romaji": "Sotto tabemashita.",
+    "ar": "أكلت قضمة بهدوء."
+   },
+   {
+    "jp": "「おいしい！」",
+    "romaji": "\"Oishii!\"",
+    "ar": "«لذيذ!»"
+   },
+   {
+    "jp": "そのとき、ケンさんが 来ました。",
+    "romaji": "Sono toki, Ken-san ga kimashita.",
+    "ar": "في تلك اللحظة، جاء كين."
+   },
+   {
+    "jp": "「メイさん、ごめんなさい。」",
+    "romaji": "\"Mei-san, gomennasai.\"",
+    "ar": "«ماي، آسف.»"
+   },
+   {
+    "jp": "「この お弁当は メイさんのです。」",
+    "romaji": "\"Kono obentou wa Mei-san no desu.\"",
+    "ar": "«علبة الغداء هذه لكِ يا ماي.»"
+   },
+   {
+    "jp": "ケンさんは メイさんの お弁当を 取りました。",
+    "romaji": "Ken-san wa Mei-san no obentou o torimashita.",
+    "ar": "أخذ كين علبة غداء ماي."
+   },
+   {
+    "jp": "「この ハンバーグは ケンさんのですか。」",
+    "romaji": "\"Kono hanbaagu wa Ken-san no desu ka.\"",
+    "ar": "«هل هذا الهمبرغر لك يا كين؟»"
+   },
+   {
+    "jp": "「はい、そうです。」",
+    "romaji": "\"Hai, sou desu.\"",
+    "ar": "«نعم، هذا صحيح.»"
+   },
+   {
+    "jp": "二人は お弁当を 取りかえました。",
+    "romaji": "Futari wa obentou o torikaemashita.",
+    "ar": "تبادل الاثنان علبتي الغداء."
+   },
+   {
+    "jp": "メイさんと ケンさんは 笑いました。",
+    "romaji": "Mei-san to Ken-san wa waraimashita.",
+    "ar": "ضحكت ماي وكين."
+   },
+   {
+    "jp": "「一緒に 食べましょう！」",
+    "romaji": "\"Issho ni tabemashou!\"",
+    "ar": "«لنأكل معًا!»"
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "おべんとう",
+    "hiragana": "おべんとう",
+    "meaning": "علبة غداء"
+   },
+   {
+    "jp": "ひるごはん",
+    "hiragana": "ひるごはん",
+    "meaning": "الغداء"
+   },
+   {
+    "jp": "たべもの",
+    "hiragana": "たべもの",
+    "meaning": "طعام"
+   },
+   {
+    "jp": "へん",
+    "hiragana": "へん",
+    "meaning": "غريب"
+   },
+   {
+    "jp": "おいしい",
+    "hiragana": "おいしい",
+    "meaning": "لذيذ"
+   },
+   {
+    "jp": "こわい",
+    "hiragana": "こわい",
+    "meaning": "مخيف"
+   },
+   {
+    "jp": "あけます",
+    "hiragana": "あけます",
+    "meaning": "يفتح"
+   },
+   {
+    "jp": "たべます",
+    "hiragana": "たべます",
+    "meaning": "يأكل"
+   },
+   {
+    "jp": "わらいます",
+    "hiragana": "わらいます",
+    "meaning": "يضحك"
+   },
+   {
+    "jp": "とりかえます",
+    "hiragana": "とりかえます",
+    "meaning": "يتبادل"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "昼ごはんの 時間です。",
+    "romaji": "Hirugohan no jikan desu.",
+    "ar": "حان وقت الغداء."
+   },
+   {
+    "type": "line",
+    "jp": "メイさんは お弁当を 開けました。",
+    "romaji": "Mei-san wa obentou o akemashita.",
+    "ar": "فتحت ماي علبة غدائها."
+   },
+   {
+    "type": "line",
+    "jp": "「あれ？ 変ですね。」",
+    "romaji": "\"Are? Hen desu ne.\"",
+    "ar": "«ماذا؟ هذا غريب.»"
+   },
+   {
+    "type": "q",
+    "prompt": "だれが おべんとうを あけましたか。(من فتح علبة الغداء؟)",
+    "options": [
+     "メイさん (ماي)",
+     "ケンさん (كين)",
+     "おかあさん (الأم)"
+    ],
+    "answer": "メイさん (ماي)",
+    "explain": "القصة تقول إن ماي فتحت علبة غدائها."
+   },
+   {
+    "type": "line",
+    "jp": "中に 変な 食べ物が あります。",
+    "romaji": "Naka ni hen na tabemono ga arimasu.",
+    "ar": "في الداخل طعام غريب."
+   },
+   {
+    "type": "line",
+    "jp": "大きな ハンバーグと 赤い トマトです。",
+    "romaji": "Ooki na hanbaagu to akai tomato desu.",
+    "ar": "إنه همبرغر كبير وطماطم حمراء."
+   },
+   {
+    "type": "line",
+    "jp": "メイさんの お母さんは ハンバーグを 作りません。",
+    "romaji": "Mei-san no okaasan wa hanbaagu o tsukurimasen.",
+    "ar": "أمّ ماي لا تصنع الهمبرغر."
+   },
+   {
+    "type": "q",
+    "prompt": "メイさんの おかあさんは ハンバーグを つくりますか。(هل تصنع أمّ ماي الهمبرغر؟)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "القصة تقول إن أمها لا تصنع الهمبرغر."
+   },
+   {
+    "type": "line",
+    "jp": "「私の お弁当は どこですか。」",
+    "romaji": "\"Watashi no obentou wa doko desu ka.\"",
+    "ar": "«أين علبة غدائي؟»"
+   },
+   {
+    "type": "line",
+    "jp": "メイさんの お弁当は ありません。",
+    "romaji": "Mei-san no obentou wa arimasen.",
+    "ar": "علبة غداء ماي غير موجودة."
+   },
+   {
+    "type": "line",
+    "jp": "メイさんは 少し 怖いです。",
+    "romaji": "Mei-san wa sukoshi kowai desu.",
+    "ar": "ماي خائفة قليلًا."
+   },
+   {
+    "type": "q",
+    "prompt": "わたし＿ おべんとうは どこですか。(علبة غدائي — اختر الأداة)",
+    "options": [
+     "の",
+     "を",
+     "で"
+    ],
+    "answer": "の",
+    "explain": "«の» تدل على الملكية: «علبة غدائي»."
+   },
+   {
+    "type": "line",
+    "jp": "メイさんは ハンバーグを 食べたいです。",
+    "romaji": "Mei-san wa hanbaagu o tabetai desu.",
+    "ar": "تريد ماي أن تأكل الهمبرغر."
+   },
+   {
+    "type": "line",
+    "jp": "そっと 食べました。",
+    "romaji": "Sotto tabemashita.",
+    "ar": "أكلت قضمة بهدوء."
+   },
+   {
+    "type": "line",
+    "jp": "「おいしい！」",
+    "romaji": "\"Oishii!\"",
+    "ar": "«لذيذ!»"
+   },
+   {
+    "type": "q",
+    "prompt": "「おいしい！」は どういう いみですか。(ما المعنى؟)",
+    "options": [
+     "لذيذ!",
+     "مخيف!",
+     "كبير!"
+    ],
+    "answer": "لذيذ!",
+    "explain": "«おいしい» تعني «لذيذ»."
+   },
+   {
+    "type": "line",
+    "jp": "そのとき、ケンさんが 来ました。",
+    "romaji": "Sono toki, Ken-san ga kimashita.",
+    "ar": "في تلك اللحظة، جاء كين."
+   },
+   {
+    "type": "line",
+    "jp": "「メイさん、ごめんなさい。」",
+    "romaji": "\"Mei-san, gomennasai.\"",
+    "ar": "«ماي، آسف.»"
+   },
+   {
+    "type": "line",
+    "jp": "「この お弁当は メイさんのです。」",
+    "romaji": "\"Kono obentou wa Mei-san no desu.\"",
+    "ar": "«علبة الغداء هذه لكِ يا ماي.»"
+   },
+   {
+    "type": "q",
+    "prompt": "ケンさんは なにを もっていますか。(ماذا يحمل كين؟)",
+    "options": [
+     "メイさんの おべんとう (علبة غداء ماي)",
+     "あかい トマト (طماطم حمراء)",
+     "おおきな ハンバーグ (همبرغر كبير)"
+    ],
+    "answer": "メイさんの おべんとう (علبة غداء ماي)",
+    "explain": "يقول كين إن العلبة التي معه هي علبة ماي."
+   },
+   {
+    "type": "line",
+    "jp": "ケンさんは メイさんの お弁当を 取りました。",
+    "romaji": "Ken-san wa Mei-san no obentou o torimashita.",
+    "ar": "أخذ كين علبة غداء ماي."
+   },
+   {
+    "type": "line",
+    "jp": "「この ハンバーグは ケンさんのですか。」",
+    "romaji": "\"Kono hanbaagu wa Ken-san no desu ka.\"",
+    "ar": "«هل هذا الهمبرغر لك يا كين؟»"
+   },
+   {
+    "type": "line",
+    "jp": "「はい、そうです。」",
+    "romaji": "\"Hai, sou desu.\"",
+    "ar": "«نعم، هذا صحيح.»"
+   },
+   {
+    "type": "q",
+    "prompt": "へんな おべんとうは だれのですか。(لمن علبة الغداء الغريبة؟)",
+    "options": [
+     "ケンさん (كين)",
+     "メイさん (ماي)",
+     "おかあさん (الأم)"
+    ],
+    "answer": "ケンさん (كين)",
+    "explain": "علبة الهمبرغر لكين؛ يؤكد ذلك بقوله «はい、そうです»."
+   },
+   {
+    "type": "line",
+    "jp": "二人は お弁当を 取りかえました。",
+    "romaji": "Futari wa obentou o torikaemashita.",
+    "ar": "تبادل الاثنان علبتي الغداء."
+   },
+   {
+    "type": "line",
+    "jp": "メイさんと ケンさんは 笑いました。",
+    "romaji": "Mei-san to Ken-san wa waraimashita.",
+    "ar": "ضحكت ماي وكين."
+   },
+   {
+    "type": "line",
+    "jp": "「一緒に 食べましょう！」",
+    "romaji": "\"Issho ni tabemashou!\"",
+    "ar": "«لنأكل معًا!»"
+   },
+   {
+    "type": "q",
+    "prompt": "おはなしの さいごに ふたりは どうしましたか。(ماذا فعلا في نهاية القصة؟)",
+    "options": [
+     "わらいました (ضحكا)",
+     "ねました (ناما)",
+     "かえりました (عادا للبيت)"
+    ],
+    "answer": "わらいました (ضحكا)",
+    "explain": "ضحكا وقرّرا أن يأكلا معًا."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】メイさんは なにを みつけましたか。(ماذا وجدت ماي؟)",
+    "options": [
+     "ハンバーグと トマト (همبرغر وطماطم)",
+     "さかなと ごはん (سمك وأرز)",
+     "パンと たまご (خبز وبيض)"
+    ],
+    "answer": "ハンバーグと トマト (همبرغر وطماطم)",
+    "explain": "وجدت ماي همبرغرًا كبيرًا وطماطم حمراء."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】へんな おべんとうは だれのでしたか。(لمن كانت العلبة الغريبة؟)",
+    "options": [
+     "ケンさんの (لكين)",
+     "メイさんの (لماي)",
+     "おかあさんの (للأم)"
+    ],
+    "answer": "ケンさんの (لكين)",
+    "explain": "كانت علبة كين أخذتها ماي بالخطأ."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに ふたりは どうしましたか。(ماذا فعلا في النهاية؟)",
+    "options": [
+     "いっしょに たべました (أكلا معًا)",
+     "けんかしました (تشاجرا)",
+     "うちへ かえりました (عادا للبيت)"
+    ],
+    "answer": "いっしょに たべました (أكلا معًا)",
+    "explain": "تبادلا العلبتين ثم أكلا معًا."
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "昼": "ひる",
+   "時間": "じかん",
+   "弁当": "べんとう",
+   "開": "あ",
+   "変": "へん",
+   "中": "なか",
+   "食べ物": "たべもの",
+   "大": "おお",
+   "赤": "あか",
+   "母": "かあ",
+   "作": "つく",
+   "私": "わたし",
+   "少": "すこ",
+   "怖": "こわ",
+   "食": "た",
+   "来ました": "きました",
+   "取": "と",
+   "二人": "ふたり",
+   "笑": "わら",
+   "一緒": "いっしょ"
+  }
+ },
+ {
+  "id": "n5s-forgotten-homework",
+  "title": "الواجب المنسي",
+  "titleAr": "الواجب المنسي",
+  "titleEn": "The Forgotten Homework",
+  "sentences": [
+   {
+    "jp": "あさ、そらは 学校に 来ました。",
+    "romaji": "Asa, Sora wa gakkou ni kimashita.",
+    "ar": "في الصباح، جاء سورا إلى المدرسة."
+   },
+   {
+    "jp": "今日は 数学の 宿題が あります。",
+    "romaji": "Kyou wa suugaku no shukudai ga arimasu.",
+    "ar": "اليوم هناك واجب رياضيات."
+   },
+   {
+    "jp": "そらは かばんを 開けました。",
+    "romaji": "Sora wa kaban o akemashita.",
+    "ar": "فتح سورا حقيبته."
+   },
+   {
+    "jp": "あれ？ 宿題が ありません。",
+    "romaji": "Are? Shukudai ga arimasen.",
+    "ar": "ماذا؟ الواجب غير موجود."
+   },
+   {
+    "jp": "そらは かばんの 中を 見ました。",
+    "romaji": "Sora wa kaban no naka o mimashita.",
+    "ar": "نظر سورا داخل حقيبته."
+   },
+   {
+    "jp": "ノートと 鉛筆が あります。",
+    "romaji": "Nooto to enpitsu ga arimasu.",
+    "ar": "هناك دفتر وقلم رصاص."
+   },
+   {
+    "jp": "でも 宿題は ありません。",
+    "romaji": "Demo shukudai wa arimasen.",
+    "ar": "لكن الواجب غير موجود."
+   },
+   {
+    "jp": "そらは 困りました。",
+    "romaji": "Sora wa komarimashita.",
+    "ar": "وقع سورا في حيرة."
+   },
+   {
+    "jp": "「どこですか。」と そらは 言いました。",
+    "romaji": "\"Doko desu ka.\" to Sora wa iimashita.",
+    "ar": "«أين هو؟» قال سورا."
+   },
+   {
+    "jp": "友達の ゆきが 来ました。",
+    "romaji": "Tomodachi no Yuki ga kimashita.",
+    "ar": "جاءت صديقته يوكي."
+   },
+   {
+    "jp": "「机の 中を 見てください。」と ゆきが 言いました。",
+    "romaji": "\"Tsukue no naka o mite kudasai.\" to Yuki ga iimashita.",
+    "ar": "«انظر داخل الدرج من فضلك،» قالت يوكي."
+   },
+   {
+    "jp": "そらは 机の 中を 見ました。",
+    "romaji": "Sora wa tsukue no naka o mimashita.",
+    "ar": "نظر سورا داخل الدرج."
+   },
+   {
+    "jp": "机の 中に 本が あります。",
+    "romaji": "Tsukue no naka ni hon ga arimasu.",
+    "ar": "داخل الدرج كتاب."
+   },
+   {
+    "jp": "そらは 本を 開けました。",
+    "romaji": "Sora wa hon o akemashita.",
+    "ar": "فتح سورا الكتاب."
+   },
+   {
+    "jp": "本の 中に 宿題が ありました！",
+    "romaji": "Hon no naka ni shukudai ga arimashita!",
+    "ar": "كان الواجب داخل الكتاب!"
+   },
+   {
+    "jp": "でも 宿題に 絵が あります。",
+    "romaji": "Demo shukudai ni e ga arimasu.",
+    "ar": "لكن على الواجب رسمة."
+   },
+   {
+    "jp": "妹の 絵です。猫の 絵です。",
+    "romaji": "Imouto no e desu. Neko no e desu.",
+    "ar": "إنها رسمة أخته الصغيرة — رسمة قطة."
+   },
+   {
+    "jp": "「妹は 絵が 好きです。」と そらは 言いました。",
+    "romaji": "\"Imouto wa e ga suki desu.\" to Sora wa iimashita.",
+    "ar": "«أختي الصغيرة تحب الصور،» قال سورا."
+   },
+   {
+    "jp": "そらは 先生に 宿題を 渡しました。",
+    "romaji": "Sora wa sensei ni shukudai o watashimashita.",
+    "ar": "سلّم سورا الواجب للمعلّم."
+   },
+   {
+    "jp": "先生は 猫の 絵を 見ました。",
+    "romaji": "Sensei wa neko no e o mimashita.",
+    "ar": "نظر المعلّم إلى رسمة القطة."
+   },
+   {
+    "jp": "先生は 笑いました。",
+    "romaji": "Sensei wa waraimashita.",
+    "ar": "ابتسم المعلّم."
+   },
+   {
+    "jp": "「猫が かわいいですね。」と 先生は 言いました。",
+    "romaji": "\"Neko ga kawaii desu ne.\" to sensei wa iimashita.",
+    "ar": "«القطة لطيفة، أليس كذلك؟» قال المعلّم."
+   },
+   {
+    "jp": "そらも 笑いました。よかったです。",
+    "romaji": "Sora mo waraimashita. Yokatta desu.",
+    "ar": "ابتسم سورا أيضًا. يا للارتياح."
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "しゅくだい",
+    "hiragana": "しゅくだい",
+    "meaning": "واجب"
+   },
+   {
+    "jp": "かばん",
+    "hiragana": "かばん",
+    "meaning": "حقيبة"
+   },
+   {
+    "jp": "つくえ",
+    "hiragana": "つくえ",
+    "meaning": "مكتب / درج"
+   },
+   {
+    "jp": "ほん",
+    "hiragana": "ほん",
+    "meaning": "كتاب"
+   },
+   {
+    "jp": "なか",
+    "hiragana": "なか",
+    "meaning": "داخل"
+   },
+   {
+    "jp": "いもうと",
+    "hiragana": "いもうと",
+    "meaning": "الأخت الصغيرة"
+   },
+   {
+    "jp": "え",
+    "hiragana": "え",
+    "meaning": "رسمة / صورة"
+   },
+   {
+    "jp": "ねこ",
+    "hiragana": "ねこ",
+    "meaning": "قطة"
+   },
+   {
+    "jp": "せんせい",
+    "hiragana": "せんせい",
+    "meaning": "معلّم"
+   },
+   {
+    "jp": "わらいます",
+    "hiragana": "わらいます",
+    "meaning": "يبتسم / يضحك"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "あさ、そらは 学校に 来ました。",
+    "romaji": "Asa, Sora wa gakkou ni kimashita.",
+    "ar": "في الصباح، جاء سورا إلى المدرسة."
+   },
+   {
+    "type": "line",
+    "jp": "今日は 数学の 宿題が あります。",
+    "romaji": "Kyou wa suugaku no shukudai ga arimasu.",
+    "ar": "اليوم هناك واجب رياضيات."
+   },
+   {
+    "type": "line",
+    "jp": "そらは かばんを 開けました。",
+    "romaji": "Sora wa kaban o akemashita.",
+    "ar": "فتح سورا حقيبته."
+   },
+   {
+    "type": "q",
+    "prompt": "だれが がっこうに きましたか。(من جاء إلى المدرسة؟)",
+    "options": [
+     "そら (سورا)",
+     "せんせい (المعلّم)",
+     "いもうと (الأخت الصغيرة)"
+    ],
+    "answer": "そら (سورا)",
+    "explain": "السطر الأول يقول إن سورا جاء إلى المدرسة."
+   },
+   {
+    "type": "line",
+    "jp": "あれ？ 宿題が ありません。",
+    "romaji": "Are? Shukudai ga arimasen.",
+    "ar": "ماذا؟ الواجب غير موجود."
+   },
+   {
+    "type": "line",
+    "jp": "そらは かばんの 中を 見ました。",
+    "romaji": "Sora wa kaban no naka o mimashita.",
+    "ar": "نظر سورا داخل حقيبته."
+   },
+   {
+    "type": "line",
+    "jp": "ノートと 鉛筆が あります。",
+    "romaji": "Nooto to enpitsu ga arimasu.",
+    "ar": "هناك دفتر وقلم رصاص."
+   },
+   {
+    "type": "q",
+    "prompt": "しゅくだい＿ ありません。(الواجب غير موجود — ما الأداة؟)",
+    "options": [
+     "が",
+     "を",
+     "へ"
+    ],
+    "answer": "が",
+    "explain": "«あります／ありません» تأخذ أداة الفاعل «が»."
+   },
+   {
+    "type": "line",
+    "jp": "でも 宿題は ありません。",
+    "romaji": "Demo shukudai wa arimasen.",
+    "ar": "لكن الواجب غير موجود."
+   },
+   {
+    "type": "line",
+    "jp": "そらは 困りました。",
+    "romaji": "Sora wa komarimashita.",
+    "ar": "وقع سورا في حيرة."
+   },
+   {
+    "type": "line",
+    "jp": "「どこですか。」と そらは 言いました。",
+    "romaji": "\"Doko desu ka.\" to Sora wa iimashita.",
+    "ar": "«أين هو؟» قال سورا."
+   },
+   {
+    "type": "q",
+    "prompt": "かばんの なかに しゅくだいが あります。(الواجب داخل الحقيبة.)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "لم يكن الواجب في الحقيبة؛ كان فيها دفتر وقلم فقط."
+   },
+   {
+    "type": "line",
+    "jp": "友達の ゆきが 来ました。",
+    "romaji": "Tomodachi no Yuki ga kimashita.",
+    "ar": "جاءت صديقته يوكي."
+   },
+   {
+    "type": "line",
+    "jp": "「机の 中を 見てください。」と ゆきが 言いました。",
+    "romaji": "\"Tsukue no naka o mite kudasai.\" to Yuki ga iimashita.",
+    "ar": "«انظر داخل الدرج من فضلك،» قالت يوكي."
+   },
+   {
+    "type": "line",
+    "jp": "そらは 机の 中を 見ました。",
+    "romaji": "Sora wa tsukue no naka o mimashita.",
+    "ar": "نظر سورا داخل الدرج."
+   },
+   {
+    "type": "q",
+    "prompt": "ゆきは どこを みてくださいと いいましたか。(أين قالت يوكي أن ينظر؟)",
+    "options": [
+     "つくえの なか (داخل الدرج)",
+     "ポケットの なか (داخل الجيب)",
+     "かばんの した (تحت الحقيبة)"
+    ],
+    "answer": "つくえの なか (داخل الدرج)",
+    "explain": "قالت يوكي «انظر داخل الدرج»."
+   },
+   {
+    "type": "line",
+    "jp": "机の 中に 本が あります。",
+    "romaji": "Tsukue no naka ni hon ga arimasu.",
+    "ar": "داخل الدرج كتاب."
+   },
+   {
+    "type": "line",
+    "jp": "そらは 本を 開けました。",
+    "romaji": "Sora wa hon o akemashita.",
+    "ar": "فتح سورا الكتاب."
+   },
+   {
+    "type": "line",
+    "jp": "本の 中に 宿題が ありました！",
+    "romaji": "Hon no naka ni shukudai ga arimashita!",
+    "ar": "كان الواجب داخل الكتاب!"
+   },
+   {
+    "type": "q",
+    "prompt": "しゅくだいは どこに ありましたか。(أين كان الواجب؟)",
+    "options": [
+     "ほんの なか (داخل الكتاب)",
+     "かばんの なか (داخل الحقيبة)",
+     "ポケットの なか (داخل الجيب)"
+    ],
+    "answer": "ほんの なか (داخل الكتاب)",
+    "explain": "وُجد الواجب داخل الكتاب."
+   },
+   {
+    "type": "line",
+    "jp": "でも 宿題に 絵が あります。",
+    "romaji": "Demo shukudai ni e ga arimasu.",
+    "ar": "لكن على الواجب رسمة."
+   },
+   {
+    "type": "line",
+    "jp": "妹の 絵です。猫の 絵です。",
+    "romaji": "Imouto no e desu. Neko no e desu.",
+    "ar": "إنها رسمة أخته الصغيرة — رسمة قطة."
+   },
+   {
+    "type": "line",
+    "jp": "「妹は 絵が 好きです。」と そらは 言いました。",
+    "romaji": "\"Imouto wa e ga suki desu.\" to Sora wa iimashita.",
+    "ar": "«أختي الصغيرة تحب الصور،» قال سورا."
+   },
+   {
+    "type": "q",
+    "prompt": "だれが しゅくだいに えを かきましたか。(من رسم على الواجب؟)",
+    "options": [
+     "いもうと (الأخت الصغيرة)",
+     "ゆき (يوكي)",
+     "せんせい (المعلّم)"
+    ],
+    "answer": "いもうと (الأخت الصغيرة)",
+    "explain": "رسمة القطة لأخته الصغيرة."
+   },
+   {
+    "type": "line",
+    "jp": "そらは 先生に 宿題を 渡しました。",
+    "romaji": "Sora wa sensei ni shukudai o watashimashita.",
+    "ar": "سلّم سورا الواجب للمعلّم."
+   },
+   {
+    "type": "line",
+    "jp": "先生は 猫の 絵を 見ました。",
+    "romaji": "Sensei wa neko no e o mimashita.",
+    "ar": "نظر المعلّم إلى رسمة القطة."
+   },
+   {
+    "type": "line",
+    "jp": "先生は 笑いました。",
+    "romaji": "Sensei wa waraimashita.",
+    "ar": "ابتسم المعلّم."
+   },
+   {
+    "type": "q",
+    "prompt": "「せんせいは わらいました。」の いみは؟ (ما المعنى؟)",
+    "options": [
+     "ابتسم المعلّم.",
+     "غضب المعلّم.",
+     "بكى المعلّم."
+    ],
+    "answer": "ابتسم المعلّم.",
+    "explain": "«わらいました» تعني ابتسم / ضحك."
+   },
+   {
+    "type": "line",
+    "jp": "「猫が かわいいですね。」と 先生は 言いました。",
+    "romaji": "\"Neko ga kawaii desu ne.\" to sensei wa iimashita.",
+    "ar": "«القطة لطيفة، أليس كذلك؟» قال المعلّم."
+   },
+   {
+    "type": "line",
+    "jp": "そらも 笑いました。よかったです。",
+    "romaji": "Sora mo waraimashita. Yokatta desu.",
+    "ar": "ابتسم سورا أيضًا. يا للارتياح."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】しゅくだいは どこに ありましたか。(أين كان الواجب؟)",
+    "options": [
+     "ほんの なか (داخل الكتاب)",
+     "かばんの なか (داخل الحقيبة)",
+     "つくえの した (تحت المكتب)"
+    ],
+    "answer": "ほんの なか (داخل الكتاب)",
+    "explain": "كان الواجب داخل الكتاب في الدرج."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】いもうとは なにの えを かきましたか。(ماذا رسمت الأخت؟)",
+    "options": [
+     "ねこ (قطة)",
+     "いぬ (كلب)",
+     "とり (طائر)"
+    ],
+    "answer": "ねこ (قطة)",
+    "explain": "رسمت الأخت الصغيرة قطة."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに せんせいは どうしましたか。(ماذا فعل المعلّم في النهاية؟)",
+    "options": [
+     "わらいました (ابتسم)",
+     "おこりました (غضب)",
+     "ねました (نام)"
+    ],
+    "answer": "わらいました (ابتسم)",
+    "explain": "ابتسم المعلّم وقال إن القطة لطيفة."
+   }
+  ],
+  "xp": 35,
+  "gems": 12,
+  "furigana": {
+   "学校": "がっこう",
+   "来": "き",
+   "今日": "きょう",
+   "数学": "すうがく",
+   "宿題": "しゅくだい",
+   "開": "あ",
+   "中": "なか",
+   "見": "み",
+   "鉛筆": "えんぴつ",
+   "困": "こま",
+   "言": "い",
+   "友達": "ともだち",
+   "机": "つくえ",
+   "本": "ほん",
+   "絵": "え",
+   "妹": "いもうと",
+   "猫": "ねこ",
+   "好": "す",
+   "先生": "せんせい",
+   "渡": "わた",
+   "笑": "わら"
+  }
+ },
+ {
+  "id": "n5s-new-student",
+  "title": "الطالبة الجديدة",
+  "titleAr": "الطالبة الجديدة",
+  "titleEn": "The New Student",
+  "sentences": [
+   {
+    "jp": "朝、教室に 新しい 学生が 来ました。",
+    "romaji": "Asa, kyoushitsu ni atarashii gakusei ga kimashita.",
+    "ar": "في الصباح، جاءت طالبة جديدة إلى الفصل."
+   },
+   {
+    "jp": "名前は あおいさんです。",
+    "romaji": "Namae wa Aoi-san desu.",
+    "ar": "اسمها آؤي."
+   },
+   {
+    "jp": "あおいさんは とても 静かです。",
+    "romaji": "Aoi-san wa totemo shizuka desu.",
+    "ar": "آؤي هادئة جدًا."
+   },
+   {
+    "jp": "クラスの みんなは あおいさんを 知りません。",
+    "romaji": "Kurasu no minna wa Aoi-san o shirimasen.",
+    "ar": "كل من في الفصل لا يعرفون آؤي."
+   },
+   {
+    "jp": "はなさんは 「友達に なりましょう」と 言いました。",
+    "romaji": "Hana-san wa \"Tomodachi ni narimashou\" to iimashita.",
+    "ar": "قالت هانا: «لنصبح صديقتين»."
+   },
+   {
+    "jp": "でも あおいさんは 話しませんでした。",
+    "romaji": "Demo Aoi-san wa hanashimasen deshita.",
+    "ar": "لكن آؤي لم تتكلّم."
+   },
+   {
+    "jp": "昼ご飯の 時、あおいさんは 一人でした。",
+    "romaji": "Hirugohan no toki, Aoi-san wa hitori deshita.",
+    "ar": "وقت الغداء، كانت آؤي وحدها."
+   },
+   {
+    "jp": "あおいさんは お茶を 持ちました。",
+    "romaji": "Aoi-san wa ocha o mochimashita.",
+    "ar": "حملت آؤي كوب شاي."
+   },
+   {
+    "jp": "あっ！お茶が はなさんの ノートに かかりました。",
+    "romaji": "A'! Ocha ga Hana-san no nooto ni kakarimashita.",
+    "ar": "آه! انسكب الشاي على دفتر هانا."
+   },
+   {
+    "jp": "あおいさんの 顔は 赤かったです。",
+    "romaji": "Aoi-san no kao wa akakatta desu.",
+    "ar": "كان وجه آؤي أحمر."
+   },
+   {
+    "jp": "「ごめんなさい」と あおいさんは 言いました。",
+    "romaji": "\"Gomen nasai\" to Aoi-san wa iimashita.",
+    "ar": "«آسفة» قالت آؤي."
+   },
+   {
+    "jp": "はなさんは 「大丈夫ですよ」と 言いました。",
+    "romaji": "Hana-san wa \"Daijoubu desu yo\" to iimashita.",
+    "ar": "قالت هانا: «لا بأس»."
+   },
+   {
+    "jp": "そのとき、はなさんは ノートを 見ました。",
+    "romaji": "Sono toki, Hana-san wa nooto o mimashita.",
+    "ar": "في تلك اللحظة، نظرت هانا إلى الدفتر."
+   },
+   {
+    "jp": "ノートに きれいな 絵が ありました。",
+    "romaji": "Nooto ni kirei na e ga arimashita.",
+    "ar": "كان في الدفتر رسمة جميلة."
+   },
+   {
+    "jp": "「これは あおいさんの 絵ですか」",
+    "romaji": "\"Kore wa Aoi-san no e desu ka.\"",
+    "ar": "«هل هذه رسمتك يا آؤي؟»"
+   },
+   {
+    "jp": "「はい。絵を かくのが 好きです」",
+    "romaji": "\"Hai. E o kaku no ga suki desu.\"",
+    "ar": "«نعم. أحب رسم الصور.»"
+   },
+   {
+    "jp": "あおいさんの 絵は とても 上手でした。",
+    "romaji": "Aoi-san no e wa totemo jouzu deshita.",
+    "ar": "كانت رسمات آؤي ماهرة جدًا."
+   },
+   {
+    "jp": "はなさんは 「すごいですね！」と 言いました。",
+    "romaji": "Hana-san wa \"Sugoi desu ne!\" to iimashita.",
+    "ar": "قالت هانا: «رائع!»"
+   },
+   {
+    "jp": "昼休み、二人は 絵を かきました。",
+    "romaji": "Hiruyasumi, futari wa e o kakimashita.",
+    "ar": "في استراحة الغداء، رسمت الاثنتان."
+   },
+   {
+    "jp": "あおいさんは 今、笑っています。",
+    "romaji": "Aoi-san wa ima, waratte imasu.",
+    "ar": "الآن آؤي تبتسم."
+   },
+   {
+    "jp": "「友達に なりましょう」「はい！」",
+    "romaji": "\"Tomodachi ni narimashou.\" \"Hai!\"",
+    "ar": "«لنصبح صديقتين.» «نعم!»"
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "あたらしい",
+    "hiragana": "あたらしい",
+    "meaning": "جديد"
+   },
+   {
+    "jp": "がくせい",
+    "hiragana": "がくせい",
+    "meaning": "طالب"
+   },
+   {
+    "jp": "しずか",
+    "hiragana": "しずか",
+    "meaning": "هادئ"
+   },
+   {
+    "jp": "ともだち",
+    "hiragana": "ともだち",
+    "meaning": "صديق"
+   },
+   {
+    "jp": "え",
+    "hiragana": "え",
+    "meaning": "رسمة / صورة"
+   },
+   {
+    "jp": "じょうず",
+    "hiragana": "じょうず",
+    "meaning": "ماهر / بارع"
+   },
+   {
+    "jp": "おちゃ",
+    "hiragana": "おちゃ",
+    "meaning": "شاي"
+   },
+   {
+    "jp": "ノート",
+    "hiragana": "のーと",
+    "meaning": "دفتر"
+   },
+   {
+    "jp": "ひとり",
+    "hiragana": "ひとり",
+    "meaning": "وحده / شخص واحد"
+   },
+   {
+    "jp": "かお",
+    "hiragana": "かお",
+    "meaning": "وجه"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "朝、教室に 新しい 学生が 来ました。",
+    "romaji": "Asa, kyoushitsu ni atarashii gakusei ga kimashita.",
+    "ar": "في الصباح، جاءت طالبة جديدة إلى الفصل."
+   },
+   {
+    "type": "line",
+    "jp": "名前は あおいさんです。",
+    "romaji": "Namae wa Aoi-san desu.",
+    "ar": "اسمها آؤي."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは とても 静かです。",
+    "romaji": "Aoi-san wa totemo shizuka desu.",
+    "ar": "آؤي هادئة جدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "あたらしい がくせいは だれですか。(من الطالبة الجديدة؟)",
+    "options": [
+     "あおいさん (آؤي)",
+     "はなさん (هانا)",
+     "せんせい (المعلّم)"
+    ],
+    "answer": "あおいさん (آؤي)",
+    "explain": "«なまえは あおいさんです» — اسمها آؤي."
+   },
+   {
+    "type": "line",
+    "jp": "クラスの みんなは あおいさんを 知りません。",
+    "romaji": "Kurasu no minna wa Aoi-san o shirimasen.",
+    "ar": "كل من في الفصل لا يعرفون آؤي."
+   },
+   {
+    "type": "line",
+    "jp": "はなさんは 「友達に なりましょう」と 言いました。",
+    "romaji": "Hana-san wa \"Tomodachi ni narimashou\" to iimashita.",
+    "ar": "قالت هانا: «لنصبح صديقتين»."
+   },
+   {
+    "type": "line",
+    "jp": "でも あおいさんは 話しませんでした。",
+    "romaji": "Demo Aoi-san wa hanashimasen deshita.",
+    "ar": "لكن آؤي لم تتكلّم."
+   },
+   {
+    "type": "q",
+    "prompt": "あおいさんは よく はなしましたか。(هل تكلّمت آؤي كثيرًا؟)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "آؤي هادئة جدًا ولم تتكلّم."
+   },
+   {
+    "type": "line",
+    "jp": "昼ご飯の 時、あおいさんは 一人でした。",
+    "romaji": "Hirugohan no toki, Aoi-san wa hitori deshita.",
+    "ar": "وقت الغداء، كانت آؤي وحدها."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは お茶を 持ちました。",
+    "romaji": "Aoi-san wa ocha o mochimashita.",
+    "ar": "حملت آؤي كوب شاي."
+   },
+   {
+    "type": "line",
+    "jp": "あっ！お茶が はなさんの ノートに かかりました。",
+    "romaji": "A'! Ocha ga Hana-san no nooto ni kakarimashita.",
+    "ar": "آه! انسكب الشاي على دفتر هانا."
+   },
+   {
+    "type": "q",
+    "prompt": "おちゃが はなさんの ノート＿ かかりました。(اختر الأداة)",
+    "options": [
+     "に",
+     "を",
+     "は"
+    ],
+    "answer": "に",
+    "explain": "«に» تُعلِّم المكان الذي وصل إليه الشاي."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんの 顔は 赤かったです。",
+    "romaji": "Aoi-san no kao wa akakatta desu.",
+    "ar": "كان وجه آؤي أحمر."
+   },
+   {
+    "type": "line",
+    "jp": "「ごめんなさい」と あおいさんは 言いました。",
+    "romaji": "\"Gomen nasai\" to Aoi-san wa iimashita.",
+    "ar": "«آسفة» قالت آؤي."
+   },
+   {
+    "type": "line",
+    "jp": "はなさんは 「大丈夫ですよ」と 言いました。",
+    "romaji": "Hana-san wa \"Daijoubu desu yo\" to iimashita.",
+    "ar": "قالت هانا: «لا بأس»."
+   },
+   {
+    "type": "q",
+    "prompt": "おちゃは なにに かかりましたか。(على ماذا انسكب الشاي؟)",
+    "options": [
+     "ノート (دفتر)",
+     "かばん (حقيبة)",
+     "つくえ (مكتب)"
+    ],
+    "answer": "ノート (دفتر)",
+    "explain": "انسكب الشاي على دفتر هانا."
+   },
+   {
+    "type": "line",
+    "jp": "そのとき、はなさんは ノートを 見ました。",
+    "romaji": "Sono toki, Hana-san wa nooto o mimashita.",
+    "ar": "في تلك اللحظة، نظرت هانا إلى الدفتر."
+   },
+   {
+    "type": "line",
+    "jp": "ノートに きれいな 絵が ありました。",
+    "romaji": "Nooto ni kirei na e ga arimashita.",
+    "ar": "كان في الدفتر رسمة جميلة."
+   },
+   {
+    "type": "line",
+    "jp": "「これは あおいさんの 絵ですか」",
+    "romaji": "\"Kore wa Aoi-san no e desu ka.\"",
+    "ar": "«هل هذه رسمتك يا آؤي؟»"
+   },
+   {
+    "type": "q",
+    "prompt": "ノートに きれいな ＿＿が ありました。(اختر الكلمة الصحيحة)",
+    "options": [
+     "え (رسمة)",
+     "みず (ماء)",
+     "ねこ (قطة)"
+    ],
+    "answer": "え (رسمة)",
+    "explain": "وجدت هانا رسمة جميلة في الدفتر."
+   },
+   {
+    "type": "line",
+    "jp": "「はい。絵を かくのが 好きです」",
+    "romaji": "\"Hai. E o kaku no ga suki desu.\"",
+    "ar": "«نعم. أحب رسم الصور.»"
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんの 絵は とても 上手でした。",
+    "romaji": "Aoi-san no e wa totemo jouzu deshita.",
+    "ar": "كانت رسمات آؤي ماهرة جدًا."
+   },
+   {
+    "type": "line",
+    "jp": "はなさんは 「すごいですね！」と 言いました。",
+    "romaji": "Hana-san wa \"Sugoi desu ne!\" to iimashita.",
+    "ar": "قالت هانا: «رائع!»"
+   },
+   {
+    "type": "q",
+    "prompt": "あおいさんの とくいな ことは なんですか。(فيمَ تبرع آؤي؟)",
+    "options": [
+     "え (الرسم)",
+     "うた (الغناء)",
+     "りょうり (الطبخ)"
+    ],
+    "answer": "え (الرسم)",
+    "explain": "آؤي تحب الرسم ورسماتها «とても じょうず»."
+   },
+   {
+    "type": "line",
+    "jp": "昼休み、二人は 絵を かきました。",
+    "romaji": "Hiruyasumi, futari wa e o kakimashita.",
+    "ar": "في استراحة الغداء، رسمت الاثنتان."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは 今、笑っています。",
+    "romaji": "Aoi-san wa ima, waratte imasu.",
+    "ar": "الآن آؤي تبتسم."
+   },
+   {
+    "type": "line",
+    "jp": "「友達に なりましょう」「はい！」",
+    "romaji": "\"Tomodachi ni narimashou.\" \"Hai!\"",
+    "ar": "«لنصبح صديقتين.» «نعم!»"
+   },
+   {
+    "type": "q",
+    "prompt": "「ともだちに なりましょう」の いみは؟ (ما معنى هذه الجملة؟)",
+    "options": [
+     "لنصبح صديقين.",
+     "لنعد إلى البيت.",
+     "لنأكل الغداء."
+    ],
+    "answer": "لنصبح صديقين.",
+    "explain": "«ともだちに なりましょう» = لنصبح صديقين؛ أصبحتا صديقتين."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】あおいさんは どんな がくせいですか。(أيّ نوع من الطلاب آؤي؟)",
+    "options": [
+     "しずかな がくせい (طالبة هادئة)",
+     "うるさい がくせい (طالبة صاخبة)",
+     "おおきい がくせい (طالبة كبيرة)"
+    ],
+    "answer": "しずかな がくせい (طالبة هادئة)",
+    "explain": "آؤي طالبة هادئة جدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】あおいさんは なにが じょうずですか。(فيمَ آؤي بارعة؟)",
+    "options": [
+     "え (الرسم)",
+     "サッカー (كرة القدم)",
+     "ピアノ (البيانو)"
+    ],
+    "answer": "え (الرسم)",
+    "explain": "رسمات آؤي كانت ماهرة جدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに ふたりは どう なりましたか。(كيف انتهى أمر الاثنتين؟)",
+    "options": [
+     "ともだちに なりました (أصبحتا صديقتين)",
+     "けんかしました (تشاجرتا)",
+     "かえりました (عادتا للبيت)"
+    ],
+    "answer": "ともだちに なりました (أصبحتا صديقتين)",
+    "explain": "رسمتا معًا وأصبحتا صديقتين."
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "朝": "あさ",
+   "教室": "きょうしつ",
+   "新": "あたら",
+   "学生": "がくせい",
+   "来ました": "きました",
+   "名前": "なまえ",
+   "静": "しず",
+   "知": "し",
+   "友達": "ともだち",
+   "言": "い",
+   "話": "はな",
+   "昼ご飯": "ひるごはん",
+   "時": "とき",
+   "一人": "ひとり",
+   "お茶": "おちゃ",
+   "持": "も",
+   "顔": "かお",
+   "赤": "あか",
+   "大丈夫": "だいじょうぶ",
+   "見": "み",
+   "絵": "え",
+   "好": "す",
+   "上手": "じょうず",
+   "昼休": "ひるやす",
+   "二人": "ふたり",
+   "今": "いま",
+   "笑": "わら"
+  }
+ },
+ {
+  "id": "n5s-library-secret",
+  "title": "سرّ المكتبة",
+  "titleAr": "سرّ المكتبة",
+  "titleEn": "The Library Secret",
+  "sentences": [
+   {
+    "jp": "あおいさんは 図書館が 好きです。",
+    "romaji": "Aoi-san wa toshokan ga suki desu.",
+    "ar": "آؤي تحب المكتبة."
+   },
+   {
+    "jp": "きょうも 図書館に 来ました。",
+    "romaji": "Kyou mo toshokan ni kimashita.",
+    "ar": "اليوم أيضًا جاءت إلى المكتبة."
+   },
+   {
+    "jp": "古い 本を 一さつ とりました。",
+    "romaji": "Furui hon o issatsu torimashita.",
+    "ar": "أخذت كتابًا قديمًا واحدًا."
+   },
+   {
+    "jp": "本の 中に 小さい カードが ありました。",
+    "romaji": "Hon no naka ni chiisai kaado ga arimashita.",
+    "ar": "داخل الكتاب كانت هناك بطاقة صغيرة."
+   },
+   {
+    "jp": "カードに みじかい メッセージが ありました。",
+    "romaji": "Kaado ni mijikai messeeji ga arimashita.",
+    "ar": "على البطاقة رسالة قصيرة."
+   },
+   {
+    "jp": "「ありがとう。つぎは みどりの 棚を 見てください。」",
+    "romaji": "\"Arigatou. Tsugi wa midori no tana o mite kudasai.\"",
+    "ar": "«شكرًا. تاليًا، انظري إلى الرفّ الأخضر من فضلك.»"
+   },
+   {
+    "jp": "あおいさんは 「ふしぎですね」と 言いました。",
+    "romaji": "Aoi-san wa \"fushigi desu ne\" to iimashita.",
+    "ar": "قالت آؤي: «هذا عجيب»."
+   },
+   {
+    "jp": "あおいさんは わくわくしました。",
+    "romaji": "Aoi-san wa wakuwaku shimashita.",
+    "ar": "تحمّست آؤي."
+   },
+   {
+    "jp": "みどりの 棚は あそこに あります。",
+    "romaji": "Midori no tana wa asoko ni arimasu.",
+    "ar": "الرفّ الأخضر هناك (بعيدًا)."
+   },
+   {
+    "jp": "あおいさんは ゆっくり 歩きました。",
+    "romaji": "Aoi-san wa yukkuri arukimashita.",
+    "ar": "مشت آؤي ببطء."
+   },
+   {
+    "jp": "棚の 中に うすい 本が 一さつ ありました。",
+    "romaji": "Tana no naka ni usui hon ga issatsu arimashita.",
+    "ar": "في الرفّ كان هناك كتاب رفيع واحد."
+   },
+   {
+    "jp": "あおいさんは その 本を ひらきました。",
+    "romaji": "Aoi-san wa sono hon o hirakimashita.",
+    "ar": "فتحت آؤي ذلك الكتاب."
+   },
+   {
+    "jp": "本の 中に 小さい 花が ありました。",
+    "romaji": "Hon no naka ni chiisai hana ga arimashita.",
+    "ar": "داخل الكتاب كانت هناك وردة صغيرة."
+   },
+   {
+    "jp": "花は とても きれいでした。",
+    "romaji": "Hana wa totemo kirei deshita.",
+    "ar": "كانت الوردة جميلة جدًا."
+   },
+   {
+    "jp": "花の 下に また メッセージが ありました。",
+    "romaji": "Hana no shita ni mata messeeji ga arimashita.",
+    "ar": "تحت الوردة كانت هناك رسالة أخرى."
+   },
+   {
+    "jp": "「この 本が 大好きです。あなたも 好きですか。」",
+    "romaji": "\"Kono hon ga daisuki desu. Anata mo suki desu ka.\"",
+    "ar": "«أحب هذا الكتاب كثيرًا. وأنتِ، هل تحبّينه أيضًا؟»"
+   },
+   {
+    "jp": "あおいさんは わらいました。",
+    "romaji": "Aoi-san wa waraimashita.",
+    "ar": "ضحكت آؤي."
+   },
+   {
+    "jp": "「はい、大好きです」と あおいさんは 言いました。",
+    "romaji": "\"Hai, daisuki desu\" to Aoi-san wa iimashita.",
+    "ar": "قالت آؤي: «نعم، أحبه كثيرًا»."
+   },
+   {
+    "jp": "あおいさんは 小さい カードを 書きました。",
+    "romaji": "Aoi-san wa chiisai kaado o kakimashita.",
+    "ar": "كتبت آؤي بطاقة صغيرة."
+   },
+   {
+    "jp": "そして カードを 本に 入れました。",
+    "romaji": "Soshite kaado o hon ni iremashita.",
+    "ar": "ثم وضعت البطاقة في الكتاب."
+   },
+   {
+    "jp": "つぎの 人も きっと わらいます。",
+    "romaji": "Tsugi no hito mo kitto waraimasu.",
+    "ar": "القارئ التالي سيضحك بالتأكيد أيضًا."
+   },
+   {
+    "jp": "図書館の ひみつは あたたかいですね。",
+    "romaji": "Toshokan no himitsu wa atatakai desu ne.",
+    "ar": "سرّ المكتبة دافئ، أليس كذلك."
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "としょかん",
+    "hiragana": "としょかん",
+    "meaning": "مكتبة"
+   },
+   {
+    "jp": "本",
+    "hiragana": "ほん",
+    "meaning": "كتاب"
+   },
+   {
+    "jp": "古い",
+    "hiragana": "ふるい",
+    "meaning": "قديم"
+   },
+   {
+    "jp": "カード",
+    "hiragana": "かーど",
+    "meaning": "بطاقة"
+   },
+   {
+    "jp": "メッセージ",
+    "hiragana": "めっせーじ",
+    "meaning": "رسالة"
+   },
+   {
+    "jp": "たな",
+    "hiragana": "たな",
+    "meaning": "رفّ"
+   },
+   {
+    "jp": "花",
+    "hiragana": "はな",
+    "meaning": "وردة / زهرة"
+   },
+   {
+    "jp": "きれい",
+    "hiragana": "きれい",
+    "meaning": "جميل / نظيف"
+   },
+   {
+    "jp": "ひみつ",
+    "hiragana": "ひみつ",
+    "meaning": "سرّ"
+   },
+   {
+    "jp": "あたたかい",
+    "hiragana": "あたたかい",
+    "meaning": "دافئ"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "あおいさんは 図書館が 好きです。",
+    "romaji": "Aoi-san wa toshokan ga suki desu.",
+    "ar": "آؤي تحب المكتبة."
+   },
+   {
+    "type": "line",
+    "jp": "きょうも 図書館に 来ました。",
+    "romaji": "Kyou mo toshokan ni kimashita.",
+    "ar": "اليوم أيضًا جاءت إلى المكتبة."
+   },
+   {
+    "type": "line",
+    "jp": "古い 本を 一さつ とりました。",
+    "romaji": "Furui hon o issatsu torimashita.",
+    "ar": "أخذت كتابًا قديمًا واحدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "あおいさんは どこに 来ましたか。(إلى أين جاءت آؤي؟)",
+    "options": [
+     "としょかんに (إلى المكتبة)",
+     "がっこうに (إلى المدرسة)",
+     "えきに (إلى المحطة)"
+    ],
+    "answer": "としょかんに (إلى المكتبة)",
+    "explain": "«としょかんに 来ました» — جاءت إلى المكتبة."
+   },
+   {
+    "type": "line",
+    "jp": "本の 中に 小さい カードが ありました。",
+    "romaji": "Hon no naka ni chiisai kaado ga arimashita.",
+    "ar": "داخل الكتاب كانت هناك بطاقة صغيرة."
+   },
+   {
+    "type": "line",
+    "jp": "カードに みじかい メッセージが ありました。",
+    "romaji": "Kaado ni mijikai messeeji ga arimashita.",
+    "ar": "على البطاقة رسالة قصيرة."
+   },
+   {
+    "type": "q",
+    "prompt": "本の 中に 何が ありましたか。(ماذا كان داخل الكتاب؟)",
+    "options": [
+     "小さい カード (بطاقة صغيرة)",
+     "赤い ペン (قلم أحمر)",
+     "花の え (رسمة وردة)"
+    ],
+    "answer": "小さい カード (بطاقة صغيرة)",
+    "explain": "كانت هناك بطاقة صغيرة داخل الكتاب."
+   },
+   {
+    "type": "line",
+    "jp": "「ありがとう。つぎは みどりの 棚を 見てください。」",
+    "romaji": "\"Arigatou. Tsugi wa midori no tana o mite kudasai.\"",
+    "ar": "«شكرًا. تاليًا، انظري إلى الرفّ الأخضر من فضلك.»"
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは 「ふしぎですね」と 言いました。",
+    "romaji": "Aoi-san wa \"fushigi desu ne\" to iimashita.",
+    "ar": "قالت آؤي: «هذا عجيب»."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは わくわくしました。",
+    "romaji": "Aoi-san wa wakuwaku shimashita.",
+    "ar": "تحمّست آؤي."
+   },
+   {
+    "type": "q",
+    "prompt": "つぎは みどりの たな＿ 見てください。(اختر الأداة)",
+    "options": [
+     "を",
+     "に",
+     "へ"
+    ],
+    "answer": "を",
+    "explain": "الرفّ هو مفعول الفعل «見ます»، لذا نستخدم «を»."
+   },
+   {
+    "type": "line",
+    "jp": "みどりの 棚は あそこに あります。",
+    "romaji": "Midori no tana wa asoko ni arimasu.",
+    "ar": "الرفّ الأخضر هناك (بعيدًا)."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは ゆっくり 歩きました。",
+    "romaji": "Aoi-san wa yukkuri arukimashita.",
+    "ar": "مشت آؤي ببطء."
+   },
+   {
+    "type": "line",
+    "jp": "棚の 中に うすい 本が 一さつ ありました。",
+    "romaji": "Tana no naka ni usui hon ga issatsu arimashita.",
+    "ar": "في الرفّ كان هناك كتاب رفيع واحد."
+   },
+   {
+    "type": "q",
+    "prompt": "みどりの たなは ちかくに ありますか。(هل الرفّ الأخضر قريب؟)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "القصة تقول «あそこに あります» (هناك)، فهو ليس قريبًا."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは その 本を ひらきました。",
+    "romaji": "Aoi-san wa sono hon o hirakimashita.",
+    "ar": "فتحت آؤي ذلك الكتاب."
+   },
+   {
+    "type": "line",
+    "jp": "本の 中に 小さい 花が ありました。",
+    "romaji": "Hon no naka ni chiisai hana ga arimashita.",
+    "ar": "داخل الكتاب كانت هناك وردة صغيرة."
+   },
+   {
+    "type": "line",
+    "jp": "花は とても きれいでした。",
+    "romaji": "Hana wa totemo kirei deshita.",
+    "ar": "كانت الوردة جميلة جدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "本の 中に 何が ありましたか。(ماذا كان في الكتاب؟)",
+    "options": [
+     "小さい 花 (وردة صغيرة)",
+     "お金 (نقود)",
+     "かぎ (مفتاح)"
+    ],
+    "answer": "小さい 花 (وردة صغيرة)",
+    "explain": "كانت هناك وردة صغيرة مجفّفة بالداخل."
+   },
+   {
+    "type": "line",
+    "jp": "花の 下に また メッセージが ありました。",
+    "romaji": "Hana no shita ni mata messeeji ga arimashita.",
+    "ar": "تحت الوردة كانت هناك رسالة أخرى."
+   },
+   {
+    "type": "line",
+    "jp": "「この 本が 大好きです。あなたも 好きですか。」",
+    "romaji": "\"Kono hon ga daisuki desu. Anata mo suki desu ka.\"",
+    "ar": "«أحب هذا الكتاب كثيرًا. وأنتِ، هل تحبّينه أيضًا؟»"
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは わらいました。",
+    "romaji": "Aoi-san wa waraimashita.",
+    "ar": "ضحكت آؤي."
+   },
+   {
+    "type": "q",
+    "prompt": "「あなたも 好きですか。」は どんな いみですか。(ما معنى هذه الجملة؟)",
+    "options": [
+     "هل تحبه أنت أيضًا؟",
+     "أين الكتاب؟",
+     "هل هو غالٍ؟"
+    ],
+    "answer": "هل تحبه أنت أيضًا؟",
+    "explain": "«あなたも 好きですか» تسأل إن كنتَ تحبه أيضًا."
+   },
+   {
+    "type": "line",
+    "jp": "「はい、大好きです」と あおいさんは 言いました。",
+    "romaji": "\"Hai, daisuki desu\" to Aoi-san wa iimashita.",
+    "ar": "قالت آؤي: «نعم، أحبه كثيرًا»."
+   },
+   {
+    "type": "line",
+    "jp": "あおいさんは 小さい カードを 書きました。",
+    "romaji": "Aoi-san wa chiisai kaado o kakimashita.",
+    "ar": "كتبت آؤي بطاقة صغيرة."
+   },
+   {
+    "type": "line",
+    "jp": "そして カードを 本に 入れました。",
+    "romaji": "Soshite kaado o hon ni iremashita.",
+    "ar": "ثم وضعت البطاقة في الكتاب."
+   },
+   {
+    "type": "q",
+    "prompt": "だれが 新しい カードを 書きましたか。(من كتب البطاقة الجديدة؟)",
+    "options": [
+     "あおいさん (آؤي)",
+     "せんせい (المعلّم)",
+     "お母さん (الأم)"
+    ],
+    "answer": "あおいさん (آؤي)",
+    "explain": "آؤي كتبت وتركت بطاقة جديدة للقارئ التالي."
+   },
+   {
+    "type": "line",
+    "jp": "つぎの 人も きっと わらいます。",
+    "romaji": "Tsugi no hito mo kitto waraimasu.",
+    "ar": "القارئ التالي سيضحك بالتأكيد أيضًا."
+   },
+   {
+    "type": "line",
+    "jp": "図書館の ひみつは あたたかいですね。",
+    "romaji": "Toshokan no himitsu wa atatakai desu ne.",
+    "ar": "سرّ المكتبة دافئ، أليس كذلك."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】あおいさんは どこで カードを 見つけましたか。(أين وجدت آؤي البطاقة؟)",
+    "options": [
+     "古い 本の 中 (داخل كتاب قديم)",
+     "つくえの 上 (فوق المكتب)",
+     "かばんの 中 (داخل الحقيبة)"
+    ],
+    "answer": "古い 本の 中 (داخل كتاب قديم)",
+    "explain": "وجدت البطاقة داخل كتاب قديم."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】みどりの たなの 本の 中に 何が ありましたか。(ماذا كان في كتاب الرفّ الأخضر؟)",
+    "options": [
+     "小さい 花 (وردة صغيرة)",
+     "お金 (نقود)",
+     "とけい (ساعة)"
+    ],
+    "answer": "小さい 花 (وردة صغيرة)",
+    "explain": "كانت هناك وردة صغيرة ورسالة."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに あおいさんは 何を しましたか。(ماذا فعلت آؤي في النهاية؟)",
+    "options": [
+     "新しい カードを 書きました (كتبت بطاقة جديدة)",
+     "本を かいました (اشترت كتابًا)",
+     "うちに 帰りました (عادت للبيت)"
+    ],
+    "answer": "新しい カードを 書きました (كتبت بطاقة جديدة)",
+    "explain": "تركت بطاقة جديدة للقارئ التالي."
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "図書館": "としょかん",
+   "好": "す",
+   "来ました": "きました",
+   "古": "ふる",
+   "本": "ほん",
+   "一": "いっ",
+   "中": "なか",
+   "小": "ちい",
+   "棚": "たな",
+   "見": "み",
+   "言いました": "いいました",
+   "歩": "ある",
+   "花": "はな",
+   "下": "した",
+   "大好": "だいす",
+   "書": "か",
+   "入れました": "いれました",
+   "人": "ひと"
+  }
+ },
+ {
+  "id": "n5s-missing-cat",
+  "title": "القطة المفقودة",
+  "titleAr": "القطة المفقودة",
+  "titleEn": "The Cat That Disappeared",
+  "sentences": [
+   {
+    "jp": "わたしの 家に 猫が います。",
+    "romaji": "Watashi no ie ni neko ga imasu.",
+    "ar": "في بيتي توجد قطة."
+   },
+   {
+    "jp": "名前は タマです。",
+    "romaji": "Namae wa Tama desu.",
+    "ar": "اسمها تاما."
+   },
+   {
+    "jp": "タマは とても かわいいです。",
+    "romaji": "Tama wa totemo kawaii desu.",
+    "ar": "تاما لطيفة جدًا."
+   },
+   {
+    "jp": "朝、タマが いません。",
+    "romaji": "Asa, Tama ga imasen.",
+    "ar": "في الصباح، تاما ليست موجودة."
+   },
+   {
+    "jp": "ハナは「タマは どこですか。」と 言いました。",
+    "romaji": "Hana wa \"Tama wa doko desu ka.\" to iimashita.",
+    "ar": "قالت هانا: «أين تاما؟»"
+   },
+   {
+    "jp": "ケンと ハナは 家の 中を 探しました。",
+    "romaji": "Ken to Hana wa ie no naka o sagashimashita.",
+    "ar": "بحث كين وهانا داخل البيت."
+   },
+   {
+    "jp": "いすの 下を 見ました。タマは いません。",
+    "romaji": "Isu no shita o mimashita. Tama wa imasen.",
+    "ar": "نظروا تحت الكرسي. تاما ليست هناك."
+   },
+   {
+    "jp": "次に 庭へ 行きました。",
+    "romaji": "Tsugi ni niwa e ikimashita.",
+    "ar": "بعد ذلك ذهبوا إلى الحديقة."
+   },
+   {
+    "jp": "庭にも タマは いません。",
+    "romaji": "Niwa ni mo Tama wa imasen.",
+    "ar": "في الحديقة أيضًا تاما ليست موجودة."
+   },
+   {
+    "jp": "台所に タマの ご飯が あります。",
+    "romaji": "Daidokoro ni Tama no gohan ga arimasu.",
+    "ar": "في المطبخ يوجد طعام تاما."
+   },
+   {
+    "jp": "でも ご飯が ありません。",
+    "romaji": "Demo gohan ga arimasen.",
+    "ar": "لكن الطعام غير موجود."
+   },
+   {
+    "jp": "ハナは「変ですね。」と 言いました。",
+    "romaji": "Hana wa \"Hen desu ne.\" to iimashita.",
+    "ar": "قالت هانا: «غريب، أليس كذلك؟»"
+   },
+   {
+    "jp": "そのとき、箱から 小さい 声が しました。",
+    "romaji": "Sono toki, hako kara chiisai koe ga shimashita.",
+    "ar": "في تلك اللحظة، جاء صوت صغير من الصندوق."
+   },
+   {
+    "jp": "ケンは 箱を 開けたいです。",
+    "romaji": "Ken wa hako o aketai desu.",
+    "ar": "كين يريد أن يفتح الصندوق."
+   },
+   {
+    "jp": "でも 怖いです。「ハナ、見て ください。」",
+    "romaji": "Demo kowai desu. \"Hana, mite kudasai.\"",
+    "ar": "لكنه خائف. «هانا، انظري من فضلك.»"
+   },
+   {
+    "jp": "ハナは 箱を 開けました。タマが います！",
+    "romaji": "Hana wa hako o akemashita. Tama ga imasu!",
+    "ar": "فتحت هانا الصندوق. تاما موجودة!"
+   },
+   {
+    "jp": "タマと 小さい 猫が 四匹 います。",
+    "romaji": "Tama to chiisai neko ga yonhiki imasu.",
+    "ar": "تاما وأربع قطط صغيرة موجودات."
+   },
+   {
+    "jp": "ケンは「赤ちゃん猫だ！」と 言いました。",
+    "romaji": "Ken wa \"Akachan neko da!\" to iimashita.",
+    "ar": "قال كين: «قطط رضيعة!»"
+   },
+   {
+    "jp": "赤ちゃん猫は とても かわいいです。",
+    "romaji": "Akachan neko wa totemo kawaii desu.",
+    "ar": "القطط الصغيرة لطيفة جدًا."
+   },
+   {
+    "jp": "ハナと ケンは とても 嬉しいです。",
+    "romaji": "Hana to Ken wa totemo ureshii desu.",
+    "ar": "هانا وكين سعيدان جدًا."
+   },
+   {
+    "jp": "「タマ、おかえり！」みんな 笑いました。",
+    "romaji": "\"Tama, okaeri!\" Minna waraimashita.",
+    "ar": "«تاما، أهلًا بعودتك!» ضحك الجميع."
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "ねこ",
+    "hiragana": "ねこ",
+    "meaning": "قطة"
+   },
+   {
+    "jp": "いえ",
+    "hiragana": "いえ",
+    "meaning": "بيت"
+   },
+   {
+    "jp": "にわ",
+    "hiragana": "にわ",
+    "meaning": "حديقة"
+   },
+   {
+    "jp": "さがします",
+    "hiragana": "さがします",
+    "meaning": "يبحث"
+   },
+   {
+    "jp": "ごはん",
+    "hiragana": "ごはん",
+    "meaning": "طعام / أرز"
+   },
+   {
+    "jp": "はこ",
+    "hiragana": "はこ",
+    "meaning": "صندوق"
+   },
+   {
+    "jp": "こえ",
+    "hiragana": "こえ",
+    "meaning": "صوت"
+   },
+   {
+    "jp": "あけます",
+    "hiragana": "あけます",
+    "meaning": "يفتح"
+   },
+   {
+    "jp": "かわいい",
+    "hiragana": "かわいい",
+    "meaning": "لطيف / جميل"
+   },
+   {
+    "jp": "うれしい",
+    "hiragana": "うれしい",
+    "meaning": "سعيد"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "わたしの 家に 猫が います。",
+    "romaji": "Watashi no ie ni neko ga imasu.",
+    "ar": "في بيتي توجد قطة."
+   },
+   {
+    "type": "line",
+    "jp": "名前は タマです。",
+    "romaji": "Namae wa Tama desu.",
+    "ar": "اسمها تاما."
+   },
+   {
+    "type": "line",
+    "jp": "タマは とても かわいいです。",
+    "romaji": "Tama wa totemo kawaii desu.",
+    "ar": "تاما لطيفة جدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "ねこの なまえは なんですか。(ما اسم القطة؟)",
+    "options": [
+     "タマ (تاما)",
+     "ハナ (هانا)",
+     "ケン (كين)"
+    ],
+    "answer": "タマ (تاما)",
+    "explain": "النص يقول「なまえは タマです」أي اسمها تاما."
+   },
+   {
+    "type": "line",
+    "jp": "朝、タマが いません。",
+    "romaji": "Asa, Tama ga imasen.",
+    "ar": "في الصباح، تاما ليست موجودة."
+   },
+   {
+    "type": "line",
+    "jp": "ハナは「タマは どこですか。」と 言いました。",
+    "romaji": "Hana wa \"Tama wa doko desu ka.\" to iimashita.",
+    "ar": "قالت هانا: «أين تاما؟»"
+   },
+   {
+    "type": "line",
+    "jp": "ケンと ハナは 家の 中を 探しました。",
+    "romaji": "Ken to Hana wa ie no naka o sagashimashita.",
+    "ar": "بحث كين وهانا داخل البيت."
+   },
+   {
+    "type": "q",
+    "prompt": "だれが タマを さがしましたか。(من بحث عن تاما؟)",
+    "options": [
+     "ケンと ハナ (كين وهانا)",
+     "おかあさん (الأم)",
+     "タマ (تاما)"
+    ],
+    "answer": "ケンと ハナ (كين وهانا)",
+    "explain": "النص يقول「ケンと ハナは ... さがしました」."
+   },
+   {
+    "type": "line",
+    "jp": "いすの 下を 見ました。タマは いません。",
+    "romaji": "Isu no shita o mimashita. Tama wa imasen.",
+    "ar": "نظروا تحت الكرسي. تاما ليست هناك."
+   },
+   {
+    "type": "line",
+    "jp": "次に 庭へ 行きました。",
+    "romaji": "Tsugi ni niwa e ikimashita.",
+    "ar": "بعد ذلك ذهبوا إلى الحديقة."
+   },
+   {
+    "type": "line",
+    "jp": "庭にも タマは いません。",
+    "romaji": "Niwa ni mo Tama wa imasen.",
+    "ar": "في الحديقة أيضًا تاما ليست موجودة."
+   },
+   {
+    "type": "q",
+    "prompt": "ケンと ハナは どこへ 行きましたか。(إلى أين ذهب كين وهانا؟)",
+    "options": [
+     "にわ (الحديقة)",
+     "がっこう (المدرسة)",
+     "えき (المحطة)"
+    ],
+    "answer": "にわ (الحديقة)",
+    "explain": "النص يقول「にわへ 行きました」أي ذهبوا إلى الحديقة."
+   },
+   {
+    "type": "line",
+    "jp": "台所に タマの ご飯が あります。",
+    "romaji": "Daidokoro ni Tama no gohan ga arimasu.",
+    "ar": "في المطبخ يوجد طعام تاما."
+   },
+   {
+    "type": "line",
+    "jp": "でも ご飯が ありません。",
+    "romaji": "Demo gohan ga arimasen.",
+    "ar": "لكن الطعام غير موجود."
+   },
+   {
+    "type": "line",
+    "jp": "ハナは「変ですね。」と 言いました。",
+    "romaji": "Hana wa \"Hen desu ne.\" to iimashita.",
+    "ar": "قالت هانا: «غريب، أليس كذلك؟»"
+   },
+   {
+    "type": "q",
+    "prompt": "タマの ごはんは ありますか。(هل طعام تاما موجود؟)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "النص يقول「ごはんが ありません」أي الطعام غير موجود."
+   },
+   {
+    "type": "line",
+    "jp": "そのとき、箱から 小さい 声が しました。",
+    "romaji": "Sono toki, hako kara chiisai koe ga shimashita.",
+    "ar": "في تلك اللحظة، جاء صوت صغير من الصندوق."
+   },
+   {
+    "type": "line",
+    "jp": "ケンは 箱を 開けたいです。",
+    "romaji": "Ken wa hako o aketai desu.",
+    "ar": "كين يريد أن يفتح الصندوق."
+   },
+   {
+    "type": "line",
+    "jp": "でも 怖いです。「ハナ、見て ください。」",
+    "romaji": "Demo kowai desu. \"Hana, mite kudasai.\"",
+    "ar": "لكنه خائف. «هانا، انظري من فضلك.»"
+   },
+   {
+    "type": "q",
+    "prompt": "ちいさい こえは どこから しましたか。(من أين جاء الصوت الصغير؟)",
+    "options": [
+     "はこ (صندوق)",
+     "いす (كرسي)",
+     "にわ (حديقة)"
+    ],
+    "answer": "はこ (صندوق)",
+    "explain": "النص يقول「はこから ちいさい こえが しました」."
+   },
+   {
+    "type": "line",
+    "jp": "ハナは 箱を 開けました。タマが います！",
+    "romaji": "Hana wa hako o akemashita. Tama ga imasu!",
+    "ar": "فتحت هانا الصندوق. تاما موجودة!"
+   },
+   {
+    "type": "line",
+    "jp": "タマと 小さい 猫が 四匹 います。",
+    "romaji": "Tama to chiisai neko ga yonhiki imasu.",
+    "ar": "تاما وأربع قطط صغيرة موجودات."
+   },
+   {
+    "type": "line",
+    "jp": "ケンは「赤ちゃん猫だ！」と 言いました。",
+    "romaji": "Ken wa \"Akachan neko da!\" to iimashita.",
+    "ar": "قال كين: «قطط رضيعة!»"
+   },
+   {
+    "type": "q",
+    "prompt": "はこの なかに なにが いましたか。(ماذا كان داخل الصندوق؟)",
+    "options": [
+     "タマと あかちゃんねこ (تاما والقطط الصغيرة)",
+     "いぬ (كلب)",
+     "ともだち (صديق)"
+    ],
+    "answer": "タマと あかちゃんねこ (تاما والقطط الصغيرة)",
+    "explain": "تاما كانت مختبئة في الصندوق مع قططها الصغيرة."
+   },
+   {
+    "type": "line",
+    "jp": "赤ちゃん猫は とても かわいいです。",
+    "romaji": "Akachan neko wa totemo kawaii desu.",
+    "ar": "القطط الصغيرة لطيفة جدًا."
+   },
+   {
+    "type": "line",
+    "jp": "ハナと ケンは とても 嬉しいです。",
+    "romaji": "Hana to Ken wa totemo ureshii desu.",
+    "ar": "هانا وكين سعيدان جدًا."
+   },
+   {
+    "type": "line",
+    "jp": "「タマ、おかえり！」みんな 笑いました。",
+    "romaji": "\"Tama, okaeri!\" Minna waraimashita.",
+    "ar": "«تاما، أهلًا بعودتك!» ضحك الجميع."
+   },
+   {
+    "type": "q",
+    "prompt": "ハナと ケンの きもちは どうですか。(ما شعور هانا وكين؟)",
+    "options": [
+     "うれしいです (سعيدان)",
+     "かなしいです (حزينان)",
+     "こわいです (خائفان)"
+    ],
+    "answer": "うれしいです (سعيدان)",
+    "explain": "النص يقول「とても うれしいです」أي سعيدان جدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】タマは どこに いましたか。(أين كانت تاما؟)",
+    "options": [
+     "はこの なか (داخل الصندوق)",
+     "にわ (الحديقة)",
+     "いすの した (تحت الكرسي)"
+    ],
+    "answer": "はこの なか (داخل الصندوق)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】「さがします」の いみは なんですか。(ما معنى さがします؟)",
+    "options": [
+     "يبحث",
+     "يأكل",
+     "ينام"
+    ],
+    "answer": "يبحث"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】はこの なかに あかちゃんねこが なんびき いましたか。(كم قطة صغيرة كانت في الصندوق؟)",
+    "options": [
+     "よんひき (أربع)",
+     "いっぴき (واحدة)",
+     "ろっぴき (ست)"
+    ],
+    "answer": "よんひき (أربع)"
+   }
+  ],
+  "xp": 35,
+  "gems": 12,
+  "furigana": {
+   "家": "いえ",
+   "猫": "ねこ",
+   "名前": "なまえ",
+   "朝": "あさ",
+   "言": "い",
+   "中": "なか",
+   "探": "さが",
+   "下": "した",
+   "見": "み",
+   "次": "つぎ",
+   "庭": "にわ",
+   "行": "い",
+   "台所": "だいどころ",
+   "飯": "はん",
+   "変": "へん",
+   "箱": "はこ",
+   "小": "ちい",
+   "声": "こえ",
+   "開": "あ",
+   "怖": "こわ",
+   "四匹": "よんひき",
+   "赤": "あか",
+   "嬉": "うれ",
+   "笑": "わら"
+  }
+ },
+ {
+  "id": "n5s-birthday-surprise",
+  "title": "مفاجأة عيد ميلاد",
+  "titleAr": "مفاجأة عيد ميلاد",
+  "titleEn": "Yuki's Birthday Surprise",
+  "sentences": [
+   {
+    "jp": "きょうは ゆきの 誕生日です。",
+    "romaji": "Kyou wa Yuki no tanjoubi desu.",
+    "ar": "اليوم هو عيد ميلاد يوكي."
+   },
+   {
+    "jp": "ゆきは とても うれしいです。",
+    "romaji": "Yuki wa totemo ureshii desu.",
+    "ar": "يوكي سعيدة جدا."
+   },
+   {
+    "jp": "朝、ゆきは 学校へ 行きました。",
+    "romaji": "Asa, Yuki wa gakkou e ikimashita.",
+    "ar": "في الصباح، ذهبت يوكي إلى المدرسة."
+   },
+   {
+    "jp": "教室に 友達が います。",
+    "romaji": "Kyoushitsu ni tomodachi ga imasu.",
+    "ar": "في الفصل يوجد أصدقاء."
+   },
+   {
+    "jp": "ゆきは 「おはよう」と 言いました。",
+    "romaji": "Yuki wa \"ohayou\" to iimashita.",
+    "ar": "قالت يوكي: «صباح الخير»."
+   },
+   {
+    "jp": "でも、はなは 「忙しいです」と 言いました。",
+    "romaji": "Demo, Hana wa \"isogashii desu\" to iimashita.",
+    "ar": "لكن هانا قالت: «أنا مشغولة»."
+   },
+   {
+    "jp": "けんも 忙しいです。",
+    "romaji": "Ken mo isogashii desu.",
+    "ar": "كين أيضا مشغول."
+   },
+   {
+    "jp": "だれも 「おめでとう」と 言いません。",
+    "romaji": "Daremo \"omedetou\" to iimasen.",
+    "ar": "لا أحد يقول «مبروك»."
+   },
+   {
+    "jp": "ゆきは 少し さびしいです。",
+    "romaji": "Yuki wa sukoshi sabishii desu.",
+    "ar": "يوكي حزينة قليلا."
+   },
+   {
+    "jp": "昼ご飯の 時、はなと けんが いません。",
+    "romaji": "Hirugohan no toki, Hana to Ken ga imasen.",
+    "ar": "وقت الغداء، هانا وكين غير موجودين."
+   },
+   {
+    "jp": "ゆきは 一人で 食べました。",
+    "romaji": "Yuki wa hitori de tabemashita.",
+    "ar": "أكلت يوكي وحدها."
+   },
+   {
+    "jp": "ゆきは 「みんな 私を 忘れましたか」と 思いました。",
+    "romaji": "Yuki wa \"minna watashi o wasuremashita ka\" to omoimashita.",
+    "ar": "فكّرت يوكي: «هل نسيني الجميع؟»."
+   },
+   {
+    "jp": "ゆきは ちょっと 泣きました。",
+    "romaji": "Yuki wa chotto nakimashita.",
+    "ar": "بكت يوكي قليلا."
+   },
+   {
+    "jp": "夜に、はなが 「教室へ 来てください」と 言いました。",
+    "romaji": "Yoru ni, Hana ga \"kyoushitsu e kite kudasai\" to iimashita.",
+    "ar": "في المساء قالت هانا: «تعالي إلى الفصل من فضلك»."
+   },
+   {
+    "jp": "教室は 暗いです。",
+    "romaji": "Kyoushitsu wa kurai desu.",
+    "ar": "الفصل مظلم."
+   },
+   {
+    "jp": "ゆきが ドアを 開けました。",
+    "romaji": "Yuki ga doa o akemashita.",
+    "ar": "فتحت يوكي الباب."
+   },
+   {
+    "jp": "みんなが 「お誕生日 おめでとう！」と 言いました。",
+    "romaji": "Minna ga \"otanjoubi omedetou!\" to iimashita.",
+    "ar": "قال الجميع: «عيد ميلاد سعيد!»."
+   },
+   {
+    "jp": "テーブルに 大きい ケーキが あります。",
+    "romaji": "Teeburu ni ookii keeki ga arimasu.",
+    "ar": "على الطاولة كعكة كبيرة."
+   },
+   {
+    "jp": "はなは 「ごめんね、サプライズです」と 言いました。",
+    "romaji": "Hana wa \"gomen ne, sapuraizu desu\" to iimashita.",
+    "ar": "قالت هانا: «آسفة، إنها مفاجأة»."
+   },
+   {
+    "jp": "ゆきは とても うれしかったです。",
+    "romaji": "Yuki wa totemo ureshikatta desu.",
+    "ar": "كانت يوكي سعيدة جدا."
+   },
+   {
+    "jp": "みんなで ケーキを 食べましょう。",
+    "romaji": "Minna de keeki o tabemashou.",
+    "ar": "لنأكل الكعكة معا."
+   },
+   {
+    "jp": "とても 楽しい 誕生日でした。",
+    "romaji": "Totemo tanoshii tanjoubi deshita.",
+    "ar": "كان عيد ميلاد ممتعا جدا."
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "たんじょうび",
+    "hiragana": "たんじょうび",
+    "meaning": "عيد ميلاد"
+   },
+   {
+    "jp": "うれしい",
+    "hiragana": "うれしい",
+    "meaning": "سعيد"
+   },
+   {
+    "jp": "いそがしい",
+    "hiragana": "いそがしい",
+    "meaning": "مشغول"
+   },
+   {
+    "jp": "さびしい",
+    "hiragana": "さびしい",
+    "meaning": "وحيد / حزين"
+   },
+   {
+    "jp": "ともだち",
+    "hiragana": "ともだち",
+    "meaning": "صديق"
+   },
+   {
+    "jp": "ケーキ",
+    "hiragana": "けーき",
+    "meaning": "كعكة"
+   },
+   {
+    "jp": "サプライズ",
+    "hiragana": "さぷらいず",
+    "meaning": "مفاجأة"
+   },
+   {
+    "jp": "おめでとう",
+    "hiragana": "おめでとう",
+    "meaning": "مبروك / تهانينا"
+   },
+   {
+    "jp": "わすれます",
+    "hiragana": "わすれます",
+    "meaning": "ينسى"
+   },
+   {
+    "jp": "くらい",
+    "hiragana": "くらい",
+    "meaning": "مظلم"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "きょうは ゆきの 誕生日です。",
+    "romaji": "Kyou wa Yuki no tanjoubi desu.",
+    "ar": "اليوم هو عيد ميلاد يوكي."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきは とても うれしいです。",
+    "romaji": "Yuki wa totemo ureshii desu.",
+    "ar": "يوكي سعيدة جدا."
+   },
+   {
+    "type": "line",
+    "jp": "朝、ゆきは 学校へ 行きました。",
+    "romaji": "Asa, Yuki wa gakkou e ikimashita.",
+    "ar": "في الصباح، ذهبت يوكي إلى المدرسة."
+   },
+   {
+    "type": "q",
+    "prompt": "きょうは なんの 日ですか。(ما هي مناسبة اليوم؟)",
+    "options": [
+     "ゆきの たんじょうびです (عيد ميلاد يوكي)",
+     "しけんの 日です (يوم امتحان)",
+     "やすみの 日です (يوم عطلة)"
+    ],
+    "answer": "ゆきの たんじょうびです (عيد ميلاد يوكي)",
+    "explain": "الجملة الأولى تقول: きょうは ゆきの たんじょうびです."
+   },
+   {
+    "type": "line",
+    "jp": "教室に 友達が います。",
+    "romaji": "Kyoushitsu ni tomodachi ga imasu.",
+    "ar": "في الفصل يوجد أصدقاء."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきは 「おはよう」と 言いました。",
+    "romaji": "Yuki wa \"ohayou\" to iimashita.",
+    "ar": "قالت يوكي: «صباح الخير»."
+   },
+   {
+    "type": "line",
+    "jp": "でも、はなは 「忙しいです」と 言いました。",
+    "romaji": "Demo, Hana wa \"isogashii desu\" to iimashita.",
+    "ar": "لكن هانا قالت: «أنا مشغولة»."
+   },
+   {
+    "type": "q",
+    "prompt": "だれが 「いそがしいです」と いいましたか。(من قال «أنا مشغولة»؟)",
+    "options": [
+     "はな (هانا)",
+     "ゆき (يوكي)",
+     "せんせい (المعلم)"
+    ],
+    "answer": "はな (هانا)",
+    "explain": "النص: はなは 「いそがしいです」と いいました."
+   },
+   {
+    "type": "line",
+    "jp": "けんも 忙しいです。",
+    "romaji": "Ken mo isogashii desu.",
+    "ar": "كين أيضا مشغول."
+   },
+   {
+    "type": "line",
+    "jp": "だれも 「おめでとう」と 言いません。",
+    "romaji": "Daremo \"omedetou\" to iimasen.",
+    "ar": "لا أحد يقول «مبروك»."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきは 少し さびしいです。",
+    "romaji": "Yuki wa sukoshi sabishii desu.",
+    "ar": "يوكي حزينة قليلا."
+   },
+   {
+    "type": "q",
+    "prompt": "「さびしい」の いみは なんですか。(ما معنى «さびしい»؟)",
+    "options": [
+     "かなしい・ひとりの きもち (حزين/وحيد)",
+     "うれしい (سعيد)",
+     "おいしい (لذيذ)"
+    ],
+    "answer": "かなしい・ひとりの きもち (حزين/وحيد)",
+    "explain": "さびしい تعني الشعور بالوحدة أو الحزن."
+   },
+   {
+    "type": "line",
+    "jp": "昼ご飯の 時、はなと けんが いません。",
+    "romaji": "Hirugohan no toki, Hana to Ken ga imasen.",
+    "ar": "وقت الغداء، هانا وكين غير موجودين."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきは 一人で 食べました。",
+    "romaji": "Yuki wa hitori de tabemashita.",
+    "ar": "أكلت يوكي وحدها."
+   },
+   {
+    "type": "q",
+    "prompt": "ひるごはんの とき、はなと けんは どこに いますか。(أين هانا وكين وقت الغداء؟)",
+    "options": [
+     "きょうしつに いません (ليسا في الفصل)",
+     "ゆきの となりに います (بجانب يوكي)",
+     "としょかんに ゆきと います (في المكتبة مع يوكي)"
+    ],
+    "answer": "きょうしつに いません (ليسا في الفصل)",
+    "explain": "النص: はなと けんが いません، أي غابا عنها."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきは 「みんな 私を 忘れましたか」と 思いました。",
+    "romaji": "Yuki wa \"minna watashi o wasuremashita ka\" to omoimashita.",
+    "ar": "فكّرت يوكي: «هل نسيني الجميع؟»."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきは ちょっと 泣きました。",
+    "romaji": "Yuki wa chotto nakimashita.",
+    "ar": "بكت يوكي قليلا."
+   },
+   {
+    "type": "line",
+    "jp": "夜に、はなが 「教室へ 来てください」と 言いました。",
+    "romaji": "Yoru ni, Hana ga \"kyoushitsu e kite kudasai\" to iimashita.",
+    "ar": "في المساء قالت هانا: «تعالي إلى الفصل من فضلك»."
+   },
+   {
+    "type": "q",
+    "prompt": "「きょうしつ___ きてください」 ただしい じょし は どれですか。(أي أداة صحيحة؟)",
+    "options": [
+     "へ (إلى)",
+     "を (مفعول به)",
+     "が (فاعل)"
+    ],
+    "answer": "へ (إلى)",
+    "explain": "へ تدل على الاتجاه نحو مكان: きょうしつへ きてください."
+   },
+   {
+    "type": "line",
+    "jp": "教室は 暗いです。",
+    "romaji": "Kyoushitsu wa kurai desu.",
+    "ar": "الفصل مظلم."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきが ドアを 開けました。",
+    "romaji": "Yuki ga doa o akemashita.",
+    "ar": "فتحت يوكي الباب."
+   },
+   {
+    "type": "line",
+    "jp": "みんなが 「お誕生日 おめでとう！」と 言いました。",
+    "romaji": "Minna ga \"otanjoubi omedetou!\" to iimashita.",
+    "ar": "قال الجميع: «عيد ميلاد سعيد!»."
+   },
+   {
+    "type": "q",
+    "prompt": "みんなは ゆきを わすれましたか。(هل نسي الجميع يوكي؟)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "لم ينسوها، بل كانوا يحضّرون مفاجأة لها."
+   },
+   {
+    "type": "line",
+    "jp": "テーブルに 大きい ケーキが あります。",
+    "romaji": "Teeburu ni ookii keeki ga arimasu.",
+    "ar": "على الطاولة كعكة كبيرة."
+   },
+   {
+    "type": "line",
+    "jp": "はなは 「ごめんね、サプライズです」と 言いました。",
+    "romaji": "Hana wa \"gomen ne, sapuraizu desu\" to iimashita.",
+    "ar": "قالت هانا: «آسفة، إنها مفاجأة»."
+   },
+   {
+    "type": "q",
+    "prompt": "テーブルに なにが ありますか。(ماذا يوجد على الطاولة؟)",
+    "options": [
+     "おおきい ケーキ (كعكة كبيرة)",
+     "ほん (كتاب)",
+     "とけい (ساعة)"
+    ],
+    "answer": "おおきい ケーキ (كعكة كبيرة)",
+    "explain": "النص: テーブルに おおきい ケーキが あります."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきは とても うれしかったです。",
+    "romaji": "Yuki wa totemo ureshikatta desu.",
+    "ar": "كانت يوكي سعيدة جدا."
+   },
+   {
+    "type": "line",
+    "jp": "みんなで ケーキを 食べましょう。",
+    "romaji": "Minna de keeki o tabemashou.",
+    "ar": "لنأكل الكعكة معا."
+   },
+   {
+    "type": "q",
+    "prompt": "「ケーキ」の いみは なんですか。(ما معنى «ケーキ»؟)",
+    "options": [
+     "ケーキ (كعكة)",
+     "みず (ماء)",
+     "くるま (سيارة)"
+    ],
+    "answer": "ケーキ (كعكة)",
+    "explain": "ケーキ كلمة دخيلة تعني «كعكة»."
+   },
+   {
+    "type": "line",
+    "jp": "とても 楽しい 誕生日でした。",
+    "romaji": "Totemo tanoshii tanjoubi deshita.",
+    "ar": "كان عيد ميلاد ممتعا جدا."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに、ゆきは どんな きもちでしたか。(ما شعور يوكي في النهاية؟)",
+    "options": [
+     "うれしかったです (كانت سعيدة)",
+     "さびしかったです (كانت حزينة)",
+     "ねむかったです (كانت نعسانة)"
+    ],
+    "answer": "うれしかったです (كانت سعيدة)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】ともだちは なにを しましたか。(ماذا فعل الأصدقاء؟)",
+    "options": [
+     "サプライズを しました (أعدّوا مفاجأة)",
+     "ゆきを わすれました (نسوا يوكي)",
+     "がっこうを やすみました (تغيبوا عن المدرسة)"
+    ],
+    "answer": "サプライズを しました (أعدّوا مفاجأة)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】テーブルに なにが ありましたか。(ماذا كان على الطاولة؟)",
+    "options": [
+     "ケーキ (كعكة)",
+     "えんぴつ (قلم رصاص)",
+     "かさ (مظلة)"
+    ],
+    "answer": "ケーキ (كعكة)"
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "誕生日": "たんじょうび",
+   "朝": "あさ",
+   "学校": "がっこう",
+   "行きました": "いきました",
+   "教室": "きょうしつ",
+   "友達": "ともだち",
+   "言いました": "いいました",
+   "忙": "いそが",
+   "言いません": "いいません",
+   "少": "すこ",
+   "昼": "ひる",
+   "飯": "はん",
+   "時": "とき",
+   "一人": "ひとり",
+   "食べました": "たべました",
+   "私": "わたし",
+   "忘": "わす",
+   "思いました": "おもいました",
+   "泣きました": "なきました",
+   "夜": "よる",
+   "来": "き",
+   "暗": "くら",
+   "開けました": "あけました",
+   "大": "おお",
+   "楽": "たの",
+   "食べましょう": "たべましょう"
+  }
+ },
+ {
+  "id": "n5s-train-ticket",
+  "title": "تذكرة القطار",
+  "titleAr": "تذكرة القطار",
+  "titleEn": "The Train Ticket",
+  "sentences": [
+   {
+    "jp": "ケンさんは 駅に います。",
+    "romaji": "Ken-san wa eki ni imasu.",
+    "ar": "كين موجود في المحطة."
+   },
+   {
+    "jp": "友達の ゆみさんも います。",
+    "romaji": "Tomodachi no Yumi-san mo imasu.",
+    "ar": "وصديقته يومي موجودة أيضًا."
+   },
+   {
+    "jp": "「電車は 三時です。いそぎましょう。」",
+    "romaji": "\"Densha wa san-ji desu. Isogimashou.\"",
+    "ar": "«القطار الساعة الثالثة. لنسرع.»"
+   },
+   {
+    "jp": "ケンさんは 切符を 探します。",
+    "romaji": "Ken-san wa kippu o sagashimasu.",
+    "ar": "كين يبحث عن التذكرة."
+   },
+   {
+    "jp": "ポケットに 切符が ありません。",
+    "romaji": "Poketto ni kippu ga arimasen.",
+    "ar": "لا توجد التذكرة في الجيب."
+   },
+   {
+    "jp": "「あれ？ 切符は どこですか。」",
+    "romaji": "\"Are? Kippu wa doko desu ka.\"",
+    "ar": "«ها؟ أين التذكرة؟»"
+   },
+   {
+    "jp": "ケンさんは かばんを 見ます。",
+    "romaji": "Ken-san wa kaban o mimasu.",
+    "ar": "ينظر كين في الحقيبة."
+   },
+   {
+    "jp": "かばんの 中に 切符が ありません。",
+    "romaji": "Kaban no naka ni kippu ga arimasen.",
+    "ar": "لا توجد التذكرة داخل الحقيبة."
+   },
+   {
+    "jp": "駅員さんが 来ました。",
+    "romaji": "Ekiin-san ga kimashita.",
+    "ar": "جاء موظف المحطة."
+   },
+   {
+    "jp": "「だいじょうぶですか。ゆっくり 探してください。」",
+    "romaji": "\"Daijoubu desu ka. Yukkuri sagashite kudasai.\"",
+    "ar": "«هل أنت بخير؟ ابحث بهدوء من فضلك.»"
+   },
+   {
+    "jp": "ケンさんは とても 心配でした。",
+    "romaji": "Ken-san wa totemo shinpai deshita.",
+    "ar": "كين كان قلقًا جدًا."
+   },
+   {
+    "jp": "ゆみさんは ケンさんの 本を もって います。",
+    "romaji": "Yumi-san wa Ken-san no hon o motte imasu.",
+    "ar": "يومي تحمل كتاب كين."
+   },
+   {
+    "jp": "「ケンさん、この 本を 見てください。」",
+    "romaji": "\"Ken-san, kono hon o mite kudasai.\"",
+    "ar": "«كين، انظر إلى هذا الكتاب من فضلك.»"
+   },
+   {
+    "jp": "本の 中に 切符が ありました！",
+    "romaji": "Hon no naka ni kippu ga arimashita!",
+    "ar": "التذكرة كانت داخل الكتاب!"
+   },
+   {
+    "jp": "切符は 本の しおりでした。",
+    "romaji": "Kippu wa hon no shiori deshita.",
+    "ar": "كانت التذكرة فاصلَ الكتاب."
+   },
+   {
+    "jp": "みんなは 笑いました。",
+    "romaji": "Minna wa waraimashita.",
+    "ar": "ضحك الجميع."
+   },
+   {
+    "jp": "「ありがとう、ゆみさん！」",
+    "romaji": "\"Arigatou, Yumi-san!\"",
+    "ar": "«شكرًا يا يومي!»"
+   },
+   {
+    "jp": "ケンさんは 電車に のりました。",
+    "romaji": "Ken-san wa densha ni norimashita.",
+    "ar": "ركب كين القطار."
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "えき",
+    "hiragana": "えき",
+    "meaning": "محطة"
+   },
+   {
+    "jp": "きっぷ",
+    "hiragana": "きっぷ",
+    "meaning": "تذكرة"
+   },
+   {
+    "jp": "でんしゃ",
+    "hiragana": "でんしゃ",
+    "meaning": "قطار"
+   },
+   {
+    "jp": "さがします",
+    "hiragana": "さがします",
+    "meaning": "يبحث عن"
+   },
+   {
+    "jp": "ポケット",
+    "hiragana": "ぽけっと",
+    "meaning": "جيب"
+   },
+   {
+    "jp": "かばん",
+    "hiragana": "かばん",
+    "meaning": "حقيبة"
+   },
+   {
+    "jp": "中",
+    "hiragana": "なか",
+    "meaning": "داخل / في الوسط"
+   },
+   {
+    "jp": "えきいん",
+    "hiragana": "えきいん",
+    "meaning": "موظف المحطة"
+   },
+   {
+    "jp": "ほん",
+    "hiragana": "ほん",
+    "meaning": "كتاب"
+   },
+   {
+    "jp": "しおり",
+    "hiragana": "しおり",
+    "meaning": "فاصل كتاب"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "ケンさんは 駅に います。",
+    "romaji": "Ken-san wa eki ni imasu.",
+    "ar": "كين موجود في المحطة."
+   },
+   {
+    "type": "line",
+    "jp": "友達の ゆみさんも います。",
+    "romaji": "Tomodachi no Yumi-san mo imasu.",
+    "ar": "وصديقته يومي موجودة أيضًا."
+   },
+   {
+    "type": "line",
+    "jp": "「電車は 三時です。いそぎましょう。」",
+    "romaji": "\"Densha wa san-ji desu. Isogimashou.\"",
+    "ar": "«القطار الساعة الثالثة. لنسرع.»"
+   },
+   {
+    "type": "q",
+    "prompt": "ケンさんは どこに いますか。(أين يوجد كين؟)",
+    "options": [
+     "えき (المحطة)",
+     "がっこう (المدرسة)",
+     "うち (البيت)"
+    ],
+    "answer": "えき (المحطة)",
+    "explain": "الجملة الأولى تقول: ケンさんは えきに います."
+   },
+   {
+    "type": "line",
+    "jp": "ケンさんは 切符を 探します。",
+    "romaji": "Ken-san wa kippu o sagashimasu.",
+    "ar": "كين يبحث عن التذكرة."
+   },
+   {
+    "type": "line",
+    "jp": "ポケットに 切符が ありません。",
+    "romaji": "Poketto ni kippu ga arimasen.",
+    "ar": "لا توجد التذكرة في الجيب."
+   },
+   {
+    "type": "line",
+    "jp": "「あれ？ 切符は どこですか。」",
+    "romaji": "\"Are? Kippu wa doko desu ka.\"",
+    "ar": "«ها؟ أين التذكرة؟»"
+   },
+   {
+    "type": "q",
+    "prompt": "ケンさんは なにを さがしますか。(عن ماذا يبحث كين؟)",
+    "options": [
+     "きっぷ (تذكرة)",
+     "ほん (كتاب)",
+     "かばん (حقيبة)"
+    ],
+    "answer": "きっぷ (تذكرة)",
+    "explain": "ケンさんは きっぷを さがします — يبحث عن التذكرة."
+   },
+   {
+    "type": "line",
+    "jp": "ケンさんは かばんを 見ます。",
+    "romaji": "Ken-san wa kaban o mimasu.",
+    "ar": "ينظر كين في الحقيبة."
+   },
+   {
+    "type": "line",
+    "jp": "かばんの 中に 切符が ありません。",
+    "romaji": "Kaban no naka ni kippu ga arimasen.",
+    "ar": "لا توجد التذكرة داخل الحقيبة."
+   },
+   {
+    "type": "q",
+    "prompt": "かばんの 中（　）きっぷが ありません。(ما الأداة المناسبة؟)",
+    "options": [
+     "に (في)",
+     "を (مفعول)",
+     "へ (إلى)"
+    ],
+    "answer": "に (في)",
+    "explain": "に تدل على مكان الوجود مع あります／ありません."
+   },
+   {
+    "type": "line",
+    "jp": "駅員さんが 来ました。",
+    "romaji": "Ekiin-san ga kimashita.",
+    "ar": "جاء موظف المحطة."
+   },
+   {
+    "type": "line",
+    "jp": "「だいじょうぶですか。ゆっくり 探してください。」",
+    "romaji": "\"Daijoubu desu ka. Yukkuri sagashite kudasai.\"",
+    "ar": "«هل أنت بخير؟ ابحث بهدوء من فضلك.»"
+   },
+   {
+    "type": "q",
+    "prompt": "だれが 来ましたか。(من جاء؟)",
+    "options": [
+     "えきいんさん (موظف المحطة)",
+     "せんせい (المعلّم)",
+     "おかあさん (الأم)"
+    ],
+    "answer": "えきいんさん (موظف المحطة)",
+    "explain": "えきいんさんが 来ました — موظف المحطة هو الذي جاء."
+   },
+   {
+    "type": "line",
+    "jp": "ケンさんは とても 心配でした。",
+    "romaji": "Ken-san wa totemo shinpai deshita.",
+    "ar": "كين كان قلقًا جدًا."
+   },
+   {
+    "type": "line",
+    "jp": "ゆみさんは ケンさんの 本を もって います。",
+    "romaji": "Yumi-san wa Ken-san no hon o motte imasu.",
+    "ar": "يومي تحمل كتاب كين."
+   },
+   {
+    "type": "line",
+    "jp": "「ケンさん、この 本を 見てください。」",
+    "romaji": "\"Ken-san, kono hon o mite kudasai.\"",
+    "ar": "«كين، انظر إلى هذا الكتاب من فضلك.»"
+   },
+   {
+    "type": "q",
+    "prompt": "ゆみさんは ケンさんの ほんを もって います。(يومي تحمل كتاب كين.)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しい (صحيح)",
+    "explain": "الجملة تقول إن يومي تحمل كتاب كين بالفعل."
+   },
+   {
+    "type": "line",
+    "jp": "本の 中に 切符が ありました！",
+    "romaji": "Hon no naka ni kippu ga arimashita!",
+    "ar": "التذكرة كانت داخل الكتاب!"
+   },
+   {
+    "type": "line",
+    "jp": "切符は 本の しおりでした。",
+    "romaji": "Kippu wa hon no shiori deshita.",
+    "ar": "كانت التذكرة فاصلَ الكتاب."
+   },
+   {
+    "type": "line",
+    "jp": "みんなは 笑いました。",
+    "romaji": "Minna wa waraimashita.",
+    "ar": "ضحك الجميع."
+   },
+   {
+    "type": "q",
+    "prompt": "きっぷは どこに ありましたか。(أين كانت التذكرة؟)",
+    "options": [
+     "ほんの 中 (داخل الكتاب)",
+     "ポケット (الجيب)",
+     "かばん (الحقيبة)"
+    ],
+    "answer": "ほんの 中 (داخل الكتاب)",
+    "explain": "ほんの 中に きっぷが ありました — كانت داخل الكتاب."
+   },
+   {
+    "type": "line",
+    "jp": "「ありがとう、ゆみさん！」",
+    "romaji": "\"Arigatou, Yumi-san!\"",
+    "ar": "«شكرًا يا يومي!»"
+   },
+   {
+    "type": "line",
+    "jp": "ケンさんは 電車に のりました。",
+    "romaji": "Ken-san wa densha ni norimashita.",
+    "ar": "ركب كين القطار."
+   },
+   {
+    "type": "q",
+    "prompt": "「のりました」は アラビアで なんですか。(ما معنى のりました؟)",
+    "options": [
+     "のった (رَكِبَ)",
+     "あるいた (مشى)",
+     "たべた (أكل)"
+    ],
+    "answer": "のった (رَكِبَ)",
+    "explain": "のりました هي الماضي من のります بمعنى رَكِبَ."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】きっぷは どこに ありましたか。(أين كانت التذكرة في النهاية؟)",
+    "options": [
+     "ほんの 中 (داخل الكتاب)",
+     "えき (المحطة)",
+     "ポケット (الجيب)"
+    ],
+    "answer": "ほんの 中 (داخل الكتاب)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】だれが ケンさんを たすけましたか。(من ساعد كين؟)",
+    "options": [
+     "ゆみさんと えきいんさん (يومي وموظف المحطة)",
+     "せんせい (المعلّم)",
+     "おかあさん (الأم)"
+    ],
+    "answer": "ゆみさんと えきいんさん (يومي وموظف المحطة)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに ケンさんは どう しましたか。(ماذا فعل كين في النهاية؟)",
+    "options": [
+     "でんしゃに のりました (ركب القطار)",
+     "うちへ かえりました (عاد إلى البيت)",
+     "ねました (نام)"
+    ],
+    "answer": "でんしゃに のりました (ركب القطار)"
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "駅": "えき",
+   "友達": "ともだち",
+   "電車": "でんしゃ",
+   "三時": "さんじ",
+   "切符": "きっぷ",
+   "探": "さが",
+   "見": "み",
+   "中": "なか",
+   "駅員": "えきいん",
+   "来ました": "きました",
+   "探して": "さがして",
+   "心配": "しんぱい",
+   "本": "ほん",
+   "笑い": "わらい"
+  }
+ },
+ {
+  "id": "n5s-school-festival",
+  "title": "مهرجان المدرسة",
+  "titleAr": "مهرجان المدرسة",
+  "titleEn": "The School Festival",
+  "sentences": [
+   {
+    "jp": "きょうは 学校の おまつりです。",
+    "romaji": "Kyou wa gakkou no omatsuri desu.",
+    "ar": "اليوم مهرجان المدرسة."
+   },
+   {
+    "jp": "ゆきさんの クラスは たこやきを 売ります。",
+    "romaji": "Yuki-san no kurasu wa takoyaki o urimasu.",
+    "ar": "صفّ يوكي يبيع التاكوياكي."
+   },
+   {
+    "jp": "「がんばりましょう！」と ゆきさんが 言いました。",
+    "romaji": "\"Ganbarimashou!\" to Yuki-san ga iimashita.",
+    "ar": "قالت يوكي: «هيا نبذل جهدنا!»"
+   },
+   {
+    "jp": "でも、客が 少ないです。",
+    "romaji": "Demo, kyaku ga sukunai desu.",
+    "ar": "لكن الزبائن قليلون."
+   },
+   {
+    "jp": "ゆきさんは 少し 悲しいです。",
+    "romaji": "Yuki-san wa sukoshi kanashii desu.",
+    "ar": "يوكي حزينة قليلًا."
+   },
+   {
+    "jp": "「どうしてですか？」と ケンくんが 言いました。",
+    "romaji": "\"Doushite desu ka?\" to Ken-kun ga iimashita.",
+    "ar": "قال كِن: «لماذا؟»"
+   },
+   {
+    "jp": "その 時、看板が 落ちました。",
+    "romaji": "Sono toki, kanban ga ochimashita.",
+    "ar": "في تلك اللحظة، سقطت اللافتة."
+   },
+   {
+    "jp": "「あっ！看板が ありません！」",
+    "romaji": "\"A'! Kanban ga arimasen!\"",
+    "ar": "«آه! لا توجد لافتة!»"
+   },
+   {
+    "jp": "ケンくんは 絵が 上手です。",
+    "romaji": "Ken-kun wa e ga jouzu desu.",
+    "ar": "كِن ماهر في الرسم."
+   },
+   {
+    "jp": "「ぼくが 新しい 看板を 描きます。」",
+    "romaji": "\"Boku ga atarashii kanban o kakimasu.\"",
+    "ar": "«أنا سأرسم لافتة جديدة.»"
+   },
+   {
+    "jp": "ケンくんは 大きい 看板を 描きました。",
+    "romaji": "Ken-kun wa ookii kanban o kakimashita.",
+    "ar": "رسم كِن لافتة كبيرة."
+   },
+   {
+    "jp": "看板の たこやきは とても おいしいです。",
+    "romaji": "Kanban no takoyaki wa totemo oishii desu.",
+    "ar": "التاكوياكي في اللافتة لذيذ جدًا."
+   },
+   {
+    "jp": "「わあ、上手ですね！」と ゆきさんが 言いました。",
+    "romaji": "\"Waa, jouzu desu ne!\" to Yuki-san ga iimashita.",
+    "ar": "قالت يوكي: «واو، ماهر فعلًا!»"
+   },
+   {
+    "jp": "ケンくんは のりを 食べました。",
+    "romaji": "Ken-kun wa nori o tabemashita.",
+    "ar": "أكل كِن قطعة نوري (أعشاب بحرية)."
+   },
+   {
+    "jp": "それは たこやきでは ありません。けしゴムでした！",
+    "romaji": "Sore wa takoyaki dewa arimasen. Keshigomu deshita!",
+    "ar": "لكنها لم تكن تاكوياكي. كانت مِمحاة!"
+   },
+   {
+    "jp": "みんなは 笑いました。とても 楽しいです。",
+    "romaji": "Minna wa waraimashita. Totemo tanoshii desu.",
+    "ar": "ضحك الجميع. الجوّ ممتع جدًا."
+   },
+   {
+    "jp": "その 時、先生が 来ました。",
+    "romaji": "Sono toki, sensei ga kimashita.",
+    "ar": "في تلك اللحظة، جاء المعلّم."
+   },
+   {
+    "jp": "先生は たこやきを 食べました。",
+    "romaji": "Sensei wa takoyaki o tabemashita.",
+    "ar": "أكل المعلّم التاكوياكي."
+   },
+   {
+    "jp": "「おいしい！この たこやきが 大好きです！」",
+    "romaji": "\"Oishii! Kono takoyaki ga daisuki desu!\"",
+    "ar": "«لذيذ! أحبّ هذا التاكوياكي كثيرًا!»"
+   },
+   {
+    "jp": "先生は 友達を 呼びました。",
+    "romaji": "Sensei wa tomodachi o yobimashita.",
+    "ar": "نادى المعلّم أصدقاءه."
+   },
+   {
+    "jp": "客が たくさん 来ました。店は とても にぎやかです。",
+    "romaji": "Kyaku ga takusan kimashita. Mise wa totemo nigiyaka desu.",
+    "ar": "جاء زبائن كثيرون. صار الكُشك مزدحمًا جدًا."
+   },
+   {
+    "jp": "夜、たこやきは 全部 売れました。",
+    "romaji": "Yoru, takoyaki wa zenbu uremashita.",
+    "ar": "في المساء، بِيع كلّ التاكوياكي."
+   },
+   {
+    "jp": "「みんなで がんばりました。」と ゆきさんが 言いました。",
+    "romaji": "\"Minna de ganbarimashita.\" to Yuki-san ga iimashita.",
+    "ar": "قالت يوكي: «بذلنا جهدنا جميعًا معًا.»"
+   },
+   {
+    "jp": "ゆきさんと ケンくんは とても 嬉しいです。",
+    "romaji": "Yuki-san to Ken-kun wa totemo ureshii desu.",
+    "ar": "يوكي وكِن سعيدان جدًا."
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "おまつり",
+    "hiragana": "おまつり",
+    "meaning": "مهرجان"
+   },
+   {
+    "jp": "たこやき",
+    "hiragana": "たこやき",
+    "meaning": "تاكوياكي (كرات الأخطبوط)"
+   },
+   {
+    "jp": "うります",
+    "hiragana": "うります",
+    "meaning": "يبيع"
+   },
+   {
+    "jp": "きゃく",
+    "hiragana": "きゃく",
+    "meaning": "زبون"
+   },
+   {
+    "jp": "かんばん",
+    "hiragana": "かんばん",
+    "meaning": "لافتة"
+   },
+   {
+    "jp": "おちました",
+    "hiragana": "おちました",
+    "meaning": "سقط"
+   },
+   {
+    "jp": "かきます",
+    "hiragana": "かきます",
+    "meaning": "يرسم / يكتب"
+   },
+   {
+    "jp": "せんせい",
+    "hiragana": "せんせい",
+    "meaning": "معلّم"
+   },
+   {
+    "jp": "にぎやか",
+    "hiragana": "にぎやか",
+    "meaning": "مزدحم / حيوي"
+   },
+   {
+    "jp": "うれしい",
+    "hiragana": "うれしい",
+    "meaning": "سعيد"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "きょうは 学校の おまつりです。",
+    "romaji": "Kyou wa gakkou no omatsuri desu.",
+    "ar": "اليوم مهرجان المدرسة."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきさんの クラスは たこやきを 売ります。",
+    "romaji": "Yuki-san no kurasu wa takoyaki o urimasu.",
+    "ar": "صفّ يوكي يبيع التاكوياكي."
+   },
+   {
+    "type": "line",
+    "jp": "「がんばりましょう！」と ゆきさんが 言いました。",
+    "romaji": "\"Ganbarimashou!\" to Yuki-san ga iimashita.",
+    "ar": "قالت يوكي: «هيا نبذل جهدنا!»"
+   },
+   {
+    "type": "q",
+    "prompt": "クラスは なにを うりますか。(ماذا يبيع الصفّ؟)",
+    "options": [
+     "たこやき (تاكوياكي)",
+     "ジュース (عصير)",
+     "パン (خبز)"
+    ],
+    "answer": "たこやき (تاكوياكي)",
+    "explain": "الجملة تقول クラスは たこやきを うります، أي يبيعون التاكوياكي."
+   },
+   {
+    "type": "line",
+    "jp": "でも、客が 少ないです。",
+    "romaji": "Demo, kyaku ga sukunai desu.",
+    "ar": "لكن الزبائن قليلون."
+   },
+   {
+    "type": "line",
+    "jp": "ゆきさんは 少し 悲しいです。",
+    "romaji": "Yuki-san wa sukoshi kanashii desu.",
+    "ar": "يوكي حزينة قليلًا."
+   },
+   {
+    "type": "line",
+    "jp": "「どうしてですか？」と ケンくんが 言いました。",
+    "romaji": "\"Doushite desu ka?\" to Ken-kun ga iimashita.",
+    "ar": "قال كِن: «لماذا؟»"
+   },
+   {
+    "type": "q",
+    "prompt": "はじめに きゃくが おおいです。(في البداية الزبائن كثيرون.)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しくない (خطأ)",
+    "explain": "النصّ يقول きゃくが すくないです، أي الزبائن قليلون لا كثيرون."
+   },
+   {
+    "type": "line",
+    "jp": "その 時、看板が 落ちました。",
+    "romaji": "Sono toki, kanban ga ochimashita.",
+    "ar": "في تلك اللحظة، سقطت اللافتة."
+   },
+   {
+    "type": "line",
+    "jp": "「あっ！看板が ありません！」",
+    "romaji": "\"A'! Kanban ga arimasen!\"",
+    "ar": "«آه! لا توجد لافتة!»"
+   },
+   {
+    "type": "q",
+    "prompt": "なにが おちましたか。(ماذا سقط؟)",
+    "options": [
+     "かんばん (اللافتة)",
+     "たこやき (التاكوياكي)",
+     "つくえ (الطاولة)"
+    ],
+    "answer": "かんばん (اللافتة)",
+    "explain": "الجملة かんばんが おちました تعني أنّ اللافتة هي التي سقطت."
+   },
+   {
+    "type": "line",
+    "jp": "ケンくんは 絵が 上手です。",
+    "romaji": "Ken-kun wa e ga jouzu desu.",
+    "ar": "كِن ماهر في الرسم."
+   },
+   {
+    "type": "line",
+    "jp": "「ぼくが 新しい 看板を 描きます。」",
+    "romaji": "\"Boku ga atarashii kanban o kakimasu.\"",
+    "ar": "«أنا سأرسم لافتة جديدة.»"
+   },
+   {
+    "type": "line",
+    "jp": "ケンくんは 大きい 看板を 描きました。",
+    "romaji": "Ken-kun wa ookii kanban o kakimashita.",
+    "ar": "رسم كِن لافتة كبيرة."
+   },
+   {
+    "type": "q",
+    "prompt": "ケンくん（　）あたらしい かんばんを かきます。(أيّ أداة تناسب الفراغ؟)",
+    "options": [
+     "が (الفاعل)",
+     "を (المفعول)",
+     "へ (إلى)"
+    ],
+    "answer": "が (الفاعل)",
+    "explain": "كِن هو من يقوم بالفعل، فنستخدم が للفاعل: ケンくんが かきます."
+   },
+   {
+    "type": "line",
+    "jp": "看板の たこやきは とても おいしいです。",
+    "romaji": "Kanban no takoyaki wa totemo oishii desu.",
+    "ar": "التاكوياكي في اللافتة لذيذ جدًا."
+   },
+   {
+    "type": "line",
+    "jp": "「わあ、上手ですね！」と ゆきさんが 言いました。",
+    "romaji": "\"Waa, jouzu desu ne!\" to Yuki-san ga iimashita.",
+    "ar": "قالت يوكي: «واو، ماهر فعلًا!»"
+   },
+   {
+    "type": "line",
+    "jp": "ケンくんは のりを 食べました。",
+    "romaji": "Ken-kun wa nori o tabemashita.",
+    "ar": "أكل كِن قطعة نوري (أعشاب بحرية)."
+   },
+   {
+    "type": "line",
+    "jp": "それは たこやきでは ありません。けしゴムでした！",
+    "romaji": "Sore wa takoyaki dewa arimasen. Keshigomu deshita!",
+    "ar": "لكنها لم تكن تاكوياكي. كانت مِمحاة!"
+   },
+   {
+    "type": "q",
+    "prompt": "ケンくんは なにを たべましたか。(ماذا أكل كِن عن طريق الخطأ؟)",
+    "options": [
+     "けしゴム (مِمحاة)",
+     "たこやき (تاكوياكي)",
+     "ジュース (عصير)"
+    ],
+    "answer": "けしゴム (مِمحاة)",
+    "explain": "النصّ يقول けしゴムでした، أي أنّ ما أكله كان مِمحاة، وهذا هو الموقف المضحك."
+   },
+   {
+    "type": "line",
+    "jp": "みんなは 笑いました。とても 楽しいです。",
+    "romaji": "Minna wa waraimashita. Totemo tanoshii desu.",
+    "ar": "ضحك الجميع. الجوّ ممتع جدًا."
+   },
+   {
+    "type": "line",
+    "jp": "その 時、先生が 来ました。",
+    "romaji": "Sono toki, sensei ga kimashita.",
+    "ar": "في تلك اللحظة، جاء المعلّم."
+   },
+   {
+    "type": "line",
+    "jp": "先生は たこやきを 食べました。",
+    "romaji": "Sensei wa takoyaki o tabemashita.",
+    "ar": "أكل المعلّم التاكوياكي."
+   },
+   {
+    "type": "line",
+    "jp": "「おいしい！この たこやきが 大好きです！」",
+    "romaji": "\"Oishii! Kono takoyaki ga daisuki desu!\"",
+    "ar": "«لذيذ! أحبّ هذا التاكوياكي كثيرًا!»"
+   },
+   {
+    "type": "q",
+    "prompt": "せんせいは たこやきを どう おもいましたか。(ما رأي المعلّم في التاكوياكي؟)",
+    "options": [
+     "だいすきです (يحبّه كثيرًا)",
+     "きらいです (يكرهه)",
+     "からいです (حارّ)"
+    ],
+    "answer": "だいすきです (يحبّه كثيرًا)",
+    "explain": "المعلّم قال この たこやきが だいすきです، أي أنّه أحبّه كثيرًا."
+   },
+   {
+    "type": "line",
+    "jp": "先生は 友達を 呼びました。",
+    "romaji": "Sensei wa tomodachi o yobimashita.",
+    "ar": "نادى المعلّم أصدقاءه."
+   },
+   {
+    "type": "line",
+    "jp": "客が たくさん 来ました。店は とても にぎやかです。",
+    "romaji": "Kyaku ga takusan kimashita. Mise wa totemo nigiyaka desu.",
+    "ar": "جاء زبائن كثيرون. صار الكُشك مزدحمًا جدًا."
+   },
+   {
+    "type": "line",
+    "jp": "夜、たこやきは 全部 売れました。",
+    "romaji": "Yoru, takoyaki wa zenbu uremashita.",
+    "ar": "في المساء، بِيع كلّ التاكوياكي."
+   },
+   {
+    "type": "q",
+    "prompt": "おまつりの おわりに みせは どうでしたか。(كيف صار الكُشك في النهاية؟)",
+    "options": [
+     "にぎやかです (مزدحم)",
+     "しずかです (هادئ)",
+     "くらいです (مظلم)"
+    ],
+    "answer": "にぎやかです (مزدحم)",
+    "explain": "جاء زبائن كثيرون فصار الكُشك にぎやか أي مزدحمًا وحيويًا."
+   },
+   {
+    "type": "line",
+    "jp": "「みんなで がんばりました。」と ゆきさんが 言いました。",
+    "romaji": "\"Minna de ganbarimashita.\" to Yuki-san ga iimashita.",
+    "ar": "قالت يوكي: «بذلنا جهدنا جميعًا معًا.»"
+   },
+   {
+    "type": "line",
+    "jp": "ゆきさんと ケンくんは とても 嬉しいです。",
+    "romaji": "Yuki-san to Ken-kun wa totemo ureshii desu.",
+    "ar": "يوكي وكِن سعيدان جدًا."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】ゆきさんの クラスは なにを うりましたか。(ماذا باع صفّ يوكي؟)",
+    "options": [
+     "たこやき (تاكوياكي)",
+     "ほん (كتاب)",
+     "はな (زهرة)"
+    ],
+    "answer": "たこやき (تاكوياكي)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】だれが あたらしい かんばんを かきましたか。(من رسم اللافتة الجديدة؟)",
+    "options": [
+     "ケンくん (كِن)",
+     "ゆきさん (يوكي)",
+     "せんせい (المعلّم)"
+    ],
+    "answer": "ケンくん (كِن)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】さいごに みせは どうでしたか。(كيف كان الكُشك في النهاية؟)",
+    "options": [
+     "にぎやかでした (كان مزدحمًا)",
+     "ひまでした (كان فارغًا)",
+     "さむかったです (كان باردًا)"
+    ],
+    "answer": "にぎやかでした (كان مزدحمًا)"
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "学校": "がっこう",
+   "売": "う",
+   "言": "い",
+   "客": "きゃく",
+   "少ない": "すく",
+   "少し": "すこ",
+   "悲": "かな",
+   "時": "とき",
+   "看板": "かんばん",
+   "落": "お",
+   "絵": "え",
+   "上手": "じょうず",
+   "新": "あたら",
+   "描": "か",
+   "大": "おお",
+   "食": "た",
+   "笑": "わら",
+   "楽": "たの",
+   "先生": "せんせい",
+   "来": "き",
+   "大好": "だいす",
+   "友達": "ともだち",
+   "呼": "よ",
+   "店": "みせ",
+   "夜": "よる",
+   "全部": "ぜんぶ",
+   "売れ": "うれ",
+   "嬉": "うれ"
+  }
+ },
+ {
+  "id": "n5s-small-gift",
+  "title": "الهدية الصغيرة",
+  "titleAr": "الهدية الصغيرة",
+  "titleEn": "The Small Gift",
+  "sentences": [
+   {
+    "jp": "朝、はなさんは 教室に 来ました。",
+    "romaji": "Asa, Hana-san wa kyoushitsu ni kimashita.",
+    "ar": "في الصباح، جاءت هانا إلى الفصل."
+   },
+   {
+    "jp": "机の 上に 小さい プレゼントが あります。",
+    "romaji": "Tsukue no ue ni chiisai purezento ga arimasu.",
+    "ar": "على المكتب توجد هدية صغيرة."
+   },
+   {
+    "jp": "プレゼントは 赤い 紙で きれいです。",
+    "romaji": "Purezento wa akai kami de kirei desu.",
+    "ar": "الهدية جميلة بورق أحمر."
+   },
+   {
+    "jp": "でも、名前が ありません。",
+    "romaji": "Demo, namae ga arimasen.",
+    "ar": "لكن لا يوجد اسم."
+   },
+   {
+    "jp": "「誰の プレゼントですか。」と はなさんは 言いました。",
+    "romaji": "\"Dare no purezento desu ka.\" to Hana-san wa iimashita.",
+    "ar": "قالت هانا: «هدية مَن هذه؟»"
+   },
+   {
+    "jp": "友達の ゆきさんが 来ました。",
+    "romaji": "Tomodachi no Yuki-san ga kimashita.",
+    "ar": "جاءت صديقتها يوكي."
+   },
+   {
+    "jp": "「ケンくんからですか。」と ゆきさんは 聞きました。",
+    "romaji": "\"Ken-kun kara desu ka.\" to Yuki-san wa kikimashita.",
+    "ar": "سألت يوكي: «هل هي من كِن؟»"
+   },
+   {
+    "jp": "「ケンくんは チョコレートが 好きです。」",
+    "romaji": "\"Ken-kun wa chokorēto ga suki desu.\"",
+    "ar": "«كِن يحب الشوكولاتة.»"
+   },
+   {
+    "jp": "はなさんは プレゼントを 開けました。",
+    "romaji": "Hana-san wa purezento o akemashita.",
+    "ar": "فتحت هانا الهدية."
+   },
+   {
+    "jp": "中に 小さい ペンが あります。",
+    "romaji": "Naka ni chiisai pen ga arimasu.",
+    "ar": "في الداخل قلم صغير."
+   },
+   {
+    "jp": "「青い ペンですね。」と ゆきさんは 言いました。",
+    "romaji": "\"Aoi pen desu ne.\" to Yuki-san wa iimashita.",
+    "ar": "قالت يوكي: «إنه قلم أزرق، أليس كذلك؟»"
+   },
+   {
+    "jp": "「猫が 好きな 人ですよ。」と ゆきさんは 言いました。",
+    "romaji": "\"Neko ga suki na hito desu yo.\" to Yuki-san wa iimashita.",
+    "ar": "قالت يوكي: «إنه شخص يحب القطط!»"
+   },
+   {
+    "jp": "ペンに 小さい 猫が います。",
+    "romaji": "Pen ni chiisai neko ga imasu.",
+    "ar": "على القلم قطة صغيرة."
+   },
+   {
+    "jp": "はなさんは 笑いました。",
+    "romaji": "Hana-san wa waraimashita.",
+    "ar": "ضحكت هانا."
+   },
+   {
+    "jp": "そのとき、静かな たろうくんが 来ました。",
+    "romaji": "Sono toki, shizuka na Tarou-kun ga kimashita.",
+    "ar": "في تلك اللحظة، جاء تارو الهادئ."
+   },
+   {
+    "jp": "「その ペンは 僕からです。」と たろうくんは 言いました。",
+    "romaji": "\"Sono pen wa boku kara desu.\" to Tarou-kun wa iimashita.",
+    "ar": "قال تارو: «هذا القلم مني.»"
+   },
+   {
+    "jp": "「昨日、はなさんは 僕を 助けました。ありがとう。」",
+    "romaji": "\"Kinou, Hana-san wa boku o tasukemashita. Arigatou.\"",
+    "ar": "«بالأمس ساعدتِني يا هانا. شكراً لكِ.»"
+   },
+   {
+    "jp": "「猫が 好きですから、この ペンを 買いました。」",
+    "romaji": "\"Neko ga suki desu kara, kono pen o kaimashita.\"",
+    "ar": "«لأنكِ تحبين القطط، اشتريت هذا القلم.»"
+   },
+   {
+    "jp": "はなさんは とても 嬉しかったです。",
+    "romaji": "Hana-san wa totemo ureshikatta desu.",
+    "ar": "كانت هانا سعيدة جداً."
+   },
+   {
+    "jp": "「ありがとう、たろうくん。」と はなさんは 言いました。",
+    "romaji": "\"Arigatou, Tarou-kun.\" to Hana-san wa iimashita.",
+    "ar": "قالت هانا: «شكراً يا تارو.»"
+   }
+  ],
+  "vocab": [
+   {
+    "jp": "プレゼント",
+    "hiragana": "ぷれぜんと",
+    "meaning": "هدية"
+   },
+   {
+    "jp": "つくえ",
+    "hiragana": "つくえ",
+    "meaning": "مكتب / طاولة"
+   },
+   {
+    "jp": "なまえ",
+    "hiragana": "なまえ",
+    "meaning": "اسم"
+   },
+   {
+    "jp": "ペン",
+    "hiragana": "ぺん",
+    "meaning": "قلم"
+   },
+   {
+    "jp": "ねこ",
+    "hiragana": "ねこ",
+    "meaning": "قطة"
+   },
+   {
+    "jp": "ともだち",
+    "hiragana": "ともだち",
+    "meaning": "صديق"
+   },
+   {
+    "jp": "しずか",
+    "hiragana": "しずか",
+    "meaning": "هادئ"
+   },
+   {
+    "jp": "うれしい",
+    "hiragana": "うれしい",
+    "meaning": "سعيد / فرِح"
+   },
+   {
+    "jp": "たすけます",
+    "hiragana": "たすけます",
+    "meaning": "يساعد"
+   },
+   {
+    "jp": "ありがとう",
+    "hiragana": "ありがとう",
+    "meaning": "شكراً"
+   }
+  ],
+  "questions": [],
+  "script": [
+   {
+    "type": "line",
+    "jp": "朝、はなさんは 教室に 来ました。",
+    "romaji": "Asa, Hana-san wa kyoushitsu ni kimashita.",
+    "ar": "في الصباح، جاءت هانا إلى الفصل."
+   },
+   {
+    "type": "line",
+    "jp": "机の 上に 小さい プレゼントが あります。",
+    "romaji": "Tsukue no ue ni chiisai purezento ga arimasu.",
+    "ar": "على المكتب توجد هدية صغيرة."
+   },
+   {
+    "type": "line",
+    "jp": "プレゼントは 赤い 紙で きれいです。",
+    "romaji": "Purezento wa akai kami de kirei desu.",
+    "ar": "الهدية جميلة بورق أحمر."
+   },
+   {
+    "type": "q",
+    "prompt": "プレゼントは どこに ありますか。(أين توجد الهدية؟)",
+    "options": [
+     "つくえの うえ (فوق المكتب)",
+     "かばんの なか (داخل الحقيبة)",
+     "ドアの まえ (أمام الباب)"
+    ],
+    "answer": "つくえの うえ (فوق المكتب)",
+    "explain": "النص يقول «つくえの うえに プレゼントが あります»."
+   },
+   {
+    "type": "line",
+    "jp": "でも、名前が ありません。",
+    "romaji": "Demo, namae ga arimasen.",
+    "ar": "لكن لا يوجد اسم."
+   },
+   {
+    "type": "line",
+    "jp": "「誰の プレゼントですか。」と はなさんは 言いました。",
+    "romaji": "\"Dare no purezento desu ka.\" to Hana-san wa iimashita.",
+    "ar": "قالت هانا: «هدية مَن هذه؟»"
+   },
+   {
+    "type": "q",
+    "prompt": "プレゼントに なにが ありませんか。(ما الذي لا يوجد على الهدية؟)",
+    "options": [
+     "なまえ (الاسم)",
+     "リボン (شريط)",
+     "はな (زهرة)"
+    ],
+    "answer": "なまえ (الاسم)",
+    "explain": "النص يقول «なまえが ありません» أي لا يوجد اسم."
+   },
+   {
+    "type": "line",
+    "jp": "友達の ゆきさんが 来ました。",
+    "romaji": "Tomodachi no Yuki-san ga kimashita.",
+    "ar": "جاءت صديقتها يوكي."
+   },
+   {
+    "type": "line",
+    "jp": "「ケンくんからですか。」と ゆきさんは 聞きました。",
+    "romaji": "\"Ken-kun kara desu ka.\" to Yuki-san wa kikimashita.",
+    "ar": "سألت يوكي: «هل هي من كِن؟»"
+   },
+   {
+    "type": "line",
+    "jp": "「ケンくんは チョコレートが 好きです。」",
+    "romaji": "\"Ken-kun wa chokorēto ga suki desu.\"",
+    "ar": "«كِن يحب الشوكولاتة.»"
+   },
+   {
+    "type": "q",
+    "prompt": "ゆきさんは だれの プレゼントだと いいましたか。(مَن قالت يوكي إنه صاحب الهدية؟)",
+    "options": [
+     "ケンくん (كِن)",
+     "せんせい (المعلّم)",
+     "ゆきさん (يوكي)"
+    ],
+    "answer": "ケンくん (كِن)",
+    "explain": "يوكي خمّنت أنها «ケンくんから» أي من كِن."
+   },
+   {
+    "type": "line",
+    "jp": "はなさんは プレゼントを 開けました。",
+    "romaji": "Hana-san wa purezento o akemashita.",
+    "ar": "فتحت هانا الهدية."
+   },
+   {
+    "type": "line",
+    "jp": "中に 小さい ペンが あります。",
+    "romaji": "Naka ni chiisai pen ga arimasu.",
+    "ar": "في الداخل قلم صغير."
+   },
+   {
+    "type": "line",
+    "jp": "「青い ペンですね。」と ゆきさんは 言いました。",
+    "romaji": "\"Aoi pen desu ne.\" to Yuki-san wa iimashita.",
+    "ar": "قالت يوكي: «إنه قلم أزرق، أليس كذلك؟»"
+   },
+   {
+    "type": "q",
+    "prompt": "プレゼントの なかに なにが ありますか。(ماذا يوجد داخل الهدية؟)",
+    "options": [
+     "ちいさい ペン (قلم صغير)",
+     "チョコレート (شوكولاتة)",
+     "ほん (كتاب)"
+    ],
+    "answer": "ちいさい ペン (قلم صغير)",
+    "explain": "النص يقول «なかに ちいさい ペンが あります»."
+   },
+   {
+    "type": "line",
+    "jp": "「猫が 好きな 人ですよ。」と ゆきさんは 言いました。",
+    "romaji": "\"Neko ga suki na hito desu yo.\" to Yuki-san wa iimashita.",
+    "ar": "قالت يوكي: «إنه شخص يحب القطط!»"
+   },
+   {
+    "type": "line",
+    "jp": "ペンに 小さい 猫が います。",
+    "romaji": "Pen ni chiisai neko ga imasu.",
+    "ar": "على القلم قطة صغيرة."
+   },
+   {
+    "type": "line",
+    "jp": "はなさんは 笑いました。",
+    "romaji": "Hana-san wa waraimashita.",
+    "ar": "ضحكت هانا."
+   },
+   {
+    "type": "q",
+    "prompt": "ペン（　）ちいさい ねこが います。(اختر الأداة الصحيحة)",
+    "options": [
+     "に (في/على)",
+     "を (مفعول)",
+     "へ (إلى)"
+    ],
+    "answer": "に (في/على)",
+    "explain": "نستعمل に لتحديد مكان وجود الشيء مع います."
+   },
+   {
+    "type": "line",
+    "jp": "そのとき、静かな たろうくんが 来ました。",
+    "romaji": "Sono toki, shizuka na Tarou-kun ga kimashita.",
+    "ar": "في تلك اللحظة، جاء تارو الهادئ."
+   },
+   {
+    "type": "line",
+    "jp": "「その ペンは 僕からです。」と たろうくんは 言いました。",
+    "romaji": "\"Sono pen wa boku kara desu.\" to Tarou-kun wa iimashita.",
+    "ar": "قال تارو: «هذا القلم مني.»"
+   },
+   {
+    "type": "line",
+    "jp": "「昨日、はなさんは 僕を 助けました。ありがとう。」",
+    "romaji": "\"Kinou, Hana-san wa boku o tasukemashita. Arigatou.\"",
+    "ar": "«بالأمس ساعدتِني يا هانا. شكراً لكِ.»"
+   },
+   {
+    "type": "q",
+    "prompt": "プレゼントは だれからでしたか。(ممّن كانت الهدية؟)",
+    "options": [
+     "たろうくん (تارو)",
+     "ケンくん (كِن)",
+     "ゆきさん (يوكي)"
+    ],
+    "answer": "たろうくん (تارو)",
+    "explain": "تارو قال «その ペンは ぼくからです» أي القلم منه."
+   },
+   {
+    "type": "line",
+    "jp": "「猫が 好きですから、この ペンを 買いました。」",
+    "romaji": "\"Neko ga suki desu kara, kono pen o kaimashita.\"",
+    "ar": "«لأنكِ تحبين القطط، اشتريت هذا القلم.»"
+   },
+   {
+    "type": "line",
+    "jp": "はなさんは とても 嬉しかったです。",
+    "romaji": "Hana-san wa totemo ureshikatta desu.",
+    "ar": "كانت هانا سعيدة جداً."
+   },
+   {
+    "type": "line",
+    "jp": "「ありがとう、たろうくん。」と はなさんは 言いました。",
+    "romaji": "\"Arigatou, Tarou-kun.\" to Hana-san wa iimashita.",
+    "ar": "قالت هانا: «شكراً يا تارو.»"
+   },
+   {
+    "type": "q",
+    "prompt": "はなさんは うれしかったです。(كانت هانا سعيدة.)",
+    "options": [
+     "正しい (صحيح)",
+     "正しくない (خطأ)"
+    ],
+    "answer": "正しい (صحيح)",
+    "explain": "النص يقول «はなさんは とても うれしかったです»."
+   },
+   {
+    "type": "q",
+    "prompt": "「たすけました」は どんな いみですか。(ما معنى «たすけました»؟)",
+    "options": [
+     "ساعَدَ (helped)",
+     "اشترى (bought)",
+     "ضحك (laughed)"
+    ],
+    "answer": "ساعَدَ (helped)",
+    "explain": "«たすけます» تعني (يساعد)، وفي الماضي «たすけました» أي (ساعَدَ)."
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】プレゼントの なかに なにが ありましたか。(ماذا كان داخل الهدية؟)",
+    "options": [
+     "ちいさい ペン (قلم صغير)",
+     "チョコレート (شوكولاتة)",
+     "はな (زهرة)"
+    ],
+    "answer": "ちいさい ペン (قلم صغير)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】プレゼントは だれからでしたか。(ممّن كانت الهدية؟)",
+    "options": [
+     "たろうくん (تارو)",
+     "ゆきさん (يوكي)",
+     "ケンくん (كِن)"
+    ],
+    "answer": "たろうくん (تارو)"
+   },
+   {
+    "type": "q",
+    "prompt": "【مراجعة】たろうくんは どうして プレゼントを あげましたか。(لماذا أعطى تارو الهدية؟)",
+    "options": [
+     "はなさんが たすけましたから (لأن هانا ساعدته)",
+     "ケンくんが いいましたから (لأن كِن قال)",
+     "なまえが ありませんから (لأنه لا يوجد اسم)"
+    ],
+    "answer": "はなさんが たすけましたから (لأن هانا ساعدته)"
+   }
+  ],
+  "xp": 35,
+  "gems": 10,
+  "furigana": {
+   "朝": "あさ",
+   "教室": "きょうしつ",
+   "来": "き",
+   "机": "つくえ",
+   "上": "うえ",
+   "小": "ちい",
+   "赤": "あか",
+   "紙": "かみ",
+   "名前": "なまえ",
+   "誰": "だれ",
+   "言": "い",
+   "友達": "ともだち",
+   "聞": "き",
+   "好": "す",
+   "開": "あ",
+   "中": "なか",
+   "青": "あお",
+   "猫": "ねこ",
+   "人": "ひと",
+   "笑": "わら",
+   "静": "しず",
+   "僕": "ぼく",
+   "昨日": "きのう",
+   "助": "たす",
+   "買": "か",
+   "嬉": "うれ"
+  }
+ }
+]

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import AppIcon from './AppIcon.jsx'
 import { playCorrect, playWrong } from '../sounds.js'
+import JapaneseText from './JapaneseText.jsx'
 
 // Shared answer feedback (with a celebration burst on correct) + Continue.
 function Feedback({ ok, msg, lang, onNext }) {
@@ -18,12 +19,12 @@ function Feedback({ ok, msg, lang, onNext }) {
 
 // One interactive story question. Owns its answer state + feedback, then calls
 // onNext(isCorrect). Kinds: mcq, missing, match, tf, order.
-export default function StoryQuestion({ q, lang, onNext }) {
+export default function StoryQuestion({ q, lang, readingMap, onNext }) {
   const isAr = lang === 'ar'
   const t = (ar, en) => (isAr ? ar : en)
 
-  if (q.kind === 'match') return <MatchQuestion q={q} lang={lang} onNext={onNext} />
-  if (q.kind === 'tf') return <TrueFalseQuestion q={q} lang={lang} onNext={onNext} />
+  if (q.kind === 'match') return <MatchQuestion q={q} lang={lang} readingMap={readingMap} onNext={onNext} />
+  if (q.kind === 'tf') return <TrueFalseQuestion q={q} lang={lang} readingMap={readingMap} onNext={onNext} />
   if (q.kind === 'order') return <OrderQuestion q={q} lang={lang} onNext={onNext} />
 
   // mcq / missing — single choice
@@ -41,27 +42,33 @@ export default function StoryQuestion({ q, lang, onNext }) {
 
   return (
     <div className="sq">
-      {q.kind === 'missing' && <p className="sq-sentence" dir="ltr">{q.prompt}</p>}
-      <p className="sq-prompt">{prompt}</p>
+      {q.kind === 'missing' && <p className="sq-sentence" dir="ltr"><JapaneseText text={q.prompt} readingMap={readingMap} /></p>}
+      <p className="sq-prompt"><JapaneseText as="span" dir="auto" text={prompt} readingMap={readingMap} /></p>
       <div className="sq-options">
         {q.options.map((opt) => {
           const state = !answered ? '' : opt === q.answer ? 'correct' : opt === picked ? 'wrong' : ''
           return (
             <button key={opt} type="button" className={`sq-option ${state}`} dir="auto" disabled={answered} onClick={() => choose(opt)}>
-              {opt}
+              <JapaneseText as="span" dir="auto" text={opt} readingMap={readingMap} />
             </button>
           )
         })}
       </div>
       {answered && (
-        <Feedback ok={isCorrect} lang={lang} onNext={() => onNext(isCorrect)} msg={isCorrect ? t('أحسنت!', 'Nice!') : `${t('الإجابة', 'Answer')}: ${q.answer}`} />
+        <Feedback ok={isCorrect} lang={lang} onNext={() => onNext(isCorrect)} msg={feedbackMsg(isCorrect, q, t)} />
       )}
     </div>
   )
 }
 
+// Feedback line for a single-choice question: praise/answer + optional authored explanation.
+function feedbackMsg(isCorrect, q, t) {
+  const base = isCorrect ? t('أحسنت!', 'Nice!') : `${t('الإجابة', 'Answer')}: ${q.answer}`
+  return q.explain ? `${base} — ${q.explain}` : base
+}
+
 // True/False on a vocab meaning ("「word」 = meaning?").
-function TrueFalseQuestion({ q, lang, onNext }) {
+function TrueFalseQuestion({ q, lang, readingMap, onNext }) {
   const t = (ar, en) => (lang === 'ar' ? ar : en)
   const [picked, setPicked] = useState(null)
   const answered = picked !== null
@@ -71,7 +78,7 @@ function TrueFalseQuestion({ q, lang, onNext }) {
   return (
     <div className="sq">
       <p className="sq-prompt">{t('صح أم خطأ؟', 'True or false?')}</p>
-      <p className="sq-tf-stmt" dir="auto"><span dir="ltr">「{q.word}」</span> = {q.meaning}</p>
+      <p className="sq-tf-stmt" dir="auto"><span dir="ltr">「<JapaneseText as="span" text={q.word} readingMap={readingMap} />」</span> = {q.meaning}</p>
       <div className="sq-tf">
         <button type="button" className={`sq-tf-btn ${tfClass(true)}`} disabled={answered} onClick={() => choose(true)} aria-label={t('صح', 'True')}>
           <AppIcon name="correct" size={30} />
@@ -88,7 +95,7 @@ function TrueFalseQuestion({ q, lang, onNext }) {
 }
 
 // Tap-the-pairs: tap one Arabic meaning + its Japanese word to match.
-function MatchQuestion({ q, lang, onNext }) {
+function MatchQuestion({ q, lang, readingMap, onNext }) {
   const t = (ar, en) => (lang === 'ar' ? ar : en)
   const left = useMemo(() => q.pairs.map((p, i) => ({ i, label: p.ar })), [q])
   const right = useMemo(() => [...q.pairs.map((p, i) => ({ i, label: p.jp }))].sort(() => Math.random() - 0.5), [q])
@@ -124,7 +131,7 @@ function MatchQuestion({ q, lang, onNext }) {
         </div>
         <div className="sq-match-col">
           {right.map((item) => (
-            <button key={`r${item.i}`} type="button" className={cellClass('r', item)} disabled={matched.includes(item.i)} dir="ltr" onClick={() => tap('r', item)}>{item.label}</button>
+            <button key={`r${item.i}`} type="button" className={cellClass('r', item)} disabled={matched.includes(item.i)} dir="ltr" onClick={() => tap('r', item)}><JapaneseText as="span" text={item.label} readingMap={readingMap} /></button>
           ))}
         </div>
       </div>

@@ -5,6 +5,9 @@ import { getStoryState, saveStoryState, storyPercent } from '../progress/storyPr
 import { buildStoryQuestions } from '../utils/storyQuestions.js'
 import { collectStoryVocab, readStoryVocab } from '../progress/storyVocab.js'
 import StoryQuestion from './StoryQuestion.jsx'
+import JapaneseText, { buildReadingMap } from './JapaneseText.jsx'
+import useExerciseSettings from '../hooks/useExerciseSettings.js'
+import ExerciseSettingsSheet from './exercise/ExerciseSettingsSheet.jsx'
 
 // Club → Stories — engaging, scene-based reading. Library (rich cards + states)
 // → pre-story modal → scene-by-scene player (progressive reveal + audio) →
@@ -47,6 +50,8 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
   const [finished, setFinished] = useState(null) // completed story summary
   const [chestOpen, setChestOpen] = useState(false) // completion chest reveal
   const [showVocab, setShowVocab] = useState(false) // vocabulary collection view
+  const [settingsOpen, setSettingsOpen] = useState(false) // pronunciation settings sheet
+  const { settings } = useExerciseSettings()
   const list = storiesByLevel[level] || []
 
   // Auto-play the line whenever the current step is a (new) scene.
@@ -59,8 +64,17 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
   const openStory = (story) => {
     setModalStory(null)
     collectStoryVocab(story.vocab) // auto-add story words to the vocab book
-    const questions = buildStoryQuestions(story)
-    const steps = buildSteps(story.sentences, questions)
+    // Authored stories carry a hand-written `script` (lines + questions already
+    // interleaved); otherwise auto-generate + interleave from the content.
+    let steps
+    if (Array.isArray(story.script) && story.script.length) {
+      steps = story.script.map((s) => (s.type === 'q'
+        ? { type: 'question', q: { kind: 'mcq', prompt: s.prompt, options: s.options, answer: s.answer, explain: s.explain } }
+        : { type: 'scene', sentence: { jp: s.jp, romaji: s.romaji, ar: s.ar } }))
+    } else {
+      const questions = buildStoryQuestions(story)
+      steps = buildSteps(story.sentences, questions)
+    }
     const totalQ = steps.filter((s) => s.type === 'question').length
     // Resume to the saved scene (start fresh if completed).
     const savedScenes = Math.min(getStoryState(story.id).sceneIndex || 0, story.sentences.length)
@@ -172,6 +186,15 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
     const inQuestion = current?.type === 'question'
     const isLastStep = play.stepIndex >= steps.length - 1
     const progress = Math.round(((play.stepIndex + 1) / steps.length) * 100)
+    // Pronunciation per global settings: Japanese mode → furigana above kanji
+    // (from the story's own vocab); Romanized → full romaji line; OFF → neither.
+    const showPron = settings.showPronunciation
+    const romajiMode = settings.pronunciationMode === 'romanized'
+    // Furigana over kanji (Japanese mode only): prefer the story's authored
+    // kanji-run map, fall back to its vocab list.
+    const readingMap = showPron && !romajiMode
+      ? (play.story.furigana || buildReadingMap(play.story.vocab, 'hiragana'))
+      : null
     return (
       <div className="stories-screen story-player" dir={isAr ? 'rtl' : 'ltr'}>
         <header className="stories-head">
@@ -180,19 +203,22 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
           </button>
           <div className="story-progress-bar"><span style={{ width: `${progress}%` }} /></div>
           {play.combo >= 2 && <span className="story-combo">🔥 {play.combo}</span>}
+          <button className="icon-btn ex-settings-gear" onClick={() => setSettingsOpen(true)} aria-label={t('الإعدادات', 'Settings')}>
+            <AppIcon name="settings" size={22} />
+          </button>
         </header>
         <div className="story-scene">
           {bubbles.map((s, i) => (
             <div key={i} className={`story-bubble ${!inQuestion && i === bubbles.length - 1 ? 'is-new' : ''}`}>
               <span className="story-bubble-avatar" aria-hidden="true">先生</span>
               <button type="button" className="story-bubble-body" dir="ltr" onClick={() => speakJapanese(s.jp)}>
-                <span className="story-bubble-jp">{s.jp} <AppIcon name="sound" size={14} /></span>
-                {s.romaji && <span className="story-bubble-romaji">{s.romaji}</span>}
+                <span className="story-bubble-jp"><JapaneseText text={s.jp} readingMap={readingMap} /> <AppIcon name="sound" size={14} /></span>
+                {showPron && romajiMode && s.romaji && <span className="story-bubble-romaji">{s.romaji}</span>}
                 {s.ar && <span className="story-bubble-ar" dir="rtl">{s.ar}</span>}
               </button>
             </div>
           ))}
-          {inQuestion && <StoryQuestion key={play.stepIndex} q={current.q} lang={lang} onNext={onQuestionNext} />}
+          {inQuestion && <StoryQuestion key={play.stepIndex} q={current.q} lang={lang} readingMap={readingMap} onNext={onQuestionNext} />}
         </div>
         {!inQuestion && (
           <footer className="story-player-foot">
@@ -201,6 +227,7 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
             </button>
           </footer>
         )}
+        {settingsOpen && <ExerciseSettingsSheet lang={lang} onClose={() => setSettingsOpen(false)} onEndSession={() => setPlay(null)} />}
       </div>
     )
   }

@@ -8,60 +8,13 @@ import { getLessonMastery, masteryStatusLabel } from '../progress/masteryModel.j
 import GrammarExercises from './GrammarExercises.jsx'
 import VocabExercises from './VocabExercises.jsx'
 import { answersMatch } from '../utils/answerMatch.js'
+import { LessonJP, buildReadingMap } from './JapaneseText.jsx'
+import useExerciseSettings from '../hooks/useExerciseSettings.js'
+
+export { LessonJP }
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
-}
-
-// ── Furigana text — matches vocab from lesson and adds ruby above kanji ──────
-function buildReadingMap(vocab, mode) {
-  const map = {}
-  vocab.forEach((item) => {
-    const surface = item.kanji || item.jp
-    if (!surface || !/[㐀-鿿]/.test(surface)) return
-    map[surface] = mode === 'romaji' ? (item.reading || '') : (item.hiragana || item.jp || '')
-  })
-  return map
-}
-
-export function LessonJP({ text, readingMap = {}, className = '' }) {
-  if (!text) return null
-  const sortedKeys = Object.keys(readingMap).sort((a, b) => b.length - a.length)
-  const parts = []
-  let remaining = text
-  let i = 0
-
-  while (remaining.length > 0) {
-    let matched = false
-    for (const key of sortedKeys) {
-      if (remaining.startsWith(key)) {
-        parts.push(
-          <ruby key={i++}>
-            {key}
-            <rt>{readingMap[key]}</rt>
-          </ruby>
-        )
-        remaining = remaining.slice(key.length)
-        matched = true
-        break
-      }
-    }
-    if (!matched) {
-      const last = parts[parts.length - 1]
-      if (typeof last === 'string') {
-        parts[parts.length - 1] = last + remaining[0]
-      } else {
-        parts.push(remaining[0])
-      }
-      remaining = remaining.slice(1)
-    }
-  }
-
-  return (
-    <span className={`jp-line ${className}`} dir="ltr">
-      {parts}
-    </span>
-  )
 }
 
 // ── Extract Japanese text from exercise prompt (after Arabic colon label) ────
@@ -663,6 +616,11 @@ function ReviewSpeakingSession({ items, lang, onClose }) {
 // ── SECTION: Mistake Review — this lesson's wrong answers, made useful ───────
 export function MistakeReviewSection({ lesson, lang, onGo }) {
   const isAr = lang === 'ar'
+  const { settings } = useExerciseSettings()
+  const readingMap = useMemo(
+    () => buildReadingMap(lesson.vocab || [], settings.pronunciationMode === 'romanized' ? 'romaji' : 'hiragana'),
+    [lesson.vocab, settings.pronunciationMode],
+  )
   const mistakes = useMemo(() => {
     const all = Object.values(readProgressState().mistakes || {})
     return all.filter((m) => m.lessonId === String(lesson.id))
@@ -739,7 +697,7 @@ export function MistakeReviewSection({ lesson, lang, onGo }) {
                       {d.rule.explanation && <p className="mistake-rev-explain">{d.rule.explanation}</p>}
                       {d.rule.example?.jp && (
                         <button className="review-example-btn" onClick={() => speakJapanese(d.rule.example.jp)}>
-                          <span className="jp-line" dir="ltr">{d.rule.example.jp}</span>
+                          <LessonJP text={d.rule.example.jp} readingMap={readingMap} />
                           <span>{d.rule.example.ar}</span>
                         </button>
                       )}
