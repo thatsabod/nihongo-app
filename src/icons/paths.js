@@ -239,4 +239,14 @@ export const ICON_PATHS = {
       'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z',
     ],
   },
+  // النادي — dumbbell (handle + weight plates), stroked to match the icon set.
+  club: {
+    shapes: [
+      { type: 'rect', x: 9, y: 10.5, width: 6, height: 3, rx: 1 },
+      { type: 'rect', x: 5.5, y: 7, width: 3, height: 10, rx: 1.2 },
+      { type: 'rect', x: 2.5, y: 9, width: 2.5, height: 6, rx: 1 },
+      { type: 'rect', x: 15.5, y: 7, width: 3, height: 10, rx: 1.2 },
+      { type: 'rect', x: 19, y: 9, width: 2.5, height: 6, rx: 1 },
+    ],
+  },
 }

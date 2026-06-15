@@ -36,7 +36,7 @@ function sanitizeReport(r) {
 
 // Persist one finished call. Returns the new doc id, or null if not signed in /
 // on any failure. `uid` is set to the current user so the security rule allows it.
-export async function saveCallSession({ mode, scenario, durationSeconds, turns, report }) {
+export async function saveCallSession({ mode, scenario, durationSeconds, turns, report, difficultyRating = null, xpEarned = 0, wordsUsed = 0, startedAt = null, endedAt = null }) {
   const uid = auth.currentUser?.uid
   if (!uid) return null
   try {
@@ -45,6 +45,11 @@ export async function saveCallSession({ mode, scenario, durationSeconds, turns, 
       mode: mode || 'free',
       scenario: scenario || null,
       durationSeconds: Math.max(0, Math.round(durationSeconds || 0)),
+      startedAtMs: startedAt || null,
+      endedAtMs: endedAt || null,
+      difficultyRating: difficultyRating || null,
+      xpEarned: Math.max(0, Math.round(xpEarned || 0)),
+      wordsUsed: Math.max(0, Math.round(wordsUsed || 0)),
       turns: (Array.isArray(turns) ? turns : [])
         .slice(0, 80)
         .map((t) => ({ role: t.role === 'sensei' ? 'sensei' : 'student', text: String(t?.text || '').slice(0, 1000) })),

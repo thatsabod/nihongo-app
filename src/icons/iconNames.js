@@ -56,6 +56,7 @@ export const ICON_NAMES = [
   'goal',
   'timer',
   'streak-7',
+  'club',
 ]
 
 /**

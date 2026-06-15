@@ -26,6 +26,9 @@ const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard.jsx'
 import { readProgressState, writeProgressState, mergeProgressState, markSectionVisited, getVisitedSections, getReviewStreak, getSeenAchievements, markAchievementsSeen, PROGRESS_CHANGED_EVENT } from './progress/progressStorage.js'
 import { getLessonMastery } from './progress/masteryModel.js'
 import { getExerciseSettings, setExerciseSettings, applyPronunciationVisibility, pronModeToReadingMode, readingModeToPronMode, EXERCISE_SETTINGS_EVENT } from './utils/exerciseSettings.js'
+import ClubHome from './components/ClubHome.jsx'
+import ClubSpeakingScreen from './components/ClubSpeakingScreen.jsx'
+import ClubStoriesScreen from './components/ClubStoriesScreen.jsx'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
@@ -573,6 +576,42 @@ function applyLessonOverrides(levelId, sourceLessons, overrides = {}) {
 // Flat list of every lesson across levels — used by Smart Review to resolve
 // stored mistake/SRS item IDs back into full vocab/grammar content.
 const ALL_LESSONS = [...lessons, ...n4Lessons, ...n3Lessons]
+
+// Lessons grouped by level (for the Club's level-based practice/stories).
+const LESSONS_BY_LEVEL = { N5: lessons, N4: n4Lessons, N3: n3Lessons, N2: [], N1: [] }
+
+// Reading stories per level, sourced from existing lesson reading passages.
+const STORIES_BY_LEVEL = Object.fromEntries(
+  Object.entries(LESSONS_BY_LEVEL).map(([lvl, ls]) => [
+    lvl,
+    (ls || [])
+      .filter((l) => l.reading?.sentences?.length)
+      .map((l) => ({
+        id: `${lvl}-${l.id}`,
+        title: l.title?.ar || l.title || '',
+        titleAr: l.reading.titleAr || l.title?.ar || l.title || '',
+        sentences: l.reading.sentences,
+      })),
+  ]),
+)
+
+// Build an audio-only listening session (reuses the Quiz screen's audio_word card).
+function buildListeningQuiz(items, kanjiReadingMode = 'hiragana') {
+  return items.map((item) => {
+    const options = makeVocabOptions(items, item, 'label')
+    return {
+      type: 'audio_word',
+      kana: '聞く',
+      speakText: speakableVocab(item),
+      answer: vocabLabel(item),
+      options,
+      optionReadings: optionReadingsFor(options, items, kanjiReadingMode),
+      optionReadingPairs: optionReadingPairsFor(options, items),
+      optionSpeakTexts: optionSpeakTextsFor(options, items),
+      kanjiReadingMode,
+    }
+  })
+}
 
 function buildExamQuestions(levelId, examType, kanjiReadingMode = 'hiragana') {
   const config = EXAM_CONFIG[levelId]?.[examType]
@@ -2501,6 +2540,7 @@ export default function App() {
   const lastSavedProgressJsonRef = useRef('')
   const [screen, setScreen] = useState('loading')
   const [tab, setTab] = useState('home')
+  const [senseiInitial, setSenseiInitial] = useState(null) // null | 'guided' | 'realtime' — how the Sensei screen opens
   const [communityView, setCommunityView] = useState('feed') // 'feed'|'dm-inbox'|'dm-chat'|'notifications'|'notif-settings'
   useEffect(() => { if (tab !== 'community') setCommunityView('feed') }, [tab])
   const [reviewFilter, setReviewFilter] = useState(null) // null | 'grammar' | 'vocab' | 'kanji' — weak-area review shortcut
@@ -3005,6 +3045,73 @@ export default function App() {
     setScreen('quiz')
   }
 
+  const startListeningPractice = () => {
+    if (hearts <= 0) { setNotice(t.noHearts); return }
+    const ls = LESSONS_BY_LEVEL[currentLevel] || lessons
+    const vocab = ls.flatMap((l) => l.vocab || []).filter((v) => speakableVocab(v))
+    const qs = buildListeningQuiz(shuffle(vocab).slice(0, 10), kanjiReadingMode)
+    if (qs.length < 2) { setNotice(isAr ? 'لا توجد مفردات كافية للاستماع.' : 'Not enough vocab to listen to.'); return }
+    setQuestions(qs.map((q) => ({ ...q, soundEnabled })))
+    setQIndex(0)
+    setSelected(null)
+    setScore(0)
+    setScreen('quiz')
+  }
+
+  const startChallenge = () => {
+    if (hearts <= 0) { setNotice(t.noHearts); return }
+    const ls = LESSONS_BY_LEVEL[currentLevel] || lessons
+    const vocab = shuffle(ls.flatMap((l) => l.vocab || [])).slice(0, 10)
+    if (vocab.length < 2) { setNotice(isAr ? 'لا توجد مفردات كافية للتحدي.' : 'Not enough vocab for a challenge.'); return }
+    // Mixed meaning + listening questions (reuses the same helpers as the
+    // verified listening builder — robust over aggregated level vocab).
+    const qs = vocab.map((item, i) => {
+      if (i % 2 === 0) {
+        return {
+          type: 'vocab_meaning',
+          kana: vocabLabel(item),
+          kanaReading: vocabReading(item, kanjiReadingMode),
+          kanaReadingPair: vocabReadings(item),
+          speakText: speakableVocab(item),
+          answer: item.meaning,
+          options: makeVocabOptions(vocab, item, 'meaning'),
+          optionSpeakTexts: {},
+          kanjiReadingMode,
+        }
+      }
+      const options = makeVocabOptions(vocab, item, 'label')
+      return {
+        type: 'audio_word',
+        kana: '聞く',
+        speakText: speakableVocab(item),
+        answer: vocabLabel(item),
+        options,
+        optionReadings: optionReadingsFor(options, vocab, kanjiReadingMode),
+        optionReadingPairs: optionReadingPairsFor(options, vocab),
+        optionSpeakTexts: optionSpeakTextsFor(options, vocab),
+        kanjiReadingMode,
+      }
+    })
+    setQuestions(qs.map((q) => ({ ...q, soundEnabled })))
+    setQIndex(0)
+    setSelected(null)
+    setScore(0)
+    setScreen('quiz')
+  }
+
+  // النادي — route each Club item to its real, working flow (no dead buttons).
+  const handleClubOpen = (key) => {
+    if (key === 'conversation') { setSenseiInitial('guided'); setScreen('sensei'); return }
+    if (key === 'chat') { setSenseiInitial(null); setScreen('sensei'); return }
+    if (key === 'vocab') { setReviewFilter('vocab'); setScreen('review'); return }
+    if (key === 'mistakes') { setReviewFilter(null); setScreen('review'); return }
+    if (key === 'smartreview') { setReviewFilter(null); setScreen('review'); return }
+    if (key === 'listening') { startListeningPractice(); return }
+    if (key === 'speaking') { setScreen('club-speaking'); return }
+    if (key === 'stories') { setScreen('club-stories'); return }
+    if (key === 'challenges') { startChallenge(); return }
+  }
+
   const startCharacterGroupQuiz = (group) => {
     if (hearts <= 0) {
       setNotice(t.noHearts)
@@ -3358,6 +3465,23 @@ export default function App() {
     )
   }
 
+  if (screen === 'club-speaking') {
+    const ls = LESSONS_BY_LEVEL[currentLevel] || lessons
+    const sentences = shuffle(ls.flatMap((l) => [...(l.reading?.sentences || []), ...(l.dialogue?.lines || [])]))
+      .map((s) => ({ jp: s.jp, reading: s.romaji, speakText: s.jp }))
+      .filter((s) => s.jp)
+      .slice(0, 10)
+    return (
+      <HeartsContext.Provider value={heartsApi}>
+        <ClubSpeakingScreen lang={lang} sentences={sentences} onStudyActivity={() => registerStudyActivity(15)} onClose={() => setScreen('main')} />
+      </HeartsContext.Provider>
+    )
+  }
+
+  if (screen === 'club-stories') {
+    return <ClubStoriesScreen lang={lang} storiesByLevel={STORIES_BY_LEVEL} onClose={() => setScreen('main')} />
+  }
+
   if (screen === 'sensei') {
     const completedLessonIds = Object.entries(lessonProgress)
       .filter(([key, value]) => key.startsWith(`${currentLevel}-`) && value >= sectionCount)
@@ -3370,6 +3494,8 @@ export default function App() {
           currentLessonId={activeLesson ? String(activeLesson.id) : undefined}
           currentLessonTitleAr={activeLesson?.title?.ar}
           completedLessonIds={completedLessonIds}
+          initialCall={senseiInitial}
+          onReward={(xp) => registerStudyActivity(xp)}
           onClose={() => setScreen('main')}
         />
       </Suspense>
@@ -3677,6 +3803,10 @@ export default function App() {
           </section>
         )}
 
+        {tab === 'club' && (
+          <ClubHome lang={lang} onOpen={handleClubOpen} />
+        )}
+
         {tab === 'letters' && (
           <section className="content">
             <div className="tabs pill-tabs">
@@ -3865,7 +3995,7 @@ export default function App() {
       {/* Abdoul Sensei FAB — app-shell level so it's available on every main tab
           (hidden during lessons/exercises/focus and dedicated community screens). */}
       {!inCommunityScreen && (
-      <button className="sensei-fab" onClick={() => setScreen('sensei')} aria-label={t.aiSensei} title={t.aiSensei}>
+      <button className="sensei-fab" onClick={() => { setSenseiInitial(null); setScreen('sensei') }} aria-label={t.aiSensei} title={t.aiSensei}>
         <span className="sensei-fab-kanji">先生</span>
       </button>
       )}
@@ -3884,16 +4014,13 @@ export default function App() {
       <nav className="bottom-nav">
         {[
           ['home', 'home', t.home],
+          ['club', 'club', lang === 'ar' ? 'النادي' : 'Club'],
           ['letters', 'writing', t.letters],
           ['community', 'speaking', lang === 'ar' ? 'المجتمع' : 'Community'],
           ['profile', 'profile', t.profile],
         ].map(([id, icon, label]) => (
           <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
-            <span className={icon === 'profile' ? 'nav-avatar' : ''}>
-              {icon === 'profile'
-                ? (userAvatar ? <img src={userAvatar} alt="" /> : (userName || (lang === 'ar' ? 'أ' : 'N')).slice(0, 1).toUpperCase())
-                : <AppIcon name={icon} size={26} />}
-            </span>
+            <span><AppIcon name={icon} size={26} /></span>
             <small>{label}</small>
           </button>
         ))}
