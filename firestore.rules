@@ -14,7 +14,8 @@ service cloud.firestore {
       return signedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'owner'
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
           || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userUsername == 'abdol'
           || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.username == 'abdol'
         );
@@ -24,11 +25,24 @@ service cloud.firestore {
       return signedIn() && (request.auth.uid == a || request.auth.uid == b);
     }
 
+    function canManageBroadcasts() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (
+          isAdmin()
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'moderator'
+        );
+    }
+
     match /users/{userId} {
-      allow read: if isOwner(userId);
+      // Owner reads own doc; admins (User Management) can read any user.
+      allow read: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId) && !('role' in request.resource.data);
-      allow update: if isOwner(userId)
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
+      // Owner may update their own doc EXCEPT role/ban fields; admins may update
+      // any user (grant XP/gems, change level/role, ban/suspend).
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'banned', 'suspendedUntil']));
       allow delete: if isOwner(userId);
     }
 
@@ -121,6 +135,36 @@ service cloud.firestore {
     match /lessonOverrides/{lessonId} {
       allow read: if true;
       allow create, update, delete: if isAdmin();
+    }
+
+    // CMS / Control Center config (app name, feature flags, nav, AI prompts…).
+    // World-readable so the app loads it; admin-only writes.
+    match /config/{docId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Stories CMS — admin-authored / edited stories. Public read (learners),
+    // admin-only write.
+    match /storyOverrides/{storyId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Vocabulary & Grammar CMS — public read (feeds app), admin-only write.
+    match /vocab/{vocabId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /grammar/{grammarId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Notifications — admin broadcasts. Public read (learners), admin-only write.
+    match /broadcasts/{broadcastId} {
+      allow read: if true;
+      allow create, update, delete: if canManageBroadcasts();
     }
 
     match /adminLogs/{logId} {

@@ -6,7 +6,6 @@ function sections(isAr) {
       title: isAr ? 'المحادثة' : 'Conversation',
       items: [
         { key: 'conversation', emoji: '🎙️', color: 'voice', title: isAr ? 'اتصال' : 'Voice call' },
-        { key: 'chat', emoji: '💬', color: 'chat', title: isAr ? 'محادثات' : 'Chat' },
       ],
     },
     {
@@ -22,8 +21,6 @@ function sections(isAr) {
       items: [
         { key: 'mistakes', emoji: '🔁', color: 'mistakes', title: isAr ? 'الأخطاء' : 'Mistakes' },
         { key: 'stories', emoji: '📖', color: 'stories', title: isAr ? 'القصص' : 'Stories' },
-        { key: 'smartreview', emoji: '🧠', color: 'review', title: isAr ? 'المراجعة الذكية' : 'Smart Review' },
-        { key: 'challenges', emoji: '🏆', color: 'challenges', title: isAr ? 'التحديات' : 'Challenges' },
       ],
     },
   ]

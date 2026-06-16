@@ -14,6 +14,8 @@
 
 import GENERATED from './lessonReadings.generated.json'
 
+export const hasKanji = (v = '') => /[一-龯㐀-鿿]/.test(String(v || ''))
+
 const COMMON = {
   // proper nouns + common nouns (incl. words missing from vocab)
   東京: 'とうきょう', 日本: 'にほん', 日本人: 'にほんじん', 日本語: 'にほんご', 英語: 'えいご',
@@ -53,6 +55,20 @@ const COMMON = {
 export const READINGS = { ...GENERATED, ...COMMON }
 
 export const READINGS_MAX_LEN = Object.keys(READINGS).reduce((m, k) => Math.max(m, k.length), 1)
+
+// Runtime layer — admin-managed vocab (Firestore) merged in at app start so
+// custom kanji words get furigana app-wide without a rebuild. Highest priority.
+let CUSTOM = {}
+let CUSTOM_MAX = 0
+export function setCustomReadings(map) {
+  CUSTOM = map && typeof map === 'object' ? map : {}
+  CUSTOM_MAX = Object.keys(CUSTOM).reduce((m, k) => Math.max(m, k.length), 0)
+}
+export function readingLookup(surface) {
+  const r = surface in CUSTOM ? CUSTOM[surface] : READINGS[surface]
+  return r == null ? null : r
+}
+export function maxReadingLen() { return Math.max(READINGS_MAX_LEN, CUSTOM_MAX) }
 
 // ── Hiragana/Katakana → Hepburn romaji (for Romanized mode fallback) ─────────
 const ROMA = {

@@ -32,6 +32,10 @@ import ClubHome from './components/ClubHome.jsx'
 import ClubSpeakingScreen from './components/ClubSpeakingScreen.jsx'
 import ClubStoriesScreen from './components/ClubStoriesScreen.jsx'
 import { N5_STORIES } from './content/n5Stories.js'
+import useAppConfig from './hooks/useAppConfig.js'
+import useStoryOverrides, { mergeStoryOverrides } from './hooks/useStoryOverrides.js'
+import useCustomVocab from './hooks/useCustomVocab.js'
+import useBroadcasts, { pickBroadcast, markBroadcastSeen } from './hooks/useBroadcasts.js'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
@@ -2010,18 +2014,30 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
       <CommunityTabs tabs={COMMUNITY_TABS} activeTab={activeTab} onSelect={setActiveTab} lang={lang} />
 
-      <div className="cm-composer">
-        <button className="cm-composer-main" onClick={() => setComposer({ type: 'post' })}>
-          <span className="cm-composer-avatar" aria-hidden="true">{(displayName || userHandle || 'N').replace('@', '').slice(0, 1).toUpperCase()}</span>
-          <span className="cm-composer-placeholder">{isAr ? 'بماذا تفكر؟ شارك سؤالاً أو فكرة…' : 'What’s on your mind?'}</span>
+      <div className="cmc">
+        <button type="button" className="cmc-head" onClick={() => setComposer({ type: 'post' })}>
+          <span className="cmc-avatar" aria-hidden="true">{(displayName || userHandle || 'N').replace('@', '').slice(0, 1).toUpperCase()}</span>
+          <span className="cmc-head-text">
+            <strong className="cmc-title">{isAr ? 'بماذا تفكر؟' : 'What’s on your mind?'}</strong>
+            <span className="cmc-placeholder">{isAr ? 'شارك سؤالاً أو فكرة أو تجربة…' : 'Share a question, idea, or experience…'}</span>
+          </span>
         </button>
-        <div className="cm-composer-actions">
-          <button type="button" onClick={() => setComposer({ type: 'post' })}>📷<span>{isAr ? 'صور' : 'Photos'}</span></button>
-          <button type="button" onClick={() => setComposer({ type: 'question' })}>❓<span>{isAr ? 'سؤال' : 'Question'}</span></button>
-          <button type="button" onClick={() => setComposer({ type: 'poll' })}>📊<span>{isAr ? 'استفتاء' : 'Poll'}</span></button>
-          <button type="button" onClick={() => setComposer({ type: 'voiceRoom' })}>🎙️<span>{isAr ? 'غرفة' : 'Room'}</span></button>
-          <button type="button" onClick={() => setComposer({ type: 'achievement' })}>🏆<span>{isAr ? 'إنجاز' : 'Win'}</span></button>
+        <div className="cmc-grid">
+          {[
+            ['post', '📷', isAr ? 'صور' : 'Photos'],
+            ['poll', '📊', isAr ? 'استفتاء' : 'Poll'],
+            ['voiceRoom', '🎙️', isAr ? 'غرفة صوتية' : 'Voice room'],
+            ['achievement', '🏆', isAr ? 'إنجاز' : 'Win'],
+            ['question', '❓', isAr ? 'سؤال' : 'Question'],
+            ['post', '📝', isAr ? 'منشور' : 'Post'],
+          ].map(([type, emoji, label], i) => (
+            <button key={i} type="button" className="cmc-action" onClick={() => setComposer({ type })}>
+              <span className="cmc-action-ico" aria-hidden="true">{emoji}</span>
+              <span className="cmc-action-label">{label}</span>
+            </button>
+          ))}
         </div>
+        <button type="button" className="btn btn-primary cmc-post" onClick={() => setComposer({ type: 'post' })}>{isAr ? 'نشر' : 'Post'}</button>
       </div>
 
       {composer && (
@@ -2669,6 +2685,22 @@ export default function App() {
   const lastSavedProgressJsonRef = useRef('')
   const [screen, setScreen] = useState('loading')
   const [tab, setTab] = useState('home')
+  const appConfig = useAppConfig() // live CMS config (feature flags, nav, app name)
+  const storyOverrides = useStoryOverrides() // admin-authored stories (Stories CMS)
+  const storiesByLevelMerged = useMemo(() => mergeStoryOverrides(STORIES_BY_LEVEL, storyOverrides), [storyOverrides])
+  useCustomVocab() // load admin vocab → feeds the global furigana dictionary
+  const broadcasts = useBroadcasts() // admin notifications (Module 9)
+  useEffect(() => {
+    if (isGuest || !dataReady) return
+    const b = pickBroadcast(broadcasts, currentLevel)
+    if (!b) return
+    try { setNotice([b.title, b.body].filter(Boolean).join(' — ')) } catch { /* noop */ }
+    markBroadcastSeen(b.id)
+  }, [broadcasts]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const name = appConfig.appName?.ar || appConfig.appName?.en
+    if (name) document.title = name
+  }, [appConfig.appName])
   const [senseiInitial, setSenseiInitial] = useState(null) // null | 'guided' | 'realtime' — how the Sensei screen opens
   const [communityView, setCommunityView] = useState('feed') // 'feed'|'dm-inbox'|'dm-chat'|'notifications'|'notif-settings'
   useEffect(() => { if (tab !== 'community') setCommunityView('feed') }, [tab])
@@ -2691,6 +2723,15 @@ export default function App() {
   const [userUsername, setUserUsername] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [userRole, setUserRole] = useState('')
+  const [userBanned, setUserBanned] = useState(false)
+  // Ban / suspension enforcement: an admin-set flag on the user doc signs the
+  // learner out on next load (referenced fields are read at run time, so this
+  // effect only depends on userBanned).
+  useEffect(() => {
+    if (!userBanned) return
+    try { setNotice(lang === 'ar' ? 'تم إيقاف هذا الحساب. تواصل مع الدعم.' : 'This account has been suspended. Contact support.') } catch { /* noop */ }
+    try { signOut(auth) } catch { /* noop */ }
+  }, [userBanned]) // eslint-disable-line react-hooks/exhaustive-deps
   const [emailVerified, setEmailVerified] = useState(false)
   const [userBio, setUserBio] = useState('')
   const [userPhone, setUserPhone] = useState('')
@@ -2800,6 +2841,7 @@ export default function App() {
     setUserName(state.userName || state.name || '')
     setUserUsername(state.userUsername || state.username || '')
     setUserRole(state.role || '')
+    setUserBanned(state.banned === true || (typeof state.suspendedUntil === 'string' && state.suspendedUntil && Date.parse(state.suspendedUntil) > Date.now()))
     setEmailVerified(state.emailVerified ?? false)
     setUserBio(state.userBio ?? '')
     setUserPhone(state.userPhone || state.phone || '')
@@ -3231,14 +3273,11 @@ export default function App() {
   // النادي — route each Club item to its real, working flow (no dead buttons).
   const handleClubOpen = (key) => {
     if (key === 'conversation') { setSenseiInitial('guided'); setScreen('sensei'); return }
-    if (key === 'chat') { setSenseiInitial(null); setScreen('sensei'); return }
     if (key === 'vocab') { setReviewFilter('vocab'); setScreen('review'); return }
     if (key === 'mistakes') { setReviewFilter(null); setScreen('review'); return }
-    if (key === 'smartreview') { setReviewFilter(null); setScreen('review'); return }
     if (key === 'listening') { startListeningPractice(); return }
     if (key === 'speaking') { setScreen('club-speaking'); return }
     if (key === 'stories') { setScreen('club-stories'); return }
-    if (key === 'challenges') { startChallenge(); return }
   }
 
   const startCharacterGroupQuiz = (group) => {
@@ -3608,7 +3647,7 @@ export default function App() {
   }
 
   if (screen === 'club-stories') {
-    return <ClubStoriesScreen lang={lang} storiesByLevel={STORIES_BY_LEVEL} onClose={() => setScreen('main')} onComplete={(xp) => registerStudyActivity(xp)} />
+    return <ClubStoriesScreen lang={lang} storiesByLevel={storiesByLevelMerged} onClose={() => setScreen('main')} onComplete={(xp) => registerStudyActivity(xp)} />
   }
 
   if (screen === 'sensei') {
@@ -3790,6 +3829,10 @@ export default function App() {
           overrides={lessonOverrides}
           initialLevel={currentLevel}
           adminHandle={userHandle}
+          appConfig={appConfig}
+          role={userRole || 'admin'}
+          baseStoriesByLevel={STORIES_BY_LEVEL}
+          storyOverrides={storyOverrides}
           onBack={() => setScreen('main')}
           onNotice={setNotice}
         />
@@ -4147,12 +4190,19 @@ export default function App() {
           ['letters', 'writing', t.letters],
           ['community', 'speaking', lang === 'ar' ? 'المجتمع' : 'Community'],
           ['profile', 'profile', t.profile],
-        ].map(([id, icon, label]) => (
-          <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
-            <span><AppIcon name={icon} size={26} /></span>
-            <small>{label}</small>
-          </button>
-        ))}
+        ].filter(([id]) => !(appConfig.nav.hidden || []).includes(id)
+          && (id !== 'club' || appConfig.featureFlags.club !== false)
+          && (id !== 'community' || appConfig.featureFlags.community !== false))
+          .map(([id, icon, label]) => {
+            const ov = appConfig.nav.labels?.[id]
+            const lbl = (ov && (lang === 'ar' ? ov.ar : ov.en)) || label
+            return (
+              <button key={id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
+                <span><AppIcon name={icon} size={26} /></span>
+                <small>{lbl}</small>
+              </button>
+            )
+          })}
       </nav>
       )}
     </>

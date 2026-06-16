@@ -6,6 +6,7 @@ import { buildCallPrompt, speakMixed, stopSpeaking } from '../../ai/senseiCall.t
 import CallModePicker from './CallModePicker.jsx'
 import CallReportScreen from './CallReportScreen.jsx'
 import { modePromptSnippet } from '../../ai/callModes.js'
+import useAiConfig from '../../hooks/useAiConfig.js'
 import { canStartCall, addCallSeconds, callMinutesRemaining, quotaMessage } from '../../ai/callQuota.js'
 import { generateCallReport } from '../../ai/callReport.js'
 import { saveCallSession, fetchRecentCallSessions, buildCallMemory, pushCallMistakesToReview } from '../../ai/callSessions.js'
@@ -49,6 +50,7 @@ function classifyCallError(err, status, body, isAr) {
 // secure cloud path apply unchanged.
 export default function SenseiCallScreen({ ctx, lang, onClose }) {
   const isAr = lang === 'ar'
+  const aiConfig = useAiConfig() // admin-editable greeting + extra tutor instruction
   const [turns, setTurns] = useState([]) // { role: 'student'|'sensei', text }
   const [status, setStatus] = useState('idle') // idle | listening | thinking | speaking
   const [mode, setMode] = useState('setup') // setup | realtime | fallback | failed (call phase)
@@ -205,9 +207,9 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
   const startFallbackCall = () => {
     cleanupRealtime()
     setMode('fallback')
-    const greeting = isAr
+    const greeting = (isAr ? aiConfig.greeting?.ar : aiConfig.greeting?.en) || (isAr
       ? 'مرحبًا! أنا عبدول سينسيه. اسألني بالعربية أو جرّب جملة باليابانية، وأنا أسمعك.'
-      : 'Hello! I am Abdoul Sensei. Ask me in Arabic or try a Japanese sentence — I am listening.'
+      : 'Hello! I am Abdoul Sensei. Ask me in Arabic or try a Japanese sentence — I am listening.')
     setTurns([{ role: 'sensei', text: greeting }])
     setStatus('speaking')
     speakMixed(greeting, { onEnd: () => mountedRef.current && setStatus('idle') })
@@ -352,7 +354,7 @@ export default function SenseiCallScreen({ ctx, lang, onClose }) {
         headers: {
           Authorization: `Bearer ${idToken}`,
           'Content-Type': 'application/sdp',
-          'X-Sensei-Context': encodeContext({ ...ctx, modePrompt: modePromptSnippet(callMode, scenario), recentCallMemory: callMemory }),
+          'X-Sensei-Context': encodeContext({ ...ctx, modePrompt: [modePromptSnippet(callMode, scenario), aiConfig.promptAppend].filter(Boolean).join('\n'), recentCallMemory: callMemory }),
         },
       })
       sdpStatus = sdpResponse.status

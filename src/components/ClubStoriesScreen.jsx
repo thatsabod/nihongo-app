@@ -26,7 +26,7 @@ const STORY_ICONS = {
   'n5s-birthday-surprise': '🎂', 'n5s-train-ticket': '🎫', 'n5s-school-festival': '🎏',
   'n5s-small-gift': '🎁',
 }
-const storyIcon = (st) => STORY_ICONS[st?.id] || '📖'
+const storyIcon = (st) => STORY_ICONS[st?.id] || st?.icon || '📖'
 
 const wordsCount = (s) => s.sentences.reduce((n, x) => n + (x.romaji ? x.romaji.split(/\s+/).filter(Boolean).length : Math.ceil((x.jp || '').length / 2)), 0)
 const grammarCount = (s) => { const text = s.sentences.map((x) => x.jp).join(''); return PARTICLES.filter((p) => text.includes(p)).length }

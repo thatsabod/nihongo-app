@@ -18,7 +18,7 @@
 // `plain` forces NO furigana — use for reading-recognition exercises so the
 // answer is never revealed.
 
-import { READINGS, READINGS_MAX_LEN, kanaToRomaji } from '../data/japaneseReadings.js'
+import { readingLookup, maxReadingLen, kanaToRomaji } from '../data/japaneseReadings.js'
 import useExerciseSettings from '../hooks/useExerciseSettings.js'
 
 const KANJI_RE = /[㐀-鿿]/
@@ -122,10 +122,10 @@ function resolveNodes(text, localMap, useFallback, mode) {
       for (const k of localKeys) { if (k && text.startsWith(k, i)) { matchKey = k; matchReading = local[k]; break } }
     }
     if (!matchKey && useFallback) {
-      const limit = Math.min(READINGS_MAX_LEN, text.length - i)
+      const limit = Math.min(maxReadingLen(), text.length - i)
       for (let L = limit; L >= 1; L -= 1) {
         const sub = text.substr(i, L)
-        const r = READINGS[sub]
+        const r = readingLookup(sub)
         if (r != null) { matchKey = sub; matchReading = mode === 'romanized' ? kanaToRomaji(r) : r; break }
       }
     }
