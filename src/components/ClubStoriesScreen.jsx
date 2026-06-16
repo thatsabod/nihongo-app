@@ -212,7 +212,7 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
             <div key={i} className={`story-bubble ${!inQuestion && i === bubbles.length - 1 ? 'is-new' : ''}`}>
               <span className="story-bubble-avatar" aria-hidden="true">先生</span>
               <button type="button" className="story-bubble-body" dir="ltr" onClick={() => speakJapanese(s.jp)}>
-                <span className="story-bubble-jp"><JapaneseText text={s.jp} readingMap={readingMap} /> <AppIcon name="sound" size={14} /></span>
+                <span className="story-bubble-jp"><JapaneseText text={s.jp} readingMap={readingMap} fallback={!!readingMap} /> <AppIcon name="sound" size={14} /></span>
                 {showPron && romajiMode && s.romaji && <span className="story-bubble-romaji">{s.romaji}</span>}
                 {s.ar && <span className="story-bubble-ar" dir="rtl">{s.ar}</span>}
               </button>

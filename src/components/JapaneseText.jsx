@@ -18,6 +18,9 @@
 // `plain` forces NO furigana — use for reading-recognition exercises so the
 // answer is never revealed.
 
+import { READINGS, READINGS_MAX_LEN, kanaToRomaji } from '../data/japaneseReadings.js'
+import useExerciseSettings from '../hooks/useExerciseSettings.js'
+
 const KANJI_RE = /[㐀-鿿]/
 
 export const hasKanji = (value = '') => KANJI_RE.test(String(value || ''))
@@ -100,34 +103,83 @@ function renderWithMap(text, readingMap) {
   return parts
 }
 
+// Walk `text`, adding ruby over each kanji run resolved by (1) the local
+// readingMap (screen vocab / authored map — highest priority, used verbatim)
+// then (2) the global READINGS dictionary when `useFallback` (converted to
+// romaji in Romanized mode). Unknown kanji stay plain (graceful).
+function resolveNodes(text, localMap, useFallback, mode) {
+  const local = localMap && Object.keys(localMap).length ? localMap : null
+  const localKeys = local ? Object.keys(local).sort((a, b) => b.length - a.length) : null
+  const nodes = []
+  let i = 0
+  let buf = ''
+  let key = 0
+  const flush = () => { if (buf) { nodes.push(buf); buf = '' } }
+  while (i < text.length) {
+    let matchKey = null
+    let matchReading = null
+    if (local) {
+      for (const k of localKeys) { if (k && text.startsWith(k, i)) { matchKey = k; matchReading = local[k]; break } }
+    }
+    if (!matchKey && useFallback) {
+      const limit = Math.min(READINGS_MAX_LEN, text.length - i)
+      for (let L = limit; L >= 1; L -= 1) {
+        const sub = text.substr(i, L)
+        const r = READINGS[sub]
+        if (r != null) { matchKey = sub; matchReading = mode === 'romanized' ? kanaToRomaji(r) : r; break }
+      }
+    }
+    if (matchKey && hasKanji(matchKey) && matchReading) {
+      flush()
+      nodes.push(<ruby key={key++}>{matchKey}<rt>{matchReading}</rt></ruby>)
+      i += matchKey.length
+    } else {
+      buf += text[i]
+      i += 1
+    }
+  }
+  flush()
+  return nodes
+}
+
 export default function JapaneseText({
   text,
   reading,
   readingMap,
   plain = false,
+  fallback = false,
   className = '',
   dir = 'ltr',
   as: Tag = 'span',
   ...rest
 }) {
+  const { settings } = useExerciseSettings()
+  const mode = settings.pronunciationMode
   const content = text == null ? '' : String(text)
   if (!content) return null
-  if (plain) return <Tag className={className} dir={dir} {...rest}>{content}</Tag>
-  if (readingMap && Object.keys(readingMap).length) {
-    return <Tag className={className} dir={dir} {...rest}>{renderWithMap(content, readingMap)}</Tag>
+  if (plain || !hasJapanese(content)) return <Tag className={className} dir={dir} {...rest}>{content}</Tag>
+  // Explicit single reading (legacy RubyText path) — no global fallback (test-safe).
+  if (reading && !readingMap && !fallback) {
+    if (hasKanji(content)) return <Tag className={className} dir={dir} {...rest}>{renderWithReading(content, reading)}</Tag>
+    return <Tag className={className} dir={dir} {...rest}>{content}</Tag>
   }
-  if (reading && hasKanji(content)) {
-    return <Tag className={className} dir={dir} {...rest}>{renderWithReading(content, reading)}</Tag>
+  // Local map and/or global dictionary fallback.
+  if ((readingMap && Object.keys(readingMap).length) || fallback) {
+    return <Tag className={className} dir={dir} {...rest}>{resolveNodes(content, readingMap, fallback, mode)}</Tag>
   }
   return <Tag className={className} dir={dir} {...rest}>{content}</Tag>
 }
 
 // ── Back-compat named exports (drop-in for the old per-screen components) ─────
+// RubyText: explicit reading only (no global fallback) — keeps kanji-reading
+// quizzes/exams from leaking answers.
 export function RubyText({ text, reading, className = '' }) {
   return <JapaneseText text={text} reading={reading} className={['jp-inline', className].filter(Boolean).join(' ')} />
 }
 
+// LessonJP: vocab map + global fallback so every kanji in lesson sentences,
+// dialogue, examples and reading passages gets furigana.
 export function LessonJP({ text, readingMap = {}, className = '' }) {
   if (!text) return null
-  return <JapaneseText text={text} readingMap={readingMap} className={['jp-line', className].filter(Boolean).join(' ')} />
+  return <JapaneseText text={text} readingMap={readingMap} fallback className={['jp-line', className].filter(Boolean).join(' ')} />
 }

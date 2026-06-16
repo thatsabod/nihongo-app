@@ -42,14 +42,14 @@ export default function StoryQuestion({ q, lang, readingMap, onNext }) {
 
   return (
     <div className="sq">
-      {q.kind === 'missing' && <p className="sq-sentence" dir="ltr"><JapaneseText text={q.prompt} readingMap={readingMap} /></p>}
-      <p className="sq-prompt"><JapaneseText as="span" dir="auto" text={prompt} readingMap={readingMap} /></p>
+      {q.kind === 'missing' && <p className="sq-sentence" dir="ltr"><JapaneseText text={q.prompt} readingMap={readingMap} fallback={!!readingMap} /></p>}
+      <p className="sq-prompt"><JapaneseText as="span" dir="auto" text={prompt} readingMap={readingMap} fallback={!!readingMap} /></p>
       <div className="sq-options">
         {q.options.map((opt) => {
           const state = !answered ? '' : opt === q.answer ? 'correct' : opt === picked ? 'wrong' : ''
           return (
             <button key={opt} type="button" className={`sq-option ${state}`} dir="auto" disabled={answered} onClick={() => choose(opt)}>
-              <JapaneseText as="span" dir="auto" text={opt} readingMap={readingMap} />
+              <JapaneseText as="span" dir="auto" text={opt} readingMap={readingMap} fallback={!!readingMap} />
             </button>
           )
         })}
@@ -78,7 +78,7 @@ function TrueFalseQuestion({ q, lang, readingMap, onNext }) {
   return (
     <div className="sq">
       <p className="sq-prompt">{t('صح أم خطأ؟', 'True or false?')}</p>
-      <p className="sq-tf-stmt" dir="auto"><span dir="ltr">「<JapaneseText as="span" text={q.word} readingMap={readingMap} />」</span> = {q.meaning}</p>
+      <p className="sq-tf-stmt" dir="auto"><span dir="ltr">「<JapaneseText as="span" text={q.word} readingMap={readingMap} fallback={!!readingMap} />」</span> = {q.meaning}</p>
       <div className="sq-tf">
         <button type="button" className={`sq-tf-btn ${tfClass(true)}`} disabled={answered} onClick={() => choose(true)} aria-label={t('صح', 'True')}>
           <AppIcon name="correct" size={30} />
@@ -131,7 +131,7 @@ function MatchQuestion({ q, lang, readingMap, onNext }) {
         </div>
         <div className="sq-match-col">
           {right.map((item) => (
-            <button key={`r${item.i}`} type="button" className={cellClass('r', item)} disabled={matched.includes(item.i)} dir="ltr" onClick={() => tap('r', item)}><JapaneseText as="span" text={item.label} readingMap={readingMap} /></button>
+            <button key={`r${item.i}`} type="button" className={cellClass('r', item)} disabled={matched.includes(item.i)} dir="ltr" onClick={() => tap('r', item)}><JapaneseText as="span" text={item.label} readingMap={readingMap} fallback={!!readingMap} /></button>
           ))}
         </div>
       </div>
