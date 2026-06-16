@@ -8,8 +8,18 @@ import { getMessaging, getToken, onMessage, isSupported, deleteToken } from 'fir
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { app, db } from '../firebase.js'
 
-const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY || ''
+const VAPID_RAW = import.meta.env.VITE_FIREBASE_VAPID_KEY
+const VAPID_KEY = (VAPID_RAW || '').trim()
 const SW_URL = '/firebase-messaging-sw.js'
+
+// Runtime diagnostic (build-time injected value). `type:'undefined'` means the
+// var was NOT present in the build (Vercel dashboard var not reaching the build
+// step — name/scope/cache). `type:'string', length:0` means it was injected but
+// empty. `length ~87` means it's the real key.
+export function vapidDiagnostics() {
+  return { type: typeof VAPID_RAW, length: VAPID_KEY.length, head: VAPID_KEY.slice(0, 6), configured: Boolean(VAPID_KEY) }
+}
+try { console.info('[push] VAPID diag:', vapidDiagnostics()) } catch { /* noop */ }
 
 let messagingInstance = null
 let supportedCache = null

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import AppIcon from './AppIcon.jsx'
-import { pushSupported, permissionState, vapidConfigured, enablePush, disablePush } from '../firebase/messaging.js'
+import { pushSupported, permissionState, vapidConfigured, enablePush, disablePush, vapidDiagnostics } from '../firebase/messaging.js'
 
 // Account-settings control for Web Push (FCM). Requests permission, saves the
 // device token, and shows clear device status. Never spams the prompt.
@@ -52,7 +52,10 @@ export default function PushSettings({ uid, level = '', lang = 'ar' }) {
       </div>
 
       {!vapidConfigured() && (
-        <p className="push-hint">{t('لم تُضبط مفاتيح الدفع بعد (VAPID). أبلغ المسؤول لتفعيلها.', 'Push keys (VAPID) not configured yet. Ask the admin to enable.')}</p>
+        <>
+          <p className="push-hint">{t('لم تُضبط مفاتيح الدفع بعد (VAPID). أبلغ المسؤول لتفعيلها.', 'Push keys (VAPID) not configured yet. Ask the admin to enable.')}</p>
+          <p className="push-hint" dir="ltr">VAPID runtime: {(() => { const d = vapidDiagnostics(); return `${d.type}, len ${d.length}${d.head ? `, ${d.head}…` : ''}` })()}</p>
+        </>
       )}
       {denied && (
         <p className="push-hint">{t('الإشعارات محظورة من إعدادات المتصفح. فعّلها من إعدادات الموقع ثم أعد المحاولة.', 'Notifications are blocked in your browser settings. Allow them from site settings, then retry.')}</p>
