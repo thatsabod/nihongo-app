@@ -36,6 +36,8 @@ import useAppConfig from './hooks/useAppConfig.js'
 import useStoryOverrides, { mergeStoryOverrides } from './hooks/useStoryOverrides.js'
 import useCustomVocab from './hooks/useCustomVocab.js'
 import useBroadcasts, { pickBroadcast, markBroadcastSeen } from './hooks/useBroadcasts.js'
+import { onForegroundMessage } from './firebase/messaging.js'
+import PushSettings from './components/PushSettings.jsx'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
@@ -914,7 +916,9 @@ function CharacterSymbol({ item, readingMode = 'hiragana' }) {
 function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak, totalQuizzes, masteredCount, currentLevel, onStartDaily, onNotice, communityView = 'feed', setCommunityView = () => {} }) {
   const [sentence, setSentence] = useState('')
   const [questionText, setQuestionText] = useState('')
-  const [composer, setComposer] = useState(null) // null | { type } — post composer modal
+  const [composer, setComposer] = useState(null) // null | { type, text } — post composer modal
+  const [composerDraft, setComposerDraft] = useState('') // inline (Twitter-style) text draft
+  const [composerPosting, setComposerPosting] = useState(false)
   const [pollVotes, setPollVotes] = useState(() => new Map()) // postId -> chosen optionId
   const [activeReplyId, setActiveReplyId] = useState(null)
   const [replyDrafts, setReplyDrafts] = useState({})
@@ -1260,10 +1264,20 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
       if (imageUrls.length) docData.images = imageUrls
       await addDoc(collection(db, 'communityQuestions'), docData)
       setComposer(null)
+      setComposerDraft('')
       onNotice(text.saved)
     } catch (error) {
       onNotice(`${text.locked} ${error.code || error.message}`)
     }
+  }
+
+  // Twitter-style inline Post: one-click publish for plain text; empty draft
+  // just opens the full composer.
+  const submitInlinePost = async () => {
+    const body = composerDraft.trim()
+    if (!body) { setComposer({ type: 'post', text: '' }); return }
+    setComposerPosting(true)
+    try { await createPost({ type: 'post', text: body }) } finally { setComposerPosting(false) }
   }
 
   // One vote per user per poll (deterministic doc id). Counts are aggregated
@@ -2014,36 +2028,38 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
 
       <CommunityTabs tabs={COMMUNITY_TABS} activeTab={activeTab} onSelect={setActiveTab} lang={lang} />
 
-      <div className="cmc">
-        <button type="button" className="cmc-head" onClick={() => setComposer({ type: 'post' })}>
-          <span className="cmc-avatar" aria-hidden="true">{(displayName || userHandle || 'N').replace('@', '').slice(0, 1).toUpperCase()}</span>
-          <span className="cmc-head-text">
-            <strong className="cmc-title">{isAr ? 'بماذا تفكر؟' : 'What’s on your mind?'}</strong>
-            <span className="cmc-placeholder">{isAr ? 'شارك سؤالاً أو فكرة أو تجربة…' : 'Share a question, idea, or experience…'}</span>
-          </span>
-        </button>
-        <div className="cmc-grid">
-          {[
-            ['post', '📷', isAr ? 'صور' : 'Photos'],
-            ['poll', '📊', isAr ? 'استفتاء' : 'Poll'],
-            ['voiceRoom', '🎙️', isAr ? 'غرفة صوتية' : 'Voice room'],
-            ['achievement', '🏆', isAr ? 'إنجاز' : 'Win'],
-            ['question', '❓', isAr ? 'سؤال' : 'Question'],
-            ['post', '📝', isAr ? 'منشور' : 'Post'],
-          ].map(([type, emoji, label], i) => (
-            <button key={i} type="button" className="cmc-action" onClick={() => setComposer({ type })}>
-              <span className="cmc-action-ico" aria-hidden="true">{emoji}</span>
-              <span className="cmc-action-label">{label}</span>
-            </button>
-          ))}
+      <div className="ccbar">
+        <span className="ccbar-avatar" aria-hidden="true">{(displayName || userHandle || 'N').replace('@', '').slice(0, 1).toUpperCase()}</span>
+        <div className="ccbar-main">
+          <textarea
+            className="ccbar-input"
+            rows={1}
+            value={composerDraft}
+            onChange={(e) => { setComposerDraft(e.target.value); e.target.style.height = 'auto'; e.target.style.height = `${Math.min(e.target.scrollHeight, 160)}px` }}
+            placeholder={isAr ? 'بماذا تفكر؟ شارك سؤالاً أو فكرة أو تجربة…' : 'What’s on your mind? Share a question or idea…'}
+          />
+          <div className="ccbar-foot">
+            <div className="ccbar-actions">
+              {[
+                ['post', '📷', isAr ? 'صور' : 'Photos'],
+                ['poll', '📊', isAr ? 'استفتاء' : 'Poll'],
+                ['voiceRoom', '🎙️', isAr ? 'غرفة' : 'Room'],
+                ['achievement', '🏆', isAr ? 'إنجاز' : 'Win'],
+                ['question', '❓', isAr ? 'سؤال' : 'Question'],
+              ].map(([type, emoji, label]) => (
+                <button key={type} type="button" className="ccbar-act" title={label} aria-label={label} onClick={() => setComposer({ type, text: composerDraft })}>{emoji}</button>
+              ))}
+            </div>
+            <button type="button" className="btn btn-primary ccbar-post" disabled={composerPosting} onClick={submitInlinePost}>{isAr ? 'نشر' : 'Post'}</button>
+          </div>
         </div>
-        <button type="button" className="btn btn-primary cmc-post" onClick={() => setComposer({ type: 'post' })}>{isAr ? 'نشر' : 'Post'}</button>
       </div>
 
       {composer && (
         <CommunityComposerModal
           lang={lang}
           initialType={composer.type}
+          initialText={composer.text || ''}
           onClose={() => setComposer(null)}
           onSubmit={createPost}
         />
@@ -2697,6 +2713,15 @@ export default function App() {
     try { setNotice([b.title, b.body].filter(Boolean).join(' — ')) } catch { /* noop */ }
     markBroadcastSeen(b.id)
   }, [broadcasts]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Foreground Web Push (app open) → show as an in-app notice.
+  useEffect(() => {
+    const unsub = onForegroundMessage((payload) => {
+      const d = payload?.data || payload?.notification || {}
+      const msg = [d.title, d.body].filter(Boolean).join(' — ')
+      if (msg) { try { setNotice(msg) } catch { /* noop */ } }
+    })
+    return unsub
+  }, [])
   useEffect(() => {
     const name = appConfig.appName?.ar || appConfig.appName?.en
     if (name) document.title = name
@@ -4137,6 +4162,7 @@ export default function App() {
               <strong>{lang === 'ar' ? 'إعدادات الإشعارات' : 'Notification settings'}</strong>
               <small>›</small>
             </button>
+            {!isGuest && <PushSettings uid={userId} level={currentLevel} lang={lang} />}
             <button className="settings-entry" onClick={() => setScreen('settings')}>
               <IconCircle name="settings" size={44} />
               <strong>{t.settings}</strong>

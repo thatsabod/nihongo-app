@@ -7712,24 +7712,37 @@ button.admin-listrow { cursor: pointer; }
 .cm-composer-actions button:hover { background: color-mix(in srgb, var(--primary) 8%, transparent); }
 .cm-composer-actions button span { color: var(--muted); }
 
-/* ── Community composer v2 (avatar + prompt + 2-col action grid + Post) ─────── */
-.cmc { margin: 10px 0 14px; border: 1px solid var(--border); border-radius: 18px; background: var(--panel); padding: 14px; display: flex; flex-direction: column; gap: 14px; }
-.cmc-head { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: 0; cursor: pointer; text-align: start; color: var(--text); font: inherit; }
-.cmc-avatar { flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1.15rem; background: linear-gradient(135deg, var(--primary), var(--primary-2, #7c3aed)); color: #fff; }
-.cmc-head-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.cmc-title { font-size: 1.05rem; font-weight: 800; color: var(--text); }
-.cmc-placeholder { font-size: 0.85rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cmc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.cmc-action {
-  display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 12px 14px;
-  border: 1px solid var(--border); border-radius: 14px; background: var(--bg); color: var(--text);
-  font: inherit; font-weight: 700; cursor: pointer; transition: border-color 0.15s ease, transform 0.1s ease;
+/* ── Community composer (Twitter/X-style: avatar + textarea + icon bar + Post) ─ */
+.ccbar { margin: 10px 0 14px; display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1px solid var(--border); border-radius: 18px; background: var(--panel); }
+.ccbar-avatar { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1.1rem; background: linear-gradient(135deg, var(--primary), var(--primary-2, #7c3aed)); color: #fff; }
+.ccbar-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.ccbar-input {
+  width: 100%; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 1.05rem;
+  line-height: 1.5; resize: none; overflow-y: auto; min-height: 28px; max-height: 160px; padding: 4px 0;
 }
-.cmc-action:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); }
-.cmc-action:active { transform: scale(0.98); }
-.cmc-action-ico { font-size: 1.3rem; flex-shrink: 0; line-height: 1; }
-.cmc-action-label { font-size: 0.92rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cmc-post { width: 100%; font-weight: 900; }
+.ccbar-input::placeholder { color: var(--muted); }
+.ccbar-input:focus { outline: none; }
+.ccbar-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; }
+.ccbar-actions { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.ccbar-act {
+  flex-shrink: 0; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+  border: 0; background: transparent; cursor: pointer; font-size: 1.2rem; line-height: 1;
+  transition: background 0.15s ease;
+}
+.ccbar-act:hover { background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.ccbar-post { flex-shrink: 0; padding: 8px 22px; border-radius: 999px; font-weight: 900; }
+@media (max-width: 360px) { .ccbar-act { width: 34px; height: 34px; font-size: 1.1rem; } .ccbar-post { padding: 8px 16px; } }
+
+/* ── Push notification settings (account) ──────────────────────────────────── */
+.push-settings { border: 1px solid var(--border); border-radius: 16px; background: var(--panel); padding: 14px; margin: 4px 0; display: flex; flex-direction: column; gap: 8px; }
+.push-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.push-label { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+.push-status { font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: color-mix(in srgb, var(--muted) 20%, var(--panel)); color: var(--muted); }
+.push-status.on { background: color-mix(in srgb, #16a34a 22%, var(--panel)); color: #16a34a; }
+.push-status.blocked { background: color-mix(in srgb, #ef4444 20%, var(--panel)); color: #ef4444; }
+.push-hint { margin: 0; font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.push-actions { display: flex; gap: 8px; }
+.push-actions .btn { flex: 1; }
 
 /* ── Post type badge ───────────────────────────────────────────────────────── */
 .cm-type-badge {

@@ -11,6 +11,7 @@ const { defineSecret } = require('firebase-functions/params')
 const { initializeApp } = require('firebase-admin/app')
 const { getAuth } = require('firebase-admin/auth')
 const { getFirestore, FieldValue } = require('firebase-admin/firestore')
+const { getMessaging } = require('firebase-admin/messaging')
 const Anthropic = require('@anthropic-ai/sdk')
 
 initializeApp()
@@ -292,5 +293,117 @@ exports.createSenseiRealtimeCall = onRequest(
     }
 
     response.type('application/sdp').send(answerSdp)
+  },
+)
+
+// ── Admin Web Push (FCM) — send a broadcast to users' devices ────────────────
+// Callable only by owner/admin/moderator (or username 'abdol'). Validates the
+// caller's role SERVER-SIDE (never trusts the client), fans the message out to
+// all matching, enabled FCM tokens, prunes invalid tokens, and returns stats.
+async function callerCanBroadcast(uid) {
+  if (!uid) return false
+  const snap = await db.doc(`users/${uid}`).get()
+  if (!snap.exists) return false
+  const u = snap.data() || {}
+  return ['owner', 'admin', 'moderator'].includes(u.role)
+    || u.userUsername === 'abdol' || u.username === 'abdol'
+}
+
+exports.sendAdminBroadcastPush = onCall(
+  { region: 'us-central1', timeoutSeconds: 120, memory: '256MiB', maxInstances: 5 },
+  async (request) => {
+    const uid = request.auth?.uid
+    if (!uid) throw new HttpsError('unauthenticated', 'Sign in required.')
+    if (!(await callerCanBroadcast(uid))) throw new HttpsError('permission-denied', 'Admins only.')
+
+    const d = request.data || {}
+    const title = String(d.title || '').slice(0, 120).trim()
+    const body = String(d.body || '').slice(0, 500).trim()
+    if (!title && !body) throw new HttpsError('invalid-argument', 'Title or body required.')
+    const audience = String(d.audience || 'all') // 'all' | 'N5'..'N1'
+    const uids = Array.isArray(d.uids) ? d.uids.slice(0, 500).map(String) : [] // for 'specific'
+    const clickAction = String(d.clickAction || '/').slice(0, 300)
+    const type = String(d.type || 'admin_broadcast').slice(0, 60)
+    const icon = String(d.icon || '/favicon.svg').slice(0, 400)
+    const image = d.image ? String(d.image).slice(0, 600) : ''
+
+    // Collect enabled tokens (collection group), filter by audience in code so
+    // no composite index is required.
+    const snap = await db.collectionGroup('fcmTokens').where('enabled', '==', true).get()
+    const wanted = uids.length ? new Set(uids) : null
+    const targets = [] // { token, ref }
+    snap.forEach((docSnap) => {
+      const data = docSnap.data() || {}
+      if (!data.token) return
+      const ownerUid = docSnap.ref.parent.parent ? docSnap.ref.parent.parent.id : ''
+      if (wanted) { if (!wanted.has(ownerUid)) return }
+      else if (audience !== 'all' && data.level !== audience) return
+      targets.push({ token: data.token, ref: docSnap.ref })
+    })
+
+    if (!targets.length) {
+      return { totalTokens: 0, successCount: 0, failureCount: 0, invalidRemoved: 0 }
+    }
+
+    const dataPayload = {
+      title, body, icon, image, clickAction, type,
+      tag: `bc-${Date.now()}`,
+    }
+    const messaging = getMessaging()
+    let success = 0
+    let failure = 0
+    const invalidRefs = []
+
+    for (let i = 0; i < targets.length; i += 500) {
+      const chunk = targets.slice(i, i + 500)
+      // Data-only message: the SW renders it (full control, no double notif).
+      const res = await messaging.sendEachForMulticast({
+        tokens: chunk.map((x) => x.token),
+        data: dataPayload,
+        webpush: {
+          fcmOptions: { link: clickAction },
+          headers: { Urgency: 'high' },
+        },
+        android: { priority: 'high' },
+      })
+      success += res.successCount
+      failure += res.failureCount
+      res.responses.forEach((r, j) => {
+        if (!r.success) {
+          const code = r.error && r.error.code
+          if (code === 'messaging/registration-token-not-registered'
+            || code === 'messaging/invalid-registration-token'
+            || code === 'messaging/invalid-argument') {
+            invalidRefs.push(chunk[j].ref)
+          }
+        }
+      })
+    }
+
+    // Prune invalid tokens (batched).
+    for (let i = 0; i < invalidRefs.length; i += 400) {
+      const batch = db.batch()
+      invalidRefs.slice(i, i + 400).forEach((ref) => batch.delete(ref))
+      await batch.commit()
+    }
+
+    const stats = {
+      totalTokens: targets.length,
+      successCount: success,
+      failureCount: failure,
+      invalidRemoved: invalidRefs.length,
+    }
+
+    // Record delivery stats on the broadcast doc if one was provided.
+    if (d.broadcastId) {
+      try {
+        await db.doc(`broadcasts/${String(d.broadcastId)}`).set(
+          { pushStats: { ...stats, sentAt: FieldValue.serverTimestamp(), sentBy: uid } },
+          { merge: true },
+        )
+      } catch (e) { /* non-fatal */ }
+    }
+
+    return stats
   },
 )

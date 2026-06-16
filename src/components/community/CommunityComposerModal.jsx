@@ -18,11 +18,11 @@ const DURATIONS = [1, 3, 7]
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1']
 const MAX_OPTIONS = 5
 
-export default function CommunityComposerModal({ lang, initialType = 'post', onClose, onSubmit }) {
+export default function CommunityComposerModal({ lang, initialType = 'post', initialText = '', onClose, onSubmit }) {
   const isAr = lang === 'ar'
   const t = (ar, en) => (isAr ? ar : en)
   const [type, setType] = useState(initialType)
-  const [text, setText] = useState('')
+  const [text, setText] = useState(initialText)
   const [options, setOptions] = useState(['', ''])
   const [duration, setDuration] = useState(3)
   const [room, setRoom] = useState({ title: '', level: 'N5', capacity: 8 })
