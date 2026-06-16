@@ -8,6 +8,7 @@ import StoryQuestion from './StoryQuestion.jsx'
 import JapaneseText, { buildReadingMap } from './JapaneseText.jsx'
 import useExerciseSettings from '../hooks/useExerciseSettings.js'
 import ExerciseSettingsSheet from './exercise/ExerciseSettingsSheet.jsx'
+import { StoryNarrationCard, StoryDialogueBubble, buildSceneViews, parseScene } from './StoryScene.jsx'
 
 // Club → Stories — engaging, scene-based reading. Library (rich cards + states)
 // → pre-story modal → scene-by-scene player (progressive reveal + audio) →
@@ -16,6 +17,16 @@ import ExerciseSettingsSheet from './exercise/ExerciseSettingsSheet.jsx'
 const LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1']
 const PARTICLES = ['は', 'が', 'を', 'に', 'で', 'へ', 'と', 'も', 'の', 'から', 'まで', 'よ', 'ね', 'か']
 const STORY_XP = 20
+
+// Per-story illustration (emoji) for the library cards / featured hero; lesson-
+// derived passages fall back to the book glyph.
+const STORY_ICONS = {
+  'n5s-lost-umbrella': '☔', 'n5s-strange-bento': '🍱', 'n5s-forgotten-homework': '📝',
+  'n5s-new-student': '🧑‍🎓', 'n5s-library-secret': '📚', 'n5s-missing-cat': '🐱',
+  'n5s-birthday-surprise': '🎂', 'n5s-train-ticket': '🎫', 'n5s-school-festival': '🎏',
+  'n5s-small-gift': '🎁',
+}
+const storyIcon = (st) => STORY_ICONS[st?.id] || '📖'
 
 const wordsCount = (s) => s.sentences.reduce((n, x) => n + (x.romaji ? x.romaji.split(/\s+/).filter(Boolean).length : Math.ceil((x.jp || '').length / 2)), 0)
 const grammarCount = (s) => { const text = s.sentences.map((x) => x.jp).join(''); return PARTICLES.filter((p) => text.includes(p)).length }
@@ -54,11 +65,14 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
   const { settings } = useExerciseSettings()
   const list = storiesByLevel[level] || []
 
-  // Auto-play the line whenever the current step is a (new) scene.
+  // Auto-play the line whenever the current step is a (new) scene — speak just
+  // the spoken quote for dialogue, the whole sentence for narration.
   useEffect(() => {
     if (!play) return
     const cur = play.steps[play.stepIndex]
-    if (cur?.type === 'scene') speakJapanese(cur.sentence.jp)
+    if (cur?.type !== 'scene') return
+    const parsed = parseScene(cur.sentence.jp)
+    speakJapanese(parsed.type === 'dialogue' ? parsed.quote : cur.sentence.jp)
   }, [play?.stepIndex, play?.story?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const openStory = (story) => {
@@ -141,10 +155,23 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
                 <div className="story-done-stat"><span>{t('الدقة', 'Accuracy')}</span><strong>{finished.accuracy}%</strong></div>
                 {finished.bestCombo >= 2
                   ? <div className="story-done-stat"><span>{t('أفضل تتابع', 'Best streak')}</span><strong>🔥 {finished.bestCombo}</strong></div>
-                  : <div className="story-done-stat"><span>{t('كلمات', 'Words')}</span><strong>{wordsCount(fs)}</strong></div>}
+                  : <div className="story-done-stat"><span>{t('قواعد', 'Grammar')}</span><strong>{grammarCount(fs)}</strong></div>}
               </div>
-              <button className="btn btn-primary story-done-btn" onClick={() => { setFinished(null); openStory(fs) }}>{t('إعادة', 'Replay')}</button>
-              <button className="story-done-back" onClick={() => setFinished(null)}>{t('رجوع للمكتبة', 'Back to library')}</button>
+              {(fs.vocab || []).length > 0 && (
+                <div className="story-done-vocab">
+                  <h3>{t('كلمات تعلّمتها', 'Words you learned')}</h3>
+                  <div className="story-done-vocab-list">
+                    {(fs.vocab || []).slice(0, 8).map((v) => (
+                      <button key={v.jp} type="button" className="story-done-word" dir="ltr" onClick={() => speakJapanese(v.hiragana || v.jp)}>
+                        <span className="story-done-word-jp">{v.jp}</span>
+                        <span className="story-done-word-ar" dir="rtl">{v.meaning}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <button className="btn btn-primary story-done-btn" onClick={() => setFinished(null)}>{t('متابعة', 'Continue')}</button>
+              <button className="story-done-back" onClick={() => { setFinished(null); openStory(fs) }}>{t('إعادة القصة', 'Replay story')}</button>
             </>
           )}
         </div>
@@ -195,6 +222,7 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
     const readingMap = showPron && !romajiMode
       ? (play.story.furigana || buildReadingMap(play.story.vocab, 'hiragana'))
       : null
+    const sceneViews = buildSceneViews(bubbles)
     return (
       <div className="stories-screen story-player" dir={isAr ? 'rtl' : 'ltr'}>
         <header className="stories-head">
@@ -208,16 +236,17 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
           </button>
         </header>
         <div className="story-scene">
-          {bubbles.map((s, i) => (
-            <div key={i} className={`story-bubble ${!inQuestion && i === bubbles.length - 1 ? 'is-new' : ''}`}>
-              <span className="story-bubble-avatar" aria-hidden="true">先生</span>
-              <button type="button" className="story-bubble-body" dir="ltr" onClick={() => speakJapanese(s.jp)}>
-                <span className="story-bubble-jp"><JapaneseText text={s.jp} readingMap={readingMap} fallback={!!readingMap} /> <AppIcon name="sound" size={14} /></span>
-                {showPron && romajiMode && s.romaji && <span className="story-bubble-romaji">{s.romaji}</span>}
-                {s.ar && <span className="story-bubble-ar" dir="rtl">{s.ar}</span>}
-              </button>
-            </div>
-          ))}
+          <div className="sc-titlecard">
+            <span className={`sc-cover lvl-${level}`} aria-hidden="true">{storyIcon(play.story)}</span>
+            <h2 className="sc-title-ar" dir="auto">{play.story.titleAr || play.story.title}</h2>
+          </div>
+          {sceneViews.map((v, i) => {
+            const isNew = !inQuestion && i === sceneViews.length - 1
+            const common = { romaji: v.sentence.romaji, ar: v.sentence.ar, readingMap, showRomaji: showPron && romajiMode, lang, isNew }
+            return v.parsed.type === 'dialogue'
+              ? <StoryDialogueBubble key={i} speaker={v.parsed.speaker} jp={v.parsed.quote} {...common} />
+              : <StoryNarrationCard key={i} jp={v.sentence.jp} {...common} />
+          })}
           {inQuestion && <StoryQuestion key={play.stepIndex} q={current.q} lang={lang} readingMap={readingMap} onNext={onQuestionNext} />}
         </div>
         {!inQuestion && (
@@ -233,6 +262,21 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
   }
 
   // ── Library ────────────────────────────────────────────────────────────────
+  // Featured = the story to resume (in-progress), else the next unfinished, else the first.
+  const withState = list.map((st) => ({ st, s: getStoryState(st.id) }))
+  const featured = list.length
+    ? (withState.find((x) => x.s.sceneIndex > 0 && !x.s.completed)
+      || withState.find((x) => !x.s.completed)
+      || withState[0]).st
+    : null
+  const cardState = (s, total) => {
+    const pct = storyPercent(s, total)
+    if (s.completed && (s.accuracy || 0) >= 90) return { cls: 'mastered', pct, badge: '★' }
+    if (s.completed) return { cls: 'done', pct, badge: '✓' }
+    if (pct > 0) return { cls: 'progress', pct, badge: null }
+    return { cls: '', pct, badge: null }
+  }
+
   return (
     <div className="stories-screen" dir={isAr ? 'rtl' : 'ltr'}>
       <header className="stories-head">
@@ -251,27 +295,43 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
         ))}
       </div>
 
-      <div className="stories-grid">
-        {list.length ? list.map((st) => {
-          const state = getStoryState(st.id)
-          const pct = storyPercent(state, st.sentences.length)
+      <div className="stories-body">
+        {featured && (() => {
+          const fs = getStoryState(featured.id)
+          const fpct = storyPercent(fs, featured.sentences.length)
+          const word = featured.vocab?.[0]?.jp || featured.vocab?.[0]?.hiragana
+          const cta = fs.completed ? t('مراجعة', 'Review') : fpct > 0 ? t('متابعة', 'Continue') : t('ابدأ', 'Start')
           return (
-            <button key={st.id} type="button" className={`story-tile ${state.completed ? 'done' : ''}`} onClick={() => setModalStory(st)}>
-              <span className={`story-tile-thumb lvl-${level}`} aria-hidden="true">{state.completed ? '✓' : '📖'}</span>
-              <span className="story-tile-meta">
-                <strong dir="auto">{st.titleAr || st.title}</strong>
-                <span className="story-tile-sub">
-                  <span className={`story-badge lvl-${level}`}>{level}</span>
-                  <span>⚡ {STORY_XP}</span>
-                  <span>· {durationMin(st)} {t('د', 'min')}</span>
-                </span>
-              </span>
-              <span className="story-ring" style={{ '--pct': pct }} aria-hidden="true"><span>{state.completed ? '100%' : `${pct}%`}</span></span>
-            </button>
+            <section className="story-feature">
+              <span className={`story-feature-art lvl-${level}`} aria-hidden="true">{storyIcon(featured)}</span>
+              <h2 className="story-feature-title" dir="auto">{featured.titleAr || featured.title}</h2>
+              <p className="story-feature-sub" dir="auto">
+                {word ? t(`راجع كلمات مثل «${word}»`, `Review words like “${word}”`) : t('قصة تفاعلية قصيرة', 'A short interactive story')}
+              </p>
+              <button className="btn btn-primary story-feature-cta" onClick={() => openStory(featured)}>{cta} +{STORY_XP} XP</button>
+            </section>
           )
-        }) : (
-          <p className="stories-empty">{t('لا توجد قصص لهذا المستوى بعد.', 'No stories for this level yet.')}</p>
-        )}
+        })()}
+
+        <h2 className="story-lib-title">{t('مكتبة القصص', 'Your library')}</h2>
+
+        <div className="stories-grid">
+          {list.length ? list.map((st) => {
+            const cs = cardState(getStoryState(st.id), st.sentences.length)
+            return (
+              <button key={st.id} type="button" className={`story-card ${cs.cls}`} onClick={() => setModalStory(st)}>
+                <span className={`story-card-art lvl-${level}`} aria-hidden="true">
+                  <span className="story-card-emoji">{storyIcon(st)}</span>
+                  {cs.badge && <span className={`story-card-badge ${cs.cls}`}>{cs.badge}</span>}
+                </span>
+                <span className="story-card-title" dir="auto">{st.titleAr || st.title}</span>
+                {cs.cls === 'progress' && <span className="story-card-bar"><span style={{ width: `${cs.pct}%` }} /></span>}
+              </button>
+            )
+          }) : (
+            <p className="stories-empty">{t('لا توجد قصص لهذا المستوى بعد.', 'No stories for this level yet.')}</p>
+          )}
+        </div>
       </div>
 
       {modalStory && (() => {
@@ -282,15 +342,15 @@ export default function ClubStoriesScreen({ lang, storiesByLevel = {}, onClose, 
           <div className="story-modal" dir={isAr ? 'rtl' : 'ltr'}>
             <button className="story-modal-backdrop" aria-label={t('إغلاق', 'Close')} onClick={() => setModalStory(null)} />
             <div className="story-modal-card" role="dialog" aria-modal="true">
-              <span className={`story-modal-thumb lvl-${level}`} aria-hidden="true">{state.completed ? '✓' : '📖'}</span>
+              <span className={`story-modal-thumb lvl-${level}`} aria-hidden="true">{storyIcon(modalStory)}</span>
               <h2 dir="auto">{modalStory.titleAr || modalStory.title}</h2>
               <div className="story-modal-chips">
-                <span className={`story-badge lvl-${level}`}>{level}</span>
+                <span className={`story-badge lvl-${level}`}>{t('المستوى', 'Level')} {level}</span>
                 <span>⏱ {durationMin(modalStory)} {t('دقيقة', 'min')}</span>
                 <span>⚡ {STORY_XP} XP</span>
               </div>
               <div className="story-modal-stats">
-                <div><span>{t('كلمات', 'Words')}</span><strong>{wordsCount(modalStory)}</strong></div>
+                <div><span>{t('مفردات', 'Vocab')}</span><strong>{(modalStory.vocab || []).length}</strong></div>
                 <div><span>{t('قواعد', 'Grammar')}</span><strong>{grammarCount(modalStory)}</strong></div>
                 <div><span>{t('الإكمال', 'Complete')}</span><strong>{pct}%</strong></div>
               </div>
