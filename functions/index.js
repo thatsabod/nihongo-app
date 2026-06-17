@@ -329,10 +329,10 @@ exports.sendAdminBroadcastPush = onCall(
     const image = d.image ? String(d.image).slice(0, 600) : ''
 
     // Collect enabled tokens (collection group), filter by audience in code so
-    // no composite index is required.
+    // no composite index is required. Capture per-token meta for the debug log.
     const snap = await db.collectionGroup('fcmTokens').where('enabled', '==', true).get()
     const wanted = uids.length ? new Set(uids) : null
-    const targets = [] // { token, ref }
+    const targets = [] // { token, ref, platform, enabled, level }
     const ownerSet = new Set()
     snap.forEach((docSnap) => {
       const data = docSnap.data() || {}
@@ -340,38 +340,62 @@ exports.sendAdminBroadcastPush = onCall(
       const ownerUid = docSnap.ref.parent.parent ? docSnap.ref.parent.parent.id : ''
       if (wanted) { if (!wanted.has(ownerUid)) return }
       else if (audience !== 'all' && data.level !== audience) return
-      targets.push({ token: data.token, ref: docSnap.ref })
+      targets.push({ token: data.token, ref: docSnap.ref, platform: data.platform || '', enabled: data.enabled !== false, level: data.level || '' })
       if (ownerUid) ownerSet.add(ownerUid)
     })
 
-    // Base report — returned even when there are zero targets (proof, not "sent").
-    const base = {
-      audience,
-      test,
-      enabledTokensTotal: snap.size, // total enabled tokens across ALL users
-      usersWithTokens: ownerSet.size, // distinct users matched by this audience
-      totalTokens: targets.length,
-      successCount: 0,
-      failureCount: 0,
-      invalidRemoved: 0,
-      errors: {},
-    }
-    if (!targets.length) return base
+    const tokensPreview = targets.slice(0, 12).map((x) => ({
+      head: `${x.token.slice(0, 14)}…${x.token.slice(-6)}`,
+      platform: x.platform, enabled: x.enabled, level: x.level,
+    }))
 
+    // Always write a debug log so failures are inspectable in Firestore.
+    const writeDebug = async (response, errorDetails) => {
+      try {
+        const ref = await db.collection('pushDebugLogs').add({
+          uid, audience, test, tokenCount: targets.length,
+          enabledTokensTotal: snap.size, usersWithTokens: ownerSet.size,
+          tokensPreview, response, errors: (errorDetails || []).slice(0, 12),
+          createdAt: FieldValue.serverTimestamp(),
+        })
+        return ref.id
+      } catch (e) { return `log-failed:${e.code || e.message || ''}` }
+    }
+
+    const base = {
+      audience, test,
+      callerUid: uid,
+      enabledTokensTotal: snap.size,
+      usersWithTokens: ownerSet.size,
+      totalTokens: targets.length,
+      tokensPreview,
+      successCount: 0, failureCount: 0, invalidRemoved: 0, errors: {}, errorDetails: [],
+    }
+    if (!targets.length) {
+      base.debugLogId = await writeDebug({ successCount: 0, failureCount: 0 }, [])
+      return base
+    }
+
+    // Cross-platform payload: include `notification` so iOS Safari PWA + Chrome
+    // display it (data-only is NOT reliably shown on iOS web push). `data` keeps
+    // click routing; fcmOptions.link is the click target.
     const dataPayload = { title, body, icon, image, clickAction, type, tag: `bc-${Date.now()}` }
+    const webpushNotification = { title: title || 'نيهونغو', body: body || '', icon }
+    if (image) webpushNotification.image = image
     const messaging = getMessaging()
     let success = 0
     let failure = 0
     const invalidRefs = []
     const errors = {}
+    const errorDetails = []
 
     for (let i = 0; i < targets.length; i += 500) {
       const chunk = targets.slice(i, i + 500)
-      // Data-only message: the SW renders it (full control, no double notif).
       const res = await messaging.sendEachForMulticast({
         tokens: chunk.map((x) => x.token),
         data: dataPayload,
-        webpush: { fcmOptions: { link: clickAction }, headers: { Urgency: 'high' } },
+        notification: { title: title || 'نيهونغو', body: body || '' },
+        webpush: { notification: webpushNotification, fcmOptions: { link: clickAction }, headers: { Urgency: 'high' } },
         android: { priority: 'high' },
       })
       success += res.successCount
@@ -379,7 +403,9 @@ exports.sendAdminBroadcastPush = onCall(
       res.responses.forEach((r, j) => {
         if (!r.success) {
           const code = (r.error && r.error.code) || 'unknown'
+          const message = (r.error && r.error.message) || ''
           errors[code] = (errors[code] || 0) + 1
+          errorDetails.push({ code, message, platform: chunk[j].platform })
           if (code === 'messaging/registration-token-not-registered'
             || code === 'messaging/invalid-registration-token'
             || code === 'messaging/invalid-argument') {
@@ -389,20 +415,19 @@ exports.sendAdminBroadcastPush = onCall(
       })
     }
 
-    // Prune invalid tokens (batched).
     for (let i = 0; i < invalidRefs.length; i += 400) {
       const batch = db.batch()
       invalidRefs.slice(i, i + 400).forEach((ref) => batch.delete(ref))
       await batch.commit()
     }
 
-    const stats = { ...base, successCount: success, failureCount: failure, invalidRemoved: invalidRefs.length, errors }
+    const stats = { ...base, successCount: success, failureCount: failure, invalidRemoved: invalidRefs.length, errors, errorDetails: errorDetails.slice(0, 12) }
+    stats.debugLogId = await writeDebug({ successCount: success, failureCount: failure }, errorDetails)
 
-    // Record delivery stats on the broadcast doc if one was provided.
     if (d.broadcastId) {
       try {
         await db.doc(`broadcasts/${String(d.broadcastId)}`).set(
-          { pushStats: { ...stats, sentAt: FieldValue.serverTimestamp(), sentBy: uid } },
+          { pushStats: { successCount: success, failureCount: failure, totalTokens: targets.length, invalidRemoved: invalidRefs.length, sentAt: FieldValue.serverTimestamp(), sentBy: uid } },
           { merge: true },
         )
       } catch (e) { /* non-fatal */ }

@@ -459,6 +459,14 @@ Root cause of "push reaches no users": tokens were only saved on a **manual** "e
 - **Must deploy for delivery to work**: `npx --yes firebase-tools deploy --only functions:sendAdminBroadcastPush` (function changed) + push web build to Vercel. If the function isn't deployed, the admin Send/Test shows `functions/not-found`.
 - Verified: build clean; `node --check functions/index.js` OK; app boots clean (title from live config); new strings present in dist (test button, delivery report, push-banner) + function self-test code present. (Isolated cache-bust mounts are unreliable due to firebase re-init — used build+boot+bundle-grep instead.)
 
+### Push hard-debug: exact delivery results + iOS payload fix DONE
+Token existed (iPhone, enabled) but test delivered nothing. Two fixes:
+- **iOS display fix**: `sendAdminBroadcastPush` now sends a **`notification`** payload (top-level + `webpush.notification` + `webpush.fcmOptions.link`) alongside `data` — iOS Safari PWA web push does NOT reliably display **data-only** messages (the old payload). SW `notificationclick` now early-returns for FCM-shown notifications (`data.FCM_MSG`) so FCM's link-routing handles them (no double-open); `onBackgroundMessage` kept for data-only fallback.
+- **Exact diagnostics** (no guessing): the function captures per-token meta (platform/enabled/level/token head…tail), the full `sendEachForMulticast` response, and per-failure `{code, message, platform}`; returns `{callerUid, enabledTokensTotal, usersWithTokens, totalTokens, tokensPreview, successCount, failureCount, invalidRemoved, errors, errorDetails, debugLogId}`. Always writes **`pushDebugLogs/{id}`** `{uid, audience, test, tokenCount, tokensPreview, response, errors, createdAt}` (admin SDK; rule: admin read, write:false). Admin Notifications report now renders uid + log id + each token's platform/enabled + each error code:message.
+- **Must deploy** (function changed): `firebase deploy --only functions:sendAdminBroadcastPush`; push web build to Vercel (new SW + admin report); deploy rules (`pushDebugLogs`).
+- Read results: Admin → الإشعارات → «🔔 إشعار تجريبي لنفسي» report; Firestore `pushDebugLogs`; `firebase functions:log --only sendAdminBroadcastPush`.
+- Verified: build clean; `node --check` OK; app boots clean; diagnostics/payload/SW-guard all present in built output.
+
 ### Gotchas confirmed this session
 - `.env.local` `VITE_ANTHROPIC_API_KEY` = LOCAL dev only (in browser bundle — never deploy with it; prod uses `askSensei` cloud fn). Committed key was screenshot-exposed → rotate.
 - Dialogue/reading: all 75 lessons done (Phase 2). Kanji glosses populated in `src/content/kanjiMeanings.js` (105 N5).

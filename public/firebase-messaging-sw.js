@@ -37,8 +37,12 @@ messaging.onBackgroundMessage((payload) => {
 
 // Click → focus an existing tab (navigate it) or open a new one at the route.
 self.addEventListener('notificationclick', (event) => {
+  const data = event.notification.data || {}
+  // FCM-displayed notifications (notification payload) carry their own click
+  // handling via fcmOptions.link — let the SDK route those to avoid double-open.
+  if (data.FCM_MSG) return
   event.notification.close()
-  const route = (event.notification.data && event.notification.data.clickAction) || '/'
+  const route = data.clickAction || (data.FCM_MSG && data.FCM_MSG.data && data.FCM_MSG.data.clickAction) || '/'
   const target = new URL(route, self.location.origin).href
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {

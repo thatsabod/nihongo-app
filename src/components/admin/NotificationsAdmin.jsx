@@ -87,8 +87,20 @@ export default function NotificationsAdmin({ lang = 'ar', adminHandle = '', onNo
               <span>{t('فشل', 'Failed')}: <strong>{stats.failureCount}</strong></span>
               <span>{t('غير صالحة حُذفت', 'Invalid removed')}: <strong>{stats.invalidRemoved}</strong></span>
             </div>
-            {stats.errors && Object.keys(stats.errors).length > 0 && (
-              <p className="admin-hint" dir="ltr">errors: {Object.entries(stats.errors).map(([k, v]) => `${k}×${v}`).join(', ')}</p>
+            {stats.callerUid && <p className="admin-hint" dir="ltr">uid: {stats.callerUid}{stats.debugLogId ? ` · log: ${stats.debugLogId}` : ''}</p>}
+            {Array.isArray(stats.tokensPreview) && stats.tokensPreview.length > 0 && (
+              <div className="admin-pushreport-tokens">
+                {stats.tokensPreview.map((tok, i) => (
+                  <p key={i} className="admin-hint" dir="ltr">📱 {tok.platform || '?'} · enabled:{String(tok.enabled)}{tok.level ? ` · ${tok.level}` : ''} · {tok.head}</p>
+                ))}
+              </div>
+            )}
+            {Array.isArray(stats.errorDetails) && stats.errorDetails.length > 0 && (
+              <div className="admin-pushreport-errs">
+                {stats.errorDetails.map((e, i) => (
+                  <p key={i} className="admin-hint admin-pusherr" dir="ltr">❌ {e.code}{e.platform ? ` (${e.platform})` : ''}: {e.message}</p>
+                ))}
+              </div>
             )}
             {stats.totalTokens === 0 && <p className="admin-hint">{t('لا توجد رموز لهذا الجمهور — لم يفعّل أحد الإشعارات بعد على جهاز.', 'No tokens for this audience — nobody has enabled push on a device yet.')}</p>}
           </div>
