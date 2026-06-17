@@ -328,21 +328,43 @@ exports.sendAdminBroadcastPush = onCall(
     const icon = String(d.icon || '/favicon.svg').slice(0, 400)
     const image = d.image ? String(d.image).slice(0, 600) : ''
 
-    // Collect enabled tokens (collection group), filter by audience in code so
-    // no composite index is required. Capture per-token meta for the debug log.
-    const snap = await db.collectionGroup('fcmTokens').where('enabled', '==', true).get()
-    const wanted = uids.length ? new Set(uids) : null
+    // Gather enabled tokens. For test/specific targets read each user's OWN
+    // subcollection directly (uses the automatic single-field index — no
+    // collection-group index needed → self-test works immediately). For
+    // all/level use a collection-group query (needs the fcmTokens.enabled
+    // COLLECTION_GROUP index from firestore.indexes.json). Errors are captured
+    // (not thrown) so the client gets a readable report instead of "internal".
     const targets = [] // { token, ref, platform, enabled, level }
     const ownerSet = new Set()
-    snap.forEach((docSnap) => {
+    let enabledTokensTotal = 0
+    let fetchError = null
+    const pushTok = (docSnap, ownerUid) => {
       const data = docSnap.data() || {}
-      if (!data.token) return
-      const ownerUid = docSnap.ref.parent.parent ? docSnap.ref.parent.parent.id : ''
-      if (wanted) { if (!wanted.has(ownerUid)) return }
-      else if (audience !== 'all' && data.level !== audience) return
+      if (!data.token) return false
       targets.push({ token: data.token, ref: docSnap.ref, platform: data.platform || '', enabled: data.enabled !== false, level: data.level || '' })
       if (ownerUid) ownerSet.add(ownerUid)
-    })
+      return true
+    }
+    try {
+      if (uids.length) {
+        for (const targetUid of uids) {
+          const us = await db.collection('users').doc(targetUid).collection('fcmTokens').where('enabled', '==', true).get()
+          enabledTokensTotal += us.size
+          us.forEach((docSnap) => pushTok(docSnap, targetUid))
+        }
+      } else {
+        const snap = await db.collectionGroup('fcmTokens').where('enabled', '==', true).get()
+        enabledTokensTotal = snap.size
+        snap.forEach((docSnap) => {
+          const data = docSnap.data() || {}
+          const ownerUid = docSnap.ref.parent.parent ? docSnap.ref.parent.parent.id : ''
+          if (audience !== 'all' && data.level !== audience) return
+          pushTok(docSnap, ownerUid)
+        })
+      }
+    } catch (e) {
+      fetchError = { code: e.code != null ? String(e.code) : 'fetch-error', message: e.message || String(e) }
+    }
 
     const tokensPreview = targets.slice(0, 12).map((x) => ({
       head: `${x.token.slice(0, 14)}…${x.token.slice(-6)}`,
@@ -354,9 +376,9 @@ exports.sendAdminBroadcastPush = onCall(
       try {
         const ref = await db.collection('pushDebugLogs').add({
           uid, audience, test, tokenCount: targets.length,
-          enabledTokensTotal: snap.size, usersWithTokens: ownerSet.size,
+          enabledTokensTotal, usersWithTokens: ownerSet.size,
           tokensPreview, response, errors: (errorDetails || []).slice(0, 12),
-          createdAt: FieldValue.serverTimestamp(),
+          fetchError, createdAt: FieldValue.serverTimestamp(),
         })
         return ref.id
       } catch (e) { return `log-failed:${e.code || e.message || ''}` }
@@ -365,14 +387,15 @@ exports.sendAdminBroadcastPush = onCall(
     const base = {
       audience, test,
       callerUid: uid,
-      enabledTokensTotal: snap.size,
+      enabledTokensTotal,
       usersWithTokens: ownerSet.size,
       totalTokens: targets.length,
       tokensPreview,
       successCount: 0, failureCount: 0, invalidRemoved: 0, errors: {}, errorDetails: [],
+      error: fetchError,
     }
-    if (!targets.length) {
-      base.debugLogId = await writeDebug({ successCount: 0, failureCount: 0 }, [])
+    if (fetchError || !targets.length) {
+      base.debugLogId = await writeDebug({ successCount: 0, failureCount: 0 }, fetchError ? [fetchError] : [])
       return base
     }
 
@@ -382,6 +405,7 @@ exports.sendAdminBroadcastPush = onCall(
     const dataPayload = { title, body, icon, image, clickAction, type, tag: `bc-${Date.now()}` }
     const webpushNotification = { title: title || 'نيهونغو', body: body || '', icon }
     if (image) webpushNotification.image = image
+    try {
     const messaging = getMessaging()
     let success = 0
     let failure = 0
@@ -434,5 +458,10 @@ exports.sendAdminBroadcastPush = onCall(
     }
 
     return stats
+    } catch (sendErr) {
+      base.error = { code: sendErr.code != null ? String(sendErr.code) : 'send-error', message: sendErr.message || String(sendErr) }
+      base.debugLogId = await writeDebug({ successCount: 0, failureCount: 0 }, [base.error])
+      return base
+    }
   },
 )

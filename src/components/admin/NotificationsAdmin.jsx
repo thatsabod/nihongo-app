@@ -87,6 +87,7 @@ export default function NotificationsAdmin({ lang = 'ar', adminHandle = '', onNo
               <span>{t('فشل', 'Failed')}: <strong>{stats.failureCount}</strong></span>
               <span>{t('غير صالحة حُذفت', 'Invalid removed')}: <strong>{stats.invalidRemoved}</strong></span>
             </div>
+            {stats.error && <p className="admin-hint admin-pusherr" dir="ltr">⚠️ {stats.error.code}: {stats.error.message}</p>}
             {stats.callerUid && <p className="admin-hint" dir="ltr">uid: {stats.callerUid}{stats.debugLogId ? ` · log: ${stats.debugLogId}` : ''}</p>}
             {Array.isArray(stats.tokensPreview) && stats.tokensPreview.length > 0 && (
               <div className="admin-pushreport-tokens">
