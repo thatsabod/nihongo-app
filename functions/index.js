@@ -317,13 +317,14 @@ exports.sendAdminBroadcastPush = onCall(
     if (!(await callerCanBroadcast(uid))) throw new HttpsError('permission-denied', 'Admins only.')
 
     const d = request.data || {}
-    const title = String(d.title || '').slice(0, 120).trim()
-    const body = String(d.body || '').slice(0, 500).trim()
+    const test = d.test === true // self-test: only the caller's own devices
+    const title = String(d.title || (test ? 'إشعار تجريبي' : '')).slice(0, 120).trim()
+    const body = String(d.body || (test ? 'هذا إشعار تجريبي من لوحة التحكم ✅' : '')).slice(0, 500).trim()
     if (!title && !body) throw new HttpsError('invalid-argument', 'Title or body required.')
-    const audience = String(d.audience || 'all') // 'all' | 'N5'..'N1'
-    const uids = Array.isArray(d.uids) ? d.uids.slice(0, 500).map(String) : [] // for 'specific'
+    const audience = test ? 'self' : String(d.audience || 'all') // 'all' | 'N5'..'N1'
+    const uids = test ? [uid] : (Array.isArray(d.uids) ? d.uids.slice(0, 500).map(String) : [])
     const clickAction = String(d.clickAction || '/').slice(0, 300)
-    const type = String(d.type || 'admin_broadcast').slice(0, 60)
+    const type = String(d.type || (test ? 'admin_test' : 'admin_broadcast')).slice(0, 60)
     const icon = String(d.icon || '/favicon.svg').slice(0, 400)
     const image = d.image ? String(d.image).slice(0, 600) : ''
 
@@ -332,6 +333,7 @@ exports.sendAdminBroadcastPush = onCall(
     const snap = await db.collectionGroup('fcmTokens').where('enabled', '==', true).get()
     const wanted = uids.length ? new Set(uids) : null
     const targets = [] // { token, ref }
+    const ownerSet = new Set()
     snap.forEach((docSnap) => {
       const data = docSnap.data() || {}
       if (!data.token) return
@@ -339,20 +341,29 @@ exports.sendAdminBroadcastPush = onCall(
       if (wanted) { if (!wanted.has(ownerUid)) return }
       else if (audience !== 'all' && data.level !== audience) return
       targets.push({ token: data.token, ref: docSnap.ref })
+      if (ownerUid) ownerSet.add(ownerUid)
     })
 
-    if (!targets.length) {
-      return { totalTokens: 0, successCount: 0, failureCount: 0, invalidRemoved: 0 }
+    // Base report — returned even when there are zero targets (proof, not "sent").
+    const base = {
+      audience,
+      test,
+      enabledTokensTotal: snap.size, // total enabled tokens across ALL users
+      usersWithTokens: ownerSet.size, // distinct users matched by this audience
+      totalTokens: targets.length,
+      successCount: 0,
+      failureCount: 0,
+      invalidRemoved: 0,
+      errors: {},
     }
+    if (!targets.length) return base
 
-    const dataPayload = {
-      title, body, icon, image, clickAction, type,
-      tag: `bc-${Date.now()}`,
-    }
+    const dataPayload = { title, body, icon, image, clickAction, type, tag: `bc-${Date.now()}` }
     const messaging = getMessaging()
     let success = 0
     let failure = 0
     const invalidRefs = []
+    const errors = {}
 
     for (let i = 0; i < targets.length; i += 500) {
       const chunk = targets.slice(i, i + 500)
@@ -360,17 +371,15 @@ exports.sendAdminBroadcastPush = onCall(
       const res = await messaging.sendEachForMulticast({
         tokens: chunk.map((x) => x.token),
         data: dataPayload,
-        webpush: {
-          fcmOptions: { link: clickAction },
-          headers: { Urgency: 'high' },
-        },
+        webpush: { fcmOptions: { link: clickAction }, headers: { Urgency: 'high' } },
         android: { priority: 'high' },
       })
       success += res.successCount
       failure += res.failureCount
       res.responses.forEach((r, j) => {
         if (!r.success) {
-          const code = r.error && r.error.code
+          const code = (r.error && r.error.code) || 'unknown'
+          errors[code] = (errors[code] || 0) + 1
           if (code === 'messaging/registration-token-not-registered'
             || code === 'messaging/invalid-registration-token'
             || code === 'messaging/invalid-argument') {
@@ -387,12 +396,7 @@ exports.sendAdminBroadcastPush = onCall(
       await batch.commit()
     }
 
-    const stats = {
-      totalTokens: targets.length,
-      successCount: success,
-      failureCount: failure,
-      invalidRemoved: invalidRefs.length,
-    }
+    const stats = { ...base, successCount: success, failureCount: failure, invalidRemoved: invalidRefs.length, errors }
 
     // Record delivery stats on the broadcast doc if one was provided.
     if (d.broadcastId) {

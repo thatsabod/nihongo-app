@@ -39,6 +39,15 @@ export default function NotificationsAdmin({ lang = 'ar', adminHandle = '', onNo
       setForm({ ...form, title: '', body: '', image: '' })
     } catch (e) { onNotice?.(`${t('تعذر الإرسال.', 'Send failed.')} ${e.code || e.message || ''}`) } finally { setBusy(false) }
   }
+  // Self-test: push only to the calling admin's own devices, with full report.
+  const sendTest = async () => {
+    setBusy(true); setStats(null)
+    try {
+      const res = await httpsCallable(functions, 'sendAdminBroadcastPush')({ test: true })
+      setStats(res.data || null)
+      onNotice?.(t('تم إرسال إشعار تجريبي.', 'Test push sent.'))
+    } catch (e) { onNotice?.(`${t('فشل الإرسال التجريبي.', 'Test failed.')} ${e.code || e.message || ''}`) } finally { setBusy(false) }
+  }
   const toggle = async (b) => { try { await saveBroadcast(b.id, { active: b.active === false }, adminHandle) } catch (e) { onNotice?.(e.code || '') } }
   const remove = async (b) => { try { await deleteBroadcast(b.id); onNotice?.(t('تم الحذف.', 'Deleted.')) } catch (e) { onNotice?.(e.code || '') } }
 
@@ -63,11 +72,28 @@ export default function NotificationsAdmin({ lang = 'ar', adminHandle = '', onNo
           <label><span>{t('جدولة (ISO، للداخلي)', 'Schedule (ISO, in-app)')}</span><input dir="ltr" placeholder="2026-12-31T09:00" value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })} /></label>
         </div>
         <label><span>{t('صورة (رابط، اختياري)', 'Image URL (optional)')}</span><input dir="ltr" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} /></label>
-        <button className="admin-primary" onClick={send} disabled={busy}>{busy ? t('جاري...', 'Sending...') : (form.scheduledAt && form.mode !== 'push' ? t('جدولة', 'Schedule') : t('إرسال', 'Send'))}</button>
+        <div className="admin-actions">
+          <button className="admin-secondary" onClick={sendTest} disabled={busy}>{t('🔔 إشعار تجريبي لنفسي', '🔔 Test push to myself')}</button>
+          <button className="admin-primary" onClick={send} disabled={busy}>{busy ? t('جاري...', 'Sending...') : (form.scheduledAt && form.mode !== 'push' ? t('جدولة', 'Schedule') : t('إرسال', 'Send'))}</button>
+        </div>
         {stats && (
-          <p className="admin-hint">{t('نتيجة Push:', 'Push result:')} {t('أجهزة', 'devices')} {stats.totalTokens} · {t('نجح', 'sent')} {stats.successCount} · {t('فشل', 'failed')} {stats.failureCount} · {t('حُذفت رموز غير صالحة', 'invalid removed')} {stats.invalidRemoved}</p>
+          <div className="admin-pushreport">
+            <h4>{t('تقرير التسليم', 'Delivery report')}{stats.test ? ` · ${t('اختبار', 'test')}` : ''}</h4>
+            <div className="admin-pushreport-grid">
+              <span>{t('رموز مفعّلة (الكل)', 'Enabled tokens (all)')}: <strong>{stats.enabledTokensTotal ?? '—'}</strong></span>
+              <span>{t('مستخدمون مستهدَفون', 'Users targeted')}: <strong>{stats.usersWithTokens ?? '—'}</strong></span>
+              <span>{t('رموز هذه الرسالة', 'Tokens this send')}: <strong>{stats.totalTokens}</strong></span>
+              <span>{t('نجح', 'Sent OK')}: <strong>{stats.successCount}</strong></span>
+              <span>{t('فشل', 'Failed')}: <strong>{stats.failureCount}</strong></span>
+              <span>{t('غير صالحة حُذفت', 'Invalid removed')}: <strong>{stats.invalidRemoved}</strong></span>
+            </div>
+            {stats.errors && Object.keys(stats.errors).length > 0 && (
+              <p className="admin-hint" dir="ltr">errors: {Object.entries(stats.errors).map(([k, v]) => `${k}×${v}`).join(', ')}</p>
+            )}
+            {stats.totalTokens === 0 && <p className="admin-hint">{t('لا توجد رموز لهذا الجمهور — لم يفعّل أحد الإشعارات بعد على جهاز.', 'No tokens for this audience — nobody has enabled push on a device yet.')}</p>}
+          </div>
         )}
-        <p className="admin-hint">{t('ملاحظة: الجدولة تخص الإشعار داخل التطبيق؛ Push يُرسل فورًا.', 'Note: scheduling applies to in-app; push sends immediately.')}</p>
+        <p className="admin-hint">{t('ملاحظة: الجدولة تخص الإشعار داخل التطبيق؛ Push يُرسل فورًا. جرّب «إشعار تجريبي لنفسي» أولًا.', 'Note: scheduling applies to in-app; push sends immediately. Try “Test push to myself” first.')}</p>
       </div>
 
       <h3 className="admin-fieldlabel">{t('المرسلة / المجدولة', 'Sent / scheduled')}</h3>

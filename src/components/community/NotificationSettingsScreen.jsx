@@ -9,7 +9,7 @@ const OPTIONS = [
 ]
 
 // Simple notification preferences (persisted locally). Toggle switches.
-export default function NotificationSettingsScreen({ lang, settings, onToggle, onBack }) {
+export default function NotificationSettingsScreen({ lang, settings, onToggle, onBack, extra = null }) {
   const isAr = lang === 'ar'
   return (
     <section className="cm-screen">
@@ -18,6 +18,7 @@ export default function NotificationSettingsScreen({ lang, settings, onToggle, o
         <h1>{isAr ? 'إعدادات الإشعارات' : 'Notification settings'}</h1>
         <span className="cm-screen-head-spacer" />
       </header>
+      {extra && <div className="cm-settings-extra">{extra}</div>}
       <div className="cm-settings-list">
         {OPTIONS.map((opt) => {
           const on = settings[opt.key] !== false

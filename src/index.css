@@ -7744,6 +7744,29 @@ button.admin-listrow { cursor: pointer; }
 .push-actions { display: flex; gap: 8px; }
 .push-actions .btn { flex: 1; }
 
+/* Auto-setup prompt banner (small, dismissible) */
+.push-banner {
+  position: sticky; bottom: 70px; z-index: 40; margin: 10px 14px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--border)); border-radius: 16px;
+  background: color-mix(in srgb, var(--primary) 12%, var(--panel)); box-shadow: var(--shadow);
+  animation: story-bubble-in 0.25s ease-out;
+}
+.push-banner-text { flex: 1; min-width: 160px; font-size: 0.9rem; font-weight: 700; }
+.push-banner-actions { display: flex; align-items: center; gap: 8px; }
+.push-banner-on { padding: 7px 18px; border-radius: 999px; font-weight: 800; }
+.push-banner-later { border: 0; background: none; color: var(--muted); font: inherit; cursor: pointer; padding: 7px 6px; }
+/* Account status badge on the Notifications row */
+.settings-entry-status { font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 999px; margin-inline-start: auto; background: color-mix(in srgb, var(--muted) 20%, var(--panel)); color: var(--muted); }
+.settings-entry-status.push-granted { background: color-mix(in srgb, #16a34a 22%, var(--panel)); color: #16a34a; }
+.settings-entry-status.push-denied { background: color-mix(in srgb, #ef4444 20%, var(--panel)); color: #ef4444; }
+.cm-settings-extra { padding: 0 14px 8px; }
+/* Admin delivery report */
+.admin-pushreport { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: color-mix(in srgb, var(--border) 18%, transparent); }
+.admin-pushreport h4 { margin: 0 0 8px; font-size: 0.95rem; }
+.admin-pushreport-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 0.85rem; color: var(--muted); }
+.admin-pushreport-grid strong { color: var(--text); }
+
 /* ── Post type badge ───────────────────────────────────────────────────────── */
 .cm-type-badge {
   display: inline-block; margin: 0 0 6px; padding: 3px 10px; border-radius: 999px;

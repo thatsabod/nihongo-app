@@ -38,6 +38,8 @@ import useCustomVocab from './hooks/useCustomVocab.js'
 import useBroadcasts, { pickBroadcast, markBroadcastSeen } from './hooks/useBroadcasts.js'
 import { onForegroundMessage } from './firebase/messaging.js'
 import PushSettings from './components/PushSettings.jsx'
+import PushAutoSetup from './components/PushAutoSetup.jsx'
+import { permissionState as pushPermissionState } from './firebase/messaging.js'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
 import { deriveLessonSections, totalLessonMinutes } from './content/lessonSections.js'
 import LessonSectionPath from './components/lesson/LessonSectionPath.jsx'
@@ -2008,7 +2010,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     )
   }
   if (communityView === 'notif-settings') {
-    return <NotificationSettingsScreen lang={lang} settings={notifSettings} onToggle={toggleNotifSetting} onBack={() => setCommunityView('notifications')} />
+    return <NotificationSettingsScreen lang={lang} settings={notifSettings} onToggle={toggleNotifSetting} onBack={() => setCommunityView('notifications')} extra={!isGuest ? <PushSettings uid={userId} level={currentLevel} lang={lang} /> : null} />
   }
 
   return (
@@ -4159,10 +4161,16 @@ export default function App() {
             </button>
             <button className="settings-entry" onClick={() => { setTab('community'); setCommunityView('notif-settings') }}>
               <IconCircle name="notifications" size={44} />
-              <strong>{lang === 'ar' ? 'إعدادات الإشعارات' : 'Notification settings'}</strong>
+              <strong>{lang === 'ar' ? 'الإشعارات' : 'Notifications'}</strong>
+              {!isGuest && (() => {
+                const p = pushPermissionState()
+                const label = p === 'granted' ? (lang === 'ar' ? 'مفعّلة' : 'On')
+                  : p === 'denied' ? (lang === 'ar' ? 'محظورة' : 'Blocked')
+                    : (lang === 'ar' ? 'تحتاج تفعيل' : 'Enable')
+                return <span className={`settings-entry-status push-${p}`}>{label}</span>
+              })()}
               <small>›</small>
             </button>
-            {!isGuest && <PushSettings uid={userId} level={currentLevel} lang={lang} />}
             <button className="settings-entry" onClick={() => setScreen('settings')}>
               <IconCircle name="settings" size={44} />
               <strong>{t.settings}</strong>
@@ -4207,6 +4215,8 @@ export default function App() {
           </span>
         </button>
       )}
+
+      {!isGuest && <PushAutoSetup uid={userId} level={currentLevel} lang={lang} />}
 
       {!inCommunityScreen && (
       <nav className="bottom-nav">
