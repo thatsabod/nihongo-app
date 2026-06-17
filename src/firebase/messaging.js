@@ -42,6 +42,16 @@ export function permissionState() {
 
 export function vapidConfigured() { return Boolean(VAPID_KEY) }
 
+// Local "registered on this device" flag — lets the app treat push as enabled
+// without re-prompting. Source of truth is still Notification.permission.
+const LOCAL_ENABLED_KEY = 'nihongo-push-enabled'
+export function pushLocallyEnabled() {
+  try { return localStorage.getItem(LOCAL_ENABLED_KEY) === '1' } catch { return false }
+}
+function setLocalEnabled(on) {
+  try { if (on) localStorage.setItem(LOCAL_ENABLED_KEY, '1'); else localStorage.removeItem(LOCAL_ENABLED_KEY) } catch { /* ignore */ }
+}
+
 async function getMessagingInstance() {
   if (messagingInstance) return messagingInstance
   if (!(await pushSupported())) return null
@@ -96,6 +106,7 @@ export async function enablePush(uid, { level = '' } = {}) {
     }, { merge: true })
   } catch { return { ok: false, status: 'save-error', token } }
 
+  setLocalEnabled(true)
   return { ok: true, status: 'granted', token }
 }
 
@@ -110,6 +121,7 @@ export async function disablePush(uid) {
       await setDoc(doc(db, 'users', uid, 'fcmTokens', tokenDocId(token)), { enabled: false, lastSeenAt: serverTimestamp() }, { merge: true })
       await deleteToken(messaging).catch(() => {})
     }
+    setLocalEnabled(false)
     return { ok: true }
   } catch { return { ok: false } }
 }

@@ -37,7 +37,7 @@ import useStoryOverrides, { mergeStoryOverrides } from './hooks/useStoryOverride
 import useCustomVocab from './hooks/useCustomVocab.js'
 import useBroadcasts, { pickBroadcast, markBroadcastSeen } from './hooks/useBroadcasts.js'
 import { onForegroundMessage } from './firebase/messaging.js'
-import PushSettings from './components/PushSettings.jsx'
+import PushStatusRow from './components/PushStatusRow.jsx'
 import PushAutoSetup from './components/PushAutoSetup.jsx'
 import { permissionState as pushPermissionState } from './firebase/messaging.js'
 import { evaluateAchievements, countUnlocked } from './progress/achievements.js'
@@ -2010,7 +2010,7 @@ function CommunityHub({ lang, userId, isGuest, userName, userHandle, xp, streak,
     )
   }
   if (communityView === 'notif-settings') {
-    return <NotificationSettingsScreen lang={lang} settings={notifSettings} onToggle={toggleNotifSetting} onBack={() => setCommunityView('notifications')} extra={!isGuest ? <PushSettings uid={userId} level={currentLevel} lang={lang} /> : null} />
+    return <NotificationSettingsScreen lang={lang} settings={notifSettings} onToggle={toggleNotifSetting} onBack={() => setCommunityView('notifications')} extra={!isGuest ? <PushStatusRow lang={lang} /> : null} />
   }
 
   return (

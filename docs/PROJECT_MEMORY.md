@@ -467,7 +467,24 @@ Token existed (iPhone, enabled) but test delivered nothing. Two fixes:
 - Read results: Admin → الإشعارات → «🔔 إشعار تجريبي لنفسي» report; Firestore `pushDebugLogs`; `firebase functions:log --only sendAdminBroadcastPush`.
 - Verified: build clean; `node --check` OK; app boots clean; diagnostics/payload/SW-guard all present in built output.
 
+### Push UX cleanup — manual card removed, registration auto+persistent DONE
+The "asks again" bug was the manual `PushSettings` card in Notification Settings: it showed «تفعيل على هذا الجهاز» whenever `enabledHere` was false, and `enabledHere` is React state reset to false on every mount → looked like a fresh prompt each visit even though the token was saved & permission granted.
+- **Deleted** `src/components/PushSettings.jsx` (the big purple manual card).
+- **Added** `src/components/PushStatusRow.jsx` — read-only row «الإشعارات الخارجية: مفعّلة / محظورة من المتصفح / غير مدعومة / تظهر تلقائيًا». No button. Wired as `extra` of `NotificationSettingsScreen` (App.jsx ~2013).
+- Registration stays **automatic + persistent** via `PushAutoSetup` (mounted for signed-in users): permission granted → silent `enablePush` (reuses cached FCM token, merges `enabled:true` + `lastSeenAt`); permission default → one small weekly-dismissible banner (تفعيل / لاحقاً); denied → nothing (status row shows blocked).
+- `messaging.js`: added `pushLocallyEnabled()` + `nihongo-push-enabled` localStorage flag (set on enable success, cleared on disable) = "mark enabled locally". Source of truth remains `Notification.permission`.
+- Admin push sending + FCM tokens + notification prefs all untouched. Build clean; pushed to Vercel.
+
+### Push functions/internal fixed (collection-group index) DONE + DEPLOYED
+Live function logs showed the exact cause: `collectionGroup('fcmTokens').where('enabled','==',true)` → **`9 FAILED_PRECONDITION: requires a COLLECTION_GROUP_ASC index for collection fcmTokens, field enabled`** → unhandled → client `functions/internal`. (Admin SDK/init/payload/send were all fine; never reached send.) Fixes in `functions/index.js` `sendAdminBroadcastPush`:
+- **Index-free self-test**: when `uids` present (test/specific) it reads each `users/{uid}/fcmTokens` subcollection **directly** (automatic single-field index — no CG index) → self-test works immediately. Broadcast (all/level) still uses the collection-group query.
+- **Index added**: `firestore.indexes.json` (`fcmTokens.enabled` COLLECTION + COLLECTION_GROUP) + wired `firestore.indexes.json` into `firebase.json`.
+- **Error capture**: fetch + send wrapped in try/catch → returns readable `{error:{code,message}}` (+ writes `pushDebugLogs`, +`fetchError`) instead of `functions/internal`; admin report renders `stats.error`.
+- **firebase-tools is authenticated in this env** (`functions:log` + `deploy` both work). Deployed this turn: `firebase deploy --only functions:sendAdminBroadcastPush,firestore:indexes,firestore:rules` → all succeeded (function "Successful update operation", indexes deployed, rules released). Web pushed to Vercel (commit 8233ee7).
+- Verify: Admin → الإشعارات → «🔔 إشعار تجريبي لنفسي» (self-test, index-free) → expect successCount≥1; `firebase functions:log --only sendAdminBroadcastPush -n 20`; `pushDebugLogs` newest doc.
+
 ### Gotchas confirmed this session
+- Firestore **collection-group** queries need an explicit COLLECTION_GROUP single-field index (auto single-field indexes are collection-scoped only) — or read the subcollection directly to avoid it.
 - `.env.local` `VITE_ANTHROPIC_API_KEY` = LOCAL dev only (in browser bundle — never deploy with it; prod uses `askSensei` cloud fn). Committed key was screenshot-exposed → rotate.
 - Dialogue/reading: all 75 lessons done (Phase 2). Kanji glosses populated in `src/content/kanjiMeanings.js` (105 N5).
 - SRS itemType partitions vocab/grammar/kanji + synthetic `mistake` (per-exercise pseudo-items) + `speaking` (Phase D call corrections, carry self-contained `data` payload) — exclude `mistake`/`speaking` from per-skill stats. Bucket by `record.itemType`, not by splitting the `${itemType}:${itemId}` key (itemIds can contain colons).

@@ -7761,6 +7761,8 @@ button.admin-listrow { cursor: pointer; }
 .settings-entry-status.push-granted { background: color-mix(in srgb, #16a34a 22%, var(--panel)); color: #16a34a; }
 .settings-entry-status.push-denied { background: color-mix(in srgb, #ef4444 20%, var(--panel)); color: #ef4444; }
 .cm-settings-extra { padding: 0 14px 8px; }
+.push-statusrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: color-mix(in srgb, var(--border) 14%, transparent); }
+.push-statusrow-label { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
 /* Admin delivery report */
 .admin-pushreport { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: color-mix(in srgb, var(--border) 18%, transparent); }
 .admin-pushreport h4 { margin: 0 0 8px; font-size: 0.95rem; }
