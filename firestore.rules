@@ -100,13 +100,17 @@ service cloud.firestore {
     match /communityQuestions/{questionId} {
       allow read: if true;
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if signedIn() && resource.data.userId == request.auth.uid;
+      // Author edits/soft-deletes own post; admin/owner moderates (hide) any post.
+      allow update, delete: if signedIn()
+        && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
     match /communityQuestionReplies/{replyId} {
       allow read: if true;
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if signedIn() && resource.data.userId == request.auth.uid;
+      // Author edits/soft-deletes own reply; admin/owner moderates any reply.
+      allow update, delete: if signedIn()
+        && (resource.data.userId == request.auth.uid || isAdmin());
     }
 
     match /communityQuestionLikes/{likeId} {
@@ -129,7 +133,9 @@ service cloud.firestore {
 
     match /communityReports/{reportId} {
       allow create: if signedIn() && request.resource.data.reporterId == request.auth.uid;
-      allow read, update, delete: if false;
+      // Admins/moderators read + resolve reports (Community Moderation module); no delete.
+      allow read, update: if canManageBroadcasts();
+      allow delete: if false;
     }
 
     match /studyGroupJoins/{joinId} {
@@ -183,6 +189,23 @@ service cloud.firestore {
     match /pushDebugLogs/{logId} {
       allow read: if isAdmin();
       allow write: if false;
+    }
+
+    // Exercises CMS overrides (admin Exercises module) — public read, admin write.
+    match /exerciseOverrides/{exerciseId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Media Library metadata (admin Media module) — admin read + write only.
+    match /mediaLibrary/{mediaId} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
+    // Admin backups (Backup & Restore module) — admin read + create; no client delete.
+    match /adminBackups/{backupId} {
+      allow read, create: if isAdmin();
+      allow update, delete: if false;
     }
 
     match /callSessions/{sessionId} {
