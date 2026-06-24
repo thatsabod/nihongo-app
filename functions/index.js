@@ -7,6 +7,7 @@
 // quota in Firestore, calls Anthropic, and returns the text.
 
 const { onCall, onRequest, HttpsError } = require('firebase-functions/v2/https')
+const { onSchedule } = require('firebase-functions/v2/scheduler')
 const { defineSecret } = require('firebase-functions/params')
 const { initializeApp } = require('firebase-admin/app')
 const { getAuth } = require('firebase-admin/auth')
@@ -463,5 +464,105 @@ exports.sendAdminBroadcastPush = onCall(
       base.debugLogId = await writeDebug({ successCount: 0, failureCount: 0 }, [base.error])
       return base
     }
+  },
+)
+
+// ── Homework reminders — scheduled push every hour ────────────────────────────
+// Finds pending homeworkSubmissions and, if the last reminder is missing or older
+// than 12h, writes a ROUTABLE in-app notification + sends FCM (data payload the
+// Flutter NotificationRouteResolver understands) to the student's enabled tokens,
+// then bumps lastReminderAt/reminderCount. Skips completed/submitted submissions
+// (status query) and closed/archived homework (assignment status). Each row is
+// isolated in try/catch so one failure never crashes the batch. No secrets —
+// admin SDK only (FCM + Firestore).
+const HOMEWORK_REMINDER_MS = 12 * 60 * 60 * 1000
+
+exports.homeworkReminders = onSchedule(
+  { schedule: 'every 60 minutes', region: 'us-central1', timeoutSeconds: 300, memory: '256MiB' },
+  async () => {
+    const now = Date.now()
+    const snap = await db.collection('homeworkSubmissions').where('status', '==', 'pending').get()
+    const assignmentActive = {} // homeworkId -> bool (cache to avoid duplicate reads)
+    let reminded = 0
+
+    for (const doc of snap.docs) {
+      try {
+        const s = doc.data() || {}
+        if (!s.studentId) continue
+        const last = s.lastReminderAt && typeof s.lastReminderAt.toMillis === 'function' ? s.lastReminderAt.toMillis() : 0
+        if (now - last < HOMEWORK_REMINDER_MS) continue // do not spam — 12h gap
+
+        // Skip if the parent homework is closed/archived (missing assignment → keep going).
+        const hwId = s.homeworkId || ''
+        if (hwId) {
+          if (!(hwId in assignmentActive)) {
+            try {
+              const hw = await db.collection('homeworkAssignments').doc(hwId).get()
+              assignmentActive[hwId] = hw.exists ? ((hw.data() || {}).status || 'active') === 'active' : true
+            } catch (_) { assignmentActive[hwId] = true }
+          }
+          if (!assignmentActive[hwId]) continue
+        }
+
+        const submissionId = doc.id
+        const title = s.title || 'الواجب'
+        // Lesson homework → carry lessonId so the app can open «اختبار الإتقان».
+        const isLesson = s.targetType === 'lesson' && !!s.targetId
+        const lessonId = isLesson ? String(s.targetId) : ''
+
+        // In-app notification — same routable shape the Flutter client writes
+        // (type/targetType/targetId/secondaryTargetId[/lessonId]); legacy homeworkId kept.
+        try {
+          await db.collection('notifications').add({
+            toId: s.studentId,
+            fromId: s.teacherId || s.studentId,
+            type: 'homework_reminder',
+            text: `كمّل واجب «${title}» قبل الموعد`,
+            homeworkId: hwId,
+            targetType: 'homework',
+            targetId: hwId,
+            secondaryTargetId: submissionId,
+            ...(isLesson ? { lessonId } : {}),
+            read: false,
+            createdAt: FieldValue.serverTimestamp(),
+          })
+        } catch (e) { console.error('homeworkReminders notif failed', submissionId, e) }
+
+        // FCM push to the student's ENABLED tokens (token = doc id, same convention).
+        // Data payload mirrors the in-app routing keys (all strings) so push-tap routes.
+        try {
+          const toks = await db.collection('users').doc(s.studentId).collection('fcmTokens').where('enabled', '==', true).get()
+          const tokens = toks.docs.map((d) => d.id).filter(Boolean)
+          if (tokens.length) {
+            await getMessaging().sendEachForMulticast({
+              tokens,
+              notification: { title: 'تذكير واجب', body: `كمّل واجب «${title}» قبل الموعد` },
+              data: {
+                type: 'homework_reminder',
+                targetType: 'homework',
+                targetId: String(hwId),
+                secondaryTargetId: String(submissionId),
+                homeworkId: String(hwId),
+                submissionId: String(submissionId),
+                ...(isLesson ? { lessonId } : {}),
+                clickAction: '/',
+              },
+            })
+          }
+        } catch (e) { console.error('homeworkReminders push failed', submissionId, e) }
+
+        // Bump so it won't fire again before 12h.
+        await doc.ref.set({
+          lastReminderAt: FieldValue.serverTimestamp(),
+          reminderCount: (s.reminderCount || 0) + 1,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true })
+        reminded++
+      } catch (e) {
+        console.error('homeworkReminders row failed', doc.id, e) // never crash the batch
+      }
+    }
+
+    console.log(`homeworkReminders: processed ${snap.size} pending, reminded ${reminded}`)
   },
 )
