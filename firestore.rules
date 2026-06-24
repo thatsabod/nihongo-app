@@ -52,6 +52,14 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // Placement test attempt history — owner reads/creates own; admin reads all.
+    // Immutable once written. No public access, no broad loosening.
+    match /users/{userId}/placementAttempts/{attemptId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update, delete: if false;
+    }
+
     match /usernames/{username} {
       allow read: if true;
       allow create, update, delete: if signedIn() && request.resource.data.uid == request.auth.uid;
